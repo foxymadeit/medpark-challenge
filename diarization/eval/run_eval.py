@@ -114,7 +114,11 @@ def main():
     ap.add_argument("--final", default="refine", choices=["recluster", "refine", "none"])
     ap.add_argument("--cluster", type=float, default=0.5)
     ap.add_argument("--backend", help="trained backend .npz applied to embeddings")
+    ap.add_argument("--data", type=Path, help="folder of <meeting>.<kind>.wav/.flac + .rttm + .uem (default data/ami)")
     a = ap.parse_args()
+    if a.data:
+        global DATA
+        DATA = a.data.resolve()
 
     backend = Backend.load(a.backend) if a.backend else None
     cached = {m: project(observe(m, a.kind, a.embedder, a.latency), backend) for m in a.meetings}

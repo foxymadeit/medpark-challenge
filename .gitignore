@@ -13,3 +13,5 @@ data/team/
 data/ami/*.wav
 diarization/eval/cache/
 diarization/voices/
+# mixed-language test meetings, rebuilt by eval/make_mix.py
+data/mix/

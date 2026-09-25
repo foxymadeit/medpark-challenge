@@ -112,6 +112,9 @@ def main():
     ap.add_argument("--out", default="nemo_en_titanet_small_ft.onnx")
     ap.add_argument("--smoke", action="store_true", help="one batch, to test the config and export in a minute")
     ap.add_argument("--progress", help="JSON file to keep updated with step, loss and ETA")
+    ap.add_argument("--rir-manifest", help="room impulse responses to convolve training pieces with")
+    ap.add_argument("--noise-manifest", help="noises to mix into training pieces")
+    ap.add_argument("--aug-prob", type=float, default=0.3, help="chance of each augmentation per piece")
     a = ap.parse_args()
     gpu = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "none"
     print(f"torch {torch.__version__}, CUDA {torch.version.cuda}, GPU {gpu}, NeMo {nemo.__version__}, "
@@ -126,6 +129,13 @@ def main():
             cfg[split].batch_size = a.batch
             cfg[split].shuffle = shuffle
             cfg[split].pop("augmentor", None)  # points at noise files on NVIDIA's own cluster
+        aug = {}
+        if a.noise_manifest:
+            aug["noise"] = {"manifest_path": a.noise_manifest, "prob": a.aug_prob, "min_snr_db": 5, "max_snr_db": 20}
+        if a.rir_manifest:
+            aug["impulse"] = {"manifest_path": a.rir_manifest, "prob": a.aug_prob}
+        if aug:
+            cfg.train_ds.augmentor = aug
         cfg.decoder.num_classes = len(labels)
         cfg.optim.lr = a.lr
 
