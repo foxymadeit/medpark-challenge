@@ -1,0 +1,13 @@
+services:
+  mailpit:
+    image: axllent/mailpit@sha256:74d609a42ec279aa63c6b4622a6fa9b5408d1ad5b1d76a1c4be40a265ce0863d
+    restart: unless-stopped
+    ports:
+      - target: 1025
+        published: "1025"
+        host_ip: 127.0.0.1
+        protocol: tcp
+      - target: 8025
+        published: "8025"
+        host_ip: 127.0.0.1
+        protocol: tcp
