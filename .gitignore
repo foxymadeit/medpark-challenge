@@ -2,7 +2,13 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-diarization/models/
+diarization/models/*
+!diarization/models/segmentation-3.0.onnx
+!diarization/models/wespeaker_en_voxceleb_CAM++_LM.onnx
+!diarization/models/NOTICE.md
 sessions/
 data/team/
 .DS_Store
+data/ami/
+diarization/eval/cache/
+diarization/voices/
