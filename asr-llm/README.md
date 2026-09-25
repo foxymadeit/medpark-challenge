@@ -1,53 +1,78 @@
 # ASR + local LLM (reference hardware)
 
-Target machine from the brief: **one 16 GB GPU**, or **CPU-only 32 GB RAM**.
+Target: **one 16 GB GPU**, or **CPU 32 GB RAM**. Runtime: **no internet**.
 
-**No internet, ever.** Nothing in this package downloads anything — not at runtime, not on first run. Model files are copied into `models/` by hand (USB stick or an internal mirror). If a file is missing, the pipeline stops with an error instead of reaching for a hub.
+Diarization and n8n are other people's slices.
 
-This package does not do diarization or n8n.
-
-## How offline is enforced
-
-- `enforce_offline()` runs on import and pins `HF_HUB_OFFLINE` / `TRANSFORMERS_OFFLINE`, so the model libraries never treat a path as a repo id.
-- `block_outbound()` runs in the CLI and the API: any non-loopback connection raises `OSError`.
-- `require_local_path()` refuses to start unless the weights are already on disk.
-- `tests/test_offline.py` blocks sockets and proves the pipeline helpers still work.
-
-## Two pieces
-
-1. `transcribe_audio` — VAD → 30s batches → faster-whisper from `models/whisper/`
-2. `write_minutes` — llama.cpp GGUF from `models/llm/` after Whisper is unloaded
-
-Sequential on purpose so both fit in 16 GB.
-
-## Models (copied in, never fetched)
+## How the process runs
 
 ```
-asr-llm/models/whisper/          # faster-whisper large-v3-turbo directory
+audio (or a ready transcript JSON)
+        │
+        ▼
+ 1. ffmpeg → 16 kHz mono
+ 2. energy VAD → speech spans
+ 3. pack into ≤15 s batches          ← language-agnostic, no 3-model router
+ 4. faster-whisper large-v3           ← NO glossary, NO hotwords (v2 settings)
+ 5. unload Whisper
+        │
+        ▼
+ 6. retrieve ~24 glossary rows        ← numpy search over medical_ro_ru_en.json
+    that look like this transcript
+        │
+        ▼
+ 7. local LLM (GGUF)                  ← summary + action items + term normalize
+ 8. JSON minutes
+```
+
+Whisper never sees the dictionary. The LLM sees a **subset** retrieved from the frozen JSON. Nothing is trained on the Medpark sample.
+
+Two ways in:
+
+- **Full:** audio file → steps 1–8 (needs Whisper weights + GGUF, CUDA if available).
+- **Skip ASR:** `--from-transcript transcript_v2.json` → steps 6–8 (needs GGUF only). Use this for the Kaggle v2 text.
+
+`--preview-glossary` stops after step 6: prints the retrieved table, no LLM.
+
+## Models (copy in by hand, or one-time fetch while you still have internet)
+
+```
+asr-llm/models/whisper/                         # Systran faster-whisper large-v3
 asr-llm/models/llm/qwen2.5-7b-instruct-q4_k_m.gguf
 ```
 
-7B Q4 is the default so CPU-32GB and 16GB GPU both work. Swap the GGUF path later if 14B fits after ASR unload.
+```bash
+python scripts/fetch_qwen.py    # Qwen/Qwen2.5-7B-Instruct-GGUF, q4_k_m, ~4.7 GB
+```
 
-## Glossary
+## Canary check (Kaggle T4, not the Mac)
 
-`data/medical_ro_ru_en.json` ships with the repo — aligned RO/RU/EN terms. Whisper gets a short `hotwords` slice, the LLM gets the aligned table. See `data/SOURCES.md`.
+Whisper v2 stays the frozen baseline. Canary-1B-v2 is a second ASR pass on the
+same audio. Weights download on Kaggle (Internet ON, GPU T4). Paste
+`scripts/kaggle_canary_bench.py` into one cell. It writes
+`/kaggle/working/transcript_canary.json` in the same shape as the Whisper bench.
+Canary is told `source_lang=ro` (transcribe, not translate); Russian and English
+stretches may lose to Whisper.
 
 ## Run
 
 ```bash
 cd asr-llm
 pip install -e ".[asr,llm,dev]"
-python -m asr_llm.cli ../data/Medpark_audio.m4a --skip-llm --out /tmp/transcript.json
+
+# See which terms the retriever picks (no GPU LLM required)
+python -m asr_llm.cli --from-transcript ~/Downloads/transcript_v2.json --preview-glossary
+
+# Minutes from the Kaggle v2 transcript
+python -m asr_llm.cli --from-transcript ~/Downloads/transcript_v2.json \
+  --meeting-type medical --out /tmp/mom.json
+
+# Full local audio path (slow on M4 CPU, fine on NVIDIA 16 GB)
 python -m asr_llm.cli ../data/Medpark_audio.m4a --meeting-type medical --out /tmp/mom.json
 ```
-
-`MOM_DEVICE=cpu` forces CPU. `MOM_DEVICE=cuda` requires a GPU.
 
 ## Tests
 
 ```bash
-pytest   # no model weights, no network
+pytest
 ```
-
-The folder is `asr-llm` and the package is `asr_llm` on purpose: a folder named `asr_llm` shadows the installed package when you run from the repo root.
