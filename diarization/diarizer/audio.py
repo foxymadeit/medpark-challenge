@@ -17,7 +17,7 @@ def load(path) -> np.ndarray:
     if not path.is_file():
         raise FileNotFoundError(path)
     if shutil.which("ffmpeg"):
-        cmd = ["ffmpeg", "-nostdin", "-v", "error", "-i", str(path),
+        cmd = ["ffmpeg", "-nostdin", "-v", "error", "-i", str(path.resolve()),
                "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]
         out = subprocess.run(cmd, capture_output=True, check=False)
         if out.returncode != 0 and not out.stdout:
