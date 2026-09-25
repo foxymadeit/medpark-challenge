@@ -25,7 +25,9 @@ import tarfile
 import threading
 import time
 import urllib.request
+import traceback
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 T0 = time.time()
@@ -35,7 +37,14 @@ REPO = Path("/tmp/repo")
 PER_LABEL = 300   # cap pieces per speaker so no one voice dominates
 random.seed(0)
 socket.setdefaulttimeout(120)  # a stalled mirror raises and gets retried instead of hanging the run
-STATE = {"phase": "start", "note": "", "progress": 0, "watch": True}
+# Planned minutes per phase, for the "how much is left" estimate. Once a phase
+# reports a fraction done, its own speed replaces the plan; training reports
+# through train_progress.json.
+PLAN = {"setup": 1, "smoke": 5, "AMI": 25, "VoxPopuli RO": 6, "VoxConverse": 3, "AliMeeting": 6,
+        "check": 2, "train": 60, "export": 1}
+STATE = {"key": "setup", "phase": "start", "note": "", "frac": 0.0, "progress": 0, "watch": True,
+         "t_phase": time.time(), "warnings": [], "phases": []}
+TRAIN_PROGRESS = WORK / "train_progress.json"
 
 
 def log(msg):
@@ -47,47 +56,121 @@ def sh(cmd):
     subprocess.run(cmd, shell=True, check=True)
 
 
-def phase(name, watch=True):
+def phase(key, label=None, watch=True):
     """watch=False where the log has its own progress lines (training)."""
-    STATE.update(phase=name, note="", watch=watch, progress=STATE["progress"] + 1)
-    log(f"=== {name}")
+    now = time.time()
+    if STATE["phases"]:
+        STATE["phases"][-1]["minutes"] = round((now - STATE["t_phase"]) / 60, 1)
+    STATE["phases"].append({"phase": label or key, "minutes": None})
+    STATE.update(key=key, phase=label or key, note="", frac=0.0, watch=watch, t_phase=now,
+                 progress=STATE["progress"] + 1)
+    log(f"=== phase {list(PLAN).index(key) + 1}/{len(PLAN)}: {label or key}")
 
 
-def tick(note):
+def tick(note, frac=None):
     STATE.update(note=note, progress=STATE["progress"] + 1)
+    if frac is not None:
+        STATE["frac"] = frac
+
+
+def spent_min():
+    return (time.time() - T0) / 60
+
+
+def warn(msg):
+    log(f"WARNING: {msg}")
+    STATE["warnings"] = (STATE["warnings"] + [f"{spent_min():.0f} min: {msg}"])[-20:]
+
+
+def train_progress():
+    try:
+        return json.loads(TRAIN_PROGRESS.read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def minutes_left():
+    keys = list(PLAN)
+    key, frac = STATE["key"], STATE["frac"]
+    tp = train_progress() if key == "train" else None
+    spent = time.time() - STATE["t_phase"]
+    if tp:
+        here = tp["eta_min"] * 60
+    else:
+        here = spent * (1 - frac) / frac if frac > 0.05 else max(PLAN[key] * 60 - spent, 60)
+    return here / 60 + sum(PLAN[k] for k in keys[keys.index(key) + 1:])
 
 
 def gpu_load():
+    """[(util %, memory GB)] per GPU; empty without nvidia-smi."""
     r = subprocess.run("nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv,noheader,nounits",
                        shell=True, capture_output=True, text=True)
-    rows = [x.split(",") for x in r.stdout.strip().splitlines() if "," in x]
-    return " ".join(f"[{u.strip()}% {int(m) / 1024:.1f} GB]" for u, m in rows) or "n/a"
+    return [(int(u), int(m) / 1024) for u, m in (x.split(",") for x in r.stdout.strip().splitlines() if "," in x)]
 
 
 def ram_free():
+    """GB available, or None off Linux."""
     try:
-        return f"{int(next(x for x in open('/proc/meminfo') if x.startswith('MemAvailable')).split()[1]) / 1e6:.1f} GB"
+        return int(next(x for x in open("/proc/meminfo") if x.startswith("MemAvailable")).split()[1]) / 1e6
     except OSError:
-        return "n/a"
+        return None
+
+
+def health(ram, gpus, idle_beats):
+    """Problems worth a WARNING line right now; empty means OK."""
+    out = []
+    if ram is not None and ram < 1.5:
+        out.append(f"only {ram:.1f} GB RAM free")
+    if WORK.exists() and shutil.disk_usage(WORK).used / 1e9 > 15:
+        out.append("/kaggle/working is over 15 of 20 GB")
+    if STATE["key"] == "train":
+        if idle_beats >= 3:
+            out.append(f"GPU idle for {idle_beats} minutes during training")
+        tp = train_progress()
+        if tp and time.time() - tp["updated"] > 300:
+            out.append(f"no training update for {(time.time() - tp['updated']) / 60:.0f} min")
+        if tp and tp.get("warn"):
+            out.append(tp["warn"])
+    if time.time() - T0 > 10.5 * 3600:
+        out.append("past 10.5 h; Kaggle stops runs at 12 h")
+    return out
 
 
 def heartbeat(every=60, stall=600):
-    """Once a minute: phase, current file, data on disk, free RAM and GPU load,
-    to the log and to /kaggle/working/status.json. If a watched phase makes no
-    progress for 10 minutes, print every thread's stack to show where it hangs."""
-    last, since = None, time.time()
+    """Once a minute, one line: overall % done and minutes left, the phase and
+    what it is on, data on disk, free RAM, GPU load, and OK or the problems.
+    The same goes to /kaggle/working/status.json. If a watched phase makes no
+    progress for 10 minutes, every thread's stack is printed to show the hang."""
+    last, since, idle = None, time.time(), 0
     while True:
         time.sleep(every)
         try:
             if STATE["progress"] != last:
                 last, since = STATE["progress"], time.time()
-            ram = ram_free()
+            ram, gpus = ram_free(), gpu_load()
+            idle = idle + 1 if gpus and all(u == 0 for u, _ in gpus) else 0
             data = sum(f.stat().st_size for f in DATA.rglob("*") if f.is_file()) / 1e9 if DATA.exists() else 0.0
-            msg = f"{STATE['phase']} | {STATE['note']} | data {data:.1f} GB | RAM free {ram} | GPU {gpu_load()}"
-            log(f"heartbeat: {msg}")
-            (WORK / "status.json").write_text(json.dumps({"minute": round((time.time() - T0) / 60, 1), **STATE, "status": msg}))
+            spent, left = (time.time() - T0) / 60, minutes_left()
+            problems = health(ram, gpus, idle)
             if STATE["watch"] and time.time() - since > stall:
-                log(f"no progress for {stall // 60} min in '{STATE['phase']}'; stack of every thread:")
+                problems.append(f"no progress for {(time.time() - since) / 60:.0f} min")
+            for p in problems:  # keep each distinct problem once for run_report.json
+                if not any(p in w for w in STATE["warnings"][-5:]):
+                    STATE["warnings"] = (STATE["warnings"] + [f"{spent_min():.0f} min: {p}"])[-20:]
+            where = f"phase {list(PLAN).index(STATE['key']) + 1}/{len(PLAN)} {STATE['phase']}"
+            where += f": {STATE['note']}" if STATE["note"] else ""
+            tp = train_progress() if STATE["key"] == "train" else None
+            if tp:
+                where += f": epoch {tp['epoch']}/{tp['epochs']}, step {tp['step']}/{tp['total']}, loss {tp['loss']:.3f}"
+            msg = (f"{100 * spent / (spent + left):.0f}% done, about {left:.0f} min left | {where} | "
+                   f"data {data:.1f} GB | RAM free {'n/a' if ram is None else f'{ram:.1f} GB'} | GPU "
+                   + (" ".join(f"{u}% {m:.1f} GB" for u, m in gpus) or "n/a")
+                   + " | " + ("OK" if not problems else "WARNING: " + "; ".join(problems)))
+            log(f"[heartbeat] {msg}")
+            (WORK / "status.json").write_text(json.dumps({"minute": round(spent, 1), "minutes_left": round(left),
+                                                          "status": msg, **STATE}, indent=1))
+            if STATE["watch"] and time.time() - since > stall:
+                log("stack of every thread, to show where it hangs:")
                 faulthandler.dump_traceback(all_threads=True)
                 since = time.time()
         except Exception as e:  # the heartbeat must never take the run down
@@ -161,18 +244,26 @@ def ami():
     base = "https://raw.githubusercontent.com/pyannote/AMI-diarization-setup/main"
     meetings = urllib.request.urlopen(f"{base}/lists/train.meetings.txt").read().decode().split()
     out, rng = [], __import__("numpy").random.default_rng(0)
-    for i, m in enumerate(meetings):
-        if i % 10 == 0:
-            log(f"AMI meeting {i + 1}/{len(meetings)}, {len(out)} pieces so far")
+
+    def get(m):
         try:
-            wav = fetch(f"https://groups.inf.ed.ac.uk/ami/AMICorpusMirror/amicorpus/{m}/audio/{m}.Array1-01.wav",
-                        DATA / "ami" / f"{m}.wav")
-            rttm = fetch(f"{base}/only_words/rttms/train/{m}.rttm", DATA / "ami" / f"{m}.rttm")
+            return (m, fetch(f"https://groups.inf.ed.ac.uk/ami/AMICorpusMirror/amicorpus/{m}/audio/{m}.Array1-01.wav",
+                             DATA / "ami" / f"{m}.wav"),
+                    fetch(f"{base}/only_words/rttms/train/{m}.rttm", DATA / "ami" / f"{m}.rttm"))
         except RuntimeError as e:
             log(f"skip {m}: {e}")
-            continue
-        for spk, iv in clean_intervals(read_rttm(rttm)).items():
-            out += [(str(wav), off, dur, f"ami_{spk}") for off, dur in pieces(iv, rng)]
+            return m, None, None
+
+    log(f"AMI: {len(meetings)} meetings, 6 downloads at a time")
+    with ThreadPoolExecutor(6) as pool:  # one at a time took 67 minutes in the first run
+        for i, (m, wav, rttm) in enumerate(pool.map(get, meetings), 1):
+            tick(f"{i}/{len(meetings)} meetings", frac=i / len(meetings))
+            if i % 10 == 0:
+                log(f"AMI {i}/{len(meetings)} meetings, {len(out)} pieces so far")
+            if wav is None:
+                continue
+            for spk, iv in clean_intervals(read_rttm(rttm)).items():
+                out += [(str(wav), off, dur, f"ami_{spk}") for off, dur in pieces(iv, rng)]
     log(f"AMI: {len(out)} pieces")
     return out
 
@@ -265,7 +356,7 @@ def voxpopuli_ro():
             n += 1
             if n % 1000 == 0:
                 log(f"VoxPopuli RO: {n} clips written")
-                tick(f"{n} clips")
+                tick(f"{n} clips", frac=min(n / 5000, 0.95))
     log(f"VoxPopuli RO: {len(out)} pieces")
     return out
 
@@ -328,31 +419,54 @@ def smoke():
     check_onnx(d / "smoke.onnx")
 
 
-def main():
+def report(result):
+    """run_report.json: how each phase went, every warning, and the outcome.
+    Written on success and on failure, so `kaggle kernels output` always has it."""
+    if STATE["phases"] and STATE["phases"][-1]["minutes"] is None:
+        STATE["phases"][-1]["minutes"] = round((time.time() - STATE["t_phase"]) / 60, 1)
+    rep = {"result": result, "total_minutes": round((time.time() - T0) / 60, 1), "phases": STATE["phases"],
+           "warnings": STATE["warnings"], "last_training_update": train_progress()}
+    (WORK / "run_report.json").write_text(json.dumps(rep, indent=2))
+    log(f"run report: {json.dumps(rep)}")
+
+
+def run():
     threading.Thread(target=heartbeat, daemon=True).start()
     phase("setup")
     setup()
-    phase("smoke test: one batch, export, load")
+    phase("smoke", "smoke test: one batch, export, load")
     smoke()
     DATA.mkdir(parents=True, exist_ok=True)
     items = []
     for name, fn in (("AMI", ami), ("VoxPopuli RO", voxpopuli_ro), ("VoxConverse", voxconverse), ("AliMeeting", alimeeting)):
-        phase(f"data: {name}")
+        phase(name, f"data: {name}")
         try:
             got = fn()
             describe(name, got)
             items += got
         except Exception as e:  # one source failing should not sink the run
-            log(f"{name} failed, continuing without it: {e!r}")
-    phase("check pieces")
+            warn(f"{name} failed, continuing without it: {e!r}")
+    phase("check", "check pieces")
     items = check_pieces(items)
     write_manifests(items)
     phase("train", watch=False)
     epochs = os.environ.get("EPOCHS", "8")
     sh(f"cd {REPO}/diarization && python train/finetune_titanet.py --train {DATA}/train.jsonl "
-       f"--val {DATA}/val.jsonl --epochs {epochs} --out {WORK}/nemo_en_titanet_small_ft.onnx")
-    phase("verify export")
+       f"--val {DATA}/val.jsonl --epochs {epochs} --out {WORK}/nemo_en_titanet_small_ft.onnx "
+       f"--progress {TRAIN_PROGRESS}")
+    phase("export", "verify export")
     check_onnx(WORK / "nemo_en_titanet_small_ft.onnx")
+
+
+def main():
+    try:
+        run()
+    except BaseException as e:
+        log(f"FAILED in phase '{STATE['phase']}' after {(time.time() - T0) / 60:.1f} min: {e!r}")
+        traceback.print_exc()
+        report(f"failed in {STATE['phase']}: {e!r}")
+        raise
+    report("done")
     log("done")
 
 
