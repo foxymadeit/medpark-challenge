@@ -12,14 +12,17 @@ Training data (all public):
 Never trained on (kept for testing): AMI dev/test, NOTSOFAR, Medpark.
 """
 
+import faulthandler
 import json
 import os
 import random
 import re
 import shutil
+import socket
 import subprocess
 import sys
 import tarfile
+import threading
 import time
 import urllib.request
 import zipfile
@@ -31,6 +34,8 @@ WORK = Path("/kaggle/working")
 REPO = Path("/tmp/repo")
 PER_LABEL = 300   # cap pieces per speaker so no one voice dominates
 random.seed(0)
+socket.setdefaulttimeout(120)  # a stalled mirror raises and gets retried instead of hanging the run
+STATE = {"phase": "start", "note": "", "progress": 0, "watch": True}
 
 
 def log(msg):
@@ -42,6 +47,53 @@ def sh(cmd):
     subprocess.run(cmd, shell=True, check=True)
 
 
+def phase(name, watch=True):
+    """watch=False where the log has its own progress lines (training)."""
+    STATE.update(phase=name, note="", watch=watch, progress=STATE["progress"] + 1)
+    log(f"=== {name}")
+
+
+def tick(note):
+    STATE.update(note=note, progress=STATE["progress"] + 1)
+
+
+def gpu_load():
+    r = subprocess.run("nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv,noheader,nounits",
+                       shell=True, capture_output=True, text=True)
+    rows = [x.split(",") for x in r.stdout.strip().splitlines() if "," in x]
+    return " ".join(f"[{u.strip()}% {int(m) / 1024:.1f} GB]" for u, m in rows) or "n/a"
+
+
+def ram_free():
+    try:
+        return f"{int(next(x for x in open('/proc/meminfo') if x.startswith('MemAvailable')).split()[1]) / 1e6:.1f} GB"
+    except OSError:
+        return "n/a"
+
+
+def heartbeat(every=60, stall=600):
+    """Once a minute: phase, current file, data on disk, free RAM and GPU load,
+    to the log and to /kaggle/working/status.json. If a watched phase makes no
+    progress for 10 minutes, print every thread's stack to show where it hangs."""
+    last, since = None, time.time()
+    while True:
+        time.sleep(every)
+        try:
+            if STATE["progress"] != last:
+                last, since = STATE["progress"], time.time()
+            ram = ram_free()
+            data = sum(f.stat().st_size for f in DATA.rglob("*") if f.is_file()) / 1e9 if DATA.exists() else 0.0
+            msg = f"{STATE['phase']} | {STATE['note']} | data {data:.1f} GB | RAM free {ram} | GPU {gpu_load()}"
+            log(f"heartbeat: {msg}")
+            (WORK / "status.json").write_text(json.dumps({"minute": round((time.time() - T0) / 60, 1), **STATE, "status": msg}))
+            if STATE["watch"] and time.time() - since > stall:
+                log(f"no progress for {stall // 60} min in '{STATE['phase']}'; stack of every thread:")
+                faulthandler.dump_traceback(all_threads=True)
+                since = time.time()
+        except Exception as e:  # the heartbeat must never take the run down
+            log(f"heartbeat error: {e!r}")
+
+
 def fetch(url, dest, tries=3):
     dest = Path(dest)
     if dest.exists() and dest.stat().st_size > 0:
@@ -49,12 +101,47 @@ def fetch(url, dest, tries=3):
     dest.parent.mkdir(parents=True, exist_ok=True)
     for i in range(tries):
         try:
+            t = time.time()
             urllib.request.urlretrieve(url, dest)
+            mb, took = dest.stat().st_size / 1e6, max(time.time() - t, 1e-3)
+            if mb >= 1:
+                log(f"got {dest.name}: {mb:.0f} MB in {took:.0f} s ({mb / took:.1f} MB/s)")
+            tick(dest.name)
             return dest
         except Exception as e:  # network hiccups on big mirrors
+            dest.unlink(missing_ok=True)
             log(f"retry {i + 1} for {url}: {e}")
             time.sleep(5)
     raise RuntimeError(f"could not download {url}")
+
+
+def describe(name, xs):
+    if not xs:
+        log(f"{name}: no pieces")
+        return
+    d = sorted(x[2] for x in xs)
+    log(f"{name}: {len(xs)} pieces, {len({x[3] for x in xs})} speakers, {sum(d) / 3600:.1f} h, "
+        f"piece length {d[0]:.1f} / {d[len(d) // 2]:.1f} / {d[-1]:.1f} s (min / median / max)")
+
+
+def check_pieces(items):
+    """Drop pieces that point at an unreadable file or run past its end. One
+    bad slice would otherwise crash training an hour in."""
+    import soundfile as sf
+    length, keep, bad = {}, [], 0
+    for it in items:
+        if it[0] not in length:
+            try:
+                length[it[0]] = sf.info(it[0]).duration
+            except Exception as e:
+                length[it[0]] = -1.0
+                log(f"unreadable {it[0]}: {e}")
+        if it[1] + it[2] <= length[it[0]] + 0.01:
+            keep.append(it)
+        else:
+            bad += 1
+    log(f"checked {len(length)} audio files: kept {len(keep)} pieces, dropped {bad}")
+    return keep
 
 
 def setup():
@@ -74,7 +161,9 @@ def ami():
     base = "https://raw.githubusercontent.com/pyannote/AMI-diarization-setup/main"
     meetings = urllib.request.urlopen(f"{base}/lists/train.meetings.txt").read().decode().split()
     out, rng = [], __import__("numpy").random.default_rng(0)
-    for m in meetings:
+    for i, m in enumerate(meetings):
+        if i % 10 == 0:
+            log(f"AMI meeting {i + 1}/{len(meetings)}, {len(out)} pieces so far")
         try:
             wav = fetch(f"https://groups.inf.ed.ac.uk/ami/AMICorpusMirror/amicorpus/{m}/audio/{m}.Array1-01.wav",
                         DATA / "ami" / f"{m}.wav")
@@ -174,6 +263,9 @@ def voxpopuli_ro():
             sf.write(wav, x, sr)
             out.append((str(wav), 0.0, round(min(dur, 3.0), 3), f"vp_ro_{spk}"))
             n += 1
+            if n % 1000 == 0:
+                log(f"VoxPopuli RO: {n} clips written")
+                tick(f"{n} clips")
     log(f"VoxPopuli RO: {len(out)} pieces")
     return out
 
@@ -237,20 +329,29 @@ def smoke():
 
 
 def main():
+    threading.Thread(target=heartbeat, daemon=True).start()
+    phase("setup")
     setup()
+    phase("smoke test: one batch, export, load")
     smoke()
     DATA.mkdir(parents=True, exist_ok=True)
     items = []
     for name, fn in (("AMI", ami), ("VoxPopuli RO", voxpopuli_ro), ("VoxConverse", voxconverse), ("AliMeeting", alimeeting)):
+        phase(f"data: {name}")
         try:
-            items += fn()
+            got = fn()
+            describe(name, got)
+            items += got
         except Exception as e:  # one source failing should not sink the run
             log(f"{name} failed, continuing without it: {e!r}")
-        sh("df -h /tmp")
+    phase("check pieces")
+    items = check_pieces(items)
     write_manifests(items)
+    phase("train", watch=False)
     epochs = os.environ.get("EPOCHS", "8")
     sh(f"cd {REPO}/diarization && python train/finetune_titanet.py --train {DATA}/train.jsonl "
        f"--val {DATA}/val.jsonl --epochs {epochs} --out {WORK}/nemo_en_titanet_small_ft.onnx")
+    phase("verify export")
     check_onnx(WORK / "nemo_en_titanet_small_ft.onnx")
     log("done")
 

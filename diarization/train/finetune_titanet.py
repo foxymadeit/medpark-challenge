@@ -18,10 +18,14 @@ sherpa-onnx model, so the file drops into diarization/models/.
 
 import argparse
 import json
+import time
+from pathlib import Path
 
 import lightning.pytorch as pl
+import nemo
 import nemo.collections.asr as nemo_asr
 import onnx
+import torch
 from omegaconf import OmegaConf, open_dict
 
 
@@ -31,6 +35,37 @@ def add_meta(filename, meta):
         p = model.metadata_props.add()
         p.key, p.value = k, str(v)
     onnx.save(model, filename)
+
+
+class Progress(pl.Callback):
+    """Plain log lines instead of a progress bar, readable in Kaggle's log:
+    every 50 steps (loss, speed, ETA, GPU memory), after each validation, and
+    a saved .nemo after each epoch so a late crash still leaves a model."""
+
+    def __init__(self, save, every=50):
+        self.save, self.every, self.t0 = save, every, time.time()
+
+    @staticmethod
+    def metrics(trainer):
+        return ", ".join(f"{k} {float(v):.4g}" for k, v in trainer.callback_metrics.items() if v.numel() == 1)
+
+    def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
+        step = trainer.global_step
+        if step % self.every:
+            return
+        took, total = time.time() - self.t0, trainer.estimated_stepping_batches
+        eta = took / max(step, 1) * (total - step) / 60
+        print(f"[train] epoch {trainer.current_epoch + 1}/{trainer.max_epochs} step {step}/{total} | "
+              f"{self.metrics(trainer)} | {step / took:.2f} steps/s, ETA {eta:.0f} min | "
+              f"GPU peak {torch.cuda.max_memory_allocated() / 1e9:.1f} GB", flush=True)
+
+    def on_validation_end(self, trainer, pl_module):
+        print(f"[val] epoch {trainer.current_epoch + 1}: {self.metrics(trainer)}", flush=True)
+
+    def on_train_epoch_end(self, trainer, pl_module):
+        pl_module.save_to(str(self.save))
+        print(f"[save] epoch {trainer.current_epoch + 1} -> {self.save} "
+              f"({(time.time() - self.t0) / 60:.1f} min in)", flush=True)
 
 
 def main():
@@ -43,6 +78,9 @@ def main():
     ap.add_argument("--out", default="nemo_en_titanet_small_ft.onnx")
     ap.add_argument("--smoke", action="store_true", help="one batch, to test the config and export in a minute")
     a = ap.parse_args()
+    gpu = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "none"
+    print(f"torch {torch.__version__}, CUDA {torch.version.cuda}, GPU {gpu}, NeMo {nemo.__version__}, "
+          f"Lightning {pl.__version__}", flush=True)
 
     labels = sorted({json.loads(line)["label"] for line in open(a.train)})
     cfg = nemo_asr.models.EncDecSpeakerLabelModel.from_pretrained("titanet_small", return_config=True)
@@ -56,8 +94,9 @@ def main():
         cfg.decoder.num_classes = len(labels)
         cfg.optim.lr = a.lr
 
-    trainer = pl.Trainer(max_epochs=a.epochs, accelerator="gpu", devices=1,
-                         precision="16-mixed", log_every_n_steps=20, fast_dev_run=a.smoke)
+    trainer = pl.Trainer(max_epochs=a.epochs, accelerator="gpu", devices=1, precision="16-mixed",
+                         log_every_n_steps=20, fast_dev_run=a.smoke, enable_progress_bar=False,
+                         callbacks=[Progress(Path(a.out).with_suffix(".last.nemo"))])
     model = nemo_asr.models.EncDecSpeakerLabelModel(cfg=cfg, trainer=trainer)
     model.maybe_init_from_pretrained_checkpoint(OmegaConf.create({
         "init_from_pretrained_model": {"titanet": {"name": "titanet_small", "exclude": ["decoder.final"]}}}))
