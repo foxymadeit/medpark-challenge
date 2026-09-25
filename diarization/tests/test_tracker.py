@@ -104,3 +104,17 @@ def test_second_prototype_helps_a_shifted_voice(voices, rng):
     assert len(spk.protos) == 2
     probe = unit(shifted + 0.05 * voices[2])
     assert t.similarity(probe, spk) > float(probe @ spk.centroid)
+
+
+def test_no_upper_limit_on_speakers():
+    # 100 people take turns, then each speaks again in random order.
+    rng = np.random.default_rng(3)
+    dim = 512
+    people = [unit(rng.standard_normal(dim)) for _ in range(100)]
+    noisy = lambda v: unit(v + 0.4 * rng.standard_normal(dim) / np.sqrt(dim))  # noqa: E731
+    t = SpeakerTracker()
+    first = [t.assign([noisy(p)], [True])[0] for p in people]
+    assert first == list(range(1, 101))
+    for i in rng.permutation(100):
+        assert t.assign([noisy(people[i])], [True]) == [i + 1]
+    assert len(t.speakers) == 100

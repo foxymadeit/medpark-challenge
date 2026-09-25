@@ -21,6 +21,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from .neural import SR
+from .refine import refine
 from .timeline import Timeline
 from .tracker import SpeakerTracker
 
@@ -110,17 +111,19 @@ class Observer:
 
 class Labeler:
     def __init__(self, tracker: SpeakerTracker, timeline: Timeline | None = None, *,
-                 merge=0.75, merge_every=10):
+                 merge=0.75, merge_every=10, refine=True):
         self.tracker = tracker
         self.timeline = timeline or Timeline()
-        self.merge, self.merge_every = merge, merge_every
+        self.merge, self.merge_every, self.refine = merge, merge_every, refine
         self._n = 0
+        self._history: list = []   # (observation, online ids) for the final pass
 
     def apply(self, obs: Observation) -> list:
         """Timeline events: ('start', id, t), ('end', Turn), ('merge', {old: new})."""
         self._n += 1
         events = []
         ids = self.tracker.assign(obs.embs, obs.can_create) if obs.embs else []
+        self._history.append((obs, ids))
         for sid, runs in zip(ids, obs.runs):
             if sid is not None:
                 for start, end in runs:
@@ -133,8 +136,21 @@ class Labeler:
         return events + self.timeline.close_idle(now=obs.region_end)
 
     def finish(self) -> list:
-        self.timeline.relabel(self.tracker.merge_pass(self.merge))
-        return self.timeline.finish()
+        remap = self.tracker.merge_pass(self.merge)
+        if not self.refine:
+            self.timeline.relabel(remap)
+            return self.timeline.finish()
+        # Re-score every observation against the final voiceprints, then
+        # rebuild the turns from scratch with the corrected labels.
+        online = [[None if i is None else self.tracker.resolve(i) for i in ids] for _, ids in self._history]
+        final = refine([o.embs for o, _ in self._history], online, new_th=self.tracker.new_th)
+        tl = Timeline(self.timeline.min_gap, self.timeline.min_dur)
+        for (obs, _), ids in zip(self._history, final):
+            for sid, runs in zip(ids, obs.runs):
+                if sid is not None:
+                    for start, end in runs:
+                        tl.add(sid, start, end)
+        return tl.finish()
 
 
 class StreamingDiarizer:

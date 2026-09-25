@@ -29,15 +29,16 @@ EMBEDDERS = {
     "campp": ("wespeaker_en_voxceleb_CAM++_LM.onnx",
               "e197af7e9d473030cf486b3124149a19bf37014d0e4485e4c70c483b0ec10cb2"),
 }
-# CAM++ separated speakers far better than ResNet34 on the Medpark recording
-# (d-prime 3.25 vs 0.73) and runs 3x faster, so it is the default.
-DEFAULT_EMBEDDER = "campp"
+# Picked on AMI ground truth (same person across a whole meeting). TitaNet-small
+# separated speakers far better than ResNet34 or CAM++ (d-prime 1.9-6.2 vs
+# 0.15-1.3) and is the fastest of the three on CPU.
+DEFAULT_EMBEDDER = "titanet-small"
 
 # Cosine thresholds per embedder; tuned on AMI dev meetings (eval/run_eval.py).
 THRESHOLDS = {
     "campp": {"assign": 0.55, "new": 0.45, "merge": 0.75},
     "resnet34": {"assign": 0.55, "new": 0.45, "merge": 0.75},
-    "titanet-small": {"assign": 0.40, "new": 0.30, "merge": 0.70},
+    "titanet-small": {"assign": 0.40, "new": 0.25, "merge": 0.80},
 }
 
 
