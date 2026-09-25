@@ -6,7 +6,6 @@ from dataclasses import dataclass
 import numpy as np
 
 from .config import settings
-from .glossary import asr_hotwords, whisper_initial_prompt
 from .local import pick_device, require_local_path
 
 
@@ -25,8 +24,6 @@ class WhisperAsr:
         model_dir = require_local_path(settings.asr_model_dir, "Whisper model dir")
         self.device = pick_device(settings.device)
         self.model_id = str(model_dir)
-        self._prompt = whisper_initial_prompt()
-        self._hotwords = asr_hotwords()
         self._model = WhisperModel(
             self.model_id,
             device=self.device,
@@ -39,9 +36,8 @@ class WhisperAsr:
             language=None,
             multilingual=True,
             task="transcribe",
-            beam_size=8,
-            initial_prompt=self._prompt,
-            hotwords=self._hotwords,
+            beam_size=5,
+            temperature=0.0,
             condition_on_previous_text=False,
             vad_filter=False,
         )
