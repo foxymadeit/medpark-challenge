@@ -203,8 +203,42 @@ def write_manifests(items):
     }, indent=2))
 
 
+def check_onnx(path):
+    import numpy as np
+    import sherpa_onnx
+    ex = sherpa_onnx.SpeakerEmbeddingExtractor(sherpa_onnx.SpeakerEmbeddingExtractorConfig(model=str(path)))
+    s = ex.create_stream()
+    s.accept_waveform(sample_rate=16000, waveform=np.random.default_rng(0).standard_normal(32000).astype("float32") * 0.1)
+    s.input_finished()
+    log(f"sherpa-onnx loads {path.name}: dim {ex.dim}, embedding norm {np.linalg.norm(ex.compute(s)):.2f}")
+
+
+def smoke():
+    """Two fake voices, one batch, then export. Catches config and export
+    errors in a couple of minutes instead of after the long download."""
+    import numpy as np
+    import soundfile as sf
+    d = Path("/tmp/smoke")
+    d.mkdir(parents=True, exist_ok=True)
+    rng = np.random.default_rng(0)
+    t = np.arange(32000) / 16000
+    rows = []
+    for spk in range(2):
+        for i in range(6):
+            wav = d / f"s{spk}_{i}.wav"
+            x = 0.1 * np.sin(2 * np.pi * (150 + 100 * spk) * t) + 0.01 * rng.standard_normal(t.size)
+            sf.write(wav, x.astype("float32"), 16000)
+            rows.append({"audio_filepath": str(wav), "offset": 0.0, "duration": 2.0, "label": f"smoke_{spk}"})
+    for name in ("train", "val"):
+        (d / f"{name}.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    sh(f"cd {REPO}/diarization && python train/finetune_titanet.py --train {d}/train.jsonl "
+       f"--val {d}/val.jsonl --epochs 1 --batch 4 --smoke --out {d}/smoke.onnx")
+    check_onnx(d / "smoke.onnx")
+
+
 def main():
     setup()
+    smoke()
     DATA.mkdir(parents=True, exist_ok=True)
     items = []
     for name, fn in (("AMI", ami), ("VoxPopuli RO", voxpopuli_ro), ("VoxConverse", voxconverse), ("AliMeeting", alimeeting)):
@@ -217,14 +251,7 @@ def main():
     epochs = os.environ.get("EPOCHS", "8")
     sh(f"cd {REPO}/diarization && python train/finetune_titanet.py --train {DATA}/train.jsonl "
        f"--val {DATA}/val.jsonl --epochs {epochs} --out {WORK}/nemo_en_titanet_small_ft.onnx")
-    import numpy as np
-    import sherpa_onnx
-    cfg = sherpa_onnx.SpeakerEmbeddingExtractorConfig(model=str(WORK / "nemo_en_titanet_small_ft.onnx"))
-    ex = sherpa_onnx.SpeakerEmbeddingExtractor(cfg)
-    s = ex.create_stream()
-    s.accept_waveform(sample_rate=16000, waveform=np.random.default_rng(0).standard_normal(32000).astype("float32") * 0.1)
-    s.input_finished()
-    log(f"sherpa-onnx loads the new model: dim {ex.dim}, embedding norm {np.linalg.norm(ex.compute(s)):.2f}")
+    check_onnx(WORK / "nemo_en_titanet_small_ft.onnx")
     log("done")
 
 

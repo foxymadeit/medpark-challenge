@@ -41,6 +41,7 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-4)
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--out", default="nemo_en_titanet_small_ft.onnx")
+    ap.add_argument("--smoke", action="store_true", help="one batch, to test the config and export in a minute")
     a = ap.parse_args()
 
     labels = sorted({json.loads(line)["label"] for line in open(a.train)})
@@ -51,11 +52,12 @@ def main():
             cfg[split].labels = labels
             cfg[split].batch_size = a.batch
             cfg[split].shuffle = shuffle
+            cfg[split].pop("augmentor", None)  # points at noise files on NVIDIA's own cluster
         cfg.decoder.num_classes = len(labels)
         cfg.optim.lr = a.lr
 
     trainer = pl.Trainer(max_epochs=a.epochs, accelerator="gpu", devices=1,
-                         precision="16-mixed", log_every_n_steps=20)
+                         precision="16-mixed", log_every_n_steps=20, fast_dev_run=a.smoke)
     model = nemo_asr.models.EncDecSpeakerLabelModel(cfg=cfg, trainer=trainer)
     model.maybe_init_from_pretrained_checkpoint(OmegaConf.create({
         "init_from_pretrained_model": {"titanet": {"name": "titanet_small", "exclude": ["decoder.final"]}}}))
