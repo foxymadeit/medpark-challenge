@@ -24,9 +24,10 @@ from .backend import Backend
 from .engine import Labeler, Observer, StreamingDiarizer
 from .export import build_session, clock, consecutive_labels, summary, write_all
 from .neural import SR, Embedder, Segmenter
+from .passages import PASSAGES
 from .timeline import Timeline
 from .tracker import SpeakerTracker
-from .voices import load_voices, save_voice, voice_embeddings
+from .voices import closest_voice, load_voices, save_voice, voice_embeddings
 
 DEFAULT_OUT = Path("sessions")
 
@@ -110,7 +111,8 @@ def cmd_enroll(args) -> None:
     if args.file:
         audio = load(args.file)
     else:
-        print(f"Recording {args.seconds:.0f} s. Talk normally, in any language.", file=sys.stderr)
+        print(f"Recording {args.seconds:.0f} s. Read this aloud at your normal pace:\n\n"
+              f"{PASSAGES[args.language]}\n", file=sys.stderr)
         chunks, n = [], 0
         for block, _ in mic_blocks(device=args.device):
             chunks.append(block)
@@ -123,7 +125,14 @@ def cmd_enroll(args) -> None:
     embs = voice_embeddings(audio, seg, emb)
     if not embs:
         sys.exit("heard less than 3 s of speech; try again closer to the mic")
-    path = save_voice(args.name, args.embedder, embs)
+    if len(embs) < 5:
+        print(f"only {3 * len(embs)} s of clear speech; reading the whole passage gives a steadier voiceprint",
+              file=sys.stderr)
+    other, sim = closest_voice(embs, load_voices(args.embedder), skip=args.name)
+    if sim >= 0.70:
+        print(f"warning: this voice is very close to {other} ({sim:.2f}); they may be mixed up in meetings. "
+              "Recording again in a quiet room usually helps.", file=sys.stderr)
+    path = save_voice(args.name, args.embedder, embs, add=args.add)
     print(f"saved {len(embs)} voiceprints for {args.name} to {path}")
 
 
@@ -196,7 +205,9 @@ def main(argv=None) -> None:
     p = sub.add_parser("enroll", help="save a person's voiceprint")
     p.add_argument("name")
     p.add_argument("--file", help="use a clip instead of the mic")
-    p.add_argument("--seconds", type=float, default=20.0)
+    p.add_argument("--seconds", type=float, default=28.0)
+    p.add_argument("--language", default="en", choices=list(PASSAGES), help="passage to read (en, ro, ru)")
+    p.add_argument("--add", action="store_true", help="keep existing voiceprints, e.g. a second language")
     p.add_argument("--embedder", default=models.DEFAULT_EMBEDDER, choices=list(models.EMBEDDERS))
     p.add_argument("--device")
     p.add_argument("--threads", type=int, default=2)
