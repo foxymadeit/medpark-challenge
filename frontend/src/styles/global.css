@@ -1,0 +1,131 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #111a27;
+  background: #ffffff;
+}
+
+body {
+  min-width: 320px;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.sidebar {
+  width: 236px;
+  min-height: 100vh;
+  border-right: 1px solid #e0e5ed;
+  padding: 28px 18px;
+  flex-shrink: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #008286;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.brand-title {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.brand-subtitle {
+  margin-top: 2px;
+  color: #616e80;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.sidebar-nav {
+  margin-top: 54px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-item {
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 20px;
+
+  color: #616e80;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.nav-item:hover {
+  background: #f5f7f9;
+}
+
+.nav-item.active {
+  background: #e5faf2;
+  color: #111a27;
+  font-weight: 600;
+}
+
+.nav-item.active .nav-icon {
+  color: #008286;
+}
+
+.nav-icon {
+  width: 12px;
+  font-weight: 700;
+}
+
+.main-content {
+  flex: 1;
+  padding: 40px;
+}
