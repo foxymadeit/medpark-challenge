@@ -22,3 +22,10 @@ def test_some_turns_overlap_the_previous_one():
     _, ref = build_meeting(voices, rng, minutes=3.0, overlap=0.3)
     overlaps = sum(b[1] < a[2] for a, b in zip(ref, ref[1:]))
     assert 0.1 < overlaps / len(ref) < 0.5
+
+
+def test_trim_cuts_silent_edges_only():
+    from eval.make_mix import trim
+    x = np.concatenate([np.zeros(SR), 0.2 * np.ones(SR // 2), np.zeros(SR // 4), 0.2 * np.ones(SR // 2), np.zeros(SR)])
+    y = trim(x.astype(np.float32))
+    assert abs(len(y) / SR - 1.25) < 0.03  # both speech bursts and the pause between them stay

@@ -7,7 +7,7 @@ Romanian and Russian voices come from Common Voice 22 (CC0): the tenth of
 speakers the Kaggle run holds out (train/holdout.py) plus everyone who
 recorded both languages. English voices come from LibriSpeech test-clean
 (CC BY 4.0), whose speakers are outside LibriSpeech's training sets. Each
-meeting has 3 to 6 people taking turns of a few seconds, short gaps and some
+meeting has 3 to 7 people taking turns of a few seconds, short gaps and some
 overlap; every other meeting has a bilingual person switching between
 Romanian and Russian under one label. Writes <meeting>.mix.wav, .rttm and
 .uem to data/mix/meetings/.
@@ -44,6 +44,16 @@ def get(url, dest: Path) -> Path:
     return dest
 
 
+def trim(x, frame=0.02, floor_db=-30.0):
+    """Cut the silence Common Voice and LibriSpeech clips carry at each end,
+    so a reference turn covers speech only (anything 30 dB under the loudest
+    20 ms frame counts as silence)."""
+    n = int(frame * SR)
+    rms = np.sqrt(np.mean(x[: len(x) // n * n].reshape(-1, n) ** 2, axis=1)) if len(x) >= n else np.zeros(0)
+    on = np.flatnonzero(rms > rms.max() * 10 ** (floor_db / 20)) if rms.size else []
+    return x[on[0] * n:(on[-1] + 1) * n] if len(on) else x
+
+
 def cv_speakers(lang):
     """client_id -> [(split, clip file name)] from the four split TSVs."""
     csv.field_size_limit(10**9)
@@ -74,7 +84,7 @@ def cv_clips(lang, wanted: dict) -> dict:
                         if not clip.exists():
                             clip.parent.mkdir(parents=True, exist_ok=True)
                             clip.write_bytes(t.extractfile(m).read())
-                        out[names[name]].append(load(clip))
+                        out[names[name]].append(trim(load(clip)))
     return out
 
 
@@ -90,7 +100,7 @@ def libri_speakers(n, rng):
     for i in chosen:
         files = sorted(spk[i].rglob("*.flac"))
         pick = rng.choice(len(files), size=min(15, len(files)), replace=False)
-        out[f"en_{spk[i].name}"] = [load(files[j])[: 8 * SR] for j in pick]  # Common Voice clips run 3-8 s too
+        out[f"en_{spk[i].name}"] = [trim(load(files[j]))[: 8 * SR] for j in pick]  # Common Voice clips run 3-8 s too
     return out
 
 
@@ -101,14 +111,13 @@ def build_meeting(voices: dict, rng, minutes=3.5, overlap=0.15):
     while t < minutes * 60:
         who = rng.choice([x for x in labels if x != last] if len(labels) > 1 else labels)
         clips = voices[who]
-        turn = np.concatenate([np.concatenate([clips[rng.integers(len(clips))], np.zeros(int(0.1 * SR), np.float32)])
-                               for _ in range(rng.integers(1, 4))])
+        turn = np.concatenate([clips[rng.integers(len(clips))] for _ in range(rng.integers(1, 4))])
         turn = turn / (np.sqrt(np.mean(turn**2)) + 1e-9) * 0.05 * 10 ** (rng.uniform(-3, 3) / 20)
         start = t - rng.uniform(0.3, 1.0) if ref and rng.random() < overlap else t + rng.uniform(0.2, 1.0)
         start = max(start, 0.0)
         a = int(start * SR)
         audio[a:a + len(turn)] += turn[: len(audio) - a]
-        end = start + len(turn) / SR - 0.1
+        end = start + len(turn) / SR
         ref.append((who, round(start, 3), round(end, 3)))
         t, last = max(t, end), who
     return audio[: int(t * SR) + SR], ref
