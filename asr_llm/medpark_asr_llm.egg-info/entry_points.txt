@@ -1,2 +1,0 @@
-[console_scripts]
-mom-asr = asr_llm.cli:main
