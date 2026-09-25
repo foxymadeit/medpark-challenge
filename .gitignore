@@ -1,0 +1,17 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+sessions/
+data/team/
+asr_llm/models/
+asr_llm/.venv/
+*.gguf
+*.bin
+*.pt
+*.onnx
+!diarization/models/*.onnx
+.env
