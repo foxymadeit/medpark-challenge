@@ -118,3 +118,20 @@ def test_no_upper_limit_on_speakers():
     for i in rng.permutation(100):
         assert t.assign([noisy(people[i])], [True]) == [i + 1]
     assert len(t.speakers) == 100
+
+
+def test_newcomer_who_sounds_a_bit_like_someone_is_founded_from_a_group():
+    # B's single voiceprints score ~0.3 against A: too close to found a
+    # speaker alone (new=0.25), too far to count as A (assign=0.4).
+    rng = np.random.default_rng(5)
+    a = unit(rng.standard_normal(DIM))
+    r = rng.standard_normal(DIM)
+    ortho = unit(r - (a @ r) * a)
+    b = unit(0.3 * a + 0.95 * ortho)
+    near = lambda v: unit(v + 0.15 * rng.standard_normal(DIM) / np.sqrt(DIM))  # noqa: E731
+    t = SpeakerTracker(assign=0.4, new=0.25, pending_min=4)
+    for _ in range(5):
+        t.assign([near(a)], [True])
+    got = [t.assign([near(b)], [True])[0] for _ in range(8)]
+    assert len(t.speakers) == 2
+    assert got[-1] == 2  # once founded, B keeps its own label

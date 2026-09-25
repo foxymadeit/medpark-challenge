@@ -33,10 +33,17 @@ class SpeakerTracker:
     new      create a speaker only when every existing one scores below this
     anchor   an enrolled (named) speaker needs this much to claim a turn
     max_speakers  0 means unknown; otherwise never create more than this
+
+    Voiceprints that land between `new` and `assign` go to the nearest speaker
+    for now. With `pending_min` > 0 they also go into a pending pool. Once `pending_min` of them agree
+    with each other and their average matches nobody, that average founds a
+    new speaker. A group mean is far steadier than one noisy far-field
+    voiceprint, so newcomers who sound a bit like someone still get found.
     """
 
     def __init__(self, *, assign=0.5, new=0.3, anchor=0.7, max_speakers=0,
-                 max_protos=8, proto_novelty=0.85, max_weight=50.0):
+                 max_protos=8, proto_novelty=0.85, max_weight=50.0,
+                 pending_min=0, pending_agree=0.6, max_pending=20):
         self.assign_th = assign
         self.new_th = new
         self.anchor_th = anchor
@@ -44,6 +51,8 @@ class SpeakerTracker:
         self.max_protos = max_protos
         self.proto_novelty = proto_novelty
         self.max_weight = max_weight
+        self.pending_min, self.pending_agree, self.max_pending = pending_min, pending_agree, max_pending
+        self._pending: list = []
         self._speakers: list[Speaker] = []
         self._merged: dict[int, int] = {}
         self._next_id = 1
@@ -132,8 +141,23 @@ class SpeakerTracker:
             return self._create(e).id
         if best not in taken and sims[i, best] >= self.new_th:
             taken.add(best)
-            return self._speakers[best].id  # plausible but unsure: no learning
+            founded = self._found_from_pending(e)
+            return founded.id if founded else self._speakers[best].id  # unsure: no learning
         return None
+
+    def _found_from_pending(self, e):
+        self._pending = (self._pending + [e])[-self.max_pending:]
+        if not self.pending_min or len(self._pending) < self.pending_min or self._full():
+            return None
+        P = np.array(self._pending)
+        agree = P @ _unit(P.mean(axis=0)) >= self.pending_agree
+        if agree.sum() < self.pending_min:
+            return None
+        mean = _unit(P[agree].mean(axis=0))
+        if max(self.similarity(mean, s) for s in self._speakers) >= self.assign_th:
+            return None  # the group is just a noisy stretch of a known voice
+        self._pending = [p for p, ok in zip(self._pending, agree) if not ok]
+        return self._create(mean)
 
     def _gate(self, spk: Speaker) -> float:
         return self.anchor_th if spk.name else self.assign_th
