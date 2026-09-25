@@ -18,7 +18,7 @@ import numpy as np
 from . import models
 from .audio import load, mic_blocks
 from .engine import Labeler, Observer, StreamingDiarizer
-from .export import build_session, clock, summary, write_all
+from .export import build_session, clock, consecutive_labels, summary, write_all
 from .neural import SR, Embedder, Segmenter
 from .timeline import Timeline
 from .tracker import SpeakerTracker
@@ -43,10 +43,11 @@ def build(args) -> StreamingDiarizer:
     return StreamingDiarizer(observer, Labeler(tracker, Timeline(), merge=th["merge"]))
 
 
-def finalize(d: StreamingDiarizer, turns, start: float, source: str, args) -> None:
-    ids = {t.speaker for t in turns}
-    session = build_session(turns, {i: d.label(i) for i in ids}, session_start=start,
-                            source=source, model=args.embedder)
+def finalize(d: StreamingDiarizer, turns, start: float, source: str, args, renumber=False) -> None:
+    labels = {i: d.label(i) for i in {t.speaker for t in turns}}
+    if renumber:
+        labels = consecutive_labels(turns, labels)
+    session = build_session(turns, labels, session_start=start, source=source, model=args.embedder)
     print("\n" + summary(session))
     uri = datetime.fromtimestamp(start).strftime("%Y%m%d-%H%M%S")
     out = Path(args.out) if args.out else DEFAULT_OUT / uri
@@ -98,7 +99,7 @@ def cmd_file(args) -> None:
     took = time.perf_counter() - t0
     print(f"processed {len(audio) / SR:.0f} s of audio in {took:.1f} s "
           f"({took / max(len(audio) / SR, 1e-9):.3f}x real time)", file=sys.stderr)
-    finalize(d, turns, start, str(path), args)
+    finalize(d, turns, start, str(path), args, renumber=True)
 
 
 def cmd_enroll(args) -> None:

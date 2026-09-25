@@ -46,3 +46,10 @@ def test_write_all_creates_json_rttm_csv(tmp_path):
     rows = list(csv.DictReader((tmp_path / "meeting.csv").open()))
     assert rows[1]["speaker"] == "Ana"
     assert rows[1]["start"] == "14:02:11.000"
+
+
+def test_file_mode_numbers_speakers_by_first_appearance():
+    from diarizer.export import consecutive_labels
+    turns = [Turn(5, 0.0, 1.0), Turn(2, 1.0, 2.0), Turn(5, 2.0, 3.0), Turn(9, 3.0, 4.0)]
+    names = {5: "Speaker 5", 2: "Ana", 9: "Speaker 9"}
+    assert consecutive_labels(turns, names) == {5: "Speaker 1", 2: "Ana", 9: "Speaker 2"}

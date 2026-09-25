@@ -15,6 +15,22 @@ def clock(epoch: float) -> str:
     return datetime.fromtimestamp(epoch).strftime("%H:%M:%S.%f")[:-3]
 
 
+def consecutive_labels(turns, names: dict) -> dict:
+    """Unnamed speakers become Speaker 1, 2, 3... in order of first appearance.
+    Merges during a run leave gaps in the raw ids (1, 2, 4, 5); a finished
+    recording has no live audience that saw those numbers, so close the gaps."""
+    out, n = {}, 0
+    for t in sorted(turns, key=lambda t: t.start):
+        if t.speaker in out:
+            continue
+        name = names.get(t.speaker, f"Speaker {t.speaker}")
+        if name.startswith("Speaker "):
+            n += 1
+            name = f"Speaker {n}"
+        out[t.speaker] = name
+    return out
+
+
 def build_session(turns, labels: dict, *, session_start: float, source: str, model: str) -> dict:
     rows, speakers = [], {}
     for t in turns:
