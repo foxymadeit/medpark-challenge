@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="MOM_", extra="ignore")
 
     sample_rate: int = 16_000
-    max_batch_s: float = 30.0
+    max_batch_s: float = 15.0
     merge_gap_s: float = 0.4
     min_speech_s: float = 0.25
     vad_frame_ms: int = 30
@@ -26,7 +26,9 @@ class Settings(BaseSettings):
 
     llm_gguf: Path = ASR_ROOT / "models" / "llm" / "qwen2.5-7b-instruct-q4_k_m.gguf"
     llm_language: str = "ro"
-    llm_ctx: int = 4096
+    # 12 min of mixed RO/RU/EN plus the glossary does not fit in 4096.
+    llm_ctx: int = 8192
+    glossary_k: int = 24
 
     ffmpeg_bin: str = "ffmpeg"
 
