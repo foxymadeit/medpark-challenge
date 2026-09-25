@@ -4,10 +4,13 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+PACKAGE_DIR = Path(__file__).resolve().parent
+ASR_ROOT = PACKAGE_DIR.parent
 
 
 class Settings(BaseSettings):
+    """Defaults match the brief: 1×16 GB GPU, or CPU with 32 GB RAM."""
+
     model_config = SettingsConfigDict(env_prefix="MOM_", extra="ignore")
 
     sample_rate: int = 16_000
@@ -17,15 +20,14 @@ class Settings(BaseSettings):
     vad_frame_ms: int = 30
     vad_pad_s: float = 0.2
 
-    asr_backend: str = "auto"  # auto | mlx | faster-whisper
-    asr_model: str = "large-v3-turbo"
+    device: str = "auto"  # auto | cuda | cpu
     asr_compute_type: str = "int8"
+    asr_model_dir: Path = ASR_ROOT / "models" / "whisper"
 
-    ollama_host: str = "http://127.0.0.1:11434"
-    llm_model: str = "qwen2.5:14b"
+    llm_gguf: Path = ASR_ROOT / "models" / "llm" / "qwen2.5-7b-instruct-q4_k_m.gguf"
     llm_language: str = "ro"
+    llm_ctx: int = 4096
 
-    glossary_path: Path = REPO_ROOT / "harvard_medical_dictionary.json"
     ffmpeg_bin: str = "ffmpeg"
 
 

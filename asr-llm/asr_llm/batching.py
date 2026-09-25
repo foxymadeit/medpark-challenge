@@ -23,12 +23,6 @@ def pack_batches(
     max_batch_s: float | None = None,
     merge_gap_s: float | None = None,
 ) -> list[AudioBatch]:
-    """Turn VAD spans into Whisper-sized batches (default 30 s).
-
-    Adjacent speech closer than merge_gap_s is glued. A span longer than
-    max_batch_s is split on time, not on language — language routing is
-    Whisper's job inside the batch.
-    """
     sr = sample_rate or settings.sample_rate
     max_batch_s = max_batch_s or settings.max_batch_s
     merge_gap_s = merge_gap_s if merge_gap_s is not None else settings.merge_gap_s
@@ -59,21 +53,3 @@ def pack_batches(
             idx += 1
             cursor = chunk_end
     return batches
-
-
-def assign_speakers(
-    batches: list[AudioBatch],
-    turns: list[dict],
-) -> list[str | None]:
-    """Overlap contract with diarization/session.json turns[]."""
-    labels: list[str | None] = []
-    for batch in batches:
-        best_name: str | None = None
-        best_overlap = 0.0
-        for turn in turns:
-            overlap = min(batch.end, float(turn["end"])) - max(batch.start, float(turn["start"]))
-            if overlap > best_overlap:
-                best_overlap = overlap
-                best_name = turn.get("speaker")
-        labels.append(best_name if best_overlap > 0 else None)
-    return labels

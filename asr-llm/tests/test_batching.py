@@ -1,5 +1,8 @@
-from asr_llm.batching import AudioBatch, assign_speakers, pack_batches
+from asr_llm.batching import pack_batches
+from asr_llm.local import require_local_path
 import numpy as np
+import pytest
+from pathlib import Path
 
 
 def test_pack_merges_short_gaps():
@@ -22,14 +25,6 @@ def test_pack_splits_long_span():
     assert batches[-1].end == 65.0
 
 
-def test_assign_speakers_by_overlap():
-    samples = np.zeros(1600, dtype=np.float32)
-    batches = [
-        AudioBatch(0, 0.0, 2.0, samples),
-        AudioBatch(1, 2.0, 4.0, samples),
-    ]
-    turns = [
-        {"speaker": "Speaker 1", "start": 0.0, "end": 2.5},
-        {"speaker": "Speaker 2", "start": 2.5, "end": 5.0},
-    ]
-    assert assign_speakers(batches, turns) == ["Speaker 1", "Speaker 2"]
+def test_require_local_path_rejects_missing(tmp_path: Path):
+    with pytest.raises(FileNotFoundError, match="offline"):
+        require_local_path(tmp_path / "missing-model", "Whisper model dir")

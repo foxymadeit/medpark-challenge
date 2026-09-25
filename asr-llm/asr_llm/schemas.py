@@ -12,13 +12,12 @@ class SpeechSegment(BaseModel):
     end: float
     text: str
     language: str | None = None
-    speaker: str | None = None
 
 
 class Transcript(BaseModel):
     source: str
     duration_s: float
-    asr_backend: str
+    asr_device: str
     asr_model: str
     segments: list[SpeechSegment]
     text: str

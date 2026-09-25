@@ -1,24 +1,18 @@
 from __future__ import annotations
 
-import json
 import time
 from pathlib import Path
 
-from .asr import pick_backend, transcribe_batches
+from .asr import WhisperAsr, transcribe_batches
 from .audio import decode_audio, duration_s
-from .batching import assign_speakers, pack_batches
+from .batching import pack_batches
 from .config import settings
 from .llm import LocalLlm
 from .schemas import Minutes, PipelineResult, SpeechSegment, Transcript
 from .vad import energy_vad
 
 
-def run_pipeline(
-    audio_path: Path,
-    meeting_type: str = "administrative",
-    diarization_json: Path | None = None,
-    skip_llm: bool = False,
-) -> PipelineResult:
+def transcribe_audio(audio_path: Path) -> tuple[Transcript, dict[str, float]]:
     timings: dict[str, float] = {}
     t0 = time.perf_counter()
     audio = decode_audio(audio_path)
@@ -31,56 +25,53 @@ def run_pipeline(
     batches = pack_batches(audio, spans)
     timings["vad_batch"] = time.perf_counter() - t0
 
-    speakers = [None] * len(batches)
-    if diarization_json:
-        session = json.loads(diarization_json.read_text(encoding="utf-8"))
-        speakers = assign_speakers(batches, session.get("turns", []))
-
-    engine = pick_backend()
+    engine = WhisperAsr()
     t0 = time.perf_counter()
-    chunks = transcribe_batches(engine, batches, settings.sample_rate)
+    chunks = transcribe_batches(engine, batches)
     timings["asr"] = time.perf_counter() - t0
+    engine.close()
 
     segments = [
-        SpeechSegment(
-            start=chunk.start,
-            end=chunk.end,
-            text=chunk.text,
-            language=chunk.language,
-            speaker=speakers[i],
-        )
-        for i, chunk in enumerate(chunks)
-        if chunk.text
+        SpeechSegment(start=c.start, end=c.end, text=c.text, language=c.language)
+        for c in chunks
+        if c.text
     ]
     transcript = Transcript(
         source=str(audio_path),
         duration_s=duration_s(audio),
-        asr_backend=engine.name,
+        asr_device=engine.device,
         asr_model=engine.model_id,
         segments=segments,
         text=_format_transcript(segments),
     )
+    return transcript, timings
 
+
+def write_minutes(transcript: Transcript, meeting_type: str) -> tuple[Minutes, float]:
+    t0 = time.perf_counter()
+    minutes = LocalLlm().extract_minutes(transcript, meeting_type)
+    return minutes, time.perf_counter() - t0
+
+
+def run_pipeline(
+    audio_path: Path,
+    meeting_type: str = "administrative",
+    skip_llm: bool = False,
+) -> PipelineResult:
+    transcript, timings = transcribe_audio(audio_path)
     if skip_llm:
-        minutes = Minutes(
-            title=audio_path.stem,
-            meeting_type=meeting_type,  # type: ignore[arg-type]
-            summary="",
-        )
+        minutes = Minutes(title=audio_path.stem, meeting_type=meeting_type, summary="")  # type: ignore[arg-type]
         timings["llm"] = 0.0
         return PipelineResult(transcript=transcript, minutes=minutes, elapsed_s=timings)
 
-    t0 = time.perf_counter()
-    minutes = LocalLlm().extract_minutes(transcript, meeting_type)
-    timings["llm"] = time.perf_counter() - t0
+    minutes, llm_s = write_minutes(transcript, meeting_type)
+    timings["llm"] = llm_s
     return PipelineResult(transcript=transcript, minutes=minutes, elapsed_s=timings)
 
 
 def _format_transcript(segments: list[SpeechSegment]) -> str:
     lines = []
     for seg in segments:
-        stamp = f"[{seg.start:.1f}-{seg.end:.1f}]"
-        who = f"{seg.speaker}: " if seg.speaker else ""
         lang = f" ({seg.language})" if seg.language else ""
-        lines.append(f"{stamp}{lang} {who}{seg.text}")
+        lines.append(f"[{seg.start:.1f}-{seg.end:.1f}]{lang} {seg.text}")
     return "\n".join(lines)

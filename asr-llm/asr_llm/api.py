@@ -5,8 +5,11 @@ from pathlib import Path
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 
+from .offline import block_outbound
 from .pipeline import run_pipeline
 from .schemas import MeetingType
+
+block_outbound()
 
 app = FastAPI(title="Medpark ASR+LLM", version="0.1.0")
 UPLOAD_DIR = Path("/tmp/medpark-asr")

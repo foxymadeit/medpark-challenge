@@ -7,8 +7,9 @@ __pycache__/
 .DS_Store
 sessions/
 data/team/
-asr_llm/models/
-asr_llm/.venv/
+asr-llm/models/whisper/
+asr-llm/models/llm/
+asr-llm/.venv/
 *.gguf
 *.bin
 *.pt
