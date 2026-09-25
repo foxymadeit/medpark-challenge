@@ -11,6 +11,7 @@ CC-BY 4.0; RTTM/UEM from github.com/pyannote/AMI-diarization-setup).
 """
 
 import argparse
+import dataclasses
 import itertools
 import pickle
 import time
@@ -18,6 +19,7 @@ from pathlib import Path
 
 from diarizer import models
 from diarizer.audio import load
+from diarizer.backend import Backend
 from diarizer.engine import Labeler, Observer
 from diarizer.neural import SR, Embedder, Segmenter
 from diarizer.timeline import Timeline
@@ -68,11 +70,20 @@ def read_uem(meeting):
     return float(f[2]), float(f[3])
 
 
+def project(cached, backend):
+    """Replay cached observations through a trained backend (raw embeddings stay cached)."""
+    if backend is None:
+        return cached
+    obs = [dataclasses.replace(o, embs=list(backend(o.embs)) if o.embs else []) for o in cached["obs"]]
+    return {**cached, "obs": obs}
+
+
 def score(cached, meeting, **params):
     tracker_keys = ("assign", "new", "anchor", "max_speakers")
     tracker = SpeakerTracker(**{k: v for k, v in params.items() if k in tracker_keys})
     lab = Labeler(tracker, Timeline(min_gap=params.get("min_gap", 0.5), min_dur=params.get("min_dur", 0.3)),
-                  merge=params.get("merge", 0.75), refine=params.get("refine", True))
+                  merge=params.get("merge", 0.75), final=params.get("final", "refine"),
+                  cluster=params.get("cluster", 0.5))
     for o in cached["obs"]:
         lab.apply(o)
     hyp = [(str(t.speaker), t.start, t.end) for t in lab.finish()]
@@ -100,14 +111,17 @@ def main():
     for k, v in (("assign", 0.55), ("new", 0.45), ("merge", 0.75), ("min_gap", 0.5), ("min_dur", 0.3)):
         ap.add_argument(f"--{k.replace('_', '-')}", dest=k, type=float, default=v)
     ap.add_argument("--max-speakers", type=int, default=0)
-    ap.add_argument("--no-refine", dest="refine", action="store_false")
+    ap.add_argument("--final", default="refine", choices=["recluster", "refine", "none"])
+    ap.add_argument("--cluster", type=float, default=0.5)
+    ap.add_argument("--backend", help="trained backend .npz applied to embeddings")
     a = ap.parse_args()
 
-    cached = {m: observe(m, a.kind, a.embedder, a.latency) for m in a.meetings}
+    backend = Backend.load(a.backend) if a.backend else None
+    cached = {m: project(observe(m, a.kind, a.embedder, a.latency), backend) for m in a.meetings}
     if a.cmd == "observe":
         return
     base = dict(assign=a.assign, new=a.new, merge=a.merge, min_gap=a.min_gap,
-                min_dur=a.min_dur, max_speakers=a.max_speakers, refine=a.refine)
+                min_dur=a.min_dur, max_speakers=a.max_speakers, final=a.final, cluster=a.cluster)
     if a.cmd == "score":
         rows = [{"meeting": m, "rtf": c["rtf"], "dur": c["dur"], **score(c, m, **base)} for m, c in cached.items()]
         report(rows, f"{a.embedder} {a.kind} ")
