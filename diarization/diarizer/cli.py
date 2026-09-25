@@ -17,6 +17,7 @@ import numpy as np
 
 from . import models
 from .audio import load, mic_blocks
+from .backend import Backend
 from .engine import Labeler, Observer, StreamingDiarizer
 from .export import build_session, clock, consecutive_labels, summary, write_all
 from .neural import SR, Embedder, Segmenter
@@ -33,7 +34,7 @@ def build(args) -> StreamingDiarizer:
         if getattr(args, k) is not None:
             th[k] = getattr(args, k)
     seg = Segmenter(models.model_path(models.SEGMENTATION), args.threads)
-    emb = Embedder(models.embedder_path(args.embedder), args.threads)
+    emb = Embedder(models.embedder_path(args.embedder), args.threads, backend=_backend(args))
     tracker = SpeakerTracker(assign=th["assign"], new=th["new"], max_speakers=args.speakers)
     if not args.no_voices:
         for name, embs in load_voices(args.embedder).items():
@@ -115,7 +116,7 @@ def cmd_enroll(args) -> None:
                 break
         audio = np.concatenate(chunks)
     seg = Segmenter(models.model_path(models.SEGMENTATION), args.threads)
-    emb = Embedder(models.embedder_path(args.embedder), args.threads)
+    emb = Embedder(models.embedder_path(args.embedder), args.threads, backend=_backend(args))
     embs = voice_embeddings(audio, seg, emb)
     if not embs:
         sys.exit("heard less than 3 s of speech; try again closer to the mic")
@@ -125,6 +126,11 @@ def cmd_enroll(args) -> None:
 
 def cmd_models(args) -> None:
     models.fetch(tuple(models.EMBEDDERS) if args.all else (models.DEFAULT_EMBEDDER,))
+
+
+def _backend(args):
+    path = None if getattr(args, "no_backend", False) else models.backend_path(args.embedder)
+    return Backend.load(path) if path else None
 
 
 def _start_time(text, path: Path, duration: float) -> float:
@@ -149,6 +155,7 @@ def main(argv=None) -> None:
         p.add_argument("--new", type=float, help="override the new-speaker threshold")
         p.add_argument("--merge", type=float, help="override the merge threshold")
         p.add_argument("--no-voices", action="store_true", help="ignore enrolled voices")
+        p.add_argument("--no-backend", action="store_true", help="skip the trained embedding projection")
         p.add_argument("--threads", type=int, default=2)
         p.add_argument("--out", help="output folder (default sessions/<start time>)")
 
@@ -172,6 +179,7 @@ def main(argv=None) -> None:
     p.add_argument("--embedder", default=models.DEFAULT_EMBEDDER, choices=list(models.EMBEDDERS))
     p.add_argument("--device")
     p.add_argument("--threads", type=int, default=2)
+    p.add_argument("--no-backend", action="store_true")
     p.set_defaults(fn=cmd_enroll)
 
     p = sub.add_parser("models", help="download models (needs internet once)")

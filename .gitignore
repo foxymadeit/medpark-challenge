@@ -6,6 +6,7 @@ diarization/models/*
 !diarization/models/segmentation-3.0.onnx
 !diarization/models/nemo_en_titanet_small.onnx
 !diarization/models/NOTICE.md
+!diarization/models/titanet-small.backend.d64.npz
 sessions/
 data/team/
 .DS_Store

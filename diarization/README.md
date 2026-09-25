@@ -53,7 +53,8 @@ speaker whose turns overlap it the most.
 
 Every 0.5 s, pyannote segmentation-3.0 looks at the last 5 s of audio and
 marks who is talking in each 17 ms frame. Each voice then gets a TitaNet
-embedding from its clean frames. The tracker keeps an average and a few
+embedding from its clean frames, passed through a projection trained on 38 AMI
+meetings (120 speakers) that keeps what tells voices apart and drops room sound. The tracker keeps an average and a few
 voice prototypes per person, so someone switching from Romanian to Russian
 keeps one label. It matches each new embedding to a known person or opens a
 new one. Labels lag the audio by 1 s so the model has heard a bit past each
@@ -62,10 +63,14 @@ the final voiceprints before the minutes are written.
 
 ## Measured (AMI far-field table mic, 4 speakers per meeting, 1 s latency)
 
-| Set | DER | Notes |
-|---|---|---|
-| AMI dev (ES2011a, IS1008a) | 23.1% | thresholds tuned here |
-| AMI test (ES2004a, IS1009a, TS3003a, EN2002a) | 41.4% | held out; under-counts one speaker per meeting, being fixed |
+| Set | DER | Speaker count right | Notes |
+|---|---|---|---|
+| AMI dev, 8 meetings | 27.7% | 5 of 8 | thresholds tuned here |
+| AMI test, 4 meetings (ES2004a, IS1009a, TS3003a, EN2002a) | **33.5%** | 1 of 4 exact, 2 over | held out, never tuned on |
+
+The test number is with the trained projection. Without it the same test set scores 38.2%, and
+with the first thresholds (tuned on 2 meetings) it scored 41.4%. The largest remaining error
+is missed speech (about 14%), quiet far-field talk the segmenter does not mark as speech.
 
 Speed on a 2017 Intel i5 (2 cores, 8 GB): about 0.15-0.25x real time, so a
 60-minute recording takes 10-15 minutes. Apple Silicon and servers are

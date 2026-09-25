@@ -34,11 +34,16 @@ EMBEDDERS = {
 # 0.15-1.3) and is the fastest of the three on CPU.
 DEFAULT_EMBEDDER = "titanet-small"
 
-# Cosine thresholds per embedder; tuned on AMI dev meetings (eval/run_eval.py).
+# Learned projection applied after the embedder (train/fit_backend.py, trained
+# on 38 AMI training meetings, 120 speakers). Loaded automatically when present.
+BACKENDS = {"titanet-small": "titanet-small.backend.d64.npz"}
+
+# Cosine thresholds per embedder, in the space the tracker actually sees (after
+# the backend when one exists). Tuned on 8 AMI dev meetings with eval/run_eval.py.
 THRESHOLDS = {
     "campp": {"assign": 0.55, "new": 0.45, "merge": 0.75},
     "resnet34": {"assign": 0.55, "new": 0.45, "merge": 0.75},
-    "titanet-small": {"assign": 0.40, "new": 0.25, "merge": 0.80},
+    "titanet-small": {"assign": 0.40, "new": 0.25, "merge": 0.90},
 }
 
 
@@ -55,6 +60,13 @@ def embedder_path(name: str) -> Path:
     if name not in EMBEDDERS:
         raise ValueError(f"unknown embedder {name!r}; choose from {', '.join(EMBEDDERS)}")
     return model_path(EMBEDDERS[name][0])
+
+
+def backend_path(embedder: str):
+    """Path of the embedder's trained backend, or None when it has none."""
+    name = BACKENDS.get(embedder)
+    p = MODELS_DIR / name if name else None
+    return p if p and p.is_file() else None
 
 
 def fetch(embedders=(DEFAULT_EMBEDDER,), log=print) -> None:

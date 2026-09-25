@@ -36,16 +36,19 @@ class Segmenter:
 
 
 class Embedder:
-    def __init__(self, path, threads: int = 1):
+    def __init__(self, path, threads: int = 1, backend=None):
         cfg = sherpa_onnx.SpeakerEmbeddingExtractorConfig(model=str(path), num_threads=threads)
         if not cfg.validate():
             raise ValueError(f"bad embedding model config for {path}")
         self._ex = sherpa_onnx.SpeakerEmbeddingExtractor(cfg)
-        self.dim = self._ex.dim
+        self.backend = backend
+        self.dim = backend.proj.shape[1] if backend is not None else self._ex.dim
 
     def __call__(self, samples: np.ndarray) -> np.ndarray:
         stream = self._ex.create_stream()
         stream.accept_waveform(sample_rate=SR, waveform=np.asarray(samples, dtype=np.float32))
         stream.input_finished()
         v = np.asarray(self._ex.compute(stream), dtype=np.float32)
+        if self.backend is not None:
+            return self.backend(v)
         return v / (np.linalg.norm(v) + 1e-9)
