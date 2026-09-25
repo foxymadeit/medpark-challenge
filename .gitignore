@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+diarization/models/
+sessions/
+data/team/
+.DS_Store
