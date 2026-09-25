@@ -47,11 +47,11 @@ socket.setdefaulttimeout(120)  # a stalled mirror raises and gets retried instea
 # reports a fraction done, its own speed replaces the plan; training reports
 # through train_progress.json.
 PLAN = {"setup": 1, "smoke": 5, "AMI": 25, "VoxPopuli RO": 6, "VoxConverse": 3, "AliMeeting": 6,
-        "check": 2, "train": 60, "export": 1}
+        "check": 2, "preflight": 2, "train": 60, "export": 1}
 if MULTI:
     PLAN = {"setup": 1, "echo": 4, "smoke": 5, "AMI": 20, "VoxPopuli RO": 25, "VoxConverse": 3,
             "VoxConverse test": 5, "AliMeeting": 6, "CV Russian": 20, "CV Romanian": 10, "Simsamu": 2,
-            "check": 4, "train": 180, "export": 1}
+            "check": 4, "preflight": 2, "train": 180, "export": 1}
 STATE = {"key": "setup", "phase": "start", "note": "", "frac": 0.0, "progress": 0, "watch": True,
          "t_phase": time.time(), "warnings": [], "phases": []}
 TRAIN_PROGRESS = WORK / "train_progress.json"
@@ -158,7 +158,8 @@ def heartbeat(every=60, stall=600):
             if STATE["progress"] != last:
                 last, since = STATE["progress"], time.time()
             ram, gpus = ram_free(), gpu_load()
-            idle = idle + 1 if gpus and all(u == 0 for u, _ in gpus) else 0
+            training = STATE["key"] == "train"  # the GPU is idle by design while data downloads
+            idle = idle + 1 if training and gpus and all(u == 0 for u, _ in gpus) else 0
             data = sum(f.stat().st_size for f in DATA.rglob("*") if f.is_file()) / 1e9 if DATA.exists() else 0.0
             spent, left = (time.time() - T0) / 60, minutes_left()
             problems = health(ram, gpus, idle)
@@ -218,22 +219,30 @@ def describe(name, xs):
 
 
 def check_pieces(items):
-    """Drop pieces that point at an unreadable file or run past its end. One
-    bad slice would otherwise crash training an hour in."""
+    """Drop pieces that point at an unreadable file or run past its end, and
+    swap stereo or non-16 kHz files for a 16 kHz mono copy. Either would
+    otherwise crash training an hour in; one stereo file stopped v3 and v4."""
     import soundfile as sf
-    length, keep, bad = {}, [], 0
-    for it in items:
-        if it[0] not in length:
+    length, fixed, keep, bad = {}, {}, [], 0
+    for path, off, dur, label in items:
+        if path not in length:
             try:
-                length[it[0]] = sf.info(it[0]).duration
+                info = sf.info(path)
+                length[path] = info.duration
+                if info.channels != 1 or info.samplerate != 16000:
+                    x, sr = sf.read(path, dtype="float32")
+                    fixed[path] = str(Path(path).with_suffix("")) + ".mono16k.wav"
+                    sf.write(fixed[path], to16k(x, sr), 16000)
+                    log(f"converted to 16 kHz mono: {path} ({info.channels} ch, {info.samplerate} Hz)")
             except Exception as e:
-                length[it[0]] = -1.0
-                log(f"unreadable {it[0]}: {e}")
-        if it[1] + it[2] <= length[it[0]] + 0.01:
-            keep.append(it)
+                length[path] = -1.0
+                log(f"unreadable {path}: {e}")
+        if off + dur <= length[path] + 0.01:
+            keep.append((fixed.get(path, path), off, dur, label))
         else:
             bad += 1
-    log(f"checked {len(length)} audio files: kept {len(keep)} pieces, dropped {bad}")
+    log(f"checked {len(length)} audio files: {len(fixed)} converted to 16 kHz mono, "
+        f"kept {len(keep)} pieces, dropped {bad}")
     return keep
 
 
@@ -509,8 +518,9 @@ def room_echo():
     for kind, pattern, min_dur in (("rir", "mediumroom/*/*.wav", 0.0), ("noise", "pointsource_noises/*.wav", 3.5)):
         rows = []
         for p in sorted((DATA / "echo").rglob(pattern)):
-            d = sf.info(p).duration
-            if d >= min_dur:  # a noise must cover a whole 3 s piece
+            info = sf.info(p)
+            d = info.duration
+            if d >= min_dur and info.channels == 1:  # a noise must cover a whole 3 s mono piece
                 rows.append(json.dumps({"audio_filepath": str(p), "duration": d, "offset": 0.0, "text": ""}))
         paths[kind] = DATA / f"{kind}.jsonl"
         paths[kind].write_text("\n".join(rows) + "\n")
@@ -619,6 +629,9 @@ def run():
     phase("check", "check pieces")
     items = check_pieces(items)
     write_manifests(items)
+    phase("preflight", "preflight: one real batch on the real data")
+    sh(f"cd {REPO}/diarization && python train/finetune_titanet.py --train {DATA}/train.jsonl "
+       f"--val {DATA}/val.jsonl --epochs 1 --smoke --out /tmp/preflight.onnx {aug}")
     phase("train", watch=False)
     epochs = os.environ.get("EPOCHS", "6" if MULTI else "8")
     sh(f"cd {REPO}/diarization && python train/finetune_titanet.py --train {DATA}/train.jsonl "
