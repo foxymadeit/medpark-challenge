@@ -3,10 +3,12 @@
   diarizer live   [--speakers N] [--out DIR]      listen to the mic, label voices as they appear
   diarizer file   MEETING.m4a [--speakers N]      same engine over a recording
   diarizer enroll NAME [--file CLIP] [--seconds 20]
+  diarizer attach SESSION.json WHISPER.json       put speaker names on a Whisper transcript
   diarizer models fetch [--all]                   one-time download (the only networked command)
 """
 
 import argparse
+import json
 import sys
 import threading
 import time
@@ -16,6 +18,7 @@ from pathlib import Path
 import numpy as np
 
 from . import models
+from .attach import attach, load_segments
 from .audio import load, mic_blocks
 from .backend import Backend
 from .engine import Labeler, Observer, StreamingDiarizer
@@ -124,6 +127,24 @@ def cmd_enroll(args) -> None:
     print(f"saved {len(embs)} voiceprints for {args.name} to {path}")
 
 
+def cmd_attach(args) -> None:
+    session = json.loads(Path(args.session).read_text())
+    if "turns" not in session:
+        sys.exit(f"{args.session} has no turns; pass the .json that diarizer file/live wrote")
+    try:
+        segments = load_segments(json.loads(Path(args.transcript).read_text()))
+    except (ValueError, KeyError, TypeError) as e:
+        sys.exit(f"could not read {args.transcript}: {e}")
+    t0 = datetime.fromisoformat(session["session_start"]).timestamp()
+    lines = [{**x, "start_clock": clock(t0 + x["start"]), "end_clock": clock(t0 + x["end"])}
+             for x in attach(segments, session["turns"], max_gap=args.max_gap)]
+    for x in lines:
+        print(f"{x['start_clock']}  {x['speaker'] or '?':<12}  {x['text']}")
+    out = Path(args.out) if args.out else Path(args.session).with_suffix(".transcript.json")
+    out.write_text(json.dumps({"session_start": session["session_start"], "lines": lines}, indent=2, ensure_ascii=False))
+    print(f"wrote {out}")
+
+
 def cmd_models(args) -> None:
     models.fetch(tuple(models.EMBEDDERS) if args.all else (models.DEFAULT_EMBEDDER,))
 
@@ -181,6 +202,13 @@ def main(argv=None) -> None:
     p.add_argument("--threads", type=int, default=2)
     p.add_argument("--no-backend", action="store_true")
     p.set_defaults(fn=cmd_enroll)
+
+    p = sub.add_parser("attach", help="put speaker names on a Whisper transcript")
+    p.add_argument("session", help="the .json written by diarizer file or live")
+    p.add_argument("transcript", help="Whisper JSON: openai-whisper, faster-whisper list, or whisper.cpp -oj")
+    p.add_argument("--max-gap", type=float, default=2.0, help="seconds to reach for the nearest turn when none overlaps")
+    p.add_argument("--out", help="output file (default <session>.transcript.json)")
+    p.set_defaults(fn=cmd_attach)
 
     p = sub.add_parser("models", help="download models (needs internet once)")
     p.add_argument("action", choices=["fetch"])

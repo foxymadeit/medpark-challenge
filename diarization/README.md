@@ -46,8 +46,17 @@ Outputs land in `sessions/<start time>/`:
 - `<id>.rttm` is the standard diarization format, used for scoring.
 - `<id>.csv` is for people.
 
-To attach speakers to a Whisper transcript, give each ASR segment the
-speaker whose turns overlap it the most.
+To put names on a Whisper transcript of the same recording:
+
+```bash
+diarizer attach sessions/20260925-141000/20260925-141000.json whisper.json
+```
+
+Each line goes to the speaker whose turns overlap it most. If Whisper was run
+with word timestamps, a line two people share is split where the voice
+changes. It reads openai-whisper JSON, a faster-whisper segment list, or
+whisper.cpp `-oj` output, and writes `<session>.transcript.json` with
+`speaker, start, end, start_clock, end_clock, text` per line.
 
 ## How it works
 
