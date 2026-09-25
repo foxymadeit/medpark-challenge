@@ -173,8 +173,12 @@ restraint and density. We ruled out anything cartoonish, pointed or chatty.
 - One job per screen; everything else is one tap away.
 - Very little text. Titles name the thing, and there are no helper paragraphs.
 - Numbers (times, durations, dates, counts) are always set in Geist Mono.
-- Minutes auto-send on a visible countdown that anyone in the room can stop.
+- Minutes auto-send on a 60-second countdown that anyone in the room can stop.
+  Longer would eat into the 15-minute target from the end of the meeting to
+  the email.
 - Soft corners everywhere, with no arrows or pointed shapes used as decoration.
+- Fully offline. Everything runs on the hospital's own computer, so the copy
+  never mentions the internet, the cloud, syncing or Wi-Fi.
 
 ## Colors
 
@@ -276,6 +280,27 @@ Pressed, Disabled and Focus states.
   first in tab order.
 - **Action item**: task, owner (speaker), deadline, and when it was said.
 - **Top bar**: wordmark, sections, the "Hospital network only" status, language.
+- **Loader**: three dots stepping every 0.35 s, for waits under 10 s.
+- **Skeleton**: grey bars with a sheen crossing in 1.2 s, for loading lists.
+- **Check**: rises from 90% to full size in 240 ms, once, for success.
+- **Recording pulse**: a red dot with a fading ring every second. It always
+  sits next to the word Recording and a timer.
+- **Toast**: Success, Error, Service, Undo. Bottom centre, one at a time,
+  4 s, and any action stays until it's used.
+
+### States
+
+| State | Rule | Screens |
+|---|---|---|
+| Loading | A skeleton after 300 ms, loader dots for waits under 10 s, and an ETA in clock time for anything longer | X01, E04, S06 |
+| Empty | Say what is missing and offer one way to fill it | X08 |
+| Error | Say what happened and that nothing was lost, then offer one next step and a reference code for IT | X02, X03, X04, E06 |
+| Service not answering | Recording carries on and is saved locally; processing resumes by itself | X05, X09 |
+| Sending stopped | Replaces the countdown in place, with one button to send | X10 |
+
+Voice enrollment (E01 to E09) is optional. Without it, voices appear as
+Speaker 1, 2, 3 and can be named after the meeting. The reading passages
+live in `diarization/diarizer/passages.py`.
 
 ### Motion
 
@@ -286,7 +311,12 @@ Pressed, Disabled and Focus states.
 | Screen change | 280 ms, same ease-out; shared parts stay, new parts fade and rise 8 px |
 | Route marker | 280 ms, `cubic-bezier(0.77, 0, 0.175, 1)` |
 | Countdown arrives | 240 ms ease-out, rises 12 px with the lift shadow |
-| Send countdown bar | 5 min linear |
+| Send countdown bar | 60 s linear |
+| Auto-advance (processing to minutes, loading to content) | 200 ms dissolve |
+| Loader dots | 0.35 s per step, looping |
+| Skeleton sheen | 1.2 s across, then restarts |
+| Success check | 240 ms ease-out, once |
+| Toast in and out | 200 ms ease-out, from and to the bottom |
 | Tabs, keyboard, menus | Instant |
 
 With `prefers-reduced-motion`, every movement becomes a 150 ms fade. The
