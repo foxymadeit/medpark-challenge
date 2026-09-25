@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local configuration, captured audio, and validation artifacts
+.env
+.env.*
+!.env.example
+*.wav
+*.mp3
+*.m4a
+*.webm
+coverage/
+test-results/
+playwright-report/

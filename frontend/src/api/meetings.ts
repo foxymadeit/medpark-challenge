@@ -1,0 +1,252 @@
+import { invalidMinutes } from "./validation";
+import type {
+  ActionItem,
+  CreateMeetingInput,
+  Meeting,
+  Participant,
+  SystemState,
+} from "../types/meeting";
+import { DEMO_MODE, distribution, SEND_COUNTDOWN_SECONDS } from "./config";
+import { ApiError, request } from "./client";
+import {
+  findMeeting,
+  getAudio,
+  mutate,
+  putAudio,
+  readStore,
+} from "../mock/store";
+const path = (id: string) => `/meetings/${encodeURIComponent(id)}`;
+export async function getMeetings(): Promise<Meeting[]> {
+  return DEMO_MODE ? readStore().meetings : request("/meetings");
+}
+export async function getMeeting(id: string): Promise<Meeting> {
+  return DEMO_MODE ? findMeeting(readStore(), id) : request(path(id));
+}
+export async function createMeeting(
+  input: CreateMeetingInput,
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return request("/meetings", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+  return mutate((s) => {
+    const m: Meeting = {
+      ...input,
+      id: crypto.randomUUID(),
+      title: input.title.trim().slice(0, 120),
+      status: "draft",
+      createdAt: new Date().toISOString(),
+      participants: input.participants.map((p, i) => ({
+        ...p,
+        speakerSlot: i,
+        speakerId: p.id,
+        speakingSeconds: 0,
+      })),
+      distributionList: [distribution[input.type].list],
+    };
+    s.meetings.unshift(m);
+    return m;
+  });
+}
+export async function updateMeeting(
+  id: string,
+  changes: Partial<Meeting>,
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return request(path(id), {
+      method: "PATCH",
+      body: JSON.stringify(changes),
+    });
+  return mutate((s) => Object.assign(findMeeting(s, id), changes, { id }));
+}
+export async function saveRecording(id: string, blob: Blob): Promise<void> {
+  if (!blob.size) throw new ApiError("invalidAudio");
+  if (DEMO_MODE) await putAudio(id, blob);
+  else {
+    const body = new FormData();
+    body.append("audio", blob, "recording.webm");
+    await request(`${path(id)}/recording`, { method: "POST", body });
+  }
+}
+export async function uploadRecording(
+  id: string,
+  file: File,
+  durationSeconds: number,
+): Promise<void> {
+  if (DEMO_MODE) {
+    await putAudio(id, file);
+    await updateMeeting(id, {
+      audioFilename: file.name,
+      audioBytes: file.size,
+      durationSeconds,
+      status: "uploaded",
+    });
+  } else {
+    const body = new FormData();
+    body.append("audio", file);
+    await request(`${path(id)}/upload`, { method: "POST", body });
+  }
+}
+export async function getRecording(id: string): Promise<Blob | undefined> {
+  if (DEMO_MODE) return getAudio(id);
+  const r = await fetch(`/api${path(id)}/recording`, {
+    credentials: "include",
+  });
+  if (!r.ok) return undefined;
+  return r.blob();
+}
+export async function startProcessing(id: string): Promise<Meeting> {
+  if (!DEMO_MODE) return request(`${path(id)}/process`, { method: "POST" });
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    if (!m.durationSeconds) throw new ApiError("invalidAudio");
+    return Object.assign(m, {
+      status: "processing" as const,
+      progress: 0,
+      processingStartedAt: new Date().toISOString(),
+      processingEndsAt: new Date(Date.now() + 12000).toISOString(),
+      sendScheduledAt: null,
+    });
+  });
+}
+export async function getProcessingState(id: string): Promise<Meeting> {
+  return DEMO_MODE ? getMeeting(id) : request(`${path(id)}/processing`);
+}
+export async function updateMinutes(
+  id: string,
+  changes: Pick<Partial<Meeting>, "summary" | "decisions">,
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return request(`${path(id)}/minutes`, {
+      method: "PATCH",
+      body: JSON.stringify(changes),
+    });
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    if (["sent", "sending"].includes(m.status))
+      throw new ApiError("alreadySent");
+    Object.assign(m, changes);
+    restartWindow(m);
+    return m;
+  });
+}
+function restartWindow(m: Meeting) {
+  if (invalidMinutes(m)) {
+    m.status = "ready";
+    m.sendScheduledAt = null;
+  } else if (m.status === "sending_soon") {
+    m.sendScheduledAt = new Date(
+      Date.now() + SEND_COUNTDOWN_SECONDS * 1000,
+    ).toISOString();
+    m.sendWindowSeconds = SEND_COUNTDOWN_SECONDS;
+  }
+}
+export async function updateActionItem(
+  id: string,
+  actionId: string,
+  changes: Partial<ActionItem>,
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return request(`${path(id)}/actions/${encodeURIComponent(actionId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(changes),
+    });
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    const a = m.actionItems?.find((a) => a.id === actionId);
+    if (!a) throw new ApiError("notFound");
+    if (changes.task !== undefined && !changes.task.trim())
+      throw new ApiError("required");
+    if (
+      ["sent", "sending"].includes(m.status) &&
+      Object.keys(changes).some((k) => k !== "completed")
+    )
+      throw new ApiError("alreadySent");
+    Object.assign(a, changes, { id: actionId });
+    restartWindow(m);
+    return m;
+  });
+}
+export async function toggleActionItem(id: string, actionId: string) {
+  const m = await getMeeting(id);
+  const a = m.actionItems?.find((a) => a.id === actionId);
+  if (!a) throw new ApiError("notFound");
+  return updateActionItem(id, actionId, { completed: !a.completed });
+}
+export async function stopScheduledSend(id: string): Promise<Meeting> {
+  if (!DEMO_MODE) return request(`${path(id)}/stop-send`, { method: "POST" });
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    if (m.status === "sending_soon") {
+      m.status = "ready";
+      m.sendScheduledAt = null;
+    }
+    return m;
+  });
+}
+export async function sendNow(id: string): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return request(`${path(id)}/send`, {
+      method: "POST",
+      headers: { "Idempotency-Key": `minutes-${id}` },
+    });
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    if (["sent", "sending"].includes(m.status)) return m;
+    if (!["ready", "sending_soon"].includes(m.status) || invalidMinutes(m))
+      throw new ApiError("unresolved");
+    m.status = "sending";
+    m.sendingStartedAt = new Date().toISOString();
+    m.sendScheduledAt = null;
+    return m;
+  });
+}
+export async function getTranscript(id: string) {
+  if (DEMO_MODE) return (await getMeeting(id)).transcript ?? [];
+  return request<NonNullable<Meeting["transcript"]>>(`${path(id)}/transcript`);
+}
+export async function getPeople(): Promise<Participant[]> {
+  return DEMO_MODE ? readStore().people : request("/people");
+}
+export async function addPerson(
+  person: Pick<Participant, "name" | "email">,
+): Promise<Participant> {
+  if (!person.name.trim()) throw new ApiError("required");
+  if (!DEMO_MODE)
+    return request("/people", { method: "POST", body: JSON.stringify(person) });
+  return mutate((s) => {
+    const p = { ...person, name: person.name.trim(), id: crypto.randomUUID() };
+    s.people.push(p);
+    return p;
+  });
+}
+export async function enrollVoice(id: string, blob: Blob): Promise<void> {
+  if (!blob.size) throw new ApiError("invalidAudio");
+  if (!DEMO_MODE) {
+    const body = new FormData();
+    body.append("audio", blob, "voice.webm");
+    return request(`/people/${encodeURIComponent(id)}/voice-enrollment`, {
+      method: "POST",
+      body,
+    });
+  }
+  await putAudio(`voice-${id}`, blob);
+  mutate((s) => {
+    const p = s.people.find((p) => p.id === id);
+    if (!p) throw new ApiError("notFound");
+    p.enrolled = true;
+    p.enrollmentKind = "prototype";
+    return p;
+  });
+}
+export async function getSystem(): Promise<SystemState> {
+  return DEMO_MODE
+    ? {
+        local: true,
+        services: ["asr", "speakers", "automation", "mail", "storage"].map(
+          (id) => ({ id, available: true }),
+        ),
+      }
+    : request("/system");
+}

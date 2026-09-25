@@ -1,0 +1,21 @@
+:root {
+  --sm-surface-ground: #f7f6f3;
+  --sm-surface-panel: #fff;
+  --sm-surface-hairline: #eae6df;
+  --sm-ink-primary: #101010;
+  --sm-ink-secondary: #5b544b;
+  --sm-ink-tertiary: #6f685f;
+  --sm-dept-medical: #2d765c;
+  --sm-dept-medical-tint: #daf4e5;
+  --sm-dept-executive: #42617e;
+  --sm-dept-executive-tint: #e2f2ff;
+  --sm-dept-administrative: #9147a6;
+  --sm-dept-administrative-tint: #f0daf7;
+  --sm-signal-danger: #b3261e;
+  --sm-radius-card: 18px;
+  --sm-radius-control: 10px;
+  --sm-shadow: 0 1px 2px #1010100a, 0 4px 12px #1010100a, 0 16px 32px #10101008;
+  --sm-heading: "Onest Variable", "Onest", Arial, sans-serif;
+  --sm-body: "Golos Text Variable", "Golos Text", Arial, sans-serif;
+  --sm-mono: "Geist Mono Variable", "Geist Mono", monospace;
+}

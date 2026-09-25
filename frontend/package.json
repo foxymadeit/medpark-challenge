@@ -7,21 +7,35 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "format": "prettier --write src tests *.ts *.json *.md"
   },
   "dependencies": {
-    "lucide-react": "^1.48.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
+    "@fontsource-variable/golos-text": "^5.3.0",
+    "@fontsource-variable/onest": "^5.3.1",
+    "@phosphor-icons/react": "^2.1.10",
+    "i18next": "^26.4.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "react-i18next": "^17.0.15",
     "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^29.1.1",
     "oxlint": "^1.81.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
     "typescript": "~6.0.2",
-    "vite": "^8.3.0"
+    "vite": "^8.3.0",
+    "vitest": "^5.0.2"
   }
 }

@@ -1,16 +1,33 @@
-import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
-
-function Layout() {
+import { useEffect } from "react";
+import { DEMO_MODE } from "../api/config";
+import { getMeetings } from "../api/meetings";
+import { Outlet, useLocation } from "react-router-dom";
+import TopBar from "./TopBar";
+import MobileTabBar from "./MobileTabBar";
+export default function Layout() {
+  useEffect(() => {
+    if (!DEMO_MODE) return;
+    // Reconcile persisted deadlines even while another page is open.
+    const timer = setInterval(() => {
+      void getMeetings().catch(() => {});
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+  const { pathname } = useLocation();
+  const tabs = [
+    "/meetings",
+    "/action-items",
+    "/history",
+    "/people",
+    "/system",
+  ].includes(pathname);
   return (
-    <div className="app-layout">
-      <Sidebar />
-
-      <main className="main-content">
+    <>
+      <TopBar />
+      <main className={`page-container ${tabs ? "with-tabs" : ""}`}>
         <Outlet />
       </main>
-    </div>
+      {tabs && <MobileTabBar />}
+    </>
   );
 }
-
-export default Layout;
