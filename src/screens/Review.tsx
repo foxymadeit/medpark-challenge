@@ -264,7 +264,7 @@ export function Review() {
             <h2 id="rv-transcript" className="section-title">
               {t('review.transcript')}
             </h2>
-            <p className="note">{t('review.word.hint')}</p>
+            <p className="note review__hint">{t('review.word.hint')}</p>
           </div>
           {removed && (
             <p className="undo-bar" role="status">
