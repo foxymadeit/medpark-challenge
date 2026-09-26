@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     home_bias: float = 0.1
     # Shorter clips ("Da", "Ага") carry the previous language; LID is noise there.
     min_lid_s: float = 1.5
+    # Utterances encoded, and language decodes run, per GPU call (asr_batched.py). 1 = one at a time.
+    asr_batch_size: int = 8
 
     llm_gguf: Path = ASR_ROOT / "models" / "llm" / "qwen2.5-7b-instruct-q4_k_m.gguf"
     # Minutes/fusion model: "" = llm_gguf, a GGUF path, or "ollama:<name>" (e.g. ollama:qwen3.5:9b).

@@ -65,6 +65,40 @@ class WhisperAsr:
         )
         if settings.asr_joint_languages:
             _use_joint_language_tokens(settings.asr_joint_languages)
+        # Word timings and joint language tokens only exist on the one-at-a-time path.
+        self.batched = settings.asr_batch_size > 1 and not settings.cs_merge and not settings.asr_joint_languages
+
+    def _languages(self, probs: list[tuple[str, float]]) -> list[str]:
+        languages = list(settings.asr_always_decode)
+        ranked = rank_languages(probs, settings.asr_languages)
+        if ranked and ranked[0][0] not in languages:
+            languages.append(ranked[0][0])
+        return languages
+
+    def transcribe_all(self, pieces: list[np.ndarray]) -> list[tuple[str, str | None, list[Hypothesis]]]:
+        """transcribe_batch over every piece in order, with the GPU work batched (asr_batched.py)."""
+        from .asr_batched import BatchedDecoder, short_languages
+
+        decoder = BatchedDecoder(self._model, settings.asr_batch_size)
+
+        def fallback(samples: np.ndarray, lang: str) -> tuple[str, float]:
+            text, _, score, _ = self._decode(samples, lang)
+            return text, score
+
+        short = [p.size < settings.min_lid_s * settings.sample_rate for p in pieces]
+        lead = [i for i in range(len(pieces)) if i == 0 or not short[i]]
+        found = dict(zip(lead, decoder.run([pieces[i] for i in lead], {}, self._languages, fallback)))
+        winners = {i: _winner(found[i])[1] for i in lead}
+        rest = short_languages(short, winners)
+        order = sorted(rest)
+        for i, got in zip(order, decoder.run([pieces[i] for i in order], {k: [rest[i]] for k, i in enumerate(order)}, self._languages, fallback)):
+            found[i] = got
+        out = []
+        for i in range(len(pieces)):
+            text, language = _winner(found[i])
+            hypotheses = [Hypothesis(language=lang, text=t, score=sc, words=[]) for lang, (t, sc) in found[i].items() if t]
+            out.append((text, language, hypotheses))
+        return out
 
     def transcribe_batch(
         self, samples: np.ndarray, prev_lang: str | None = None
@@ -173,7 +207,17 @@ def merge_words(best: Hypothesis, others: list[Hypothesis]) -> tuple[str, list[s
     return " ".join(w[2] for w in words), switched
 
 
+def _winner(results: dict[str, tuple[str, float]]) -> tuple[str, str]:
+    """(text, language) with the best biased score; ties go to the first language, as max() does."""
+    text, language, _, _ = max(((t, lang, sc, []) for lang, (t, sc) in results.items()), key=_biased_score)
+    return text, language
+
+
 def transcribe_batches(engine: WhisperAsr, batches) -> list[AsrChunk]:
+    batches = list(batches)
+    if getattr(engine, "batched", False):
+        found = engine.transcribe_all([b.samples for b in batches])
+        return [AsrChunk(start=b.start, end=b.end, text=t, language=lang, hypotheses=h) for b, (t, lang, h) in zip(batches, found)]
     chunks: list[AsrChunk] = []
     language: str | None = None
     for batch in batches:
