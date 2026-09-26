@@ -23,7 +23,9 @@ def sh(cmd: str, **kwargs) -> None:
 sh(f"git clone -q --depth 1 -b {BRANCH} https://github.com/foxymadeit/medpark-challenge {REPO}")
 sh("pip install -q 'nemo_toolkit[asr]' huggingface_hub soundfile pyarrow")
 audio = next(Path("/kaggle/input").rglob("*.m4a"))
-bench = f"{sys.executable} -m asr_train.zeroshot --work /kaggle/working"
+# The synthetic medical round ships in the repo; its recording script is the reference until someone corrects it by ear.
+clip = "--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md"
+bench = f"{sys.executable} -m asr_train.zeroshot --work /kaggle/working --sets all {clip}"
 sh(f"{bench} --audio '{audio}' --models parakeet,canary,jackrabbit", cwd=ASR)
 # Whisper runs the asr_llm pipeline: its deps and weights come after the NeMo runs. The test sets are reused.
 sh(f"pip install -q -e '{ASR}[asr]' && python scripts/fetch_whisper.py large-v3", cwd=ASR)

@@ -10,11 +10,15 @@ Test sets (first N utterances each, fixed order):
   cs_ro_en    CS-FLEURS MMS test, concatenative Romanian-English code-switching
 Timing: the full Medpark file and a 60-minute file built from it.
 gold and timing need --audio; without it they are skipped.
+Extra recordings: --clip NAME=AUDIO[,REFERENCE] adds set clip_NAME, one long clip, scored
+against REFERENCE if given (a gold .txt, or a recording script .md), else only transcribed.
 
     python -m asr_train.zeroshot --work runs/zeroshot --audio ../data/Medpark_audio.m4a
     python -m asr_train.zeroshot --work runs/zeroshot --models parakeet \\
         --model-path parakeet=runs/ft/parakeet-tdt-0.6b-v3-medpark.nemo       # score the fine-tune
     python -m asr_train.zeroshot --work runs/zeroshot --hf-mirror ~/hf-mirror  # offline test sets
+    python -m asr_train.zeroshot --work runs/synthetic --models parakeet,whisper \
+        --clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md
 
 Writes <work>/out/: sets.json, result_<model>.json, hyp_<model>_<set>.json, <model>.error.txt.
 Test sets are built once into <work>/data and reused; --rebuild-sets builds them again.
@@ -45,6 +49,16 @@ MATRIX = {
 NEMO_MODELS = {"parakeet": "nvidia/parakeet-tdt-0.6b-v3", "canary": "nvidia/canary-1b-v2"}
 MODELS = ("parakeet", "canary", "jackrabbit", "whisper")
 RO_ONLY = {"jackrabbit"}  # Romanian-only model: skip ru/en sets
+CLIP = "clip_"
+
+
+def is_long(name: str) -> bool:
+    """Whole recordings, decoded one at a time with the long-form settings."""
+    return name == "gold" or name.startswith(CLIP)
+
+
+def matrix(name: str) -> str:
+    return MATRIX.get(name, "ro")  # clips: Romanian-led meetings, like the gold
 
 
 class Bench:
@@ -57,7 +71,13 @@ class Bench:
 
     @property
     def sets_file(self) -> Path:
+        """Every public set built so far, reused by later runs."""
         return self.work / "sets.json"
+
+    @property
+    def run_file(self) -> Path:
+        """What this run scores (selected sets + clips); the Whisper child reads it."""
+        return self.work / "run_sets.json"
 
     def save(self, name: str, payload) -> None:
         (self.out / name).write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -133,6 +153,21 @@ def build_sets(bench: Bench, hub: Hub, n: int, wanted: list[str], audio: Path | 
     return sets
 
 
+def clip_sets(bench: Bench, clips: dict[str, tuple[Path, Path | None]]) -> dict[str, list[dict]]:
+    """One set per extra recording, converted every run (one ffmpeg call each)."""
+    return {
+        CLIP + name: [{"audio": str(ffmpeg_16k(audio, bench.data / f"{CLIP}{name}.wav")), "text": gold_text(ref) if ref else None}]
+        for name, (audio, ref) in clips.items()
+    }
+
+
+def score_items(items: list[dict], hyps: list[str]) -> dict:
+    """Scores only when every item has a reference; a clip without one is just transcribed."""
+    if any(i.get("text") is None for i in items):
+        return {"n": len(items), "scored": False}
+    return score([i["text"] for i in items], hyps)
+
+
 # ---------------------------------------------------------------- models
 
 def nemo_model(kind: str, hub: Hub, path: str | None, device: str):
@@ -172,14 +207,14 @@ def run_nemo(bench: Bench, hub: Hub, kind: str, sets: dict[str, list[dict]], pat
     model = nemo_model(kind, hub, path, device)
     result = {"model": path or NEMO_MODELS.get(kind, kind), "load_s": round(time.perf_counter() - t0, 1), "sets": {}}
     for name, items in sets.items():
-        if kind in RO_ONLY and MATRIX[name] != "ro":
+        if kind in RO_ONLY and matrix(name) != "ro":
             continue
-        long = name == "gold"
+        long = is_long(name)
         long_form(model, kind, long)
         t0 = time.perf_counter()
-        hyps = nemo_transcribe(model, kind, [i["audio"] for i in items], MATRIX[name], batch=1 if long else 16)
+        hyps = nemo_transcribe(model, kind, [i["audio"] for i in items], matrix(name), batch=1 if long else 16)
         seconds = time.perf_counter() - t0
-        result["sets"][name] = {**score([i["text"] for i in items], hyps), "seconds": round(seconds, 1)}
+        result["sets"][name] = {**score_items(items, hyps), "seconds": round(seconds, 1)}
         bench.save(f"hyp_{kind}_{name}.json", [{"ref": i["text"], "hyp": h} for i, h in zip(items, hyps)])
         if long:
             long_form(model, kind, False)
@@ -217,16 +252,17 @@ def whisper_child(bench: Bench) -> None:
     from asr_llm.audio import decode_audio
     from asr_llm.pipeline import transcribe_audio
 
-    sets = json.loads(bench.sets_file.read_text())
+    sets = json.loads(bench.run_file.read_text())
     engine, result = WhisperAsr(), {"sets": {}}
     for name, items in sets.items():
         t0 = time.perf_counter()
-        if name == "gold":
+        if is_long(name):  # the full pipeline ASR: VAD, ro+ru decodes, language pick
             transcript, _ = transcribe_audio(Path(items[0]["audio"]))
             hyps = [" ".join(s.text for s in transcript.segments)]
         else:
             hyps = [engine.transcribe_batch(decode_audio(Path(i["audio"])).astype(np.float32))[0] for i in items]
-        result["sets"][name] = {**score([i["text"] for i in items], hyps), "seconds": round(time.perf_counter() - t0, 1)}
+        result["sets"][name] = {**score_items(items, hyps), "seconds": round(time.perf_counter() - t0, 1)}
+        bench.save(f"hyp_whisper_{name}.json", [{"ref": i["text"], "hyp": h} for i, h in zip(items, hyps)])
         bench.save("result_whisper.json", result)
 
 
@@ -251,7 +287,23 @@ def parse_model_paths(values: list[str]) -> dict[str, str]:
     return paths
 
 
+def parse_clips(values: list[str]) -> dict[str, tuple[Path, Path | None]]:
+    clips = {}
+    for value in values:
+        name, sep, rest = value.partition("=")
+        audio, _, ref = rest.partition(",")
+        if not sep or not name or not audio:
+            raise argparse.ArgumentTypeError(f"--clip wants NAME=AUDIO[,REFERENCE], got {value!r}")
+        for path in filter(None, (audio, ref)):
+            if not Path(path).exists():
+                raise argparse.ArgumentTypeError(f"--clip {name}: {path} does not exist")
+        clips[name] = (Path(audio), Path(ref) if ref else None)
+    return clips
+
+
 def split_list(value: str, allowed, what: str) -> list[str]:
+    if value.strip() == "all":
+        return list(allowed)
     items = [v.strip() for v in value.split(",") if v.strip()]
     unknown = [v for v in items if v not in allowed]
     if unknown:
@@ -266,9 +318,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--gold", type=Path, default=GOLD)
     p.add_argument("--gold-seconds", type=float, default=181.0, help="Length of audio the gold covers.")
     p.add_argument("--n", type=int, default=int(os.environ.get("BENCH_N", "200")), help="Utterances per public test set.")
-    p.add_argument("--sets", type=lambda v: split_list(v, MATRIX, "sets"), default=list(MATRIX))
+    p.add_argument("--sets", type=lambda v: split_list(v, MATRIX, "sets"), default=None,
+                   help="Comma list or 'all'; default all, or none when --clip is given (no dataset downloads).")
     p.add_argument("--models", type=lambda v: split_list(v, MODELS, "models"), default=list(MODELS))
     p.add_argument("--model-path", action="append", default=[], help="kind=file.nemo: local weights instead of the Hub.")
+    p.add_argument("--clip", action="append", default=[], help="NAME=AUDIO[,REFERENCE]: an extra recording to transcribe (and score).")
     p.add_argument("--hf-mirror", type=Path, default=None, help="Local copies of the Hub repos; see asr_train/hub.py.")
     p.add_argument("--device", default="auto", help="auto | cuda:0 | cpu.")
     p.add_argument("--rebuild-sets", action="store_true")
@@ -276,6 +330,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     args = p.parse_args(argv)
     try:
         args.model_path = parse_model_paths(args.model_path)
+        args.clip = parse_clips(args.clip)
+        if args.sets is None:
+            args.sets = [] if args.clip else list(MATRIX)
     except argparse.ArgumentTypeError as exc:
         p.error(str(exc))
     if args.audio and not args.audio.exists():
@@ -290,14 +347,20 @@ def main(argv: list[str] | None = None) -> None:
         whisper_child(bench)
         return
     hub = Hub(mirror=args.hf_mirror)
-    if bench.sets_file.exists() and not args.rebuild_sets:
-        sets = json.loads(bench.sets_file.read_text())
-        print("reusing", bench.sets_file, {k: len(v) for k, v in sets.items()}, flush=True)
-        if missing := [k for k in args.sets if k not in sets]:
-            print(f"!! not in the reused sets: {', '.join(missing)} (--rebuild-sets to add them)", flush=True)
-    else:
-        sets = build_sets(bench, hub, args.n, args.sets, args.audio, args.gold, args.gold_seconds)
-    sets = {k: v for k, v in sets.items() if k in args.sets}
+    sets: dict[str, list[dict]] = {}
+    if args.sets:
+        if bench.sets_file.exists() and not args.rebuild_sets:
+            built = json.loads(bench.sets_file.read_text())
+            print("reusing", bench.sets_file, {k: len(v) for k, v in built.items()}, flush=True)
+            if missing := [k for k in args.sets if k not in built]:
+                print(f"!! not in the reused sets: {', '.join(missing)} (--rebuild-sets to add them)", flush=True)
+        else:
+            built = build_sets(bench, hub, args.n, args.sets, args.audio, args.gold, args.gold_seconds)
+        sets = {k: v for k, v in built.items() if k in args.sets}
+    sets.update(clip_sets(bench, args.clip))
+    if not sets:
+        raise SystemExit("nothing to run: no test set selected or built, and no --clip")
+    bench.run_file.write_text(json.dumps(sets, ensure_ascii=False))
 
     device = args.device
     if device == "auto" and any(m != "whisper" for m in args.models):

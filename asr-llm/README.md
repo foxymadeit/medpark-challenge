@@ -171,7 +171,16 @@ python -m asr_train.finetune --data-dir /tmp/smoke --out /tmp/ft --max-steps 50 
 python -m asr_train.zeroshot --work runs/zeroshot --audio ../data/Medpark_audio.m4a
 python -m asr_train.zeroshot --work runs/zeroshot --models parakeet \
     --model-path parakeet=runs/ft/parakeet-tdt-0.6b-v3-medpark.nemo
+
+# any extra recording: --clip NAME=AUDIO[,REFERENCE]; with only clips, no dataset is downloaded
+python -m asr_train.zeroshot --work runs/synthetic --models parakeet,whisper \
+    --clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md
 ```
+
+`data/syntethic_record.m4a` (4:32) should be a recording of `data/recording_scripts/medical_round.md`.
+A `.md` reference is read as the script's spoken lines. It is what was *meant* to be said, not a
+by-ear gold, so a changed or ad-libbed line counts against the model until the script is corrected.
+The `whisper` model here runs the full `asr_llm` ASR (VAD, ro+ru decodes, language pick).
 
 Checkpoints: the best two by `val_wer` and `last.ckpt` are saved after every dev check.
 `final.ckpt` and the `.nemo` are saved when training ends. `--max-hours` is a per-session

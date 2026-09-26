@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shlex
 import subprocess
 from pathlib import Path
@@ -33,7 +34,23 @@ def write_jsonl(path: Path, rows: list[dict]) -> None:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
+# "12. [R] (ru) text": a numbered line of a data/recording_scripts/*.md script.
+_SCRIPT_LINE = re.compile(r"^\s*\d+\.\s*\[[^\]]+\]\s*\([^)]*\)\s*(.*)$")
+_STAGE = re.compile(r"\*\([^)]*\)\*")  # "*(answers the phone)*": a direction, not speech
+
+
+def script_text(path: Path) -> str:
+    """The spoken lines of a recording script, without speaker/language tags, directions and overlap marks."""
+    spoken = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if m := _SCRIPT_LINE.match(line):
+            spoken.append(re.sub(r"\s+", " ", _STAGE.sub(" ", m.group(1)).replace("⟂", " ")).strip())
+    return " ".join(spoken)
+
+
 def gold_text(path: Path = GOLD) -> str:
-    """The hand-corrected gold as one string; "#" lines are notes and timestamps, not speech."""
+    """A reference as one string. A gold .txt drops "#" lines (notes and timestamps); a recording script .md keeps its spoken lines."""
+    if path.suffix == ".md":
+        return script_text(path)
     lines = path.read_text(encoding="utf-8").splitlines()
     return " ".join(line for line in lines if line.strip() and not line.lstrip().startswith("#"))
