@@ -25,7 +25,9 @@
   border-radius: var(--sm-radius-inner);
 }
 /* Wordmark: bold, and its cap-height box centred on the 25.5px sign. */
-.brand__name { position: relative; top: 1px; font: 700 17px/1 var(--sm-font-sign); letter-spacing: -0.2px; }
+.brand__name { position: relative; top: 1px; font: 600 16px/22px var(--sm-font-sign); letter-spacing: -0.08px; }
+/* Figma "Brand": "min" bold in the logo blue. */
+.wordmark__min { color: #007aff; font-weight: 700; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
 .account { position: relative; }
 .account__button {

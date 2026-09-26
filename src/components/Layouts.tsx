@@ -4,7 +4,7 @@ import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
 import { useStore } from '../store/AppStore';
 import { Avatar } from './Avatar';
-import { Logo } from './Logo';
+import { Logo, WithWordmark, Wordmark } from './Logo';
 import { Segmented } from './Segmented';
 
 function LanguageSwitch() {
@@ -117,7 +117,9 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
       )}
       <Link to={signedIn ? '/new' : '/'} className="brand">
         <Logo />
-        <span className="brand__name">{t('common.appName')}</span>
+        <span className="brand__name" aria-label={t('common.appName')}>
+          <Wordmark />
+        </span>
       </Link>
       <div className="topbar__right">
         <LanguageSwitch />
@@ -166,7 +168,9 @@ export function AccessLayout() {
         {/* Brand greeting above every access card (welcome, log in, sign up). */}
         <div className="access-brand">
           <Logo size={64} />
-          <p className="access-brand__title">{t('welcome.title')}</p>
+          <p className="access-brand__title">
+            <WithWordmark text={t('welcome.title')} />
+          </p>
         </div>
         {/* Stays mounted across welcome / log in / sign up, so the entrance plays once per visit. */}
         <div className="access-body">
