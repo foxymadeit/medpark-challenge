@@ -128,7 +128,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
       </td>
       <td>
         {!isYou && (
-          <button type="button" className="icon-btn icon-btn--lg" aria-label={t('participants.remove', { name: person.name })} onClick={() => setConfirming(true)}>
+          <button type="button" className="icon-btn" aria-label={t('participants.remove', { name: person.name })} onClick={() => setConfirming(true)}>
             <XIcon size={16} aria-hidden />
           </button>
         )}
@@ -173,12 +173,12 @@ export function Participants() {
       </div>
 
       <div className="table-card">
-        <table className="table">
+        <table className="table table--people">
           <colgroup>
             <col />
             <col style={{ width: 256 }} />
-            <col style={{ width: 216 }} />
-            <col style={{ width: 64 }} />
+            <col style={{ width: 208 }} />
+            <col style={{ width: 48 }} />
           </colgroup>
           <thead>
             <tr>

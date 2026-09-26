@@ -282,6 +282,10 @@
 .table--compact td { height: 56px; }
 .table--compact th:last-child,
 .table--compact td:last-child { padding-right: 16px; }
+/* Participants: tighter edges — circles 16px from the card, the ✕ column hugs its 32px button. */
+.table--people th:first-child, .table--people td:first-child { padding-left: 16px; }
+.table--people th:last-child, .table--people td:last-child { padding-right: 12px; padding-left: 4px; }
+.table--people td:nth-child(3) { padding-right: 8px; }
 .table tr.is-clickable { cursor: pointer; }
 .table tr.is-clickable:hover td { background: var(--sm-surface-ground); }
 .table tbody tr:last-child td:first-child { border-bottom-left-radius: var(--sm-radius-panel); }
