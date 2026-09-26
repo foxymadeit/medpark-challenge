@@ -2,12 +2,16 @@ import { CpuIcon, FileAudioIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons
 import { useEffect, useRef, useState, type DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
+import { ProgressBar } from '../components/ProgressBar';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatBytes } from '../lib/format';
 import { useDraftMeeting } from '../lib/meeting';
 import { useStore } from '../store/AppStore';
 
 import { ACCEPT, clearHandedUpload, handedUpload, isAudio, readMinutes } from '../lib/upload';
+
+/** MOCK upload time: nothing leaves the browser, the bar just fills. */
+const UPLOAD_MS = 2500;
 
 /** 03 — Upload audio. */
 export function Upload() {
@@ -21,6 +25,21 @@ export function Upload() {
   useEffect(clearHandedUpload, []);
   const [error, setError] = useState<string>();
   const [over, setOver] = useState(false);
+  // Every new file "uploads" first (bar in its row); Write minutes appears when it's done.
+  const [progress, setProgress] = useState(0);
+  const uploading = !!file && progress < 1;
+
+  useEffect(() => {
+    if (!file) return;
+    setProgress(0);
+    const started = performance.now();
+    const id = window.setInterval(() => {
+      const p = Math.min(1, (performance.now() - started) / UPLOAD_MS);
+      setProgress(p);
+      if (p >= 1) window.clearInterval(id);
+    }, 50);
+    return () => window.clearInterval(id);
+  }, [file]);
 
   const take = async (f?: File) => {
     if (!f) return;
@@ -37,7 +56,7 @@ export function Upload() {
 
   const submit = () => {
     if (!file) return;
-    const id = createMeetingFromDraft('uploaded', file.minutes, file.file.name);
+    const id = createMeetingFromDraft('uploaded', file.minutes, file.file.name, title);
     navigate(`/processing/${id}`);
   };
 
@@ -45,7 +64,7 @@ export function Upload() {
     <div className="page upload">
       <div className="upload__column">
         <div className="page__head">
-          <h1 className="t-h1">{file ? t('upload.uploaded') : t('upload.title')}</h1>
+          <h1 className="t-h1">{!file ? t('upload.title') : uploading ? t('upload.uploading') : t('upload.uploaded')}</h1>
           <p className="lead">
             {title} · {typeLabel} · {t('common.participantsCount', { count })}
           </p>
@@ -77,21 +96,28 @@ export function Upload() {
             <FileAudioIcon size={20} aria-hidden />
             <span className="who__text" style={{ flex: 1 }}>
               <span className="who__name truncate">{file.file.name}</span>
-              <span className="t-data-sm c-secondary">
-                {file.minutes ? `${t('common.minutes', { n: file.minutes })} · ` : ''}
-                {formatBytes(file.file.size)}
-              </span>
+              {uploading ? (
+                <span className="file-row__progress">
+                  <ProgressBar value={progress} label={t('upload.uploading')} />
+                  <span className="t-data-sm c-secondary">{Math.round(progress * 100)}%</span>
+                </span>
+              ) : (
+                <span className="t-data-sm c-secondary">
+                  {file.minutes ? `${t('common.minutes', { n: file.minutes })} · ` : ''}
+                  {formatBytes(file.file.size)}
+                </span>
+              )}
             </span>
             <button type="button" className="link-btn" onClick={() => input.current?.click()}>
               {t('upload.change')}
             </button>
-            <button type="button" className="icon-btn" aria-label={t('upload.remove', { name: file.file.name })} onClick={() => setFile(null)}>
+            <button type="button" className="icon-btn" aria-label={uploading ? t('upload.cancel') : t('upload.remove', { name: file.file.name })} onClick={() => setFile(null)}>
               <XIcon size={16} aria-hidden />
             </button>
           </div>
         )}
         {/* Appears only once a file is attached, right under it. */}
-        {file && (
+        {file && !uploading && (
           <Button variant="ink" icon={<CpuIcon size={20} aria-hidden />} onClick={submit} className="upload__submit">
             {t('upload.submit')}
           </Button>
