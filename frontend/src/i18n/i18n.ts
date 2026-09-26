@@ -10,7 +10,8 @@ const resources = {
       system: "System",
       auditTrail: "Audit trail",
       auditFrom: "From",
-      auditIntro: "What was done, when, and from which network address. Content is never recorded, and entries cannot be changed or deleted.",
+      auditIntro:
+        "What was done, when, and from which network address. Content is never recorded, and entries cannot be changed or deleted.",
       openActions: "Open action items",
       open: "Open",
       auditWhen: "When",
@@ -32,7 +33,8 @@ const resources = {
       audit_admin: "Changed administration",
       audit_other: "Other change",
       correctedWords: "Words people corrected",
-      correctedWordsIntro: "Terms people fixed by hand in the minutes. Approve one and transcription and the minutes use it from the next meeting on. Nothing is retrained.",
+      correctedWordsIntro:
+        "Terms people fixed by hand in the minutes. Approve one and transcription and the minutes use it from the next meeting on. Nothing is retrained.",
       correctedHeard: "Heard as",
       correctedTo: "Corrected to",
       correctedCount: "Times",
@@ -62,7 +64,7 @@ const resources = {
       network: "Hospital network only",
       startMeeting: "Start a meeting",
       meetingStartHint:
-        "Pick the meeting type. When you finish, the minutes are emailed to that team.",
+        "Pick the board. When you finish, the minutes are emailed to it.",
       allMeetings: "All meetings",
       medical: "Medical",
       executive: "Executive",
@@ -91,7 +93,7 @@ const resources = {
       minutes: "Minutes",
       meetingFor: "{{department}} meeting",
       recordRoom: "Record in this room",
-      micDescription: "Uses this laptop’s microphone.",
+      micDescription: "Uses this device’s microphone.",
       uploadRecording: "Upload a recording",
       audioFormats: "WAV, MP3, M4A or FLAC, up to 3 hours.",
       optionalTitle: "Title (optional)",
@@ -119,10 +121,9 @@ const resources = {
         "Speaker information will be available after processing.",
       whoWhen: "Who spoke when",
       lastTen: "Last 10 minutes",
-      thisLaptop: "This laptop",
       recordInterrupted:
         "Recording stopped. The saved audio can be processed or you can record again.",
-      dropAudio: "Drop the recording here",
+      dropAudio: "Add the recording",
       chooseFile: "Choose a file",
       checked: "Uploaded and checked",
       checking: "Checking recording…",
@@ -138,14 +139,10 @@ const resources = {
       minutesAbout: "Minutes ready at about",
       decisionsOwners: "Decisions, owners, deadlines",
       sendingIn: "Sending to the {{list}} in {{time}}",
-      reviewWindow_one: "{{count}} recipient. Fix an owner before it goes.",
-      reviewWindow_other: "{{count}} recipients. Fix an owner before it goes.",
-      reviewWindowPlain: "Fix an owner before it goes.",
       listRecipients_one: "{{list}}, {{count}} recipient",
       listRecipients_other: "{{list}}, {{count}} recipients",
       stopSending: "Stop sending",
       sendNow: "Send now",
-      sendPaused: "Automatic sending is paused.",
       unresolved:
         "Assign every task an owner before sending. A deadline may stay not set.",
       summary: "Summary",
@@ -184,15 +181,13 @@ const resources = {
       subject: "Subject",
       attachment: "Attachment",
       emailBody: "Message",
-      emailPreviewBody:
-        "Hello,\n\nPlease find attached the minutes for {{title}}, held on {{date}}.\n\nParticipants:\n{{participants}}\n\nSummary:\n{{summary}}\n\nDecisions:\n{{decisions}}\n\nAction items:\n{{actions}}\n\nRegards,\nLiminal",
       downloadWord: "Download Word",
       invalidRecipient:
-        "Every participant needs a valid email address before sending.",
+        "A participant’s email address is not valid. Fix it in Review participants, or clear it.",
       documentGenerationFailed: "The Word document could not be generated.",
       autoMode: "Automatic sending",
       autoModeDescription:
-        "Future option: send 30 seconds after processing. Manual review remains the default.",
+        "On by default: the minutes go 60 seconds after they are ready, and anyone can stop them in that window. Items the checks cannot confirm always wait for a person.",
       comingLater: "Coming later",
       templates: "Templates",
       newTemplate: "New template",
@@ -295,13 +290,9 @@ const resources = {
       voiceSaved: "Voice sample saved.",
       noOutside: "No outside connections",
       localProcessing: "Local processing",
-      asr: "Speech to text",
-      automation: "Minutes writer",
-      mail: "Local mail",
-      storage: "Local storage",
       serviceDesc_asr: "Turns the recording into text on this server",
       serviceDesc_speakers: "Works out who spoke when, on this server",
-      serviceDesc_automation: "Writes and checks the minutes on this server",
+      serviceDesc_automation: "Picks who receives the minutes for each board",
       serviceDesc_mail:
         "Sends the minutes through the hospital's own mail server",
       serviceDesc_storage: "Keeps recordings and minutes on this server",
@@ -372,7 +363,7 @@ const resources = {
       downloadPdf: "Download PDF",
       transcriptionStopped: "Transcription stopped at minute 12",
       sendingStopped: "Sending stopped. Nothing went out.",
-      sendingStoppedDetail: "Fix an owner or a deadline, then send when ready.",
+      sendingStoppedDetail: "Nothing goes out until you press Send now.",
       firstDayDescription: "Pick a board above to record or upload a meeting.",
       microphone:
         "Microphone unavailable. Allow microphone access in your browser, then try again.",
@@ -389,7 +380,7 @@ const resources = {
       surgery: "Surgery",
       procurement: "Procurement",
       noAudio: "No recording attached.",
-      selectDepartment: "Choose a department",
+      selectDepartment: "Choose a board",
       recordLimit: "The 3-hour recording limit has been reached.",
       stage_transcribe: "Transcribing",
       stage_speakers: "Finding who spoke",
@@ -410,8 +401,9 @@ const resources = {
       needsPersonDetail:
         "The checks could not confirm these against the transcript. Keep each one as written, or take it out of the minutes.",
       keep: "Keep",
-      typeCheck: "Set to go to the {{chosen}}. The first minutes sound like a meeting for the {{detected}}.",
-      typeCheckWhy: "The meeting type decides who receives the minutes.",
+      typeCheck:
+        "Set to go to the {{chosen}}. The first 3 minutes sound like a meeting for the {{detected}}.",
+      typeCheckWhy: "The board decides who receives the minutes.",
       keepType: "Keep {{list}}",
       switchType: "Send to {{list}}",
       takeOut: "Take out",
@@ -445,6 +437,30 @@ const resources = {
       sendAutomatically: "Send automatically when ready",
       sendAutomaticallyHint:
         "A 60-second window lets anyone stop it. Items the checks cannot confirm always wait for a person.",
+      fixBeforeSending:
+        "An action has no owner or deadline yet. Fix it before it goes.",
+      noCopyNoEmail: "No copy: no email",
+      allSettled: "All settled",
+      typeSection: "Meeting type",
+      typeCheckSwitched:
+        "Now going to the {{list}}, as the first 3 minutes suggested.",
+      typeCheckKept:
+        "Staying with the {{list}}, as set when the meeting started.",
+      typeSwitched: "Sent to {{list}}",
+      typeKept: "Kept {{list}}",
+      sendingToNow: "Sending to the {{list}}…",
+      service_asr: "Speech to text",
+      service_speakers: "Who spoke when",
+      service_minutes: "Minutes writer",
+      service_automation: "Board routing",
+      service_mail: "Local mail",
+      service_storage: "Local storage",
+      service_llm: "Language model",
+      serviceDesc_minutes: "Writes and checks the minutes on this server",
+      serviceDesc_llm:
+        "Reads the transcript and drafts the minutes, on this server",
+      starting: "Starting…",
+      participantNumber: "Participant {{number}}",
     },
   },
   ro: {
@@ -456,7 +472,8 @@ const resources = {
       system: "Sistem",
       auditTrail: "Jurnal de audit",
       auditFrom: "De la",
-      auditIntro: "Ce s-a făcut, când și de la ce adresă din rețea. Conținutul nu este înregistrat niciodată, iar intrările nu pot fi modificate sau șterse.",
+      auditIntro:
+        "Ce s-a făcut, când și de la ce adresă din rețea. Conținutul nu este înregistrat niciodată, iar intrările nu pot fi modificate sau șterse.",
       openActions: "Sarcini deschise",
       open: "Deschise",
       auditWhen: "Când",
@@ -477,8 +494,9 @@ const resources = {
       audit_edit: "A editat procesul-verbal",
       audit_admin: "A modificat administrarea",
       audit_other: "Altă modificare",
-      correctedWords: "Cuvinte corectate de oameni",
-      correctedWordsIntro: "Termeni corectați manual în procesele-verbale. Aprobă unul și transcrierea și procesele-verbale îl folosesc de la următoarea ședință. Nimic nu este reantrenat.",
+      correctedWords: "Cuvinte corectate manual",
+      correctedWordsIntro:
+        "Termeni corectați manual în procesele-verbale. Aprobă unul și transcrierea și procesele-verbale îl folosesc de la următoarea ședință. Nimic nu este reantrenat.",
       correctedHeard: "Auzit ca",
       correctedTo: "Corectat în",
       correctedCount: "De câte ori",
@@ -508,7 +526,7 @@ const resources = {
       network: "Doar în rețeaua spitalului",
       startMeeting: "Începe o ședință",
       meetingStartHint:
-        "Alege tipul ședinței. La final, procesul-verbal este trimis echipei respective.",
+        "Alege consiliul. La final, procesul-verbal îi este trimis prin email.",
       allMeetings: "Toate ședințele",
       medical: "Medicală",
       executive: "Executivă",
@@ -538,7 +556,7 @@ const resources = {
       minutes: "Proces-verbal",
       meetingFor: "Ședință {{department}}",
       recordRoom: "Înregistrează în această sală",
-      micDescription: "Folosește microfonul acestui laptop.",
+      micDescription: "Folosește microfonul acestui dispozitiv.",
       uploadRecording: "Încarcă o înregistrare",
       audioFormats: "WAV, MP3, M4A sau FLAC, până la 3 ore.",
       optionalTitle: "Titlu (opțional)",
@@ -566,10 +584,9 @@ const resources = {
         "Informațiile despre vorbitori vor apărea după procesare.",
       whoWhen: "Cine și când a vorbit",
       lastTen: "Ultimele 10 minute",
-      thisLaptop: "Acest laptop",
       recordInterrupted:
         "Înregistrarea s-a oprit. Poți procesa audio salvat sau înregistra din nou.",
-      dropAudio: "Plasează înregistrarea aici",
+      dropAudio: "Adaugă înregistrarea",
       chooseFile: "Alege un fișier",
       checked: "Încărcat și verificat",
       checking: "Se verifică înregistrarea…",
@@ -585,19 +602,11 @@ const resources = {
       minutesAbout: "Proces-verbal gata aproximativ la",
       decisionsOwners: "Decizii, responsabili, termene",
       sendingIn: "Trimitere către {{list}} în {{time}}",
-      reviewWindow_one:
-        "{{count}} destinatar. Corectează un responsabil înainte de trimitere.",
-      reviewWindow_few:
-        "{{count}} destinatari. Corectează un responsabil înainte de trimitere.",
-      reviewWindow_other:
-        "{{count}} de destinatari. Corectează un responsabil înainte de trimitere.",
-      reviewWindowPlain: "Corectează un responsabil înainte de trimitere.",
       listRecipients_one: "{{list}}, {{count}} destinatar",
       listRecipients_few: "{{list}}, {{count}} destinatari",
       listRecipients_other: "{{list}}, {{count}} de destinatari",
       stopSending: "Oprește trimiterea",
       sendNow: "Trimite acum",
-      sendPaused: "Trimiterea automată este oprită.",
       unresolved:
         "Atribuie fiecărei sarcini un responsabil înainte de trimitere. Termenul poate rămâne nestabilit.",
       summary: "Rezumat",
@@ -640,15 +649,13 @@ const resources = {
       subject: "Subiect",
       attachment: "Atașament",
       emailBody: "Mesaj",
-      emailPreviewBody:
-        "Bună ziua,\n\nGăsiți atașat procesul-verbal pentru {{title}}, desfășurată la {{date}}.\n\nParticipanți:\n{{participants}}\n\nRezumat:\n{{summary}}\n\nDecizii:\n{{decisions}}\n\nSarcini:\n{{actions}}\n\nCu respect,\nLiminal",
       downloadWord: "Descarcă Word",
       invalidRecipient:
-        "Fiecare participant trebuie să aibă o adresă de email validă înainte de trimitere.",
+        "Adresa de email a unui participant nu este validă. Corecteaz-o la participanți sau șterge-o.",
       documentGenerationFailed: "Documentul Word nu a putut fi generat.",
       autoMode: "Trimitere automată",
       autoModeDescription:
-        "Opțiune viitoare: trimitere la 30 de secunde după procesare. Verificarea manuală rămâne implicită.",
+        "Activă implicit: procesul-verbal pleacă la 60 de secunde după ce este gata, iar oricine îl poate opri în acest interval. Elementele pe care verificările nu le pot confirma așteaptă mereu o persoană.",
       comingLater: "Disponibil ulterior",
       templates: "Șabloane",
       newTemplate: "Șablon nou",
@@ -754,14 +761,10 @@ const resources = {
       voiceSaved: "Mostra de voce a fost salvată.",
       noOutside: "Fără conexiuni externe",
       localProcessing: "Procesare locală",
-      asr: "Transcriere audio",
-      automation: "Redactarea procesului-verbal",
-      mail: "Email local",
-      storage: "Stocare locală",
       serviceDesc_asr: "Transformă înregistrarea în text pe acest server",
       serviceDesc_speakers: "Stabilește cine și când a vorbit, pe acest server",
       serviceDesc_automation:
-        "Redactează și verifică procesul-verbal pe acest server",
+        "Alege cine primește procesul-verbal pentru fiecare consiliu",
       serviceDesc_mail:
         "Trimite procesul-verbal prin serverul de email al spitalului",
       serviceDesc_storage:
@@ -831,8 +834,7 @@ const resources = {
       downloadPdf: "Descarcă PDF",
       transcriptionStopped: "Transcrierea s-a oprit la minutul 12",
       sendingStopped: "Trimiterea este oprită. Nu s-a trimis nimic.",
-      sendingStoppedDetail:
-        "Corectează responsabilul sau termenul, apoi trimite când este gata.",
+      sendingStoppedDetail: "Nu pleacă nimic până nu apeși Trimite acum.",
       firstDayDescription:
         "Alege un consiliu de mai sus pentru a înregistra sau încărca o ședință.",
       microphone:
@@ -850,7 +852,7 @@ const resources = {
       surgery: "Chirurgie",
       procurement: "Achiziții",
       noAudio: "Nu există înregistrare atașată.",
-      selectDepartment: "Alege departamentul",
+      selectDepartment: "Alege consiliul",
       recordLimit: "A fost atinsă limita de 3 ore.",
       stage_transcribe: "Transcriere",
       stage_speakers: "Identificarea vorbitorilor",
@@ -874,8 +876,9 @@ const resources = {
       needsPersonDetail:
         "Verificarea nu le-a putut confirma în transcriere. Păstrează fiecare element așa cum este sau scoate-l din procesul-verbal.",
       keep: "Păstrează",
-      typeCheck: "Setată pentru {{chosen}}. Primele minute sună a ședință pentru {{detected}}.",
-      typeCheckWhy: "Tipul ședinței decide cine primește procesul-verbal.",
+      typeCheck:
+        "Ședința este setată pentru {{chosen}}, dar primele 3 minute par să fie pentru {{detected}}.",
+      typeCheckWhy: "Consiliul decide cine primește procesul-verbal.",
       keepType: "Păstrează {{list}}",
       switchType: "Trimite la {{list}}",
       takeOut: "Scoate",
@@ -912,6 +915,30 @@ const resources = {
       sendAutomatically: "Trimite automat când este gata",
       sendAutomaticallyHint:
         "O fereastră de 60 de secunde permite oprirea. Elementele neconfirmate așteaptă întotdeauna o persoană.",
+      fixBeforeSending:
+        "O sarcină nu are încă responsabil sau termen. Corecteaz-o înainte de trimitere.",
+      noCopyNoEmail: "Fără copie: nu are email",
+      allSettled: "Totul este rezolvat",
+      typeSection: "Tipul ședinței",
+      typeCheckSwitched:
+        "Pleacă acum la {{list}}, cum sugerau primele 3 minute.",
+      typeCheckKept: "Rămâne la {{list}}, cum a fost setată la început.",
+      typeSwitched: "Redirecționat către {{list}}",
+      typeKept: "Păstrat: {{list}}",
+      sendingToNow: "Se trimite către {{list}}…",
+      service_asr: "Transcriere audio",
+      service_speakers: "Cine a vorbit și când",
+      service_minutes: "Redactarea procesului-verbal",
+      service_automation: "Direcționare pe consilii",
+      service_mail: "Email local",
+      service_storage: "Stocare locală",
+      service_llm: "Model de limbaj",
+      serviceDesc_minutes:
+        "Redactează și verifică procesul-verbal pe acest server",
+      serviceDesc_llm:
+        "Citește transcrierea și redactează procesul-verbal, pe acest server",
+      starting: "Pornește…",
+      participantNumber: "Participantul {{number}}",
     },
   },
   ru: {
@@ -923,7 +950,8 @@ const resources = {
       system: "Система",
       auditTrail: "Журнал аудита",
       auditFrom: "Откуда",
-      auditIntro: "Что, когда и с какого сетевого адреса было сделано. Содержимое никогда не записывается, а записи нельзя изменить или удалить.",
+      auditIntro:
+        "Что, когда и с какого сетевого адреса было сделано. Содержимое никогда не записывается, а записи нельзя изменить или удалить.",
       openActions: "Открытые задачи",
       open: "Открытые",
       auditWhen: "Когда",
@@ -944,8 +972,9 @@ const resources = {
       audit_edit: "Изменил протокол",
       audit_admin: "Изменил администрирование",
       audit_other: "Другое изменение",
-      correctedWords: "Слова, которые исправили люди",
-      correctedWordsIntro: "Термины, исправленные вручную в протоколах. Одобрите термин, и расшифровка и протоколы будут использовать его со следующего заседания. Ничего не переобучается.",
+      correctedWords: "Исправленные слова",
+      correctedWordsIntro:
+        "Термины, исправленные вручную в протоколах. Одобрите термин, и расшифровка и протоколы будут использовать его со следующего заседания. Ничего не переобучается.",
       correctedHeard: "Распознано как",
       correctedTo: "Исправлено на",
       correctedCount: "Сколько раз",
@@ -975,7 +1004,7 @@ const resources = {
       network: "Только в сети больницы",
       startMeeting: "Начать совещание",
       meetingStartHint:
-        "Выберите тип совещания. После завершения протокол будет отправлен этой команде.",
+        "Выберите совет. После совещания протокол уйдёт ему по почте.",
       allMeetings: "Все совещания",
       medical: "Медицинское",
       executive: "Руководство",
@@ -1004,7 +1033,7 @@ const resources = {
       minutes: "Протокол",
       meetingFor: "Совещание: {{department}}",
       recordRoom: "Записать в этой комнате",
-      micDescription: "Использует микрофон этого ноутбука.",
+      micDescription: "Использует микрофон этого устройства.",
       uploadRecording: "Загрузить запись",
       audioFormats: "WAV, MP3, M4A или FLAC, до 3 часов.",
       optionalTitle: "Название (необязательно)",
@@ -1031,10 +1060,9 @@ const resources = {
       waitingSpeakers: "Информация об участниках появится после обработки.",
       whoWhen: "Кто и когда говорил",
       lastTen: "Последние 10 минут",
-      thisLaptop: "Этот ноутбук",
       recordInterrupted:
         "Запись остановлена. Обработайте сохранённое аудио или запишите снова.",
-      dropAudio: "Перетащите запись сюда",
+      dropAudio: "Добавьте запись",
       chooseFile: "Выбрать файл",
       checked: "Загружено и проверено",
       checking: "Проверка записи…",
@@ -1050,22 +1078,12 @@ const resources = {
       minutesAbout: "Протокол будет готов примерно в",
       decisionsOwners: "Решения, ответственные, сроки",
       sendingIn: "Отправка: {{list}}, через {{time}}",
-      reviewWindow_one:
-        "{{count}} получатель. Исправьте ответственного до отправки.",
-      reviewWindow_few:
-        "{{count}} получателя. Исправьте ответственного до отправки.",
-      reviewWindow_many:
-        "{{count}} получателей. Исправьте ответственного до отправки.",
-      reviewWindow_other:
-        "{{count}} получателя. Исправьте ответственного до отправки.",
-      reviewWindowPlain: "Исправьте ответственного до отправки.",
       listRecipients_one: "{{list}}, {{count}} получатель",
       listRecipients_few: "{{list}}, {{count}} получателя",
       listRecipients_many: "{{list}}, {{count}} получателей",
       listRecipients_other: "{{list}}, {{count}} получателя",
       stopSending: "Остановить отправку",
       sendNow: "Отправить сейчас",
-      sendPaused: "Автоматическая отправка приостановлена.",
       unresolved:
         "Укажите ответственного для каждой задачи перед отправкой. Срок можно не указывать.",
       summary: "Резюме",
@@ -1105,15 +1123,13 @@ const resources = {
       subject: "Тема",
       attachment: "Вложение",
       emailBody: "Сообщение",
-      emailPreviewBody:
-        "Здравствуйте,\n\nВо вложении протокол совещания {{title}}, состоявшегося {{date}}.\n\nУчастники:\n{{participants}}\n\nРезюме:\n{{summary}}\n\nРешения:\n{{decisions}}\n\nЗадачи:\n{{actions}}\n\nС уважением,\nLiminal",
       downloadWord: "Скачать Word",
       invalidRecipient:
-        "Перед отправкой у каждого участника должен быть действительный адрес электронной почты.",
+        "У участника недействительный адрес почты. Исправьте его в списке участников или удалите.",
       documentGenerationFailed: "Не удалось создать документ Word.",
       autoMode: "Автоматическая отправка",
       autoModeDescription:
-        "Будущая опция: отправка через 30 секунд после обработки. Ручная проверка остаётся стандартной.",
+        "Включена по умолчанию: протокол уходит через 60 секунд после готовности, и за это время любой может остановить отправку. Пункты, которые проверки не подтвердили, всегда ждут человека.",
       comingLater: "Позже",
       templates: "Шаблоны",
       newTemplate: "Новый шаблон",
@@ -1219,13 +1235,10 @@ const resources = {
       voiceSaved: "Образец голоса сохранён.",
       noOutside: "Без внешних подключений",
       localProcessing: "Локальная обработка",
-      asr: "Речь в текст",
-      automation: "Составление протокола",
-      mail: "Локальная почта",
-      storage: "Локальное хранилище",
       serviceDesc_asr: "Превращает запись в текст на этом сервере",
       serviceDesc_speakers: "Определяет, кто и когда говорил, на этом сервере",
-      serviceDesc_automation: "Составляет и проверяет протокол на этом сервере",
+      serviceDesc_automation:
+        "Выбирает получателей протокола для каждого совета",
       serviceDesc_mail: "Отправляет протокол через почтовый сервер больницы",
       serviceDesc_storage: "Хранит записи и протоколы на этом сервере",
       available: "Доступно",
@@ -1296,7 +1309,7 @@ const resources = {
       transcriptionStopped: "Расшифровка остановилась на 12-й минуте",
       sendingStopped: "Отправка остановлена. Ничего не отправлено.",
       sendingStoppedDetail:
-        "Исправьте ответственного или срок, затем отправьте.",
+        "Ничего не уйдёт, пока вы не нажмёте «Отправить сейчас».",
       firstDayDescription:
         "Выберите отделение выше, чтобы записать или загрузить совещание.",
       microphone:
@@ -1313,7 +1326,7 @@ const resources = {
       surgery: "Хирургия",
       procurement: "Закупки",
       noAudio: "Запись не прикреплена.",
-      selectDepartment: "Выберите отделение",
+      selectDepartment: "Выберите совет",
       recordLimit: "Достигнут лимит записи в 3 часа.",
       stage_transcribe: "Распознавание речи",
       stage_speakers: "Определение выступающих",
@@ -1336,8 +1349,9 @@ const resources = {
       needsPersonDetail:
         "Проверка не нашла их в стенограмме. Оставьте каждый пункт как есть или уберите его из протокола.",
       keep: "Оставить",
-      typeCheck: "Назначено: {{chosen}}. По первым минутам это похоже на заседание: {{detected}}.",
-      typeCheckWhy: "Тип заседания определяет, кто получит протокол.",
+      typeCheck:
+        "Сейчас получатель: {{chosen}}. По первым 3 минутам это похоже на заседание другого совета: {{detected}}.",
+      typeCheckWhy: "Совет определяет, кто получит протокол.",
       keepType: "Оставить: {{list}}",
       switchType: "Отправить: {{list}}",
       takeOut: "Убрать",
@@ -1374,6 +1388,29 @@ const resources = {
       sendAutomatically: "Отправить автоматически, когда будет готово",
       sendAutomaticallyHint:
         "60 секунд, чтобы остановить отправку. Неподтверждённые пункты всегда ждут человека.",
+      fixBeforeSending:
+        "У задачи ещё нет ответственного или срока. Исправьте до отправки.",
+      noCopyNoEmail: "Без копии: нет почты",
+      allSettled: "Всё решено",
+      typeSection: "Тип заседания",
+      typeCheckSwitched:
+        "Теперь получатель: {{list}}, как подсказали первые 3 минуты.",
+      typeCheckKept: "Получатель остаётся прежним: {{list}}.",
+      typeSwitched: "Направлено: {{list}}",
+      typeKept: "Оставлено: {{list}}",
+      sendingToNow: "Идёт отправка: {{list}}…",
+      service_asr: "Речь в текст",
+      service_speakers: "Кто и когда говорил",
+      service_minutes: "Составление протокола",
+      service_automation: "Маршрутизация по советам",
+      service_mail: "Локальная почта",
+      service_storage: "Локальное хранилище",
+      service_llm: "Языковая модель",
+      serviceDesc_minutes: "Составляет и проверяет протокол на этом сервере",
+      serviceDesc_llm:
+        "Читает расшифровку и готовит черновик протокола на этом сервере",
+      starting: "Запуск…",
+      participantNumber: "Участник {{number}}",
     },
   },
 };

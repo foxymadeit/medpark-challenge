@@ -25,19 +25,23 @@ export function routingLine(
     : t("routingTo", { list: listName(type, t) });
 }
 
-function countByType(entries: [string, unknown][]): Routing {
+/** Recipients in any shape the server has used: a list, a count, a
+ * comma-separated string, or `{name, recipients}` around one of those. */
+function recipientCount(value: unknown): number {
+  if (Array.isArray(value)) return value.length;
+  if (typeof value === "number") return value;
+  if (typeof value === "string")
+    return value.split(",").filter((a) => a.trim()).length;
+  if (typeof value === "object" && value && "recipients" in value)
+    return recipientCount((value as { recipients: unknown }).recipients);
+  return 0;
+}
+
+export function countByType(entries: [string, unknown][]): Routing {
   const out: Routing = {};
   for (const [type, value] of entries) {
     if (!(departments as readonly string[]).includes(type)) continue;
-    const n = Array.isArray(value)
-      ? value.length
-      : typeof value === "number"
-        ? value
-        : typeof value === "object" && value && "recipients" in value
-          ? Number((value as { recipients: unknown }).recipients) || 0
-          : typeof value === "string"
-            ? value.split(",").filter((a) => a.trim()).length
-            : 0;
+    const n = recipientCount(value);
     if (n > 0) out[type as MeetingType] = n;
   }
   return out;

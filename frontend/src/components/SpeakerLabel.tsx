@@ -1,4 +1,4 @@
-import { speakerColor } from "../utils";
+import { personName, speakerColor } from "../utils";
 import { useTranslation } from "react-i18next";
 import type { Participant } from "../types/meeting";
 export default function SpeakerLabel({
@@ -15,7 +15,7 @@ export default function SpeakerLabel({
         className="speaker-dot"
         style={{ background: speakerColor(person?.speakerSlot ?? slot) }}
       />
-      {person?.name ?? t("speaker", { number: slot + 1 })}
+      {person ? personName(person, t) : t("speaker", { number: slot + 1 })}
     </span>
   );
 }

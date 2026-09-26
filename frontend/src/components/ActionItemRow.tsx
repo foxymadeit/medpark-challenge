@@ -13,7 +13,7 @@ import SpeakerLabel from "./SpeakerLabel";
 import Button from "./Button";
 import Modal from "./Modal";
 import InputField from "./InputField";
-import { formatDay, formatTime } from "../utils";
+import { formatDay, formatTime, personName } from "../utils";
 export default function ActionItemRow({
   meeting,
   item,
@@ -173,7 +173,7 @@ export default function ActionItemRow({
                 <option value="">{t("unassigned")}</option>
                 {meeting.participants.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name}
+                    {personName(p, t)}
                   </option>
                 ))}
               </select>

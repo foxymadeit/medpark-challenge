@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { decideConfirmation, markReviewed, sendNow } from "../api/meetings";
+import { decideConfirmation, markReviewed } from "../api/meetings";
+import { openSendWindow } from "../api/sendWindow";
 import { notifyUpdate } from "../hooks/useData";
 import type { ConfirmItem, Meeting } from "../types/meeting";
 import Button from "./Button";
@@ -21,6 +22,9 @@ export default function NeedsConfirmation({
   const { t } = useTranslation();
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  // Switching the type changes meeting.type; the question keeps naming the
+  // board the meeting started with.
+  const [startType] = useState(meeting.type);
   // The server drops an item from its list once it is settled, so keep the
   // list this person started with; their choices stay on screen.
   const [seen, setSeen] = useState<ConfirmItem[]>(meeting.confirmItems ?? []);
@@ -69,92 +73,132 @@ export default function NeedsConfirmation({
       });
   }
   async function finish() {
-    const ok = await run("continue", async () => {
-      await markReviewed(meeting.id);
-      // The person has settled every flagged item and asked to send: in
-      // automatic mode that is the go-ahead, with no second click.
-      if (meeting.sendMode === "auto") await sendNow(meeting.id);
-    });
+    const ok = await run("continue", () => markReviewed(meeting.id));
+    // Automatic sending promised a window in which anyone can stop it; the
+    // settled minutes get that window rather than going at once.
+    if (ok && meeting.sendMode === "auto")
+      openSendWindow(meeting.id, meeting.sendWindowSeconds ?? 60);
     if (ok) onDone?.();
   }
-  // The meeting-type check reads as a choice between two lists, not keep or take out.
-  const startedAs = (item: ConfirmItem) => item.chosenType ?? meeting.type;
-  function title(item: ConfirmItem) {
-    return item.detectedType
-      ? t("typeCheck", {
-          chosen: listName(startedAs(item), t),
-          detected: listName(item.detectedType, t),
-        })
-      : item.text;
+  const typeItem = items.find((i) => i.detectedType);
+  const others = items.filter((i) => !i.detectedType);
+  function actions(item: (typeof items)[number], wide = false) {
+    const chosen = typeItem?.chosenType ?? startType;
+    const labels = item.detectedType
+      ? {
+          keep: t("keepType", { list: listName(chosen, t) }),
+          takeOut: t("switchType", { list: listName(item.detectedType, t) }),
+          kept: t("typeKept", { list: listName(chosen, t) }),
+          takenOut: t("typeSwitched", {
+            list: listName(item.detectedType, t),
+          }),
+        }
+      : {
+          keep: t("keep"),
+          takeOut: t("takeOut"),
+          kept: t("kept"),
+          takenOut: t("takenOut"),
+        };
+    // one key per state, so the new state fades in rather than snapping
+    if (item.settledElsewhere)
+      return (
+        <span key="settled" className="confirm-state expand-in">
+          {t("settled")}
+        </span>
+      );
+    if (item.decision)
+      return (
+        <div key="decided" className="button-row expand-in">
+          <span className="confirm-state">
+            {item.decision === "keep" ? labels.kept : labels.takenOut}
+          </span>
+          <Button
+            variant="quiet"
+            disabled={!!busy}
+            onClick={() => void decide(item.id, item.decision !== "keep")}
+          >
+            {t("change")}
+          </Button>
+        </div>
+      );
+    return (
+      <div
+        key="open"
+        className={`button-row expand-in ${wide ? "confirm-choice" : ""}`}
+      >
+        <Button
+          disabled={!!busy}
+          aria-label={
+            item.detectedType ? undefined : `${labels.takeOut}: ${item.text}`
+          }
+          onClick={() => void decide(item.id, false)}
+        >
+          {labels.takeOut}
+        </Button>
+        <Button
+          disabled={!!busy}
+          aria-label={
+            item.detectedType ? undefined : `${labels.keep}: ${item.text}`
+          }
+          onClick={() => void decide(item.id, true)}
+        >
+          {labels.keep}
+        </Button>
+      </div>
+    );
   }
-  function labels(item: ConfirmItem) {
-    if (!item.detectedType) {
-      return {
-        takeOut: `${t("takeOut")}: ${item.text}`,
-        takeOutText: t("takeOut"),
-        keep: `${t("keep")}: ${item.text}`,
-        keepText: t("keep"),
-      };
-    }
-    const keepText = t("keepType", { list: listName(startedAs(item), t) });
-    const takeOutText = t("switchType", {
-      list: listName(item.detectedType, t),
-    });
-    return { takeOut: takeOutText, takeOutText, keep: keepText, keepText };
+  // The type check reads as where the minutes go, now and after a choice.
+  function typeQuestion(item: ConfirmItem & { decision?: Choice }) {
+    const chosen = listName(item.chosenType ?? startType, t);
+    const detected = listName(item.detectedType!, t);
+    if (item.decision === "remove")
+      return t("typeCheckSwitched", { list: detected });
+    if (item.decision === "keep") return t("typeCheckKept", { list: chosen });
+    return t("typeCheck", { chosen, detected });
   }
   return (
     <section className="panel needs-confirmation" aria-labelledby="nc-title">
-      <h2 id="nc-title">{t("needsPerson", { count: items.length })}</h2>
-      <p className="muted">{t("needsPersonDetail")}</p>
-      <ul className="confirm-list">
-        {items.map((item) => (
-          <li key={item.id} className="confirm-row">
+      <h2 id="nc-title" key={open ? "open" : "settled"} className="expand-in">
+        {open ? t("needsPerson", { count: open }) : t("allSettled")}
+      </h2>
+      {typeItem && (
+        <div
+          className="confirm-type"
+          role="group"
+          aria-labelledby="nc-type-title"
+        >
+          <h3 id="nc-type-title">{t("typeSection")}</h3>
+          <div className="confirm-row">
             <div>
-              <strong>{title(item)}</strong>
-              <p>
-                {item.detectedType
-                  ? t("typeCheckWhy")
-                  : item.problems?.length
-                    ? explainProblems(item.problems, t)
-                    : item.reason}
-              </p>
+              <strong key={typeItem.decision ?? "open"} className="expand-in">
+                {typeQuestion(typeItem)}
+              </strong>
+              <p>{t("typeCheckWhy")}</p>
             </div>
-            {item.settledElsewhere ? (
-              <span className="confirm-state">{t("settled")}</span>
-            ) : item.decision ? (
-              <div className="button-row">
-                <span className="confirm-state">
-                  {t(item.decision === "keep" ? "kept" : "takenOut")}
-                </span>
-                <Button
-                  variant="quiet"
-                  disabled={!!busy}
-                  onClick={() => void decide(item.id, item.decision !== "keep")}
-                >
-                  {t("change")}
-                </Button>
-              </div>
-            ) : (
-              <div className="button-row">
-                <Button
-                  disabled={!!busy}
-                  aria-label={labels(item).takeOut}
-                  onClick={() => void decide(item.id, false)}
-                >
-                  {labels(item).takeOutText}
-                </Button>
-                <Button
-                  disabled={!!busy}
-                  aria-label={labels(item).keep}
-                  onClick={() => void decide(item.id, true)}
-                >
-                  {labels(item).keepText}
-                </Button>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+            {actions(typeItem, true)}
+          </div>
+        </div>
+      )}
+      {others.length > 0 && (
+        <>
+          <p className="muted">{t("needsPersonDetail")}</p>
+          <ul className="confirm-list">
+            {others.map((item) => (
+              <li key={item.id} className="confirm-row">
+                <div>
+                  <strong>{item.text}</strong>
+                  <p>
+                    {item.problems?.length
+                      ? explainProblems(item.problems, t)
+                      : item.reason}
+                  </p>
+                </div>
+                {actions(item)}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
       <div className="confirm-footer">
         <p className="muted">
           {t("sendingWaits", { list: listName(meeting.type, t) })}

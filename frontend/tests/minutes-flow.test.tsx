@@ -134,9 +134,11 @@ describe("real pipeline screens", () => {
     });
     mount(`/meetings/${m.id}/minutes`);
     await screen.findByText(
-      "Set to go to the Medical board. The first minutes sound like a meeting for the Executive board.",
+      "Set to go to the Medical board. The first 3 minutes sound like a meeting for the Executive board.",
     );
-    expect(screen.getByRole("button", { name: "Keep Medical board" })).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Keep Medical board" }),
+    ).toBeTruthy();
     await user.click(
       screen.getByRole("button", { name: "Send to Executive board" }),
     );

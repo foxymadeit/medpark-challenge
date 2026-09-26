@@ -140,9 +140,17 @@
 .recipient-line {
   display: block;
 }
-.email-body-field textarea {
-  resize: vertical;
-  min-height: 180px;
+/* the email as the server writes it; read-only, because the server
+   builds the message itself */
+.email-body {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--sm-surface-hairline);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.6;
 }
 .email-preview-actions {
   justify-content: flex-end;
@@ -2129,15 +2137,14 @@ blockquote {
 .door-stack .department-door {
   min-height: auto;
   display: grid;
-  grid-template-columns: 56px 1fr;
-  column-gap: 20px;
+  gap: 4px;
 }
 .door-stack .department-door h2 {
   font-size: 20px;
   margin: 0;
 }
 .door-stack .department-door p {
-  grid-column: 2;
+  margin: 0;
   font-size: 13px;
 }
 @media (min-width: 1600px) {
@@ -2348,6 +2355,10 @@ blockquote {
   .page-container.with-tabs {
     /* room for the bottom bar, plus the home indicator on phones */
     padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+  /* a control reached with Tab or scrolled into view stops above the bar */
+  html:has(.mobile-tabs) {
+    scroll-padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
   h1 {
     font-size: 28px;
@@ -2861,7 +2872,11 @@ blockquote {
   }
 }
 
-/* System page: the audit trail, read-only */
+/* System page: the audit trail, read-only. On a phone a wide table scrolls
+   inside its panel, never the page. */
+.table-scroll {
+  overflow-x: auto;
+}
 .audit-trail table,
 .corrected-words table {
   width: 100%;

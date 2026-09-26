@@ -5,6 +5,7 @@ import { useData, notifyUpdate } from "../hooks/useData";
 import type { Meeting } from "../types/meeting";
 import Button from "./Button";
 import StatePanel from "./StatePanel";
+import { personName } from "../utils";
 import { routingLine } from "../api/routing";
 import { useRouting } from "../hooks/useRouting";
 
@@ -76,7 +77,7 @@ export default function ReviewParticipants({ meeting }: { meeting: Meeting }) {
         <div className="participant-summary expand-in">
           {meeting.participants.length ? (
             meeting.participants.map((person) => (
-              <span key={person.id}>{person.name}</span>
+              <span key={person.id}>{personName(person, t)}</span>
             ))
           ) : (
             <span className="error">{t("noParticipants")}</span>

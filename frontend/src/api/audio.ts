@@ -1,6 +1,9 @@
 import { ApiError } from "./client";
 export const MAX_AUDIO_BYTES = 500 * 1024 * 1024;
 export const MAX_AUDIO_SECONDS = 3 * 60 * 60;
+/** What the file picker offers: the four formats the pipeline reads. */
+export const AUDIO_ACCEPT =
+  ".wav,.mp3,.m4a,.flac,audio/wav,audio/mpeg,audio/mp4,audio/flac,audio/x-flac";
 export function validateAudioFile(file: Pick<File, "name" | "type" | "size">) {
   const ext = file.name.split(".").pop()?.toLowerCase();
   const types: Record<string, string[]> = {

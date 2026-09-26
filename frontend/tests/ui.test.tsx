@@ -51,11 +51,16 @@ describe("application flows", () => {
     fireEvent.click(screen.getByRole("link", { name: /Medical Sends to/ }));
     await screen.findByRole("heading", { name: "Medical meeting" });
     expect(screen.queryByRole("combobox")).toBeNull();
+    vi.spyOn(HTMLInputElement.prototype, "click").mockImplementation(() => {});
     fireEvent.click(
       screen.getByRole("button", { name: /Upload a recording WAV/ }),
     );
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
-    await screen.findByRole("heading", { name: "Drop the recording here" });
+    fireEvent.change(document.querySelector('input[type="file"]')!, {
+      target: {
+        files: [new File(["x"], "meeting.mp3", { type: "audio/mpeg" })],
+      },
+    });
+    await screen.findByRole("heading", { name: "Add the recording" });
     const m = (await getMeetings())[0];
     expect(m.type).toBe("medical");
     expect(m.title).toContain("Medical meeting");
@@ -261,7 +266,7 @@ describe("upload and empty/error states", () => {
     const drop = (
       await screen.findByRole(
         "heading",
-        { name: "Drop the recording here" },
+        { name: "Add the recording" },
         SLOW_STEP,
       )
     ).closest("section")!;
@@ -297,7 +302,7 @@ describe("upload and empty/error states", () => {
   it("rejects a misleading upload before metadata decoding", async () => {
     mount("/meetings/meeting-001/upload");
     const drop = (
-      await screen.findByRole("heading", { name: "Drop the recording here" })
+      await screen.findByRole("heading", { name: "Add the recording" })
     ).closest("section")!;
     fireEvent.drop(drop, {
       dataTransfer: {
@@ -320,6 +325,7 @@ describe("final Figma states", () => {
     await updateMeeting("meeting-001", {
       status: "processing",
       processingState: "queued",
+      queuePosition: 1,
     });
     let view = mount("/meetings/meeting-001/processing");
     await screen.findByRole("heading", {
@@ -347,7 +353,8 @@ describe("final Figma states", () => {
       sendScheduledAt: null,
     });
     let view = mount("/meetings/meeting-001/minutes");
-    await screen.findByText("Review before sending");
+    await screen.findByText("Sending stopped. Nothing went out.");
+    expect(screen.getByRole("button", { name: "Send now" })).toBeTruthy();
     expect(screen.queryByRole("progressbar")).toBeNull();
     view.unmount();
     await updateMeeting("meeting-001", {

@@ -31,7 +31,10 @@ export default function ProcessingPage() {
       );
   }, [m, navigate]);
   if (!m) return <StatePanel error={error} retry={refresh} />;
-  if (m.processingState === "queued")
+  // "queued" alone is the moment before the job starts; only a real place in
+  // line means another meeting is ahead.
+  const starting = m.processingState === "queued";
+  if (starting && (m.queuePosition ?? 0) > 0)
     return (
       <>
         <MeetingHeader meeting={m} stage="transcribe" />
@@ -185,7 +188,9 @@ export default function ProcessingPage() {
             <span style={{ transform: `scaleX(${overall / 100})` }} />
           </div>
           {/* a clock time only when it is at least a minute away */}
-          {finish - now >= 60_000 ? (
+          {starting ? (
+            <p>{t("starting")}</p>
+          ) : finish - now >= 60_000 ? (
             <>
               <p>{t("minutesAbout")}</p>
               <div className="mono">

@@ -80,6 +80,35 @@
 .confirm-footer p {
   margin: 0;
 }
+/* The meeting-type check is a choice of board, not keep or take out: its
+   own small section above the flagged items, two buttons of equal width. */
+.confirm-type {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--sm-surface-hairline);
+}
+.confirm-type h3 {
+  margin: 0;
+  font: 600 13px/18px var(--sm-body);
+  color: var(--sm-ink-secondary);
+}
+.confirm-type .confirm-row {
+  border-top: 0;
+  padding: 8px 0 16px;
+}
+.confirm-type + .muted {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--sm-surface-hairline);
+}
+.button-row.confirm-choice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  flex-shrink: 0;
+}
+.confirm-choice .button {
+  white-space: nowrap;
+}
 /* Minutes language: part of the minutes, not the interface. Text tabs with
    an underline, so it never looks like the EN/RO/RU switch in the top bar. */
 .minutes-language {
@@ -127,9 +156,7 @@
     flex-direction: column;
     align-items: stretch;
   }
-}
-.manual-review-bar .stopped-note {
-  margin: 0 0 6px;
-  font-weight: 600;
-  color: var(--sm-ink-primary);
+  .button-row.confirm-choice {
+    grid-template-columns: 1fr;
+  }
 }

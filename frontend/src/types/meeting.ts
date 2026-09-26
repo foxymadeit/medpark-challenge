@@ -34,6 +34,8 @@ export interface Participant {
   speakerSlot?: number;
   enrolled?: boolean;
   speakingSeconds?: number;
+  /** A detected speaker's number (the server's "Participant 3"). */
+  speakerNumber?: number;
   enrollmentKind?: "prototype" | "verified";
   active?: boolean;
 }
@@ -223,6 +225,8 @@ export interface Meeting {
   sendingStartedAt?: string;
   deliveryFailedAt?: string;
   processingState?: ProcessingState;
+  /** Meetings ahead of this one; the server sets it only when it knows. */
+  queuePosition?: number;
   deliveryState?: DeliveryState;
   failureReference?: string;
   processingStartedAt?: string;

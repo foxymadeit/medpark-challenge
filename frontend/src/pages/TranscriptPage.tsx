@@ -9,7 +9,7 @@ import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import InputField from "../components/InputField";
 import SpeakerLabel from "../components/SpeakerLabel";
-import { formatTime } from "../utils";
+import { formatTime, personName } from "../utils";
 export default function TranscriptPage() {
   const { data, error, refresh } = useMeeting();
   if (!data) return <StatePanel error={error} retry={refresh} />;
@@ -78,7 +78,7 @@ function Transcript({ meeting: m }: { meeting: Meeting }) {
             <option value="">{t("allSpeakers")}</option>
             {m.participants.map((p) => (
               <option value={p.id} key={p.id}>
-                {p.name}
+                {personName(p, t)}
               </option>
             ))}
           </select>

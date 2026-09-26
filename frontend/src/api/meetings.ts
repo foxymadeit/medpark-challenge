@@ -611,33 +611,16 @@ export async function getSystem(): Promise<SystemState> {
         local: true,
         lastCheckedAt: new Date().toISOString(),
         host: "demo-local",
+        // the same services, in the same order, as backend/api.py reports
         services: [
-          {
-            id: "asr",
-            available: true,
-            description: "Simulated local speech-to-text service",
-          },
-          {
-            id: "speakers",
-            available: true,
-            description: "Simulated local speaker timing service",
-          },
-          {
-            id: "automation",
-            available: true,
-            description: "Simulated local minutes service",
-          },
-          {
-            id: "mail",
-            available: true,
-            description: "Simulated internal mail service",
-          },
-          {
-            id: "storage",
-            available: true,
-            description: "Demo browser storage; no hospital capacity claim",
-          },
-        ],
+          ["asr", "Simulated local speech-to-text service"],
+          ["speakers", "Simulated local speaker timing service"],
+          ["minutes", "Simulated local minutes writer"],
+          ["automation", "Simulated routing by meeting type"],
+          ["mail", "Simulated internal mail service"],
+          ["storage", "Demo browser storage; no hospital capacity claim"],
+          ["llm", "Simulated local language model"],
+        ].map(([id, description]) => ({ id, available: true, description })),
         capabilities: { autoModeAvailable: AUTO_MODE_AVAILABLE },
       }
     : request("/system");

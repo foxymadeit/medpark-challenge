@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { FiDownload, FiMail } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -12,11 +12,18 @@ import Button from "../components/Button";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import { useMeeting } from "../hooks/useMeeting";
-import { LANGUAGE_NAMES, formatDay } from "../utils";
+import { LANGUAGE_NAMES, formatDay, personName } from "../utils";
+import type { Meeting } from "../types/meeting";
 import { listName } from "../api/routing";
 import { useRouting } from "../hooks/useRouting";
 
 const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+/** The subject the server's EmailService writes: "MoM | Medical | <title>". */
+function emailSubject(meeting: Pick<Meeting, "type" | "title">) {
+  const type = meeting.type[0].toUpperCase() + meeting.type.slice(1);
+  return `MoM | ${type} | ${meeting.title.split(/\r?\n/).join(" ").trim()}`;
+}
 
 export default function EmailPreviewPage() {
   const { t, i18n } = useTranslation();
@@ -25,49 +32,41 @@ export default function EmailPreviewPage() {
   const [busy, setBusy] = useState(false);
   const routing = useRouting();
   const [actionError, setActionError] = useState("");
-  const recipients = useMemo(
-    () =>
-      meeting?.participantSnapshots?.map((person) => person.emailAtMeeting) ??
-      [],
-    [meeting],
-  );
-  const invalidRecipients = recipients.filter((email) => !validEmail(email));
-  const [bodyOverride, setBodyOverride] = useState<string | null>(null);
 
   if (!meeting) return <StatePanel error={error} retry={refresh} />;
   if (meeting.reviewState !== "reviewed")
     return <Navigate to={`/meetings/${meeting.id}/minutes`} replace />;
 
-  const date = formatDay(meeting.createdAt, i18n.language);
-  // default titles already end with the date; never repeat it
-  const subject = `${t("minutes")}: ${meeting.title.includes(date) ? meeting.title : `${meeting.title}, ${date}`}`;
-  const participantNames = meeting.participantSnapshots
-    ?.map((person) => person.nameAtMeeting)
-    .join(", ");
-  const decisions = meeting.decisions
-    ?.map((decision, index) => `${index + 1}. ${decision.text}`)
-    .join("\n");
-  const actions = meeting.actionItems
-    ?.map((item) => {
-      const owner =
-        meeting.participantSnapshots?.find(
-          (person) => person.staffId === item.ownerStaffId,
-        )?.nameAtMeeting ?? t("unassigned");
-      return `• ${item.task} (${owner}, ${item.deadline ?? t("noDeadline")})`;
-    })
-    .join("\n");
-  const generatedBody = t("emailPreviewBody", {
-    title: meeting.title,
-    date,
-    participants: participantNames || t("notGiven"),
-    summary: meeting.summary || t("notGiven"),
-    decisions: decisions || t("notGiven"),
-    actions: actions || t("notGiven"),
-  });
-  const body = bodyOverride ?? generatedBody;
+  // The minutes go to the board's list; a participant with an address also
+  // gets a copy, one without simply gets none. Only a malformed address stops
+  // the send, because the mail server would refuse it.
+  const people = meeting.participants;
+  const invalid = people.some((p) => p.email && !validEmail(p.email));
+  const subject = emailSubject(meeting);
+  const ownerName = (id?: string | null) => {
+    const owner = people.find((p) => p.id === id);
+    return owner ? personName(owner, t) : t("unassigned");
+  };
+  const body = [
+    meeting.title,
+    `${t("summary")}\n${meeting.summary || t("notGiven")}`,
+    people.length &&
+      `${t("participants")}\n${people.map((p) => `- ${personName(p, t)}`).join("\n")}`,
+    meeting.decisions?.length &&
+      `${t("decisions")}\n${meeting.decisions.map((d) => `- ${d.text}`).join("\n")}`,
+    meeting.actionItems?.length &&
+      `${t("actions")}\n${meeting.actionItems
+        .map(
+          (a) =>
+            `- ${a.task} | ${t("owner")}: ${ownerName(a.ownerParticipantId)} | ${t("deadline")}: ${a.deadline ? formatDay(a.deadline, i18n.language) : t("noDeadline")}`,
+        )
+        .join("\n")}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
   async function handleSend() {
-    if (busy || invalidRecipients.length || !recipients.length) return;
+    if (busy || invalid) return;
     setBusy(true);
     setActionError("");
     try {
@@ -79,13 +78,13 @@ export default function EmailPreviewPage() {
           meetingId: meeting!.id,
           subject,
           body,
-          recipients: meeting!.participantSnapshots!.map(
-            ({ staffId, nameAtMeeting, emailAtMeeting }) => ({
-              staffId,
-              nameAtMeeting,
-              emailAtMeeting,
-            }),
-          ),
+          recipients: people
+            .filter((p) => p.email)
+            .map((p) => ({
+              staffId: p.staffId ?? p.id,
+              nameAtMeeting: p.name,
+              emailAtMeeting: p.email!,
+            })),
           attachmentFilename,
           status: "sending",
         },
@@ -132,14 +131,13 @@ export default function EmailPreviewPage() {
                     })
                   : listName(meeting.type, t)}
               </span>
-              {meeting.participantSnapshots?.length
-                ? meeting.participantSnapshots.map((person) => (
-                    <span className="recipient-line" key={person.staffId}>
-                      {person.nameAtMeeting} &lt;
-                      {person.emailAtMeeting || t("emailUnavailable")}&gt;
-                    </span>
-                  ))
-                : t("emailUnavailable")}
+              {people.map((person) => (
+                <span className="recipient-line" key={person.id}>
+                  {person.email
+                    ? `${personName(person, t)} <${person.email}>`
+                    : `${personName(person, t)}: ${t("noCopyNoEmail")}`}
+                </span>
+              ))}
             </dd>
           </div>
           <div>
@@ -157,19 +155,14 @@ export default function EmailPreviewPage() {
             </dd>
           </div>
         </dl>
-        {(!recipients.length || invalidRecipients.length > 0) && (
+        {invalid && (
           <p className="error" role="alert">
             {t("invalidRecipient")}
           </p>
         )}
-        <label className="form-field email-body-field">
-          <span>{t("emailBody")}</span>
-          <textarea
-            value={body}
-            onChange={(event) => setBodyOverride(event.target.value)}
-            rows={8}
-          />
-        </label>
+        <section className="email-body" aria-label={t("emailBody")}>
+          {body}
+        </section>
         <div className="button-row email-preview-actions">
           <Link className="button quiet" to={`/meetings/${meeting.id}/minutes`}>
             {t("backMinutes")}
@@ -185,9 +178,7 @@ export default function EmailPreviewPage() {
           </Button>
           <Button
             variant="primary"
-            disabled={
-              busy || !recipients.length || invalidRecipients.length > 0
-            }
+            disabled={busy || invalid}
             onClick={() => void handleSend()}
           >
             <FiMail /> {t(busy ? "sending" : "send")}
