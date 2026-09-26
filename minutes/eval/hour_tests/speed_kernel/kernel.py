@@ -61,6 +61,7 @@ OFFLINE_ENV = {"HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "HF_DATASETS_
                "HF_HUB_DISABLE_TELEMETRY": "1", "DO_NOT_TRACK": "1"}
 STATE = {"step": "setup", "hour": "", "note": "", "done": 0, "total": len(HOURS) + 1, "progress": 0,
          "warnings": [], "setup_s": {}, "results": {}}
+STATE["total"] += 1   # the team recordings
 
 
 def log(msg):
@@ -169,7 +170,7 @@ def install_ollama():
 def install_tex():
     """XeLaTeX plus what medpark-mom.cls loads, and RO and RU hyphenation."""
     sh("apt-get -qq install -y --no-install-recommends texlive-xetex texlive-latex-recommended texlive-latex-extra "
-       "texlive-lang-european texlive-lang-cyrillic lmodern > /tmp/tex-install.log 2>&1", timeout=1800)
+       "texlive-lang-european texlive-lang-cyrillic lmodern poppler-utils > /tmp/tex-install.log 2>&1", timeout=1800)
 
 
 # ---------------------------------------------------------------- the product's stages (as backend/jobs.py)
@@ -213,10 +214,10 @@ def transcript_segments(path):
     return out
 
 
-def run_pipeline(audio, work, meeting_type):
+def run_pipeline(audio, work, meeting_type, date="2026-09-24"):
     """Transcription and diarization side by side, then the minutes. Returns stage times."""
     work.mkdir(parents=True, exist_ok=True)
-    values = {"audio": str(audio), "work": str(work), "type": meeting_type, "date": "2026-09-24",
+    values = {"audio": str(audio), "work": str(work), "type": meeting_type, "date": date,
               "start": "09:00", "session": ""}
     t = time.perf_counter()
     times = {}
@@ -285,6 +286,104 @@ def minutes_summary(work):
             "files": sorted(p.name for p in (work / "minutes").glob("MoM_*"))}
 
 
+# ---------------------------------------------------------------- our own recorded board meeting, scored end to end
+# minutes/eval/team_recording/script.md: a 10-minute mock medical board in RO/RU/EN, recorded on 26 September 2026
+# twice (one voice reading every part; three of us at a table). Our voices, not hospital audio.
+TEAM = [("team1", "team_rec1_cristina_all"), ("team2", "team_rec2_no_cristina")]
+TEAM_DATE = "2026-09-26"
+DECISIONS = {"D1": r"angiograf|coronarograf|ангиограф", "D2": r"\bhme\b|filtr|фильтр", "D3": r"hygien|igien|гигиен",
+             "D4": r"electronic|электрон", "D5": r"pilot|пилот", "D6": r"next meeting|ședinț\w* următoare|следующ"}
+TRAPS = {"portable ventilator": r"ventilator portabil|portable ventilator|портативн", "stethoscopes": r"stetoscop|stethoscop|стетоскоп",
+         "monthly audit": r"lunar|monthly|ежемесячн"}
+ACTIONS = {"A1": (r"angiograf|coronarograf|ангиограф", r"roman", "2026-09-27"), "A2": (r"\binr\b|мно", r"stanislav|stas|станислав", "2026-09-27"),
+           "A3": (r"financ|финанс|semn|подпис", r"cristina|кристин", "2026-09-26"), "A4": (r"order|comand|заказ", r"volodymyr|володимир|владимир|vova", "2026-09-27"),
+           "A5": (r"\bbed\b|\bpat\b|койк|кроват|place", r"stanislav|stas|станислав", "2026-10-02"), "A6": (r"checklist|chek|чек", r"cagan|ceagan|джан|чаган", "2026-09-30"),
+           "A7": (r"form|форм", r"volodymyr|володимир|владимир|vova", "2026-10-03"), "A8": (r"instruc|инструкц", r"cagan|ceagan|джан|чаган", "2026-10-15"),
+           "A9": (r"feedback|отзыв|păreri|opini", r"roman", "")}
+TERMS = ["supradenivelare de segment ST", "infarct miocardic acut", "ecocardiografie", "fracția de ejecție", "troponina",
+         "creatinina", "insuficiență renală", "coronarografie", "substanța de contrast", "варфарин", "МНО", "abord radial",
+         "ventilație mecanică", "sepsis", "hemoculturi", "Klebsiella", "meropenem", "HME фильтры", "AVC ischemic", "JCI",
+         "hand hygiene compliance"]
+PATIENTS = ["ion popa", "galina petrenko", "popa", "petrenko", "попа", "петренко"]
+
+
+def term_recall(text):
+    from asr_llm.clean import _fold
+    words = set(_fold(text).split())
+    heard = []
+    for term in TERMS:
+        stems = [w[:5] for w in _fold(term).split()]
+        if all(any(w.startswith(st) for w in words) for st in stems):
+            heard.append(term)
+    return {"heard": len(heard), "of": len(TERMS), "missed": [t for t in TERMS if t not in heard]}
+
+
+def score_minutes(work):
+    import re
+    facts_file = next((work / "minutes").glob("*.facts.json"), None)
+    if not facts_file:
+        return {"error": "no facts.json"}
+    facts = [f for f in json.loads(facts_file.read_text(encoding="utf-8"))["facts"] if f.get("status") in ("ok", "confirm")]
+    low = lambda f: (f.get("text") or "").lower()
+    decisions = [f for f in facts if f["kind"] == "decision"]
+    actions = [f for f in facts if f["kind"] == "action"]
+    found_d = {k: next((f["id"] for f in decisions if re.search(rx, low(f))), None) for k, rx in DECISIONS.items()}
+    traps = {k: [f["id"] for f in decisions if re.search(rx, low(f))] for k, rx in TRAPS.items()}
+    acts = {}
+    for k, (rx, owner, date) in ACTIONS.items():
+        f = next((f for f in actions if re.search(rx, low(f))), None)
+        acts[k] = None if f is None else {"id": f["id"], "owner_ok": bool(re.search(owner, (f.get("owner") or "").lower())),
+                                         "deadline_ok": (f.get("deadline") or "") == date, "owner": f.get("owner"),
+                                         "deadline": f.get("deadline"), "status": f.get("status")}
+    everything = " ".join(low(f) + " " + (f.get("owner") or "").lower() for f in facts)
+    minutes_text = ""
+    for pdf in (work / "minutes").glob("*.pdf"):
+        try:
+            minutes_text += subprocess.run(["pdftotext", str(pdf), "-"], capture_output=True, text=True).stdout.lower()
+        except FileNotFoundError:   # poppler missing: the facts are still checked
+            break
+    return {"decisions_found": sum(v is not None for v in found_d.values()), "decisions_of": len(DECISIONS), "decisions": found_d,
+            "decision_facts": len(decisions), "trap_errors": sum(bool(v) for v in traps.values()), "traps": traps,
+            "actions_found": sum(v is not None for v in acts.values()), "actions_of": len(ACTIONS),
+            "owners_right": sum(bool(v and v["owner_ok"]) for v in acts.values()),
+            "deadlines_right": sum(bool(v and v["deadline_ok"]) for v in acts.values()), "actions": acts,
+            "to_confirm": sum(f.get("status") == "confirm" for f in facts),
+            "patient_names_in_minutes": [p for p in PATIENTS if p in everything or p in minutes_text],
+            "facts": facts}
+
+
+def team_recordings():
+    root = next((p.parent for p in Path("/kaggle/input").glob("**/team_rec1_cristina_all.m4a")), None)
+    if root is None:
+        log("team recordings not attached: coflaz/liminal-team-recordings")
+        return {}
+    out = {}
+    for name, stem in TEAM:
+        STATE.update(step="team recording", hour=name, note="")
+        work = OUT / name
+        peak = Peak()
+        peak.start()
+        try:
+            times, segments, session = run_pipeline(root / f"{stem}.m4a", work, "medical", TEAM_DATE)
+            peak.running = False
+            text = " ".join(s["text"] for s in segments)
+            (work / "transcript.txt").write_text(text, encoding="utf-8")
+            entry = {"reference": f"{stem}.ref.txt", "reference_window_s": 3600}
+            out[name] = {"stages_s": times, "peak_gpu_gb": round(peak.gpu, 1), "asr": asr_scores(segments, entry, root, work),
+                         "terms": term_recall(text), "speakers": len({t["speaker"] for t in json.loads(session.read_text())["turns"]}) if session else None,
+                         "minutes": minutes_summary(work), "score": score_minutes(work)}
+            sc = out[name]["score"]
+            log(f"{name}: decisions {sc.get('decisions_found')}/{sc.get('decisions_of')}, traps {sc.get('trap_errors')}, "
+                f"actions {sc.get('actions_found')}/{sc.get('actions_of')}, owners {sc.get('owners_right')}, deadlines {sc.get('deadlines_right')}, "
+                f"terms {out[name]['terms']['heard']}/{out[name]['terms']['of']}, CER {out[name]['asr'].get('cer')}, {times['total']} s")
+        except Exception as e:
+            peak.running = False
+            out[name] = {"error": repr(e)[:1500], "traceback": traceback.format_exc()[-3000:]}
+            log(f"{name}: FAILED {e!r}")
+        (OUT / "team.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
+    return out
+
+
 # ---------------------------------------------------------------- main
 
 def find_tests():
@@ -334,6 +433,8 @@ def main():
         smoke, _, _ = run_pipeline(clip, OUT / "smoke", MEETING_TYPE.get(todo[0], "administrative"))
         report["smoke_s"] = smoke
         log(f"smoke test passed: {smoke}")
+        STATE["done"] += 1
+        report["team"] = team_recordings()   # short and the most telling: before the hours
         STATE["done"] += 1
 
         for hid in todo:

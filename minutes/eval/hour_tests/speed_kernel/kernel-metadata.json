@@ -9,7 +9,10 @@
   "enable_tpu": "false",
   "enable_internet": "true",
   "machine_shape": "NvidiaTeslaT4",
-  "dataset_sources": ["coflaz/liminal-hour-tests"],
+  "dataset_sources": [
+    "coflaz/liminal-hour-tests",
+    "coflaz/liminal-team-recordings"
+  ],
   "competition_sources": [],
   "kernel_sources": [],
   "model_sources": []
