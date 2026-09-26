@@ -12,10 +12,13 @@
   --sm-dept-administrative: #9147a6;
   --sm-dept-administrative-tint: #f0daf7;
   --sm-signal-danger: #b3261e;
-  --sm-radius-card: 18px;
-  --sm-radius-control: 10px;
-  --sm-shadow: 0 1px 2px #1010100a, 0 4px 12px #1010100a, 0 16px 32px #10101008;
-  --sm-heading: "Onest Variable", "Onest", Arial, sans-serif;
-  --sm-body: "Golos Text Variable", "Golos Text", Arial, sans-serif;
+  --sm-radius-card: 12px;
+  --sm-radius-control: 8px;
+  /* card: resting panels; the 1 px hairline does the work */
+  --sm-shadow: 0 1px 2px rgba(16, 16, 16, 0.04);
+  /* lift: only what floats (menus, dialogs, the send countdown) */
+  --sm-lift: 0 2px 8px rgba(16, 16, 16, 0.08), 0 8px 16px rgba(16, 16, 16, 0.06);
+  --sm-heading: "Onest Variable", "Onest", system-ui, sans-serif;
+  --sm-body: "Golos Text Variable", "Golos Text", system-ui, sans-serif;
   --sm-mono: "Geist Mono Variable", "Geist Mono", monospace;
 }

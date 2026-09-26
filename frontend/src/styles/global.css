@@ -11,7 +11,7 @@
 }
 .admin-nav a {
   padding: 9px 13px;
-  border-radius: 9px;
+  border-radius: var(--sm-radius-control);
   color: #596361;
   text-decoration: none;
   white-space: nowrap;
@@ -56,7 +56,7 @@
 .admin-form select {
   min-height: 44px;
   border: 1px solid #d9dfdd;
-  border-radius: 9px;
+  border-radius: var(--sm-radius-control);
   padding: 0 12px;
   background: #fff;
 }
@@ -306,7 +306,7 @@ svg {
   align-items: flex-start;
   gap: 10px;
   padding: 14px;
-  border-radius: 10px;
+  border-radius: var(--sm-radius-control);
   background: var(--sm-surface-ground);
   color: var(--sm-ink-secondary);
 }
@@ -414,7 +414,7 @@ svg {
 }
 .participant-summary span {
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--sm-radius-control);
   background: var(--sm-surface-ground);
 }
 .template-grid {
@@ -451,7 +451,7 @@ svg {
   display: grid;
   gap: 8px;
   border: 1px solid var(--sm-surface-hairline);
-  border-radius: 10px;
+  border-radius: var(--sm-radius-card);
   padding: 16px;
 }
 .check-row {
@@ -510,7 +510,7 @@ svg {
   height: 180px;
   padding: 28px;
   border: 1px solid var(--sm-surface-hairline);
-  border-radius: 18px;
+  border-radius: var(--sm-radius-card);
   background: white;
   display: grid;
   align-content: start;
@@ -790,7 +790,6 @@ svg {
   line-height: 20px;
   background: white;
   color: var(--sm-ink-primary);
-  box-shadow: 0 2px 5px #1010100a;
 }
 .button.primary {
   color: white;
@@ -814,9 +813,6 @@ svg {
   background: transparent;
   border-color: transparent;
   box-shadow: none;
-}
-.button:active:not(:disabled) {
-  transform: translateY(1px);
 }
 .button-row {
   display: flex;
@@ -904,14 +900,14 @@ svg {
   gap: 2px;
   padding: 2px;
   border: 1px solid var(--sm-surface-hairline);
-  border-radius: 10px;
+  border-radius: var(--sm-radius-control);
   background: white;
 }
 .language-switcher button {
   height: 32px;
   min-width: 40px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   font-size: 15px;
 }
@@ -940,7 +936,7 @@ svg {
   background: white;
   border: 1px solid var(--sm-surface-hairline);
   border-radius: 12px;
-  box-shadow: var(--sm-shadow);
+  box-shadow: var(--sm-lift);
   display: grid;
   gap: 12px;
 }
@@ -962,15 +958,14 @@ svg {
   align-content: center;
   min-height: 110px;
   transition:
-    box-shadow 0.15s,
-    transform 0.15s;
+    background-color 150ms ease,
+    border-color 150ms ease;
 }
-.department-door:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 2px 4px #1010100d,
-    0 8px 20px #1010100f,
-    0 24px 48px #1010100d;
+@media (hover: hover) and (pointer: fine) {
+  .department-door:hover {
+    background: #fbfaf8;
+    border-color: #d9d3c9;
+  }
 }
 .department-door h2 {
   font-size: 20px;
@@ -1199,7 +1194,7 @@ svg {
   color: #101010;
 }
 .route-progress li.current .route-dot {
-  box-shadow: 0 0 0 6px #10101012;
+  border: 2px solid var(--sm-ink-primary);
 }
 .input-choices,
 .setup-fields {
@@ -1280,12 +1275,12 @@ textarea {
   min-height: 40px;
   background: white;
   border: 1px solid var(--sm-surface-hairline);
-  border-radius: 22px;
+  border-radius: var(--sm-radius-control);
   color: inherit;
   font-size: 13px;
 }
 .chip.selected {
-  box-shadow: var(--sm-shadow);
+  border-color: var(--sm-ink-primary);
 }
 .chip.selected svg {
   color: var(--sm-dept-medical);
@@ -1451,7 +1446,7 @@ textarea {
   justify-content: center;
   min-height: 280px;
   border: 1px dashed #82786b;
-  border-radius: 18px;
+  border-radius: var(--sm-radius-card);
   background: white;
   padding: 32px;
   text-align: center;
@@ -1535,8 +1530,7 @@ textarea {
   border-radius: 50%;
 }
 .process-step.current .process-marker {
-  border: 0;
-  box-shadow: 0 0 0 4px #10101012;
+  border: 2px solid var(--sm-ink-primary);
 }
 .process-step.complete,
 .process-step.current {
@@ -1766,7 +1760,7 @@ textarea {
 }
 .optional-chip {
   padding: 4px 9px;
-  border-radius: 999px;
+  border-radius: var(--sm-radius-control);
   background: var(--sm-surface-ground);
   color: var(--sm-ink-secondary);
   font-size: 11px;
@@ -2137,11 +2131,11 @@ blockquote {
 }
 .edit-dialog {
   border: 0;
-  border-radius: 18px;
+  border-radius: var(--sm-radius-card);
   padding: 32px;
   width: min(520px, calc(100% - 32px));
   max-height: calc(100dvh - 32px);
-  box-shadow: 0 16px 64px #0003;
+  box-shadow: var(--sm-lift);
 }
 .edit-dialog::backdrop {
   background: #10101044;
@@ -2934,6 +2928,5 @@ blockquote {
 @media (prefers-reduced-motion: reduce) {
   * {
     scroll-behavior: auto !important;
-    transition: none !important;
   }
 }
