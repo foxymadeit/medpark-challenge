@@ -331,12 +331,16 @@
     "title_few": "PV trimis la {count} participanți",
     "title": "PV trimis la {count} de participanți",
     "lead": "Salvat în Istoric cu funcțiile valabile la {date}.",
-    "saveTitle": "Salvați ca șablon?",
-    "saveLead": "Data viitoare tipul și participanții se completează dintr-un clic.",
-    "name": "Numele șablonului",
-    "save": "Salvează ca șablon",
-    "notNow": "Nu acum",
-    "download": "Descarcă PV (PDF)"
+    "sending": "Se trimite procesul-verbal…",
+    "sendingLead": "Se trimite email la {count} de participanți",
+    "sendingLead_one": "Se trimite email la {count} participant",
+    "recipients": "Destinatari",
+    "stateSent": "Trimis",
+    "stateSending": "Se trimite",
+    "stateSkipped": "Fără email, netrimis",
+    "toHistory": "Mergi la Istoric",
+    "download": "Descarcă PV (PDF)",
+    "sendingLead_few": "Se trimite email la {count} participanți"
   },
   "history": {
     "title": "Istoric",
