@@ -28,6 +28,11 @@ class Settings(BaseSettings):
     # faster-whisper defaults to 4 threads; the CPU-only profile needs all cores.
     cpu_threads: int = os.cpu_count() or 4
     asr_model_dir: Path = ASR_ROOT / "models" / "whisper"
+    # whisper | specialists (SpeD-RoASR + GigaAM-v3 + Parakeet v3, asr_llm/specialists.py)
+    asr_engine: str = "whisper"
+    sped_model: Path = ASR_ROOT / "models" / "specialists" / "SpeD-ParakeetRo_110M_TDT-CTC.nemo"
+    parakeet_model: Path = ASR_ROOT / "models" / "specialists" / "parakeet-tdt-0.6b-v3.nemo"
+    gigaam_dir: Path = ASR_ROOT / "models" / "specialists" / "gigaam"
     # Whisper picks from 99 languages; Moldovan Romanian often wins as ru/lt.
     asr_languages: tuple[str, ...] = ("ro", "ru", "en")
     # Whisper LID says ru at 0.9 on plain Moldovan Romanian, and forcing ru then

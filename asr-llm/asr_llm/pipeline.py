@@ -33,7 +33,12 @@ def transcribe_audio(audio_path: Path, diarization: Path | None = None) -> tuple
     batches = pack_batches(audio, spans)
     timings["vad_batch"] = time.perf_counter() - t0
 
-    engine = WhisperAsr()
+    if settings.asr_engine == "specialists":
+        from .specialists import SpecialistAsr
+
+        engine = SpecialistAsr()
+    else:
+        engine = WhisperAsr()
     t0 = time.perf_counter()
     chunks = transcribe_batches(engine, batches)
     timings["asr"] = time.perf_counter() - t0
