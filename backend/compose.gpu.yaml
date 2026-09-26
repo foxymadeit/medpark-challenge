@@ -1,0 +1,9 @@
+# The reference GPU server: give Ollama the card.
+#   docker compose -f compose.yaml -f compose.gpu.yaml --profile server up -d
+# Needs the NVIDIA Container Toolkit. A CPU-only server leaves this file out.
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: 1, capabilities: [gpu]}]

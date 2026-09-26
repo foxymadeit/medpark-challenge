@@ -39,3 +39,15 @@ def test_thinking_is_switched_off_by_default_and_cut_json_is_retried(monkeypatch
     replies.append("{}")
     oss.chat_json("s", "u", {"type": "object"})
     assert sent[-1]["think"] == "low"
+
+
+def test_a_named_compose_service_is_allowed_only_inside_the_compose_network(monkeypatch):
+    with pytest.raises(ValueError):
+        check_local("http://ollama:11434")
+    monkeypatch.setenv("LIMINAL_INTERNAL_HOSTS", "mailpit,ollama")
+    with pytest.raises(ValueError):
+        check_local("http://ollama:11434")          # the allowance is off by default
+    monkeypatch.setenv("LIMINAL_ALLOW_PRIVATE_NETWORK", "1")
+    assert check_local("http://ollama:11434") == "http://ollama:11434"
+    with pytest.raises(ValueError):
+        check_local("http://api.openai.com")         # a name not on the list stays refused

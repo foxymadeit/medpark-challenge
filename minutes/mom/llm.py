@@ -30,12 +30,15 @@ _OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedire
 
 
 def check_local(url: str) -> str:
+    """Loopback only; inside the Docker Compose network (LIMINAL_ALLOW_PRIVATE_NETWORK=1, as the
+    backend's socket guard) also the named internal services, such as the ollama container."""
     host = urlparse(url).hostname or ""
     try:
         local = host == "localhost" or ipaddress.ip_address(host).is_loopback
     except ValueError:
         local = False
-    if not local:
+    internal = {h.strip() for h in os.environ.get("LIMINAL_INTERNAL_HOSTS", "").split(",") if h.strip()}
+    if not local and not (os.environ.get("LIMINAL_ALLOW_PRIVATE_NETWORK") == "1" and host in internal):
         raise ValueError(f"the language model must run on this machine; {host!r} is not a loopback address")
     return url.rstrip("/")
 
