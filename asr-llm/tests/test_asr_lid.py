@@ -83,26 +83,10 @@ def test_hallucination_variants_are_dropped_but_long_sentences_kept():
     assert not _is_hallucination(long)
 
 
-def test_batched_decode_matches_per_utterance(monkeypatch):
-    # Two utterances: Romanian scores better on the first, Russian on the second.
-    table = {"ro": [(-0.3, "unu"), (-0.9, "doi")], "ru": [(-0.8, "один"), (-0.2, "два")]}
-
-    class FakePipeline:
-        def __init__(self, model):
-            pass
-
-        def transcribe(self, audio, language, clip_timestamps, **_):
-            segs = [SimpleNamespace(start=c["start"] + 0.1, end=c["end"], text=table[language][k][1],
-                                    avg_logprob=table[language][k][0], no_speech_prob=0.0)
-                    for k, c in enumerate(clip_timestamps)]
-            return iter(segs), None
-
-    import faster_whisper
-
-    monkeypatch.setattr(faster_whisper, "BatchedInferencePipeline", FakePipeline)
-    batches = [SimpleNamespace(samples=np.zeros(SR * 3), start=0.0, end=3.0),
-               SimpleNamespace(samples=np.zeros(SR * 2), start=5.0, end=7.0)]
-    fake = FakeWhisper([("ru", 0.9)], {})
+def test_batched_decode_matches_per_utterance():
+    # Two utterances: Romanian scores better on the first, Russian on the second; LID ranks English
+    # first on the first clip only, so English is decoded there and not kept for the second.
+    table = {"ro": [("unu", -0.3), ("doi", -0.9)], "ru": [("один", -0.8), ("два", -0.2)], "en": [("one", -2.0), ("two", -0.1)]}
 
     class Features:
         n_samples = SR * 30
@@ -110,12 +94,15 @@ def test_batched_decode_matches_per_utterance(monkeypatch):
         def __call__(self, audio):
             return np.zeros((128, 100), np.float32)
 
+    fake = FakeWhisper([("ru", 0.9)], {})
     fake.feature_extractor = Features()
     fake.encode = lambda feats: feats
-    # Batched LID: English ranked first on the first clip adds an English decode there only.
     fake.model = SimpleNamespace(detect_language=lambda enc: [[("<|en|>", 0.8), ("<|ro|>", 0.2)], [("<|ru|>", 0.9)]][: len(enc)])
-    table["en"] = [(-2.0, "one")]
-    chunks = engine(fake).transcribe_all(batches)
+    asr = engine(fake)
+    asr._generate = lambda enc, lang, n: [(text, score, 0.0) for text, score in table[lang][:n]]
+    batches = [SimpleNamespace(samples=np.zeros(SR * 3), start=0.0, end=3.0),
+               SimpleNamespace(samples=np.zeros(SR * 2), start=5.0, end=7.0)]
+    chunks = asr.transcribe_all(batches)
     assert [(c.start, c.text, c.language) for c in chunks] == [(0.0, "unu", "ro"), (5.0, "два", "ru")]
-    assert [h.text for h in chunks[1].hypotheses] == ["doi", "два"]
     assert [h.language for h in chunks[0].hypotheses] == ["ro", "ru", "en"]
+    assert [h.text for h in chunks[1].hypotheses] == ["doi", "два"]

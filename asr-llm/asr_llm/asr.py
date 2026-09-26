@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gc
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 import numpy as np
 
@@ -87,65 +88,74 @@ class WhisperAsr:
             return list(settings.asr_always_decode)
         return _with_detected(self._model.detect_language(samples)[2])
 
-    def _languages_batched(self, samples: list[np.ndarray]) -> list[list[str]]:
-        """_languages for many clips: the encoder and language detector run on up to asr_batch_size
-        clips per GPU call instead of one."""
+    def transcribe_all(self, batches) -> list[AsrChunk]:
+        """Every utterance at once, asr_batch_size clips per GPU call. Each clip goes through the
+        encoder once; that output feeds the language detector and every language's decode (the
+        encoder is most of the cost: three passes per clip took an hour of audio to 13.5 min on a T4).
+        Same languages, scores and pick as transcribe_batch, except that a clip too short for LID
+        gets the home languages rather than the previous clip's. No word timestamps (cs_merge)."""
+        import time
+
         from faster_whisper.audio import pad_or_trim
 
         fe = self._model.feature_extractor
-        out = [list(settings.asr_always_decode) for _ in samples]
-        todo = [i for i, x in enumerate(samples) if x.size >= settings.min_lid_s * settings.sample_rate]
-        for k in range(0, len(todo), settings.asr_batch_size):
-            idx = todo[k : k + settings.asr_batch_size]
-            feats = np.stack([pad_or_trim(fe(samples[i][: fe.n_samples])) for i in idx])
-            for i, res in zip(idx, self._model.model.detect_language(self._model.encode(feats))):
-                out[i] = _with_detected([(token[2:-2], prob) for token, prob in res])
-        return out
-
-    def transcribe_all(self, batches) -> list[AsrChunk]:
-        """Every utterance at once: one batched GPU pass per language instead of one call per
-        utterance and language. Same languages, scores and pick as transcribe_batch, except that
-        a clip too short for LID gets the home languages rather than the previous clip's."""
-        from faster_whisper import BatchedInferencePipeline
-
-        import time
-
         batches = list(batches)
-        samples = [b.samples.astype(np.float32) for b in batches]
-        t0 = time.perf_counter()
-        wanted = self._languages_batched(samples)
-        self.timings = {"lid": time.perf_counter() - t0}
-        gap = np.zeros(settings.sample_rate, np.float32)  # 1 s between clips: a segment maps to one clip unambiguously
-        audio = np.concatenate([part for x in samples for part in (x, gap)]) if samples else gap
-        starts = np.cumsum([0] + [x.size + gap.size for x in samples[:-1]]) / settings.sample_rate
-        pipeline = BatchedInferencePipeline(model=self._model)
         results: list[list[tuple]] = [[] for _ in batches]
-        for lang in dict.fromkeys(lang for langs in wanted for lang in langs):
+        self.timings = {"encode_lid": 0.0}
+        for k in range(0, len(batches), settings.asr_batch_size):
+            part = batches[k : k + settings.asr_batch_size]
             t0 = time.perf_counter()
-            idx = [i for i, langs in enumerate(wanted) if lang in langs]
-            clips = [{"start": starts[i], "end": starts[i] + samples[i].size / settings.sample_rate} for i in idx]
-            segments, _ = pipeline.transcribe(
-                audio,
-                language=lang,
-                task="transcribe",
-                beam_size=settings.asr_beam_size,
-                condition_on_previous_text=False,
-                clip_timestamps=clips,
-                batch_size=settings.asr_batch_size,
-                word_timestamps=settings.cs_merge,
-            )
-            clip_starts = [c["start"] for c in clips]
-            per_clip: dict[int, list] = {i: [] for i in idx}
-            for seg in segments:
-                per_clip[idx[max(0, int(np.searchsorted(clip_starts, seg.start + 1e-3)) - 1)]].append(seg)
-            for i, segs in per_clip.items():
-                results[i].append(_score(segs, lang, offset=starts[i]))
-            self.timings[f"decode_{lang}"] = time.perf_counter() - t0
+            samples = [b.samples.astype(np.float32) for b in part]
+            enc = self._model.encode(np.stack([pad_or_trim(fe(x[: fe.n_samples])) for x in samples]))
+            detected = self._model.model.detect_language(enc)
+            wanted = [
+                _with_detected([(token[2:-2], p) for token, p in res])
+                if x.size >= settings.min_lid_s * settings.sample_rate
+                else list(settings.asr_always_decode)
+                for x, res in zip(samples, detected)
+            ]
+            self.timings["encode_lid"] += time.perf_counter() - t0
+            for lang in dict.fromkeys(lang for langs in wanted for lang in langs):
+                t0 = time.perf_counter()
+                # A language only some clips want (English) is decoded for the whole batch and kept
+                # where wanted: slicing the encoder output on the GPU would cost more than it saves.
+                for j, (text, avg_logprob, no_speech_prob) in enumerate(self._generate(enc, lang, len(part))):
+                    if lang in wanted[j]:
+                        seg = SimpleNamespace(start=0.0, end=part[j].end - part[j].start, text=text,
+                                              avg_logprob=avg_logprob, no_speech_prob=no_speech_prob)
+                        results[k + j].append(_score([seg], lang))
+                key = f"decode_{lang}"
+                self.timings[key] = self.timings.get(key, 0.0) + time.perf_counter() - t0
         chunks = []
         for b, res in zip(batches, results):
             text, language, hypotheses = _pick(res)
             chunks.append(AsrChunk(start=b.start, end=b.end, text=text, language=language, hypotheses=hypotheses))
         return chunks
+
+    def _generate(self, enc, language: str, n: int) -> list[tuple[str, float, float]]:
+        """(text, avg_logprob, no_speech_prob) per clip, one forced language, from encoder output.
+        As faster-whisper's BatchedInferencePipeline decodes: no timestamps, temperature 0."""
+        from faster_whisper.tokenizer import Tokenizer
+        from faster_whisper.transcribe import get_suppressed_tokens
+
+        m = self._model
+        tokenizer = Tokenizer(m.hf_tokenizer, m.model.is_multilingual, task="transcribe", language=language)
+        prompt = m.get_prompt(tokenizer, [], without_timestamps=True)
+        out = m.model.generate(
+            enc,
+            [list(prompt) for _ in range(n)],
+            beam_size=settings.asr_beam_size,
+            max_length=m.max_length,
+            suppress_blank=True,
+            suppress_tokens=get_suppressed_tokens(tokenizer, (-1,)),
+            return_scores=True,
+            return_no_speech_prob=True,
+        )
+        texts = []
+        for r in out:
+            tokens = r.sequences_ids[0]
+            texts.append((tokenizer.decode(tokens).strip(), r.scores[0] * len(tokens) / (len(tokens) + 1), r.no_speech_prob))
+        return texts
 
     def _decode(self, samples: np.ndarray, language: str) -> tuple[str, str, float, list]:
         """Text in one forced language, scored by duration-weighted avg_logprob."""
@@ -255,7 +265,7 @@ def merge_words(best: Hypothesis, others: list[Hypothesis]) -> tuple[str, list[s
 
 
 def transcribe_batches(engine: WhisperAsr, batches) -> list[AsrChunk]:
-    batched = settings.asr_batch_size > 1 and not settings.asr_joint_languages
+    batched = settings.asr_batch_size > 1 and not settings.asr_joint_languages and not settings.cs_merge
     if isinstance(engine, WhisperAsr) and engine.device == "cuda" and batched:
         return engine.transcribe_all(batches)
     chunks: list[AsrChunk] = []
