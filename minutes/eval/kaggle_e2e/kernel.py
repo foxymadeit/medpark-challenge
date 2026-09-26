@@ -110,7 +110,7 @@ def install_ollama():
 def install_tex():
     """XeLaTeX plus what medpark-mom.cls loads: pdfx, xltabular, titlesec,
     ragged2e, needspace (latex-extra), and Romanian and Russian hyphenation."""
-    sh("apt-get -qq install -y --no-install-recommends texlive-xetex texlive-latex-recommended texlive-latex-extra "
+    sh("apt-get -qq install -y --no-install-recommends texlive-xetex texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended "
        "texlive-lang-european texlive-lang-cyrillic lmodern > /tmp/tex-install.log 2>&1", timeout=1800)
     sh("xelatex --version | head -1", check=False)
 
