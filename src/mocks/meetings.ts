@@ -58,7 +58,7 @@ export const seedMeetings: Meeting[] = [
     supplyTasks,
   ),
   meeting(
-    { id: 'm-2209', title: 'ICU handover', type: 'medical', date: '2026-09-22', durationMin: 41, source: 'uploaded', fileName: 'icu_handover.m4a', status: 'processing', participants: [YOU_ID, 'p-igor', 'p-elena', 'p-victor'].map((id) => snap(id)) },
+    { id: 'm-2209', title: 'Tumor board', type: 'medical', date: '2026-09-22', durationMin: 41, source: 'uploaded', fileName: 'tumor_board.m4a', status: 'processing', participants: [YOU_ID, 'p-igor', 'p-elena', 'p-victor'].map((id) => snap(id)) },
     cardioTranscript,
     cardioTasks,
   ),
