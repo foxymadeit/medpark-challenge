@@ -307,7 +307,10 @@
 .record__tasks-title { margin: var(--sm-space-2) 0 var(--sm-space-3); }
 .summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
 .summary-head__add { height: 32px; margin: -6px -8px -6px 0; padding: 0 10px; font-size: 14px; }
-.summary-table__patient-input { height: 32px; margin-bottom: 6px; font-size: 13px; }
+.summary-table__patient-input { margin-bottom: 8px; }
+/* Editing a task: every field the same size, and a wider Deadline column so the date reads in full. */
+.summary-table tr.is-editing .input, .summary-table tr.is-editing .dropdown__button { height: 40px; padding: 0 12px; font: 400 15px/22px var(--sm-font-body); }
+.summary-table:has(tr.is-editing) th:nth-child(3) { width: 248px; }
 .summary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .summary-table th:nth-child(1) { width: 36%; }
 .summary-table th:nth-child(3) { width: 96px; }
