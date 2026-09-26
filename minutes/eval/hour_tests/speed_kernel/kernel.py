@@ -61,7 +61,7 @@ OFFLINE_ENV = {"HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "HF_DATASETS_
                "HF_HUB_DISABLE_TELEMETRY": "1", "DO_NOT_TRACK": "1"}
 STATE = {"step": "setup", "hour": "", "note": "", "done": 0, "total": len(HOURS) + 1, "progress": 0,
          "warnings": [], "setup_s": {}, "results": {}}
-STATE["total"] += 1   # the team recordings
+STATE["total"] += 2   # the team recordings and the Medpark sample
 
 
 def log(msg):
@@ -384,6 +384,35 @@ def team_recordings():
     return out
 
 
+def medpark_sample():
+    """The organisers' anonymised Medpark recording (11 min 42 s), end to end: the minutes the
+    product writes from the challenge's own audio, timed, and scored against the hand-corrected
+    first 181 s."""
+    audio = LIMINAL / "data" / "Medpark_audio.m4a"
+    if not audio.exists():
+        log("Medpark sample not in the checkout")
+        return {}
+    STATE.update(step="Medpark sample", hour="medpark", note="")
+    work = OUT / "medpark"
+    peak = Peak()
+    peak.start()
+    try:
+        times, segments, session = run_pipeline(audio, work, "medical", "2026-09-23")
+        peak.running = False
+        entry = {"reference": "asr-llm/data/gold_0-181s.txt", "reference_window_s": 181}
+        out = {"stages_s": times, "peak_gpu_gb": round(peak.gpu, 1), "asr": asr_scores(segments, entry, LIMINAL, work),
+               "speakers": len({t["speaker"] for t in json.loads(session.read_text())["turns"]}) if session else None,
+               "minutes": minutes_summary(work)}
+        log(f"medpark: {times['total']} s, CER(0-181 s) {out['asr'].get('cer')}, speakers {out['speakers']}, "
+            f"checks {out['minutes'].get('checks')}")
+    except Exception as e:
+        peak.running = False
+        out = {"error": repr(e)[:1500], "traceback": traceback.format_exc()[-3000:]}
+        log(f"medpark: FAILED {e!r}")
+    (OUT / "medpark.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
+    return out
+
+
 # ---------------------------------------------------------------- main
 
 def find_tests():
@@ -435,6 +464,8 @@ def main():
         log(f"smoke test passed: {smoke}")
         STATE["done"] += 1
         report["team"] = team_recordings()   # short and the most telling: before the hours
+        STATE["done"] += 1
+        report["medpark"] = medpark_sample()
         STATE["done"] += 1
 
         for hid in todo:
