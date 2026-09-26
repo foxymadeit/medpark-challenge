@@ -3,6 +3,66 @@
   box-sizing: border-box;
 }
 
+.email-preview-card {
+  max-width: 880px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+.email-preview-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.email-preview-heading h2 {
+  margin: 4px 0 0;
+}
+.email-preview-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e7f3f2;
+  color: #087b79;
+  font-size: 20px;
+}
+.email-preview-meta {
+  margin: 0;
+  border-block: 1px solid #e2e6e5;
+}
+.email-preview-meta > div {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+}
+.email-preview-meta dt {
+  color: #68716f;
+  font-weight: 600;
+}
+.email-preview-meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.email-body-field textarea {
+  resize: vertical;
+  min-height: 180px;
+}
+.email-preview-actions {
+  justify-content: flex-end;
+}
+@media (max-width: 600px) {
+  .email-preview-meta > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .email-preview-actions > * {
+    width: 100%;
+  }
+}
+
 body {
   margin: 0;
   min-width: 320px;

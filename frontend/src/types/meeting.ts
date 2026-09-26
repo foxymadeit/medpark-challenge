@@ -37,6 +37,14 @@ export interface Participant {
   enrollmentKind?: "prototype" | "verified";
   active?: boolean;
 }
+export interface MeetingParticipantSnapshot {
+  staffId: string;
+  nameAtMeeting: string;
+  emailAtMeeting: string;
+  roleTitleAtMeeting: string;
+  departmentAtMeeting: string;
+  speakerId?: string;
+}
 export interface VoiceProfile {
   id: string;
   staffId: string;
@@ -118,6 +126,7 @@ export interface Meeting {
   durationSeconds?: number;
   audioBytes?: number;
   participants: Participant[];
+  participantSnapshots?: MeetingParticipantSnapshot[];
   distributionList: string[];
   progress?: number;
   summary?: string;

@@ -40,6 +40,13 @@ export async function createMeeting(
       body: JSON.stringify(input),
     });
   return mutate((s) => {
+    const participants = (input.participants ?? []).map((p, i) => ({
+      ...p,
+      staffId: p.staffId ?? p.id,
+      speakerSlot: i,
+      speakerId: p.id,
+      speakingSeconds: 0,
+    }));
     const m: Meeting = {
       ...input,
       id: crypto.randomUUID(),
@@ -48,11 +55,14 @@ export async function createMeeting(
       sendMode: "manual",
       reviewState: "not_ready",
       createdAt: new Date().toISOString(),
-      participants: (input.participants ?? []).map((p, i) => ({
-        ...p,
-        speakerSlot: i,
-        speakerId: p.id,
-        speakingSeconds: 0,
+      participants,
+      participantSnapshots: participants.map((participant) => ({
+        staffId: participant.staffId,
+        nameAtMeeting: participant.name,
+        emailAtMeeting: participant.email ?? "",
+        roleTitleAtMeeting: participant.role ?? "",
+        departmentAtMeeting: participant.department ?? input.type,
+        speakerId: participant.speakerId,
       })),
       distributionList: [distribution[input.type].list],
       templateId: input.templateId,
@@ -281,6 +291,14 @@ export async function updateParticipants(
       ...participant,
       speakerId: participant.speakerId ?? participant.id,
       speakerSlot: participant.speakerSlot ?? index,
+    }));
+    meeting.participantSnapshots = meeting.participants.map((participant) => ({
+      staffId: participant.staffId ?? participant.id,
+      nameAtMeeting: participant.name,
+      emailAtMeeting: participant.email ?? "",
+      roleTitleAtMeeting: participant.role ?? "",
+      departmentAtMeeting: participant.department ?? meeting.type,
+      speakerId: participant.speakerId,
     }));
     return meeting;
   });

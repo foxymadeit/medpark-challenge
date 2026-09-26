@@ -126,6 +126,15 @@ describe("application flows", () => {
     );
   });
   it("requires manual review and supports explicit send with a simulated receipt", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>", {
+          status: 200,
+          headers: { "Content-Type": "image/svg+xml" },
+        }),
+      ),
+    );
     await updateMeeting("meeting-001", {
       status: "ready",
       sendMode: "manual",
@@ -136,7 +145,12 @@ describe("application flows", () => {
     fireEvent.click(
       await screen.findByRole("button", { name: "Mark review complete" }),
     );
-    fireEvent.click(await screen.findByRole("button", { name: "Send" }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Preview email" }),
+    );
+    await screen.findByText("Email preview");
+    expect(screen.getByText(/Minutes\.docx$/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
     const receipt = await screen.findByRole(
       "link",
       {

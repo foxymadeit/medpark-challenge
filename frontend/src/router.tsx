@@ -25,6 +25,7 @@ import TranscriptPage from "./pages/TranscriptPage";
 import UploadPage from "./pages/UploadPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import TemplateEditorPage from "./pages/TemplateEditorPage";
+import EmailPreviewPage from "./pages/EmailPreviewPage";
 
 export const routes: RouteObject[] = [
   {
@@ -46,6 +47,7 @@ export const routes: RouteObject[] = [
               { path: "meetings/:id/upload", Component: UploadPage },
               { path: "meetings/:id/processing", Component: ProcessingPage },
               { path: "meetings/:id/minutes", Component: MomPage },
+              { path: "meetings/:id/email", Component: EmailPreviewPage },
               { path: "meetings/:id/transcript", Component: TranscriptPage },
               { path: "meetings/:id/sent", Component: SentPage },
               { path: "action-items", Component: ActionItemsPage },

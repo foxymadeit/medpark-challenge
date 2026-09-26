@@ -128,6 +128,18 @@ const resources = {
         "Check the summary, decisions, action items and participants.",
       markReviewComplete: "Mark review complete",
       send: "Send",
+      previewEmail: "Preview email",
+      emailPreview: "Email preview",
+      to: "To",
+      subject: "Subject",
+      attachment: "Attachment",
+      emailBody: "Message",
+      emailPreviewBody:
+        "Hello,\n\nPlease find attached the minutes for {{title}}, held on {{date}}.\n\nRegards,\nLiminal",
+      downloadWord: "Download Word",
+      invalidRecipient:
+        "Every participant needs a valid email address before sending.",
+      documentGenerationFailed: "The Word document could not be generated.",
       autoMode: "Automatic sending",
       autoModeDescription:
         "Future option: send 30 seconds after processing. Manual review remains the default.",
@@ -452,6 +464,18 @@ const resources = {
         "Verifică rezumatul, deciziile, sarcinile și participanții.",
       markReviewComplete: "Marchează verificarea finalizată",
       send: "Trimite",
+      previewEmail: "Previzualizează emailul",
+      emailPreview: "Previzualizare email",
+      to: "Către",
+      subject: "Subiect",
+      attachment: "Atașament",
+      emailBody: "Mesaj",
+      emailPreviewBody:
+        "Bună ziua,\n\nGăsiți atașat procesul-verbal pentru {{title}}, desfășurată la {{date}}.\n\nCu respect,\nLiminal",
+      downloadWord: "Descarcă Word",
+      invalidRecipient:
+        "Fiecare participant trebuie să aibă o adresă de email validă înainte de trimitere.",
+      documentGenerationFailed: "Documentul Word nu a putut fi generat.",
       autoMode: "Trimitere automată",
       autoModeDescription:
         "Opțiune viitoare: trimitere la 30 de secunde după procesare. Verificarea manuală rămâne implicită.",
@@ -773,6 +797,18 @@ const resources = {
       reviewChecklist: "Проверьте сводку, решения, задачи и участников.",
       markReviewComplete: "Завершить проверку",
       send: "Отправить",
+      previewEmail: "Предпросмотр письма",
+      emailPreview: "Предпросмотр письма",
+      to: "Кому",
+      subject: "Тема",
+      attachment: "Вложение",
+      emailBody: "Сообщение",
+      emailPreviewBody:
+        "Здравствуйте,\n\nВо вложении протокол совещания {{title}}, состоявшегося {{date}}.\n\nС уважением,\nLiminal",
+      downloadWord: "Скачать Word",
+      invalidRecipient:
+        "Перед отправкой у каждого участника должен быть действительный адрес электронной почты.",
+      documentGenerationFailed: "Не удалось создать документ Word.",
       autoMode: "Автоматическая отправка",
       autoModeDescription:
         "Будущая опция: отправка через 30 секунд после обработки. Ручная проверка остаётся стандартной.",

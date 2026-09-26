@@ -42,6 +42,22 @@ async function create() {
   });
 }
 describe("demo workflow with no network", () => {
+  it("keeps participant identity and role snapshots immutable", async () => {
+    const meeting = await create();
+    const original = meeting.participantSnapshots?.find(
+      (participant) => participant.staffId === "ana",
+    );
+    const store = readStore();
+    const currentAna = store.people.find((person) => person.id === "ana")!;
+    currentAna.name = "Updated directory name";
+    currentAna.role = "Updated current role";
+    writeStore(store);
+    expect(
+      (await getMeeting(meeting.id)).participantSnapshots?.find(
+        (participant) => participant.staffId === "ana",
+      ),
+    ).toEqual(original);
+  });
   it("creates a meeting, persists processing, and waits for explicit review and send", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);

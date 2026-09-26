@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { FiCheckCircle, FiSend } from "react-icons/fi";
+import { FiCheckCircle, FiMail } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import { markReviewed, sendNow } from "../api/meetings";
+import { useNavigate } from "react-router-dom";
+import { markReviewed } from "../api/meetings";
 import { notifyUpdate } from "../hooks/useData";
 import type { Meeting } from "../types/meeting";
 import Button from "./Button";
 
 export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const reviewed = meeting.reviewState === "reviewed";
@@ -43,9 +45,9 @@ export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
         <Button
           variant="primary"
           disabled={busy || !reviewed || meeting.status === "sending"}
-          onClick={() => void run(() => sendNow(meeting.id))}
+          onClick={() => navigate(`/meetings/${meeting.id}/email`)}
         >
-          <FiSend /> {t(meeting.status === "sending" ? "sending" : "send")}
+          <FiMail /> {t("previewEmail")}
         </Button>
       </div>
       {error && (

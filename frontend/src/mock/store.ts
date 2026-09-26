@@ -256,6 +256,19 @@ export function readStore(): DemoStore {
         migrated = true;
       }
     }
+    if (!meeting.participantSnapshots) {
+      meeting.participantSnapshots = meeting.participants.map(
+        (participant) => ({
+          staffId: participant.staffId ?? participant.id,
+          nameAtMeeting: participant.name,
+          emailAtMeeting: participant.email ?? "",
+          roleTitleAtMeeting: participant.role ?? "",
+          departmentAtMeeting: participant.department ?? meeting.type,
+          speakerId: participant.speakerId,
+        }),
+      );
+      migrated = true;
+    }
     if (!meeting.sendMode) {
       meeting.sendMode = "manual";
       meeting.reviewState =
