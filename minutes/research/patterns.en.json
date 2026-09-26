@@ -1,0 +1,49 @@
+{
+ "title": "Minutes of the meeting of the {body}",
+ "section_order": [
+  "header: body, date, time, location, chair",
+  "Present / In attendance / Apologies (name, role, initials)",
+  "Welcome, apologies and declarations of interest",
+  "Minutes of the previous meeting",
+  "Matters arising and action log",
+  "numbered agenda items: discussion, Decision, Actions",
+  "Any other business",
+  "Date of next meeting"
+ ],
+ "people": {
+  "format": "{full name}, {role} ({initials})",
+  "source": "en_uhs_pack_2025-11"
+ },
+ "noting": [
+  "The Board noted {x}.",
+  "It was noted that {x}.",
+  "The Board was informed that {x}.",
+  "Members noted {x}.",
+  "The Board received a report on {x}."
+ ],
+ "decision": [
+  "RESOLVED that {x}.",
+  "Resolved: {x}.",
+  "The Board approved {x}.",
+  "The Board approved {x}, subject to the following: {conditions}",
+  "It was agreed that {x}."
+ ],
+ "action": {
+  "format": "{owner} agreed to {verb phrase}.",
+  "alt": "Action: to {verb phrase} ({owner}).",
+  "deadline": "only if set: 'by {date}'; otherwise leave the action log's date empty",
+  "sources": [
+   "en_uhs_pack_2025-11",
+   "en_hdft_pack_2025-11"
+  ]
+ },
+ "votes": "rare in UK boards; US boards: 'Motion … seconded … carried unanimously'",
+ "sign_off": "Signed by the Chair as a correct record at the next meeting",
+ "tense": "past, third person, reported speech",
+ "omit": [
+  "verbatim speech (always reported, never quoted)",
+  "small talk and procedure beyond opening and closing",
+  "patient names (cases are counted or described)",
+  "deadlines nobody set"
+ ]
+}
