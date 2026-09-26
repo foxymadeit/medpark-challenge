@@ -3,7 +3,7 @@ import { groupTasks } from '../components/Minutes';
 import { speakerNamer } from './meeting';
 import type { Lang } from '../i18n/I18nProvider';
 import type { Meeting } from '../types';
-import { formatDayMonth, formatFullDate, todayISO } from './format';
+import { dueRelative, formatDayMonth, formatFullDate, todayISO } from './format';
 import { lineTokens } from './transcript';
 
 type T = (key: string, vars?: Record<string, string | number>) => string;
@@ -37,6 +37,11 @@ export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
   pdfMake.vfs = vfs;
 
   const date = formatFullDate(meeting.date, lang);
+  // "Tomorrow · 27 Sep": how it was said in the meeting plus the date it resolves to.
+  const dueText = (due: string) => {
+    const r = dueRelative(meeting.date, due);
+    return r ? `${t(r.key, r.vars)} · ${formatDayMonth(due, lang)}` : formatDayMonth(due, lang);
+  };
   const nameOf = speakerNamer(meeting, () => undefined, t);
   const type = t(`types.${meeting.type}`);
 
@@ -60,7 +65,7 @@ export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
         widths: ['*', 110, 70],
         body: [
           [t('pdf.colTask'), t('pdf.colPatient'), t('pdf.colDue')].map((h) => ({ text: h, style: 'th' })),
-          ...g.patients.flatMap((p) => p.tasks.map((task) => [task.title, { text: p.patient, color: INK_2 }, formatDayMonth(task.due, lang)])),
+          ...g.patients.flatMap((p) => p.tasks.map((task) => [task.title, { text: p.patient, color: INK_2 }, dueText(task.due)])),
         ],
       },
       layout: hairlineTable,

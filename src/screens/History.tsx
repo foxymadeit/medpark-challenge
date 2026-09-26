@@ -8,7 +8,7 @@ import { TranscriptLines } from '../components/Minutes';
 import { StatusTag } from '../components/StatusTag';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { useI18n } from '../i18n/I18nProvider';
-import { formatDayMonth, formatFullDate } from '../lib/format';
+import { dueRelative, formatDayMonth, formatFullDate, formatWeekdayDate } from '../lib/format';
 import { speakerNamer } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
@@ -223,7 +223,12 @@ export function HistoryRecord() {
                         </span>
                       </span>
                     </td>
-                    <td className="t-data-sm">{formatDayMonth(task.due, lang)}</td>
+                    <td>
+                      <span className="due">
+                        <span className="due__rel">{(() => { const r = dueRelative(meeting.date, task.due); return r ? t(r.key, r.vars) : formatWeekdayDate(task.due, lang); })()}</span>
+                        {dueRelative(meeting.date, task.due) && <span className="due__date">{formatWeekdayDate(task.due, lang)}</span>}
+                      </span>
+                    </td>
                   </tr>
                 ))}
             </tbody>

@@ -7,7 +7,7 @@ import { Dropdown } from '../components/Dropdown';
 import { TranscriptLines } from '../components/Minutes';
 import { PeopleStack } from '../components/PeopleStack';
 import { useI18n } from '../i18n/I18nProvider';
-import { addDays, daysBetween, formatDayMonth, formatWeekdayDate, isEmail, uid } from '../lib/format';
+import { addDays, DUE_OFFSETS, dueRelative, formatDayMonth, formatWeekdayDate, isEmail, uid } from '../lib/format';
 import { speakerNamer } from '../lib/meeting';
 import { lineTokens } from '../lib/transcript';
 import { detectedLanguages } from '../mocks';
@@ -15,13 +15,13 @@ import { AddParticipantModal } from './Participants';
 import { useStore } from '../store/AppStore';
 import type { Meeting, Person, Task } from '../types';
 
+/** Deadline as said in the meeting ("Tomorrow", "In 3 days"…) plus the date it resolves to. */
 function useDueLabel(meetingDate: string) {
   const { t, lang } = useI18n();
-  return (iso: string, withDate = false) => {
-    const d = daysBetween(meetingDate, iso);
-    const rel = d === 0 ? t('review.today') : d === 1 ? t('review.tomorrow') : null;
-    if (rel) return withDate ? `${rel}, ${formatDayMonth(iso, lang)}` : rel;
-    return formatWeekdayDate(iso, lang);
+  return (iso: string) => {
+    const rel = dueRelative(meetingDate, iso);
+    const date = formatWeekdayDate(iso, lang);
+    return { rel: rel ? t(rel.key, rel.vars) : date, date: rel ? date : '' };
   };
 }
 
@@ -228,7 +228,7 @@ export function Review() {
   const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id));
   const nameOf = speakerNamer(meeting, resolvePerson, t);
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
-  const dueOptions = Array.from({ length: 8 }, (_, i) => addDays(meeting.date, i));
+  const dueOptions = [...new Set([...DUE_OFFSETS.map((n) => addDays(meeting.date, n)), ...(row ? [row.due] : [])])].sort();
 
   const isNew = !!row && !meeting.tasks.some((x) => x.id === row.id);
   // A new task shows as an editing row on top; it's only added once saved.
@@ -261,7 +261,7 @@ export function Review() {
       <div className="review__panes">
         <section className="card review__pane review__pane--transcript" aria-labelledby="rv-transcript" tabIndex={0}>
           <div className="stack" style={{ gap: 4 }}>
-            <h2 id="rv-transcript" className="section-title">
+            <h2 id="rv-transcript" className="review__pane-title">
               {t('review.transcript')}
             </h2>
             <p className="note review__hint">{t('review.word.hint')}</p>
@@ -294,7 +294,7 @@ export function Review() {
 
         <section className="card review__pane review__pane--tasks" aria-labelledby="rv-tasks" tabIndex={0}>
           <div className="summary-head">
-            <h2 id="rv-tasks" className="section-title">
+            <h2 id="rv-tasks" className="review__pane-title">
               {t('review.tasks')}
             </h2>
             <button type="button" className="btn btn--ghost summary-head__add" onClick={addTask} disabled={isNew}>
@@ -325,7 +325,7 @@ export function Review() {
                       <Dropdown variant="field" label={t('review.owner')} value={row.ownerId} options={meeting.participants.map((x) => ({ value: x.personId, label: x.name }))} onChange={(v) => setRow({ ...row, ownerId: v })} />
                     </td>
                     <td>
-                      <Dropdown variant="field" label={t('review.due')} value={row.due} options={dueOptions.map((d) => ({ value: d, label: dueLabel(d, true) }))} onChange={(v) => setRow({ ...row, due: v })} />
+                      <Dropdown variant="field" label={t('review.due')} value={row.due} options={dueOptions.map((d) => ({ value: d, label: [dueLabel(d).rel, dueLabel(d).date].filter(Boolean).join(' · ') }))} onChange={(v) => setRow({ ...row, due: v })} />
                     </td>
                     <td>
                       <span className="row" style={{ gap: 4 }}>
@@ -355,7 +355,12 @@ export function Review() {
                         </span>
                       </span>
                     </td>
-                    <td className="t-data-sm">{dueLabel(task.due)}</td>
+                    <td>
+                      <span className="due">
+                        <span className="due__rel">{dueLabel(task.due).rel}</span>
+                        {dueLabel(task.due).date && <span className="due__date">{dueLabel(task.due).date}</span>}
+                      </span>
+                    </td>
                     <td>
                       <EditButton label={t('review.editTask', { title: task.title })} onClick={() => startRow(task)} />
                     </td>

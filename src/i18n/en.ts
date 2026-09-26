@@ -145,6 +145,15 @@ export const en = {
     prevMonth: 'Previous month',
     nextMonth: 'Next month',
   },
+  due: {
+    sameDay: 'Same day',
+    tomorrow: 'Tomorrow',
+    inDays: 'In {count} days',
+    inDays_one: 'In {count} day',
+    inWeek: 'In a week',
+    inWeeks: 'In {count} weeks',
+    inWeeks_one: 'In {count} week',
+  },
   colors: {
     rose: 'Rose',
     peach: 'Peach',

@@ -142,6 +142,17 @@
     "prevMonth": "Luna precedentă",
     "nextMonth": "Luna următoare"
   },
+  "due": {
+    "sameDay": "În aceeași zi",
+    "tomorrow": "Mâine",
+    "inDays": "În {count} de zile",
+    "inDays_one": "Într-o zi",
+    "inWeek": "Într-o săptămână",
+    "inWeeks": "În {count} de săptămâni",
+    "inWeeks_one": "Într-o săptămână",
+    "inDays_few": "În {count} zile",
+    "inWeeks_few": "În {count} săptămâni"
+  },
   "colors": {
     "rose": "Roz",
     "peach": "Piersică",

@@ -143,6 +143,19 @@
     "prevMonth": "Предыдущий месяц",
     "nextMonth": "Следующий месяц"
   },
+  "due": {
+    "sameDay": "В тот же день",
+    "tomorrow": "Завтра",
+    "inDays": "Через {count} дня",
+    "inDays_one": "Через {count} день",
+    "inWeek": "Через неделю",
+    "inWeeks": "Через {count} недели",
+    "inWeeks_one": "Через {count} неделю",
+    "inDays_few": "Через {count} дня",
+    "inDays_many": "Через {count} дней",
+    "inWeeks_few": "Через {count} недели",
+    "inWeeks_many": "Через {count} недель"
+  },
   "colors": {
     "rose": "Розовый",
     "peach": "Персиковый",

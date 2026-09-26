@@ -87,3 +87,20 @@ export function isEmail(value: string): boolean {
 export function uid(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 }
+
+/**
+ * Deadline relative to the meeting date: "Same day", "Tomorrow", "In 3 days", "In a week", "In 2 weeks",
+ * else just the weekday date. Returns the i18n key + vars; the concrete date is shown alongside.
+ */
+export function dueRelative(meetingIso: string, dueIso: string): { key: string; vars?: Record<string, number> } | null {
+  const d = daysBetween(meetingIso, dueIso);
+  if (d === 0) return { key: 'due.sameDay' };
+  if (d === 1) return { key: 'due.tomorrow' };
+  if (d >= 2 && d <= 6) return { key: 'due.inDays', vars: { count: d } };
+  if (d === 7) return { key: 'due.inWeek' };
+  if (d > 7 && d % 7 === 0) return { key: 'due.inWeeks', vars: { count: d / 7 } };
+  return null;
+}
+
+/** Offsets offered when picking a deadline (days after the meeting). */
+export const DUE_OFFSETS = [0, 1, 2, 3, 5, 7, 14];
