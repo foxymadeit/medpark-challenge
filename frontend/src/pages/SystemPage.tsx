@@ -51,7 +51,9 @@ export default function SystemPage() {
         {data.services.map((s) => (
           <div key={s.id} className="service-row">
             <div>
-              <strong>{t(s.id)}</strong>
+              <strong>
+                {t(`service_${s.id}`, { defaultValue: s.description ?? s.id })}
+              </strong>
               <small>
                 {t(`serviceDesc_${s.id}`, {
                   defaultValue: s.description ?? t("descriptionUnavailable"),
@@ -85,26 +87,30 @@ export default function SystemPage() {
         <h2>{t("auditTrail")}</h2>
         <p className="muted">{t("auditIntro")}</p>
         {audit?.length ? (
-          <table>
-            <thead>
-              <tr>
-                <th>{t("auditWhen")}</th>
-                <th>{t("auditFrom")}</th>
-                <th>{t("auditWhat")}</th>
-                <th>{t("auditResult")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {audit.slice(0, 12).map((row, i) => (
-                <tr key={`${row.at}-${i}`}>
-                  <td>{formatClock(row.at, i18n.language)}</td>
-                  <td className="mono">{row.address ?? "-"}</td>
-                  <td>{t(auditAction(row))}</td>
-                  <td>{t(row.status < 400 ? "auditDone" : "auditRefused")}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>{t("auditWhen")}</th>
+                  <th>{t("auditFrom")}</th>
+                  <th>{t("auditWhat")}</th>
+                  <th>{t("auditResult")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {audit.slice(0, 12).map((row, i) => (
+                  <tr key={`${row.at}-${i}`}>
+                    <td>{formatClock(row.at, i18n.language)}</td>
+                    <td className="mono">{row.address ?? "-"}</td>
+                    <td>{t(auditAction(row))}</td>
+                    <td>
+                      {t(row.status < 400 ? "auditDone" : "auditRefused")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p>{t("auditEmpty")}</p>
         )}

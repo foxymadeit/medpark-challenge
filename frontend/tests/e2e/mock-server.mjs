@@ -164,10 +164,23 @@ const routes = [
     "GET",
     /^\/api\/routing$/,
     (req, res) =>
+      // backend/api.py: {type: {name, recipients}}
       send(res, 200, {
-        medical: ["medical-board@hospital.local", "admin-board@hospital.local"],
-        executive: ["executive-board@hospital.local"],
-        administrative: ["admin-board@hospital.local"],
+        medical: {
+          name: "medical-board",
+          recipients: [
+            "medical-board@hospital.local",
+            "admin-board@hospital.local",
+          ],
+        },
+        executive: {
+          name: "executive-board",
+          recipients: ["executive-board@hospital.local"],
+        },
+        administrative: {
+          name: "admin-board",
+          recipients: ["admin-board@hospital.local"],
+        },
       }),
   ],
   [
@@ -182,9 +195,15 @@ const routes = [
       send(res, 200, {
         local: true,
         host: "liminal-test",
-        services: ["asr", "speakers", "automation", "mail", "storage"].map(
-          (id) => ({ id, available: true }),
-        ),
+        services: [
+          "asr",
+          "speakers",
+          "minutes",
+          "automation",
+          "mail",
+          "storage",
+          "llm",
+        ].map((id) => ({ id, available: true })),
         capabilities: { autoModeAvailable: true },
       }),
   ],

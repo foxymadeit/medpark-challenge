@@ -85,7 +85,7 @@ Types are defined in `src/types/meeting.ts`:
 | GET `/api/admin/audit`                        | —                                                           | Latest 500 audit entries `{at,address,method,route,meetingId,status}`, never content   |
 | GET `/api/system`                             | —                                                           | `{local:boolean,services:[{id,available}]}` for `asr,speakers,automation,mail,storage` |
 | GET `/api/capabilities`                       | —                                                           | `{autoModeAvailable}`; the Liminal backend reports `true`                              |
-| GET `/api/routing`                            | —                                                           | `{medical, executive, administrative}`: recipient addresses (or a count) per type. Optional: without it the app reads the distribution lists in `/api/admin`, else shows no count |
+| GET `/api/routing`                            | —                                                           | `{medical, executive, administrative}`, each `{name, recipients}` (older servers: the address list or a count). Optional: without it the app reads the distribution lists in `/api/admin`, else shows no count |
 | POST `/api/meetings/{id}/confirmations/{factId}` | `{action: "keep" \| "remove"}`                           | Updated `Meeting`; settles one item the checks could not confirm                       |
 | GET `/api/meetings/{id}/documents/{lang}.{ext}` | `lang` ro/ru/en, `ext` pdf/docx                            | The Medpark-template minutes file for that language                                    |
 
