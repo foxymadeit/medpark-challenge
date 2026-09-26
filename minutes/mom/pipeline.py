@@ -13,6 +13,7 @@ from . import latexcheck, render_docx, render_pdf
 from .export import meeting_json
 from .anonymize import anonymize_text
 from .extract import extract
+from .meeting_type import detect as detect_type
 from .normalize import load_transcript
 from .schemas import MEETING_TYPES, Meeting, fresh, to_dict
 from .verify import report as verify_report
@@ -57,6 +58,10 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
         h, m = map(int, meeting.start.split(":"))
         end = dt.datetime(2000, 1, 1, h, m) + dt.timedelta(seconds=lines[-1].end)
         meeting = replace(meeting, end=end.strftime("%H:%M"))
+
+    t = time.perf_counter()
+    detected = detect_type(llm, lines)
+    timings["type"] = time.perf_counter() - t
 
     t = time.perf_counter()
     proposed, patients = extract(llm, lines, meeting.type, think=think)
@@ -105,7 +110,7 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
     os.chmod(app_path, 0o600)
     result = {"files": files, "facts": str(facts_path), "meeting": str(app_path), "checks": counts, "writing": write_reports,
               "timings_s": {k: round(v, 1) for k, v in timings.items()}, "llm": dict(getattr(llm, "stats", {})),
-              "lines": len(lines), "model": model,
+              "lines": len(lines), "model": model, "detected_type": detected,
               "model_digest": llm.digest() if hasattr(llm, "digest") else ""}
     fresh(out_dir / f"{stem}.report.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     return result
