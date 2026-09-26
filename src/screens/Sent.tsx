@@ -8,7 +8,7 @@ import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 
 /** ms per recipient; the ring around the badge fills over all of them. */
-const STEP_MS = 1200;
+const STEP_MS = 3600;
 
 /**
  * 07 — Sent. MOCK sending animation: a paper plane in a ring that fills green over the send,
