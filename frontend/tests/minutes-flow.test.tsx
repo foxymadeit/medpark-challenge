@@ -121,6 +121,32 @@ describe("real pipeline screens", () => {
     ).toEqual(["remove", "keep"]);
   });
 
+  it("asks before sending when the meeting sounds like another type", async () => {
+    const user = userEvent.setup();
+    const m = seedReadyMeeting({
+      type: "medical",
+      confirmItems: [
+        {
+          id: "meeting-type",
+          text: "Meeting type: medical",
+          reason: "",
+          detectedType: "executive",
+        },
+      ],
+    });
+    mount(`/meetings/${m.id}/minutes`);
+    await screen.findByText(
+      "Set to go to the Medical board. The first minutes sound like a meeting for the Executive board.",
+    );
+    expect(screen.getByRole("button", { name: "Keep Medical board" })).toBeTruthy();
+    await user.click(
+      screen.getByRole("button", { name: "Send to Executive board" }),
+    );
+    const saved = readStore().meetings.find((x) => x.id === m.id)!;
+    expect(saved.type).toBe("executive");
+    expect(saved.confirmItems![0].decision).toBe("remove");
+  });
+
   it("switches the minutes language and links each language's PDF and DOCX", async () => {
     const user = userEvent.setup();
     const m = seedReadyMeeting({ confirmItems: [] });

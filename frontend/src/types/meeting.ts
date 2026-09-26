@@ -193,6 +193,10 @@ export interface ConfirmItem {
   /** The checks' own messages, translated for the reader at display time. */
   problems?: string[];
   decision?: "keep" | "remove";
+  /** The meeting-type check: the type the first minutes sounded like. */
+  detectedType?: MeetingType;
+  /** The type the meeting was started with, before any switch. */
+  chosenType?: MeetingType;
 }
 export interface LocalizedMinutes {
   summary: string;

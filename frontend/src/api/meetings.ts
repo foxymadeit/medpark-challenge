@@ -1,5 +1,6 @@
 import { invalidMinutes } from "./validation";
 import type {
+  MeetingType,
   ActionItem,
   MinutesLanguage,
   ProcessingStage,
@@ -40,7 +41,13 @@ type ServerMeeting = Meeting & {
     string,
     { state: ProcessingStage["state"]; startedAt?: string; endedAt?: string }
   >;
-  needsConfirmation?: { id: string; text: string; problems?: string[] }[];
+  needsConfirmation?: {
+    id: string;
+    text: string;
+    problems?: string[];
+    detectedType?: MeetingType;
+    chosenType?: MeetingType;
+  }[];
   documents?: MinutesLanguage[] | Partial<Record<MinutesLanguage, unknown>>;
 };
 /** Server meeting (backend/README.md, "Endpoints beyond the contract") to
@@ -61,6 +68,9 @@ export function fromServer(raw: ServerMeeting): Meeting {
       text: c.text,
       reason: (c.problems ?? []).join(". "),
       problems: c.problems,
+      ...(c.detectedType
+        ? { detectedType: c.detectedType, chosenType: c.chosenType }
+        : {}),
     }));
   if (documents)
     out.documents = Array.isArray(documents)
@@ -103,6 +113,8 @@ export async function decideConfirmation(
     const item = m.confirmItems?.find((c) => c.id === itemId);
     if (!item) throw new ApiError("notFound");
     item.decision = keep ? "keep" : "remove";
+    // the meeting-type check: taking the chosen type out means using the one it sounded like
+    if (!keep && item.detectedType) m.type = item.detectedType;
     return m;
   });
 }

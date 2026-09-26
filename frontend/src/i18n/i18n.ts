@@ -398,6 +398,10 @@ const resources = {
       needsPersonDetail:
         "The checks could not confirm these against the transcript. Keep each one as written, or take it out of the minutes.",
       keep: "Keep",
+      typeCheck: "Set to go to the {{chosen}}. The first minutes sound like a meeting for the {{detected}}.",
+      typeCheckWhy: "The meeting type decides who receives the minutes.",
+      keepType: "Keep {{list}}",
+      switchType: "Send to {{list}}",
       takeOut: "Take out",
       kept: "Kept",
       minutesIn: "Minutes in:",
@@ -846,6 +850,10 @@ const resources = {
       needsPersonDetail:
         "Verificarea nu le-a putut confirma în transcriere. Păstrează fiecare element așa cum este sau scoate-l din procesul-verbal.",
       keep: "Păstrează",
+      typeCheck: "Setată pentru {{chosen}}. Primele minute sună a ședință pentru {{detected}}.",
+      typeCheckWhy: "Tipul ședinței decide cine primește procesul-verbal.",
+      keepType: "Păstrează {{list}}",
+      switchType: "Trimite la {{list}}",
       takeOut: "Scoate",
       kept: "Păstrat",
       minutesIn: "Proces-verbal în:",
@@ -1292,6 +1300,10 @@ const resources = {
       needsPersonDetail:
         "Проверка не нашла их в стенограмме. Оставьте каждый пункт как есть или уберите его из протокола.",
       keep: "Оставить",
+      typeCheck: "Назначено: {{chosen}}. По первым минутам это похоже на заседание: {{detected}}.",
+      typeCheckWhy: "Тип заседания определяет, кто получит протокол.",
+      keepType: "Оставить: {{list}}",
+      switchType: "Отправить: {{list}}",
       takeOut: "Убрать",
       kept: "Оставлено",
       minutesIn: "Протокол на языке:",

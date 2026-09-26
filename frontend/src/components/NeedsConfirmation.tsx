@@ -77,6 +77,31 @@ export default function NeedsConfirmation({
     });
     if (ok) onDone?.();
   }
+  // The meeting-type check reads as a choice between two lists, not keep or take out.
+  const startedAs = (item: ConfirmItem) => item.chosenType ?? meeting.type;
+  function title(item: ConfirmItem) {
+    return item.detectedType
+      ? t("typeCheck", {
+          chosen: listName(startedAs(item), t),
+          detected: listName(item.detectedType, t),
+        })
+      : item.text;
+  }
+  function labels(item: ConfirmItem) {
+    if (!item.detectedType) {
+      return {
+        takeOut: `${t("takeOut")}: ${item.text}`,
+        takeOutText: t("takeOut"),
+        keep: `${t("keep")}: ${item.text}`,
+        keepText: t("keep"),
+      };
+    }
+    const keepText = t("keepType", { list: listName(startedAs(item), t) });
+    const takeOutText = t("switchType", {
+      list: listName(item.detectedType, t),
+    });
+    return { takeOut: takeOutText, takeOutText, keep: keepText, keepText };
+  }
   return (
     <section className="panel needs-confirmation" aria-labelledby="nc-title">
       <h2 id="nc-title">{t("needsPerson", { count: items.length })}</h2>
@@ -85,11 +110,13 @@ export default function NeedsConfirmation({
         {items.map((item) => (
           <li key={item.id} className="confirm-row">
             <div>
-              <strong>{item.text}</strong>
+              <strong>{title(item)}</strong>
               <p>
-                {item.problems?.length
-                  ? explainProblems(item.problems, t)
-                  : item.reason}
+                {item.detectedType
+                  ? t("typeCheckWhy")
+                  : item.problems?.length
+                    ? explainProblems(item.problems, t)
+                    : item.reason}
               </p>
             </div>
             {item.settledElsewhere ? (
@@ -111,17 +138,17 @@ export default function NeedsConfirmation({
               <div className="button-row">
                 <Button
                   disabled={!!busy}
-                  aria-label={`${t("takeOut")}: ${item.text}`}
+                  aria-label={labels(item).takeOut}
                   onClick={() => void decide(item.id, false)}
                 >
-                  {t("takeOut")}
+                  {labels(item).takeOutText}
                 </Button>
                 <Button
                   disabled={!!busy}
-                  aria-label={`${t("keep")}: ${item.text}`}
+                  aria-label={labels(item).keep}
                   onClick={() => void decide(item.id, true)}
                 >
-                  {t("keep")}
+                  {labels(item).keepText}
                 </Button>
               </div>
             )}

@@ -298,6 +298,17 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
             item["sourceTimestampSeconds"] = start
         actions.append(item)
 
+    # the minutes read the first 3 minutes and name the meeting type; the type picks
+    # who receives the email, so a disagreement waits for a person
+    report_file = next(minutes_dir.glob("*.report.json"), None)
+    detected = json.loads(report_file.read_text(encoding="utf-8")).get("detected_type") if report_file else None
+    if detected in ("medical", "executive", "administrative"):
+        m["detectedType"] = detected
+        if detected != m["type"]:
+            confirm.append({"id": "meeting-type", "kind": "meeting_type", "text": f"Meeting type: {m['type']}",
+                            "problems": [f"meeting type sounds like {detected}"], "detectedType": detected,
+                            "chosenType": m["type"]})
+
     export = next(minutes_dir.glob("*.meeting.json"), None)
     exported = json.loads(export.read_text(encoding="utf-8")) if export else {}
     documents = {}

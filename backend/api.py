@@ -333,7 +333,11 @@ def confirm(meeting_id: str, fact_id: str, body: Confirmation, user: dict = Depe
         item = next((c for c in m.get("needsConfirmation") or [] if c["id"] == fact_id), None)
         if item is None:
             raise HTTPException(404, "Nothing to confirm with that id.")
-        if body.action == "remove":
+        if fact_id == "meeting-type":   # "remove" means: not this type, use the one it sounded like
+            if body.action == "remove":
+                m["type"] = item["detectedType"]
+                m["distributionList"] = _distribution(m["type"])
+        elif body.action == "remove":
             m["decisions"] = [d for d in m.get("decisions") or [] if d["id"] != fact_id]
             m["actionItems"] = [a for a in m.get("actionItems") or [] if a["id"] != fact_id]
         _resolve(m, fact_id)

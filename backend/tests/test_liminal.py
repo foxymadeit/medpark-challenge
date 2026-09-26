@@ -19,6 +19,7 @@ os.environ["LIMINAL_ADMIN_PASSWORD"] = "correct horse battery"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
+import api  # noqa: E402
 import delivery  # noqa: E402
 import jobs  # noqa: E402
 import main  # noqa: E402
@@ -311,3 +312,22 @@ def test_staff_enroll_a_voice_once_and_only_an_admin_replaces_it(client):
     assert enroll().status_code == 403
     login(client)
     assert enroll().status_code == 204
+
+
+def test_a_meeting_that_sounds_like_another_type_waits_for_a_person(client, monkeypatch):
+    monkeypatch.setenv("FAKE_DETECTED", "executive")
+    m = processed(client)
+    assert m["status"] == "ready" and m["detectedType"] == "executive"
+    item = next(c for c in m["needsConfirmation"] if c["id"] == "meeting-type")
+    assert item["detectedType"] == "executive"
+    r = client.post(f"/api/meetings/{m['id']}/confirmations/meeting-type", json={"action": "remove"})
+    assert r.status_code == 200
+    after = r.json()
+    assert after["type"] == "executive" and after["distributionList"] == api._distribution("executive")
+    assert all(c["id"] != "meeting-type" for c in after["needsConfirmation"])
+
+
+def test_a_matching_type_changes_nothing(client, monkeypatch):
+    monkeypatch.setenv("FAKE_DETECTED", "medical")
+    m = processed(client)
+    assert m["status"] == "sending_soon" and not m["needsConfirmation"]
