@@ -22,14 +22,13 @@ export function Processing() {
   const { meetings, updateMeeting, sendMeeting, preferences, resolvePerson } = useStore();
   const meeting = meetings.find((m) => m.id === id);
   const [elapsed, setElapsed] = useState(0);
-  const startedAt = useRef(0);
   const total = processingStepsMs.reduce((a, b) => a + b, 0);
   const pane = useRef<HTMLDivElement>(null);
   const pinned = useRef(true); // follow new chunks only while the reader is at the bottom
 
   useEffect(() => {
-    startedAt.current = performance.now();
-    const timer = setInterval(() => setElapsed(performance.now() - startedAt.current), 100);
+    const started = performance.now();
+    const timer = setInterval(() => setElapsed(performance.now() - started), 100);
     return () => clearInterval(timer);
   }, []);
 
@@ -64,11 +63,6 @@ export function Processing() {
   const step = current === -1 ? STEPS.length - 1 : current;
   const pct = Math.min(100, Math.round((elapsed / total) * 100));
   const nameOf = speakerNamer(meeting, resolvePerson, t);
-  // Demo shortcut: the mock takes ~1 min; jump to the end (same path as finishing normally).
-  const skip = () => {
-    startedAt.current = performance.now() - total;
-    setElapsed(total);
-  };
 
   return (
     <div className="page processing">
@@ -84,9 +78,6 @@ export function Processing() {
             {pct}%
           </span>
         </div>
-        <button type="button" className="link-btn processing__skip" onClick={skip}>
-          {t('processing.skip')}
-        </button>
 
         <ol className="steps" aria-live="polite">
           {STEPS.map((key, i) => (

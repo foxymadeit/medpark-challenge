@@ -1,4 +1,4 @@
-import { CheckIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, CheckIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
@@ -226,6 +226,7 @@ export function Review() {
   if (meeting.status === 'processing') return <Navigate to={`/processing/${meeting.id}`} replace />;
 
   // Voices in the transcript that aren't meeting participants (unknown voices and uninvited colleagues).
+  const [transcriptOpen, setTranscriptOpen] = useState(false);
   const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id));
   const nameOf = speakerNamer(meeting, resolvePerson, t);
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
@@ -260,39 +261,6 @@ export function Review() {
       </header>
 
       <div className="review__panes">
-        <section className="card review__pane review__pane--transcript" aria-labelledby="rv-transcript" tabIndex={0}>
-          <div className="stack" style={{ gap: 4 }}>
-            <h2 id="rv-transcript" className="review__pane-title">
-              {t('review.transcript')}
-            </h2>
-            <p className="note review__hint">{t('review.word.hint')}</p>
-          </div>
-          {removed && (
-            <p className="undo-bar" role="status">
-              <span className="truncate">{removed.label}</span>
-              <button type="button" className="link-btn" onClick={() => (updateMeeting(meeting.id, { transcript: removed.transcript }), setRemoved(null))}>
-                {t('review.word.undo')}
-              </button>
-            </p>
-          )}
-          <HeardPanel meeting={meeting} voiceName={nameOf} unknown={unknown} />
-          <TranscriptLines
-            lines={meeting.transcript}
-            nameOf={nameOf}
-            onCorrect={(line, token, value) => (correctToken(meeting.id, line, token, value), setRemoved(null))}
-            onRemove={(line, token) => {
-              const tok = lineTokens(meeting.transcript[line])[token];
-              setRemoved({ label: t('review.word.removed', { word: tok?.text ?? '' }), transcript: meeting.transcript });
-              removeToken(meeting.id, line, token);
-            }}
-            onFlagLang={(line, token, l) => flagTokenLang(meeting.id, line, token, l)}
-            onEditLine={(line, text) => (editLine(meeting.id, line, text), setRemoved(null))}
-            onRemoveLine={(line) => {
-              setRemoved({ label: t('review.sentence.removed', { time: meeting.transcript[line].at }), transcript: meeting.transcript });
-              removeLine(meeting.id, line);
-            }}
-          />
-        </section>
 
         <section className="card review__pane review__pane--tasks" aria-labelledby="rv-summary" tabIndex={0}>
           {/* The MoM: written summary first, then the tasks. */}
@@ -374,6 +342,50 @@ export function Review() {
               )}
             </tbody>
           </table>
+        </section>
+
+        {/* Collapsed by default so the minutes (summary, tasks) come first; opens for word-level fixes. */}
+        <section className={`card review__pane review__pane--transcript${transcriptOpen ? ' is-open' : ''}`} aria-labelledby="rv-transcript">
+          <h2 className="review__pane-title">
+            <button type="button" id="rv-transcript" className="review__disclosure" aria-expanded={transcriptOpen} aria-controls="rv-transcript-body" onClick={() => setTranscriptOpen((o) => !o)}>
+              <span>{t('review.transcript')}</span>
+              <span className="review__disclosure-meta note">
+                {t('review.transcriptMeta', { count: meeting.transcript.length })}
+                {unknown.length > 0 && ` · ${t('review.voicesToName', { count: unknown.length })}`}
+              </span>
+              <CaretDownIcon size={18} aria-hidden className="review__disclosure-caret" />
+            </button>
+          </h2>
+          {transcriptOpen && (
+          <div id="rv-transcript-body" className="review__transcript-body">
+          <p className="note review__hint">{t('review.word.hint')}</p>
+          {removed && (
+            <p className="undo-bar" role="status">
+              <span className="truncate">{removed.label}</span>
+              <button type="button" className="link-btn" onClick={() => (updateMeeting(meeting.id, { transcript: removed.transcript }), setRemoved(null))}>
+                {t('review.word.undo')}
+              </button>
+            </p>
+          )}
+          <HeardPanel meeting={meeting} voiceName={nameOf} unknown={unknown} />
+          <TranscriptLines
+            lines={meeting.transcript}
+            nameOf={nameOf}
+            onCorrect={(line, token, value) => (correctToken(meeting.id, line, token, value), setRemoved(null))}
+            onRemove={(line, token) => {
+              const tok = lineTokens(meeting.transcript[line])[token];
+              setRemoved({ label: t('review.word.removed', { word: tok?.text ?? '' }), transcript: meeting.transcript });
+              removeToken(meeting.id, line, token);
+            }}
+            onFlagLang={(line, token, l) => flagTokenLang(meeting.id, line, token, l)}
+            onEditLine={(line, text) => (editLine(meeting.id, line, text), setRemoved(null))}
+            onRemoveLine={(line) => {
+              setRemoved({ label: t('review.sentence.removed', { time: meeting.transcript[line].at }), transcript: meeting.transcript });
+              removeLine(meeting.id, line);
+            }}
+          />
+          </div>
+          )}
         </section>
       </div>
 

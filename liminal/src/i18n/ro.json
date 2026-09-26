@@ -271,8 +271,7 @@
     "done": "gata",
     "liveTitle": "Transcris până acum",
     "chunks": "{n} din {total} fragmente",
-    "listening": "Se transcrie partea următoare",
-    "skip": "Treceți la procesul-verbal (demo)"
+    "listening": "Se transcrie partea următoare"
   },
   "review": {
     "meta_one": "{type} · {n} min · {count} participant",
@@ -342,7 +341,13 @@
     "removePoint": "Elimină punctul",
     "pointLabel": "Punct din rezumat",
     "pointPh": "Un punct cheie, o decizie sau un rezultat",
-    "noSummary": "Încă nu există rezumat."
+    "noSummary": "Încă nu există rezumat.",
+    "transcriptMeta_one": "{count} replică",
+    "transcriptMeta_few": "{count} replici",
+    "transcriptMeta": "{count} de replici",
+    "voicesToName_one": "{count} voce de identificat",
+    "voicesToName_few": "{count} voci de identificat",
+    "voicesToName": "{count} de voci de identificat"
   },
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",
