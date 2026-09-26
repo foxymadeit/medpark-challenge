@@ -3,12 +3,12 @@ stage, on one 16 GB GPU (a T4 here), with the product's own commands.
 
 For every hour in the attached test set (coflaz/liminal-hour-tests, built by
 coflaz/liminal-hour-tests-data) it does what the backend does
-(origin/romans-branch backend/jobs.py):
+(backend/jobs.py, all from the merged liminal branch):
 
-  1. transcription (asr-llm, branch samoilov-asr-llm) and speaker diarization
-     (diarization/, branch Coflazo-Branch) side by side,
+  1. transcription (asr-llm/) and speaker diarization
+     (diarization/) side by side,
   2. the recogniser's segments unwrapped into transcript.json,
-  3. mom report (minutes/, branch Coflazo-Branch): RO, RU and EN minutes as
+  3. mom report (minutes/): RO, RU and EN minutes as
      PDF and DOCX,
 
 and records each stage's wall time, the total (challenge target: under 15 min
@@ -38,7 +38,7 @@ from pathlib import Path
 ASR_FETCH = "large-v3"                     # scripts/fetch_whisper.py argument: large-v3 | turbo
 ASR_ENV = {"MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16", "MOM_ASR_MODEL_DIR": "models/whisper",
            "MOM_CS_MERGE": "false", "MOM_CORRECT_TERMS": "true"}
-MINUTES_MODEL = "gemma3:12b"               # Ollama tag the minutes use (MOM_LLM_MODEL)
+MINUTES_MODEL = "qwen3:8b"                 # Ollama tag the minutes use (MOM_LLM_MODEL)
 HOURS = ["icsi_60", "kremlin_60", "md_parl_60", "rompar_60"]
 MEETING_TYPE = {"icsi_60": "administrative", "kremlin_60": "executive", "md_parl_60": "administrative",
                 "rompar_60": "administrative"}
@@ -49,15 +49,14 @@ CMDS = {
     "minutes": "mom report {work}/transcript.json --session {session} --type {type} --date {date} "
                "--start {start} --out {work}/minutes",
 }
-BRANCH = "Coflazo-Branch"
-ASR_BRANCH = "samoilov-asr-llm"
+BRANCH = "liminal"                         # the merged product: every stage from one checkout
 GIT = "https://github.com/foxymadeit/medpark-challenge"
 
 T0 = time.time()
 WORK = Path("/kaggle/working") if Path("/kaggle/working").exists() else Path("/tmp/work")
 OUT = WORK / "out"
 OUT.mkdir(parents=True, exist_ok=True)
-LIMINAL, ASR = Path("/tmp/liminal"), Path("/tmp/asr")
+LIMINAL = ASR = Path("/tmp/liminal")
 OFFLINE_ENV = {"HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "HF_DATASETS_OFFLINE": "1",
                "HF_HUB_DISABLE_TELEMETRY": "1", "DO_NOT_TRACK": "1"}
 STATE = {"step": "setup", "hour": "", "note": "", "done": 0, "total": len(HOURS) + 1, "progress": 0,
@@ -140,9 +139,7 @@ def timed(name, fn):
 
 def clone():
     sh(f"git clone -q --depth 1 -b {BRANCH} {GIT} {LIMINAL}")
-    sh(f"git clone -q --depth 1 -b {ASR_BRANCH} {GIT} {ASR}")
-    for repo in (LIMINAL, ASR):
-        sh("git log -1 --format='%h %an %s'", cwd=repo, check=False)
+    sh("git log -1 --format='%h %an %s'", cwd=LIMINAL, check=False)
 
 
 def install_python():
