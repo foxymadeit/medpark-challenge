@@ -108,15 +108,20 @@ class WhisperAsr:
         a clip too short for LID gets the home languages rather than the previous clip's."""
         from faster_whisper import BatchedInferencePipeline
 
+        import time
+
         batches = list(batches)
         samples = [b.samples.astype(np.float32) for b in batches]
+        t0 = time.perf_counter()
         wanted = self._languages_batched(samples)
+        self.timings = {"lid": time.perf_counter() - t0}
         gap = np.zeros(settings.sample_rate, np.float32)  # 1 s between clips: a segment maps to one clip unambiguously
         audio = np.concatenate([part for x in samples for part in (x, gap)]) if samples else gap
         starts = np.cumsum([0] + [x.size + gap.size for x in samples[:-1]]) / settings.sample_rate
         pipeline = BatchedInferencePipeline(model=self._model)
         results: list[list[tuple]] = [[] for _ in batches]
         for lang in dict.fromkeys(lang for langs in wanted for lang in langs):
+            t0 = time.perf_counter()
             idx = [i for i, langs in enumerate(wanted) if lang in langs]
             clips = [{"start": starts[i], "end": starts[i] + samples[i].size / settings.sample_rate} for i in idx]
             segments, _ = pipeline.transcribe(
@@ -135,6 +140,7 @@ class WhisperAsr:
                 per_clip[idx[max(0, int(np.searchsorted(clip_starts, seg.start + 1e-3)) - 1)]].append(seg)
             for i, segs in per_clip.items():
                 results[i].append(_score(segs, lang, offset=starts[i]))
+            self.timings[f"decode_{lang}"] = time.perf_counter() - t0
         chunks = []
         for b, res in zip(batches, results):
             text, language, hypotheses = _pick(res)

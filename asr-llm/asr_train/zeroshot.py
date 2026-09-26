@@ -311,10 +311,11 @@ def whisper_child(bench: Bench) -> None:
         bench.save("result_whisper.json", result)
     for label, wav in bench.timing_files():  # the product's ASR stage on the whole recording, and on an hour of it
         t0 = time.perf_counter()
-        transcribe_audio(wav)
+        transcript, stages = transcribe_audio(wav)
         took = time.perf_counter() - t0
         secs = len(decode_audio(wav)) / 16000
-        result[label] = {"audio_s": round(secs, 1), "seconds": round(took, 1), "rtfx": round(secs / took, 1)}
+        result[label] = {"audio_s": round(secs, 1), "seconds": round(took, 1), "rtfx": round(secs / took, 1),
+                         "utterances": len(transcript.segments), "stages_s": {k: round(v, 1) for k, v in stages.items()}}
         bench.save("result_whisper.json", result)
 
 

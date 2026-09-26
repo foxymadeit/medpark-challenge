@@ -27,7 +27,8 @@ NEMO = ""
 SETS = "gold"
 WHISPER = "large-v3"  # large-v3 (the product's GPU default) | turbo (measured 2026-09-26: 1.4x faster, gold CER 0.54 vs 0.44)
 # Whisper settings to time, one bench each (own work dir). {} = the product defaults.
-VARIANTS = {"beam5": {}, "beam1": {"MOM_ASR_BEAM_SIZE": "1"}}
+# Measured 2026-09-26 on the hour: beam 5 746 s, beam 1 669 s but gold CER 0.475 vs 0.435. Beam 5 stays.
+VARIANTS = {"beam5": {}}
 
 sh(f"git clone -q --depth 1 -b {BRANCH} https://github.com/foxymadeit/medpark-challenge {REPO}")
 # faster-whisper + pydantic-settings: the cut child uses asr_llm's Silero VAD to split long recordings.

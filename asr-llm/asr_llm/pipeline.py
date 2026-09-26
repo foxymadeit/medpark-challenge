@@ -42,6 +42,7 @@ def transcribe_audio(audio_path: Path, diarization: Path | None = None) -> tuple
     t0 = time.perf_counter()
     chunks = transcribe_batches(engine, batches)
     timings["asr"] = time.perf_counter() - t0
+    timings.update(getattr(engine, "timings", {}))  # the batched decode's own split: lid, decode_<lang>
     engine.close()
 
     segments = collapse_repeat_segments(
