@@ -15,7 +15,7 @@ from pathlib import Path
 T0 = time.time()
 def log(m): print(f"[{(time.time()-T0)/60:5.1f} min] {m}", flush=True)
 subprocess.run("git clone -q --depth 1 -b Coflazo-Branch https://github.com/foxymadeit/medpark-challenge /tmp/repo", shell=True, check=True)
-subprocess.run(f"{sys.executable} -m pip install -q 'laya[onnx]'", shell=True, check=True)
+subprocess.run(f"{sys.executable} -m pip install -q 'laya[onnx]' rapidfuzz python-docx", shell=True, check=True)
 sys.path.insert(0, "/tmp/repo/minutes")
 from eval.meetings import MEETINGS
 from eval.long import LONG
