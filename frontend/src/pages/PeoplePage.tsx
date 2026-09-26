@@ -89,11 +89,13 @@ export default function PeoplePage() {
                 <small>
                   {person.role
                     ? t(person.role, { defaultValue: person.role })
-                    : "—"}
+                    : t("notGiven")}
                 </small>
               </div>
               <span className="success">{t("voiceProfileReady")}</span>
-              <span>{person.department ? t(person.department) : "—"}</span>
+              <span>
+                {person.department ? t(person.department) : t("notGiven")}
+              </span>
             </div>
           ))}
         </div>
@@ -191,7 +193,7 @@ export default function PeoplePage() {
                 }}
               >
                 <strong>{person.name}</strong>
-                <small>{person.role ?? "—"}</small>
+                <small>{person.role ?? t("notGiven")}</small>
               </button>
             ))}
           </div>

@@ -66,7 +66,7 @@ export async function createMinutesDocx(meeting: Meeting): Promise<Blob> {
                 children: [
                   new TextRun({ text: participant.nameAtMeeting, bold: true }),
                   new TextRun(
-                    ` — ${participant.roleTitleAtMeeting || "Role unavailable"}, ${participant.departmentAtMeeting}`,
+                    `, ${participant.roleTitleAtMeeting || "Role unavailable"}, ${participant.departmentAtMeeting}`,
                   ),
                 ],
               }),
@@ -87,7 +87,7 @@ export async function createMinutesDocx(meeting: Meeting): Promise<Blob> {
             return new Paragraph({
               children: [
                 new TextRun({
-                  text: `${formatTime(segment.startSeconds)} — ${speaker}: `,
+                  text: `[${formatTime(segment.startSeconds)}] ${speaker}: `,
                   bold: true,
                 }),
                 new TextRun(segment.text),

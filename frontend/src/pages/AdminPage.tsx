@@ -222,7 +222,7 @@ function UsersPanel({ data, busy, run, role, t }: PanelProps) {
         <label>
           {t("person")}
           <select name="staffProfileId">
-            <option value="">—</option>
+            <option value="">{t("notGiven")}</option>
             {data.staffProfiles.map((profile) => (
               <option key={profile.id} value={profile.id}>
                 {profile.name}
@@ -380,7 +380,10 @@ function RolesPanel({ data, busy, run, role, t }: PanelProps) {
                 </p>
               </div>
               <span>
-                {assignment.validFrom} — {assignment.validTo ?? t("current")}
+                {t("dateRange", {
+                  from: assignment.validFrom,
+                  to: assignment.validTo ?? t("current"),
+                })}
               </span>
             </div>
           ))}

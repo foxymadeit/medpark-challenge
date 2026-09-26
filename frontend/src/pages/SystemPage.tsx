@@ -30,8 +30,8 @@ export default function SystemPage() {
                     i18n.language,
                     { hour: "2-digit", minute: "2-digit" },
                   )
-                : "—",
-              host: data.host ?? "—",
+                : t("notGiven"),
+              host: data.host ?? t("notGiven"),
             })}
             {DEMO_MODE ? ` · ${t("demoStatusNotice")}` : ""}
           </p>

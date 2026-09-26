@@ -91,7 +91,7 @@ export default function HistoryPage() {
                 })}
               </span>
               <span className="mono">
-                {m.durationSeconds ? formatTime(m.durationSeconds) : "—"}
+                {m.durationSeconds ? formatTime(m.durationSeconds) : ""}
               </span>
               <StatusTag status={m.status} />
             </Link>

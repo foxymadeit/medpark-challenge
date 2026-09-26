@@ -45,7 +45,7 @@ export default function TemplatesPage() {
                 <h2>{template.name}</h2>
                 <span className="state-badge">{t(template.meetingType)}</span>
               </div>
-              <p>{template.recurrence?.label ?? "—"}</p>
+              <p>{template.recurrence?.label ?? t("notGiven")}</p>
               <strong>
                 {t("participantCount", { count: participants.length })}
               </strong>

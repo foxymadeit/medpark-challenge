@@ -35,7 +35,7 @@ export default function EmailPreviewPage() {
     return <Navigate to={`/meetings/${meeting.id}/minutes`} replace />;
 
   const date = new Date(meeting.createdAt).toLocaleDateString(i18n.language);
-  const subject = `${t("minutes")} — ${meeting.title} — ${date}`;
+  const subject = `${t("minutes")}: ${meeting.title}, ${date}`;
   const participantNames = meeting.participantSnapshots
     ?.map((person) => person.nameAtMeeting)
     .join(", ");
@@ -48,16 +48,16 @@ export default function EmailPreviewPage() {
         meeting.participantSnapshots?.find(
           (person) => person.staffId === item.ownerStaffId,
         )?.nameAtMeeting ?? t("unassigned");
-      return `• ${item.task} — ${owner} — ${item.deadline ?? t("noDeadline")}`;
+      return `• ${item.task} (${owner}, ${item.deadline ?? t("noDeadline")})`;
     })
     .join("\n");
   const generatedBody = t("emailPreviewBody", {
     title: meeting.title,
     date,
-    participants: participantNames || "—",
-    summary: meeting.summary || "—",
-    decisions: decisions || "—",
-    actions: actions || "—",
+    participants: participantNames || t("notGiven"),
+    summary: meeting.summary || t("notGiven"),
+    decisions: decisions || t("notGiven"),
+    actions: actions || t("notGiven"),
   });
   const body = bodyOverride ?? generatedBody;
 

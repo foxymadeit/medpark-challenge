@@ -23,6 +23,7 @@ import DepartmentDoor from "../components/DepartmentDoor";
 import RouteProgress from "../components/RouteProgress";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
+import { formatDay } from "../utils";
 export default function NewMeetingPage() {
   const { t, i18n } = useTranslation();
   const [search] = useSearchParams();
@@ -148,11 +149,13 @@ export default function NewMeetingPage() {
           <section className="template-prefill">
             <strong>
               {t("participants")}:{" "}
-              {participants.map((person) => person.name).join(", ") || "—"}
+              {participants.map((person) => person.name).join(", ") ||
+                t("notGiven")}
             </strong>
             <span>
               {t("agendaTopics")}:{" "}
-              {agendaTopics.map((topic) => topic.text).join(" · ") || "—"}
+              {agendaTopics.map((topic) => topic.text).join(" · ") ||
+                t("notGiven")}
             </span>
           </section>
         )}
@@ -185,7 +188,10 @@ export default function NewMeetingPage() {
               const m = await createMeeting({
                 title:
                   title.trim() ||
-                  `${t("meetingFor", { department: t(type) })} — ${new Date().toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" })}`,
+                  t("meetingTitle", {
+                    department: t(type),
+                    date: formatDay(new Date(), i18n.language),
+                  }),
                 type,
                 inputMode: mode,
                 participants,

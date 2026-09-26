@@ -103,7 +103,7 @@ export default function EditableMinutes({
           </div>
         </>
       ) : field === "summary" ? (
-        <p>{localized?.summary || meeting.summary || "—"}</p>
+        <p>{localized?.summary || meeting.summary || t("notGiven")}</p>
       ) : (
         <ul className="decisions">
           {(localized?.decisions ?? meeting.decisions)?.map((d) => (

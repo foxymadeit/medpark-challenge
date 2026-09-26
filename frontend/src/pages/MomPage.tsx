@@ -156,7 +156,7 @@ export default function MomPage() {
                 <span className="mono">
                   {total > 0 && p.speakingSeconds !== undefined
                     ? `${Math.round((p.speakingSeconds / total) * 100)}%`
-                    : "—"}
+                    : ""}
                 </span>
               </div>
             ))}
