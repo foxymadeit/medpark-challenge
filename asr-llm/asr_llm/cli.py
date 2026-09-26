@@ -6,7 +6,8 @@ from pathlib import Path
 
 from .llm import LocalLlm
 from .offline import block_outbound
-from .pipeline import load_transcript, minutes_from_transcript, run_pipeline
+from .config import settings
+from .pipeline import fuse_transcript, load_transcript, minutes_from_transcript, run_pipeline
 from .retrieve import llm_glossary_for
 from .schemas import Minutes
 
@@ -19,12 +20,16 @@ def main() -> None:
     parser.add_argument("--meeting-type", default="medical")
     parser.add_argument("--language", default=None, help="Language of the extracted minutes. Default is MOM_LLM_LANGUAGE (ro).")
     parser.add_argument("--skip-llm", action="store_true")
+    parser.add_argument("--fusion", choices=["off", "single", "debate"], default=None, help="Override MOM_FUSION.")
+    parser.add_argument("--fuse-only", action="store_true", help="With --from-transcript: fuse and write the transcript, no minutes.")
     parser.add_argument("--diarization", type=Path, default=None, help="Diarizer session JSON with speaker turns.")
     parser.add_argument("--preview-glossary", action="store_true")
     parser.add_argument("--from-minutes", type=Path, default=None)
     parser.add_argument("--to-languages", default="")
     parser.add_argument("--out", type=Path, default=None)
     args = parser.parse_args()
+    if args.fusion:
+        settings.fusion = args.fusion
 
     if args.from_minutes:
         _translate_minutes(args.from_minutes, args.to_languages, args.out)
@@ -34,6 +39,10 @@ def main() -> None:
         transcript = load_transcript(args.from_transcript)
         if args.preview_glossary:
             print(llm_glossary_for(transcript.text))
+            return
+        if args.fuse_only:
+            fused, fuse_s = fuse_transcript(transcript)
+            _emit(json.dumps({"fusion": settings.fusion, "fusion_s": fuse_s, "transcript": fused.model_dump()}, ensure_ascii=False, indent=2), args.out)
             return
         if args.to_languages:
             _extract_then_translate(
@@ -104,6 +113,14 @@ def _translate_minutes(path: Path, languages: str, out: Path | None) -> None:
     llm = LocalLlm()
     translated = {code: llm.translate_minutes(source, code).model_dump() for code in codes}
     text = json.dumps(translated, indent=2, ensure_ascii=False)
+    if out:
+        out.write_text(text, encoding="utf-8")
+        print(out)
+    else:
+        print(text)
+
+
+def _emit(text: str, out: Path | None) -> None:
     if out:
         out.write_text(text, encoding="utf-8")
         print(out)

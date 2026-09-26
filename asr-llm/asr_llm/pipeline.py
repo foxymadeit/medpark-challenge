@@ -10,6 +10,7 @@ from .batching import pack_batches
 from .clean import collapse_repeat_segments
 from .config import settings
 from .diarization import load_turns, speaker_for, split_at_turns
+from .fuse import fuse_debate, fuse_single
 from .llm import LocalLlm
 from .schemas import Minutes, PipelineResult, SpeechSegment, Transcript, format_segments
 from .vad import speech_spans
@@ -62,6 +63,25 @@ def transcribe_audio(audio_path: Path, diarization: Path | None = None) -> tuple
     return transcript, timings
 
 
+def fuse_transcript(transcript: Transcript) -> tuple[Transcript, float]:
+    """Resolve mixed-language utterances from their hypotheses (settings.fusion)."""
+    if settings.fusion == "off":
+        return transcript, 0.0
+    t0 = time.perf_counter()
+    if settings.fusion == "single":
+        llm = LocalLlm()
+        segments = fuse_single(llm, transcript.segments)
+        llm.close()
+    elif settings.fusion == "debate":
+        paths = settings.fusion_ggufs or [settings.llm_gguf]
+        loaders = [lambda p=p: LocalLlm(p) for p in paths]
+        segments = fuse_debate(loaders, transcript.segments, settings.debate_rounds, settings.debate_window)
+    else:
+        raise ValueError(f"unknown fusion mode {settings.fusion!r}")
+    fused = transcript.model_copy(update={"segments": segments, "text": format_segments(segments)})
+    return fused, time.perf_counter() - t0
+
+
 def write_minutes(
     transcript: Transcript,
     meeting_type: str,
@@ -112,12 +132,12 @@ def minutes_from_transcript(
     meeting_type: str = "medical",
     language: str | None = None,
 ) -> PipelineResult:
-    transcript = load_transcript(transcript_path)
+    transcript, fuse_s = fuse_transcript(load_transcript(transcript_path))
     minutes, llm_s = write_minutes(transcript, meeting_type, language=language)
     return PipelineResult(
         transcript=transcript,
         minutes=minutes,
-        elapsed_s={"asr": 0.0, "llm": llm_s},
+        elapsed_s={"asr": 0.0, "fusion": fuse_s, "llm": llm_s},
     )
 
 
@@ -133,6 +153,7 @@ def run_pipeline(
         timings["llm"] = 0.0
         return PipelineResult(transcript=transcript, minutes=minutes, elapsed_s=timings)
 
+    transcript, timings["fusion"] = fuse_transcript(transcript)
     minutes, llm_s = write_minutes(transcript, meeting_type)
     timings["llm"] = llm_s
     return PipelineResult(transcript=transcript, minutes=minutes, elapsed_s=timings)

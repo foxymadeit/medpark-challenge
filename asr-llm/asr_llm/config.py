@@ -47,6 +47,16 @@ class Settings(BaseSettings):
     # One LLM pass per window; 10 min of RO/RU text + glossary fits llm_ctx.
     llm_window_s: float = 600.0
 
+    # Hypothesis fusion: off | single (one LLM, unclear utterances) | debate (every LLM, every utterance).
+    fusion: str = "off"
+    fusion_ggufs: list[Path] = []  # debate models; empty = llm_gguf only
+    fuse_margin: float = 0.15  # ro/ru scores closer than this = unclear
+    fuse_floor: float = -0.8  # best score below this = unclear
+    fuse_window: int = 15
+    fuse_min_cover: float = 0.85  # share of output words that must come from the hypotheses
+    debate_rounds: int = 2
+    debate_window: int = 1  # 1 = after every sentence, as proposed
+
     ffmpeg_bin: str = "ffmpeg"
 
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import gc
 import json
+from pathlib import Path
 
 from .clean import _fold, ground_minutes
 from .config import settings
@@ -68,10 +70,10 @@ def _gpu_layers() -> int:
 
 
 class LocalLlm:
-    def __init__(self) -> None:
+    def __init__(self, gguf: Path | None = None) -> None:
         from llama_cpp import Llama
 
-        gguf = require_local_path(settings.llm_gguf, "LLM GGUF")
+        gguf = require_local_path(gguf or settings.llm_gguf, "LLM GGUF")
         offload = _gpu_layers()
         self.model_id = str(gguf)
         self._llm = Llama(
@@ -89,7 +91,7 @@ class LocalLlm:
         if len(parts) == 1:
             return parts[0]
         merged = merge_minutes(parts)
-        header = self._chat_json(
+        header = self.chat_json(
             MERGE_PROMPT.format(language=language),
             "\n\n".join(f"Part {i + 1}: {p.summary}" for i, p in enumerate(parts)),
             max_tokens=400,
@@ -98,7 +100,11 @@ class LocalLlm:
             update={"title": header.get("title") or merged.title, "summary": header.get("summary") or merged.summary}
         )
 
-    def _chat_json(self, system: str, user: str, max_tokens: int) -> dict:
+    def close(self) -> None:
+        self._llm = None
+        gc.collect()
+
+    def chat_json(self, system: str, user: str, max_tokens: int) -> dict:
         result = self._llm.create_chat_completion(
             messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
             response_format={"type": "json_object"},
@@ -112,7 +118,7 @@ class LocalLlm:
             raise ValueError(f"LLM returned invalid JSON ({exc})") from exc
 
     def _extract(self, text: str, meeting_type: str, language: str) -> Minutes:
-        data = self._chat_json(
+        data = self.chat_json(
             SYSTEM_PROMPT.format(language=language, glossary=llm_glossary_for(text, k=settings.glossary_k)),
             f"Meeting type selected by user: {meeting_type}\n\nTranscript:\n{text}",
             max_tokens=1200,

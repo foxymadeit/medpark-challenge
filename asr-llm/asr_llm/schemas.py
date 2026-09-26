@@ -10,7 +10,9 @@ MeetingType = Literal["medical", "executive", "administrative"]
 class Hypothesis(BaseModel):
     language: str
     text: str
-    score: float  # duration-weighted avg_logprob
+    # Whisper: duration-weighted avg_logprob. None for engines that give no score.
+    score: float | None = None
+    source: str = "whisper"
 
 
 class SpeechSegment(BaseModel):

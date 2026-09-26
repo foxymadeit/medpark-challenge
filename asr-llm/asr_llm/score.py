@@ -40,7 +40,7 @@ def cyrillic_share(text: str) -> float:
 
 def script_mismatch(seg: SpeechSegment) -> bool:
     """`ro`/`en` written mostly in Cyrillic, or `ru` mostly in Latin. The `Ело фост` bug."""
-    if seg.language not in ALLOWED:
+    if seg.language not in ALLOWED:  # unknown or mixed ("ro+ru"): no single script to expect
         return False
     share = cyrillic_share(seg.text)
     return share < 0.5 if seg.language == "ru" else share > 0.5
@@ -61,7 +61,8 @@ def report(segments: list[SpeechSegment], gold: str | None = None, window_s: flo
     out = {
         "segments": len(segments),
         "tagged": len(tagged),
-        "off_set_lid": sum(s.language not in ALLOWED for s in tagged),
+        "off_set_lid": sum(not set(s.language.split("+")) <= ALLOWED for s in tagged),
+        "mixed": sum("+" in s.language for s in tagged),
         "script_mismatch": sum(script_mismatch(s) for s in tagged),
         "cyrillic_share": round(cyrillic_share(" ".join(s.text for s in segments)), 3),
     }
