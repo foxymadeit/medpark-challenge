@@ -85,8 +85,8 @@ typography:
     fontWeight: 400
     lineHeight: "18px"
 rounded:
-  control: "10px"
-  card: "18px"
+  control: "8px"
+  card: "12px"
 spacing:
   "4": "4px"
   "8": "8px"
@@ -296,21 +296,22 @@ Leave room for text to grow by 35% for RO and RU. The route labels
 
 ## Elevation & Depth
 
-Depth is barely there. There are three shadows, all in ink and stacked from
-tight to wide:
+Depth is barely there. Edges come from 1 px hairlines; shadows only separate
+things that float.
 
-- **card**: `0 1px 2px / 4%`, `0 4px 12px / 4%`, `0 16px 32px / 3%`. For resting cards and panels.
-- **lift**: `0 2px 4px / 5%`, `0 8px 20px / 6%`, `0 24px 48px / 5%`. For menus, dialogs and the arriving send countdown.
-- **button**: a 1 px inner white highlight at 16%, plus `0 1px 2px / 12%` and `0 4px 8px / 8%`. Primary buttons only.
+- **card**: `0 1px 2px rgba(16,16,16,0.04)`. Resting cards and panels. The hairline does the work.
+- **lift**: `0 2px 8px rgba(16,16,16,0.08), 0 8px 16px rgba(16,16,16,0.06)`. Menus, dialogs and the send countdown. No blur above 16 px.
+- Buttons cast no shadow and have no inner highlight. A primary button is a solid ink fill.
 
-Nothing else casts a shadow. Lists inside cards are separated by hairlines, not by more cards.
+Nothing else casts a shadow, nothing glows. Lists inside cards are separated by hairlines, never by cards inside cards.
 
 ## Shapes
 
-Controls (buttons, inputs, checkboxes, the language switch) use 10 px corners.
-Cards, sheets and dialogs use 18 px. Dots are full circles: a speaker's colour, or the red recording pulse. Nothing is square and nothing is pointed. Chevrons appear only inside
-a select, and arrows are never used as decoration. Every card edge is a 1 px
-hairline.
+Controls (buttons, inputs, checkboxes, the language switch, chips) use 8 px
+corners; nothing is a pill. Cards, sheets and dialogs use 12 px. Dots are full
+circles, and only for data: a speaker's colour next to their name, or the red
+recording pulse. Nothing is pointed. Chevrons appear only inside a select, and
+arrows are never used as decoration. Every card edge is a 1 px hairline.
 
 ## Components
 
@@ -342,7 +343,7 @@ Pressed, Disabled and Focus states.
 - **Top bar**: wordmark, sections, the "Hospital network only" status, language.
 - **Loader**: three dots stepping every 0.35 s, for waits under 10 s.
 - **Skeleton**: grey bars with a sheen crossing in 1.2 s, for loading lists.
-- **Check**: rises from 90% to full size in 240 ms, once, for success.
+- **Check**: its stroke draws in over 200 ms, once, for success.
 - **Recording pulse**: a red dot with a fading ring every second. It always
   sits next to the word Recording and a timer.
 - **Toast**: Success, Error, Service, Undo. Bottom centre, one at a time,
@@ -374,25 +375,44 @@ sentences; people appear only in the attendance list and as action owners.
 
 | Moment | Duration and curve |
 |---|---|
-| Button press | 120 ms, `cubic-bezier(0.23, 1, 0.32, 1)`, scale 0.97 |
+| Button press | 120 ms ease, background darkens one step; no scale |
 | Hover (mouse only) | 150 ms ease, background tint only |
-| Screen change | 280 ms, same ease-out; shared parts stay, new parts fade and rise 8 px |
-| Route marker | 280 ms, `cubic-bezier(0.77, 0, 0.175, 1)` |
-| Countdown arrives | 240 ms ease-out, rises 12 px with the lift shadow |
+| Screen change | 200 ms ease-out opacity; shared parts (top bar, route) stay put |
+| Route marker | 200 ms ease, the reached stop fills in; the line fills 200 ms |
+| Countdown arrives | 200 ms ease-out opacity, with the lift shadow |
 | Send countdown bar | 60 s linear |
 | Auto-advance (processing to minutes, loading to content) | 200 ms dissolve |
 | Loader dots | 0.35 s per step, looping |
 | Skeleton sheen | 1.2 s across, then restarts |
-| Success check | 240 ms ease-out, once |
-| Toast in and out | 200 ms ease-out, from and to the bottom |
-| Language switch | indicator slides 220 ms `cubic-bezier(0.23, 1, 0.32, 1)`; text fades out 120 ms, new text fades in 180 ms and rises 2 px; no layout jump |
-| Tabs and segmented controls | indicator slides 220 ms, same curve; panel crossfades 180 ms |
-| Menus, dropdowns, modals | open 160 ms, fade and scale 0.98 to 1 from the trigger; close 120 ms |
-| Checkbox, toggle | check draws in 180 ms; knob slides 180 ms |
-| Expand and collapse | height 220 ms, same curve |
+| Success check | 200 ms ease-out, stroke draws in once |
+| Toast in and out | 180 ms opacity, bottom centre |
+| Language switch | selected fill crossfades to the new option 180 ms; every translated text fades out 100 ms and the new text fades in 160 ms; widths stay stable, no layout jump |
+| Tabs and segmented controls | underline or fill crossfades 180 ms (no sliding pill); panel crossfades 160 ms |
+| Menus, dropdowns, modals | open 150 ms opacity, close 120 ms; dialogs sit centred over a 150 ms scrim fade; no scale, no slide |
+| Checkbox, toggle | tick draws in 150 ms; toggle knob moves 150 ms (the one sanctioned movement) |
+| Expand and collapse | height 200 ms ease, content fades 150 ms |
 
-Nothing a person clicks changes instantly. With `prefers-reduced-motion`, every movement becomes a 150 ms fade. The
+Nothing a person clicks changes instantly, and nothing moves for decoration: motion is opacity and colour, 100 to 200 ms, never bounce, spring, scale or hover lift. With `prefers-reduced-motion`, every movement becomes a 150 ms fade. The
 countdown bar still empties, because it carries meaning.
+
+## No slop
+
+Rules taken from [no-slop-ui](https://github.com/LeoStehlik/no-slop-ui),
+[ui-ux-pro-max: avoiding AI slop](https://ui-ux-pro-max-skill.com/blog/avoiding-ai-slop/) and a
+[r/Frontend thread](https://www.reddit.com/r/Frontend/comments/1ssqj99/). The reference is Linear,
+Stripe and GitHub: interfaces that just work. If a choice feels like the AI default, it is.
+
+- **Layout:** no hero sections, eyebrow labels (small caps above a heading), metric-card grids,
+  fake charts or decorative badges. The first screen is the task. No card inside a card. Every
+  loading, empty, error and selected state keeps the same dimensions.
+- **Colour:** tokens only. No gradients, glassmorphism, glows, or tinted squares behind icons or dots.
+  No colour-coding meeting types.
+- **Type:** the token scale; no hero-scale type inside the app, no uppercase-with-tracking labels,
+  no gradient text.
+- **Copy:** says what happens. No filler ("seamless", "unlock", "command center", "clarity").
+- **Proof, not eyeballing:** every change is checked by screenshots at 360, 390, 768, 1024 and
+  1440 px wide, an axe accessibility scan, a keyboard-only pass through the flow, and a
+  reduced-motion pass. A screen that fails two checks from the list above is redone.
 
 ## Do's and Don'ts
 
