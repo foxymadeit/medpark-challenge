@@ -18,14 +18,12 @@ import type { MeetingType } from "../types/meeting";
 import {
   EnrollmentMessage,
   LanguageChoice,
-  PersonCard,
   PersonHeader,
   SpeechProgress,
   type PassageLanguage,
 } from "../components/enrollment";
 import {
   clearSpeechSeconds,
-  DEMO_SIMILARITY_PERCENT,
   ENROLLMENT_TARGET_SECONDS,
   resultState,
   type EnrollmentState,
@@ -87,7 +85,7 @@ export default function EnrollVoicePage() {
     try {
       const output = await rec.stop();
       setSample(output);
-      const next = resultState(output.seconds, personId === "igor");
+      const next = resultState(output.seconds, false);
       setState(next);
       if (next === "checking") {
         await new Promise((resolve) => setTimeout(resolve, 800));
@@ -231,34 +229,6 @@ export default function EnrollVoicePage() {
         </div>
       </EnrollmentMessage>
     );
-  if (state === "similar_voice") {
-    const match = data.find((item) => item.id === "ana") ?? data[0];
-    return (
-      <EnrollmentMessage
-        icon={<Warning />}
-        title={t("similarVoice", { name: match.name })}
-      >
-        <p>{t("similarVoiceDetail")}</p>
-        <div className="voice-comparison">
-          <PersonCard person={person} />
-          <strong>
-            {DEMO_SIMILARITY_PERCENT}%<small>{t("alike")}</small>
-          </strong>
-          <PersonCard person={match} />
-        </div>
-        <p className="muted">
-          {t("similarityThreshold")}
-          {DEMO_MODE ? ` · ${t("prototypeNotice")}` : ""}
-        </p>
-        <div className="button-row">
-          <Button onClick={() => resetRecording()}>{t("recordAgain")}</Button>
-          <Button variant="primary" onClick={() => void save()}>
-            {t("saveAnyway")}
-          </Button>
-        </div>
-      </EnrollmentMessage>
-    );
-  }
   if (state === "checking")
     return (
       <EnrollmentMessage title={t("checkingRecording")}>

@@ -150,41 +150,33 @@ describe("application flows", () => {
     );
     expect(screen.queryByRole("button", { name: "Send now" })).toBeNull();
   });
-  it("loads people, prototype enrollment and system screens", async () => {
+  it("keeps voice profiles separate from unidentified speaker clusters", async () => {
     mount("/people");
     await screen.findByRole("heading", { name: "People" });
     expect(
-      screen.getByText("Unnamed voices from recent meetings"),
+      screen.getByRole("heading", { name: "Voice profiles" }),
     ).toBeTruthy();
     expect(
-      screen
-        .getByRole("link", { name: "Name this voice" })
-        .getAttribute("href"),
-    ).toBe("/people/victor/enroll");
-    expect(
-      screen.getAllByText("Enrolled for prototype").length,
-    ).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole("link", { name: "Enroll a voice" }));
-    await screen.findByText(
-      "Prototype only. This does not perform biometric recognition.",
-    );
+      screen.getByRole("heading", { name: "Voices to identify" }),
+    ).toBeTruthy();
+    expect(screen.getByText("Speaker 4")).toBeTruthy();
+    expect(screen.queryByText("Victor Munteanu")).toBeNull();
     expect(
       screen
-        .getByRole("button", { name: "Record voice" })
+        .getByRole("button", { name: "Play sample" })
         .hasAttribute("disabled"),
     ).toBe(true);
-    fireEvent.change(screen.getByLabelText("Department"), {
-      target: { value: "administrative" },
-    });
-    fireEvent.click(screen.getByRole("option", { name: /Victor Munteanu/ }));
-    fireEvent.click(screen.getByRole("button", { name: "RU" }));
+    fireEvent.click(screen.getByRole("button", { name: "Identify person" }));
+    const dialog = screen.getByRole("dialog");
+    expect(within(dialog).getByText("Victor Munteanu")).toBeTruthy();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: /Victor Munteanu/ }),
+    );
+    await screen.findByText("Identified manually");
+    expect(screen.getByText("Voice profile not enrolled")).toBeTruthy();
     expect(
-      screen
-        .getByRole("button", { name: "Record voice" })
-        .hasAttribute("disabled"),
-    ).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "Record voice" }));
-    await screen.findByRole("heading", { name: "Ready to record" });
+      screen.getByRole("link", { name: "Enroll a voice" }).getAttribute("href"),
+    ).toBe("/people/victor/enroll");
   });
   it("handles history search and missing meetings without a blank page", async () => {
     const view = mount("/history");

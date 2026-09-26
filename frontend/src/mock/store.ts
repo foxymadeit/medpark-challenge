@@ -3,15 +3,19 @@ import type {
   CorrectionFeedback,
   Meeting,
   Participant,
+  VoiceProfile,
+  DetectedSpeakerCluster,
 } from "../types/meeting";
 import { sampleMinutes, seedMeetings, seedPeople } from "./seed";
 import { AUTO_COUNTDOWN_SECONDS } from "../api/config";
 import { ApiError } from "../api/client";
 export interface DemoStore {
-  version: 2 | 3;
+  version: 2 | 3 | 4;
   meetings: Meeting[];
   people: Participant[];
   feedback: CorrectionFeedback[];
+  voiceProfiles: VoiceProfile[];
+  speakerClusters: DetectedSpeakerCluster[];
 }
 export const STORE_KEY = "secure-mom-v2";
 export function advanceStore(
@@ -104,17 +108,38 @@ export function readStore(): DemoStore {
       throw new ApiError("storage");
     }
     if (
-      ![2, 3].includes(store.version) ||
+      ![2, 3, 4].includes(store.version) ||
       !Array.isArray(store.meetings) ||
       !Array.isArray(store.people)
     )
       throw new ApiError("storage");
   } else {
     store = {
-      version: 3,
+      version: 4,
       meetings: seedMeetings(),
       people: structuredClone(seedPeople),
       feedback: [],
+      voiceProfiles: seedPeople
+        .filter((person) => person.enrolled)
+        .map((person) => ({
+          id: `voice-${person.id}`,
+          staffId: person.id,
+          status: person.enrollmentKind ?? "prototype",
+          languages: ["en", "ro", "ru"],
+          createdAt: new Date().toISOString(),
+        })),
+      speakerClusters: [
+        {
+          id: "cluster-meeting-001-speaker-4",
+          meetingId: "meeting-001",
+          speakerId: "speaker-4",
+          label: "Speaker 4",
+          speakingSeconds: 72,
+          sampleAvailable: false,
+          identifiedStaffId: null,
+          status: "unidentified",
+        },
+      ],
     };
     writeStore(store);
   }
@@ -124,6 +149,32 @@ export function readStore(): DemoStore {
     store.feedback = [];
     migrated = true;
   }
+  if (store.version === 3) {
+    store.version = 4;
+    store.voiceProfiles = store.people
+      .filter((person) => person.enrolled)
+      .map((person) => ({
+        id: `voice-${person.id}`,
+        staffId: person.id,
+        status: person.enrollmentKind ?? "prototype",
+        createdAt: new Date().toISOString(),
+      }));
+    store.speakerClusters = [
+      {
+        id: "cluster-meeting-001-speaker-4",
+        meetingId: "meeting-001",
+        speakerId: "speaker-4",
+        label: "Speaker 4",
+        speakingSeconds: 72,
+        sampleAvailable: false,
+        identifiedStaffId: null,
+        status: "unidentified",
+      },
+    ];
+    migrated = true;
+  }
+  store.voiceProfiles ??= [];
+  store.speakerClusters ??= [];
   store.feedback ??= [];
   for (const meeting of store.meetings) {
     for (const participant of meeting.participants) {

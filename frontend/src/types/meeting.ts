@@ -36,6 +36,25 @@ export interface Participant {
   speakingSeconds?: number;
   enrollmentKind?: "prototype" | "verified";
 }
+export interface VoiceProfile {
+  id: string;
+  staffId: string;
+  status: "prototype" | "verified";
+  languages?: ("en" | "ro" | "ru")[];
+  createdAt: string;
+}
+export type SpeakerIdentityState =
+  "unidentified" | "identified_without_voice_profile" | "voice_profile_ready";
+export interface DetectedSpeakerCluster {
+  id: string;
+  meetingId: string;
+  speakerId: string;
+  label: string;
+  speakingSeconds: number;
+  sampleAvailable: boolean;
+  identifiedStaffId: string | null;
+  status: SpeakerIdentityState;
+}
 export interface TranscriptSegment {
   id: string;
   speakerId: string | null;

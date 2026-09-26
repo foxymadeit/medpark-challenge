@@ -6,6 +6,8 @@ import type {
   Meeting,
   Participant,
   SystemState,
+  VoiceProfile,
+  DetectedSpeakerCluster,
 } from "../types/meeting";
 import {
   AUTO_COUNTDOWN_SECONDS,
@@ -303,6 +305,37 @@ export async function getTranscript(id: string) {
 export async function getPeople(): Promise<Participant[]> {
   return DEMO_MODE ? readStore().people : request("/people");
 }
+export async function getVoiceProfiles(): Promise<VoiceProfile[]> {
+  return DEMO_MODE ? readStore().voiceProfiles : request("/voice-profiles");
+}
+export async function getSpeakerClusters(): Promise<DetectedSpeakerCluster[]> {
+  return DEMO_MODE ? readStore().speakerClusters : request("/speaker-clusters");
+}
+export async function identifySpeakerCluster(
+  clusterId: string,
+  staffId: string,
+): Promise<DetectedSpeakerCluster> {
+  if (!DEMO_MODE)
+    return request(
+      `/speaker-clusters/${encodeURIComponent(clusterId)}/identify`,
+      {
+        method: "POST",
+        body: JSON.stringify({ staffId }),
+      },
+    );
+  return mutate((store) => {
+    const cluster = store.speakerClusters.find((item) => item.id === clusterId);
+    const person = store.people.find((item) => item.id === staffId);
+    if (!cluster || !person) throw new ApiError("notFound");
+    cluster.identifiedStaffId = staffId;
+    cluster.status = store.voiceProfiles.some(
+      (profile) => profile.staffId === staffId,
+    )
+      ? "voice_profile_ready"
+      : "identified_without_voice_profile";
+    return cluster;
+  });
+}
 export async function addPerson(
   person: Pick<Participant, "name" | "email">,
 ): Promise<Participant> {
@@ -331,6 +364,17 @@ export async function enrollVoice(id: string, blob: Blob): Promise<void> {
     if (!p) throw new ApiError("notFound");
     p.enrolled = true;
     p.enrollmentKind = "prototype";
+    if (!s.voiceProfiles.some((profile) => profile.staffId === id))
+      s.voiceProfiles.push({
+        id: `voice-${id}`,
+        staffId: id,
+        status: "prototype",
+        createdAt: new Date().toISOString(),
+      });
+    for (const cluster of s.speakerClusters.filter(
+      (item) => item.identifiedStaffId === id,
+    ))
+      cluster.status = "voice_profile_ready";
     return p;
   });
 }
