@@ -14,6 +14,10 @@ Romanian and Russian under one label. Writes <meeting>.mix.wav, .rttm and
 
 This is the one networked tool in eval/ besides the AMI fetch script: it
 downloads about 3.7 GB once into data/mix/ (gitignored).
+
+The built meetings are also kept as a private Kaggle dataset, so they need
+not live on a laptop:
+  kaggle datasets download coflaz/liminal-diarization-mix -p ../data/mix --unzip
 """
 
 import argparse
