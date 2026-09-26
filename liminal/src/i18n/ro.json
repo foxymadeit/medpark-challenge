@@ -475,6 +475,10 @@
     "noTasks": "Nicio sarcină.",
     "generated": "Generat de Liminal la {date}",
     "page": "{n} / {total}",
-    "preparing": "Se pregătește PDF…"
+    "preparing": "Se pregătește PDF…",
+    "colName": "Nume",
+    "colRole": "Funcția la ședință",
+    "colEmail": "E-mail",
+    "frozen": "Funcții și participanți la data de {date}."
   }
 }
