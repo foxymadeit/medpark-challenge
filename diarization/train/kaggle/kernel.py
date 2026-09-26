@@ -264,7 +264,7 @@ def setup():
     sh("nvidia-smi || true")
     sh("df -h /tmp /kaggle/working")
     if SEG:
-        sh('pip install -q "pyannote.audio==3.4.0" onnx onnxruntime sherpa-onnx soundfile pyarrow huggingface_hub')
+        sh('pip install -q "pyannote.audio==4.0.7" onnx onnxruntime sherpa-onnx soundfile pyarrow huggingface_hub')
     else:
         sh('pip install -q "nemo_toolkit[asr]" onnx onnxruntime sherpa-onnx soundfile pyarrow')
     if not (REPO / ".git").exists():  # the multilingual notebook clones it before handing over

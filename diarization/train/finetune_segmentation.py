@@ -4,7 +4,7 @@ loads (input "x", output "y").
 
 This is the model behind most missed speech on far-field meetings; the
 Hugging Face diarizers work cut DER by a quarter on new languages by
-fine-tuning only this part. Runs on Kaggle with pyannote.audio 3.4
+fine-tuning only this part. Runs on Kaggle with pyannote.audio 4.0 (torch 2.10)
 (train/kaggle, DATA_PROFILE=segmentation).
 
   python train/finetune_segmentation.py --database db.yml --protocol MOM.SpeakerDiarization.far \\
