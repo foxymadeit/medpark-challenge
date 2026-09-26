@@ -82,11 +82,11 @@ Types are defined in `src/types/meeting.ts`:
 | POST/PATCH `/api/admin/people[/{id}]`         | Official staff fields                                       | Staff creation/update/deactivation                                                     |
 | POST `/api/admin/people/{id}/roles`           | `{title,department,validFrom}`                              | Temporal role assignment; closes current role                                          |
 | PATCH `/api/admin/lists/{id}`                 | Distribution-list fields                                    | List management                                                                        |
-| GET `/api/admin/audit`                        | —                                                           | Latest 500 audit entries `{at,address,method,route,meetingId,status}`, never content   |
-| GET `/api/system`                             | —                                                           | `{local:boolean,services:[{id,available}]}` for `asr,speakers,automation,mail,storage` |
 | GET `/api/capabilities`                       | —                                                           | `{autoModeAvailable}`; the Liminal backend reports `true`                              |
-| GET `/api/routing`                            | —                                                           | `{medical, executive, administrative}`: recipient addresses (or a count) per type. Optional: without it the app reads the distribution lists in `/api/admin`, else shows no count |
-| POST `/api/meetings/{id}/confirmations/{factId}` | `{action: "keep" \| "remove"}`                           | Updated `Meeting`; settles one item the checks could not confirm                       |
+| GET `/api/system`                             | —                                                           | `{local:boolean,services:[{id,name,available,description}]}`, once each for `asr,speakers,minutes,automation,mail,storage`; `minutes` includes the local language model |
+| GET `/api/routing`                            | —                                                           | `{medical, executive, administrative}`: `{name, recipients}` per type, the list's display name and recipient count (never the addresses) |
+| GET `/api/admin/audit?limit=&before=`         | `limit` 1-500 (500), `before` a row id                      | Audit rows, newest first: `{id, at, address, action, method, route, meetingId, status}`, never content; `action` is readable English; the server's automatic sends have `address: "server"` and also `user: "Automatic send"` |
+| POST `/api/meetings/{id}/confirmations/{factId}` | `{action: "keep" \| "remove"}`                           | Updated `Meeting`; settles one item the checks could not confirm. `meeting-type` + remove moves the meeting to the detected type and rebuilds its documents; 503 if they cannot be rebuilt (nothing changes) |
 | GET `/api/meetings/{id}/documents/{lang}.{ext}` | `lang` ro/ru/en, `ext` pdf/docx                            | The Medpark-template minutes file for that language                                    |
 
 The full meeting endpoint supports the current polling UI. Backend teams can implement focused processing/minutes endpoints without changing page data models. No model/runtime names need to appear in the user-facing payload.
@@ -103,6 +103,9 @@ Fields the Liminal backend adds to `Meeting`, mapped in `src/api/meetings.ts` (`
 - `needsConfirmation`: `[{id, kind, text, problems[]}]`; an item disappears once settled.
 - `documents`: `{ro|ru|en: {pdf, docx}}`, the languages offered in the Documents card.
 - `sendWindowSeconds`: the length of the send countdown.
+- `queuePosition`: while processing, how many meetings are ahead. `0` means this one is starting or running (`processingState` is then `running`); `queued` only ever appears with a position of 1 or more.
+- `minutesLanguage`: `ro|ru|en`, the language the summary and items are written in.
+- Participants the diarizer found carry `speakerNumber` (3 for "Speaker 3"); `name` is then the English fallback "Participant 3". Format the label from the number in the interface language ("Participantul 3", "Участник 3").
 
 Writes carry `X-Requested-With: Liminal`; the server also checks Origin/Referer.
 

@@ -63,11 +63,16 @@ mom report TRANSCRIPT [options]
 `mom purge out/ --days 30` deletes minutes files older than the retention
 period the hospital sets; run it daily from cron or a systemd timer.
 
+`mom render out/MoM_<date>_<type>.render.json --type executive` renders the
+same minutes again as another meeting type: new title, PDF metadata and file
+names, same checked text, no model call. The web backend runs it when someone
+moves a meeting to another board.
+
 The transcript can be plain text (with or without `[00:12:03]` stamps and
 `Speaker 2:` labels), SRT, VTT, or JSON from whisper, whisper.cpp,
 faster-whisper or our own ASR. Files over 20 MB are refused.
 
-Each run writes, per language, a PDF (PDF/A-2b) and a DOCX, then two JSON files:
+Each run writes, per language, a PDF (PDF/A-2b) and a DOCX, then these JSON files:
 
 - `MoM_<date>_<type>.facts.json`: every fact with its transcript line IDs,
   the quote it was checked against, its status and any problem found. It
@@ -75,6 +80,8 @@ Each run writes, per language, a PDF (PDF/A-2b) and a DOCX, then two JSON files:
   hold no quotes.
 - `MoM_<date>_<type>.report.json`: counts, timings, token use, the model
   name and the digest of the model file that wrote it.
+- `MoM_<date>_<type>.render.json` (mode 0600): the meeting header and the
+  checked LaTeX body per language, everything `mom render` needs.
 
 ## How it works
 

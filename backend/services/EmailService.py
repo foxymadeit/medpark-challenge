@@ -83,7 +83,9 @@ def _unique_recipients(addresses: tuple[str, ...]) -> tuple[str, ...]:
 	return tuple(unique)
 
 
-def _validate_participant_emails(addresses: tuple[str, ...]) -> tuple[str, ...]:
+def _validate_emails(addresses: tuple[str, ...], who: str = "Participant") -> tuple[str, ...]:
+	"""Bare addresses only (no display names, no line breaks): they go into
+	the To and Cc headers."""
 	validated: list[str] = []
 	for value in addresses:
 		address = value.strip()
@@ -92,9 +94,9 @@ def _validate_participant_emails(addresses: tuple[str, ...]) -> tuple[str, ...]:
 		try:
 			parsed = Address(addr_spec=address)
 		except (HeaderParseError, TypeError, ValueError) as error:
-			raise ValueError("Participant email addresses must be valid email addresses.") from error
+			raise ValueError(f"{who} email addresses must be valid email addresses.") from error
 		if parsed.addr_spec != address or not parsed.username or not parsed.domain:
-			raise ValueError("Participant email addresses must be valid email addresses.")
+			raise ValueError(f"{who} email addresses must be valid email addresses.")
 		validated.append(address)
 	return _unique_recipients(tuple(validated))
 
@@ -114,17 +116,18 @@ class EmailService:
 		attachments: list[tuple[str, bytes]] | tuple = (),
 		participant_emails: tuple[str, ...] = (),
 	) -> EmailDeliveryResult:
-		"""Send minutes to the board list and separate participant copies."""
+		"""One message: the board's distribution list in To, participants who
+		are not on it in Cc."""
 		if attachment_path is not None and attachment is not None:
 			raise ValueError("Provide either an attachment path or attachment data, not both.")
-		distribution_recipients = _unique_recipients(
-			self._settings.recipients_by_meeting_type.get(minutes.meeting_type, ())
+		distribution_recipients = _validate_emails(
+			tuple(self._settings.recipients_by_meeting_type.get(minutes.meeting_type, ())), "Distribution list"
 		)
 		if not distribution_recipients:
 			raise DistributionListNotConfiguredError(
 				f"No recipients are configured for {minutes.meeting_type} meetings."
 			)
-		participant_recipients = _validate_participant_emails(participant_emails)
+		participant_recipients = _validate_emails(participant_emails)
 		distribution_keys = {address.casefold() for address in distribution_recipients}
 		individual_recipients = tuple(
 			address
@@ -143,22 +146,22 @@ class EmailService:
 			path = Path(attachment_path)
 			files.append((path.name, path.read_bytes()))
 
-		def build_message(to_address: str | None = None) -> EmailMessage:
-			message = EmailMessage()
-			message["From"] = self._settings.from_address
-			message["To"] = to_address or "undisclosed-recipients:;"
-			message["Subject"] = f"MoM | {minutes.meeting_type.title()} | {safe_title}"
-			message.set_content(text_body)
-			message.add_alternative(html_body, subtype="html")
-			for filename, content in files:
-				pdf = filename.lower().endswith(".pdf")
-				message.add_attachment(
-					content,
-					maintype="application",
-					subtype="pdf" if pdf else "octet-stream",
-					filename=filename,
-				)
-			return message
+		message = EmailMessage()
+		message["From"] = self._settings.from_address
+		message["To"] = ", ".join(distribution_recipients)
+		if individual_recipients:
+			message["Cc"] = ", ".join(individual_recipients)
+		message["Subject"] = f"MoM | {minutes.meeting_type.title()} | {safe_title}"
+		message.set_content(text_body)
+		message.add_alternative(html_body, subtype="html")
+		for filename, content in files:
+			pdf = filename.lower().endswith(".pdf")
+			message.add_attachment(
+				content,
+				maintype="application",
+				subtype="pdf" if pdf else "octet-stream",
+				filename=filename,
+			)
 
 		refused: dict[str, tuple[int, bytes]]
 		with smtplib.SMTP(self._settings.host, self._settings.port, timeout=10) as server:
@@ -168,23 +171,12 @@ class EmailService:
 				server.login(self._settings.username, self._settings.password)
 			try:
 				refused = server.send_message(
-					build_message(),
+					message,
 					from_addr=self._settings.from_address,
-					to_addrs=list(distribution_recipients),
+					to_addrs=list(recipients),
 				)
 			except smtplib.SMTPRecipientsRefused as error:
 				refused = error.recipients
-			for address in individual_recipients:
-				try:
-					refused.update(
-						server.send_message(
-							build_message(address),
-							from_addr=self._settings.from_address,
-							to_addrs=[address],
-						)
-					)
-				except smtplib.SMTPRecipientsRefused as error:
-					refused.update(error.recipients)
 
 		refused_keys = {address.casefold() for address in refused}
 		return EmailDeliveryResult(
@@ -197,7 +189,6 @@ def _render_minutes(minutes: Minutes) -> tuple[str, str]:
 	text_parts = [
 		minutes.title,
 		f"Meeting type: {minutes.meeting_type}",
-		f"Language: {minutes.language}",
 		"Summary\n" + (minutes.summary or "No summary provided."),
 	]
 
@@ -219,7 +210,7 @@ def _render_minutes(minutes: Minutes) -> tuple[str, str]:
 		"<div style=\"max-width: 700px; margin: 0 auto; background: #111827; border: 1px solid #2d3a4f; border-radius: 14px; overflow: hidden;\">"
 		"<div style=\"padding: 26px 28px 18px; border-bottom: 1px solid #2d3a4f; background: #101a2d;\">"
 		f"<h1 style=\"margin: 0; font-size: 30px; line-height: 1.2; color: #f8fafc;\">{escape(minutes.title)}</h1>"
-		f"<p style=\"margin: 10px 0 0; font-size: 13px; color: #b7c6df;\"><strong>Meeting type:</strong> {escape(minutes.meeting_type)} &nbsp;|&nbsp; <strong>Language:</strong> {escape(minutes.language)}</p>"
+		f"<p style=\"margin: 10px 0 0; font-size: 13px; color: #b7c6df;\"><strong>Meeting type:</strong> {escape(minutes.meeting_type)}</p>"
 		"</div>"
 		"<div style=\"padding: 26px 28px;\">"
 	)

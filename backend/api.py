@@ -9,11 +9,12 @@ identities and delivery; the browser only asks.
 import os
 import re
 import shutil
+import urllib.error
 import uuid
 from datetime import date
 from pathlib import Path
 
-from fastapi import APIRouter, File, Header, HTTPException, Response, UploadFile
+from fastapi import APIRouter, File, Header, HTTPException, Query, Request, Response, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
@@ -27,6 +28,7 @@ from security import NETWORK, now_iso
 
 router = APIRouter(prefix="/api")
 TYPES = ("medical", "executive", "administrative")
+LIST_NAMES = {"medical": "Medical board", "executive": "Executive board", "administrative": "Administrative board"}
 EDITABLE_BEFORE_PROCESSING = ("title", "startedAt", "endedAt", "durationSeconds", "speakerTimeline",
                               "participants", "agendaTopics", "templateId", "sendMode")
 CLIENT_STATUSES = ("draft", "recording", "stopped", "uploaded")
@@ -93,6 +95,17 @@ def meeting_for(meeting_id: str) -> dict:
     return m
 
 
+def _live(m: dict) -> dict:
+    """While processing: queuePosition is how many meetings are ahead. First in
+    line reads as running (starting), never as waiting for another meeting."""
+    if m.get("status") != "processing" or m.get("processingState") not in ("queued", "running"):
+        return m
+    ahead = jobs.queue_position(m["id"])
+    if ahead is None:
+        return m
+    return {**m, "queuePosition": ahead, **({"processingState": "running"} if ahead == 0 else {})}
+
+
 def _update(meeting_id: str, change) -> dict:
     meeting_for(meeting_id)
     return store.update("meetings", meeting_id, change)
@@ -116,7 +129,7 @@ def _locked(m: dict) -> None:
 # ---------------------------------------------------------------- meetings
 @router.get("/meetings")
 def list_meetings():
-    return sorted(store.all_docs("meetings"), key=lambda m: m["createdAt"], reverse=True)
+    return [_live(m) for m in sorted(store.all_docs("meetings"), key=lambda m: m["createdAt"], reverse=True)]
 
 
 @router.post("/meetings", status_code=201)
@@ -137,7 +150,7 @@ def create_meeting(body: CreateMeeting):
 
 @router.get("/meetings/{meeting_id}")
 def get_meeting(meeting_id: str):
-    return meeting_for(meeting_id)
+    return _live(meeting_for(meeting_id))
 
 
 @router.patch("/meetings/{meeting_id}")
@@ -227,7 +240,7 @@ def process(meeting_id: str):
 
 @router.get("/meetings/{meeting_id}/processing")
 def processing(meeting_id: str):
-    return meeting_for(meeting_id)
+    return _live(meeting_for(meeting_id))
 
 
 @router.get("/meetings/{meeting_id}/minutes")
@@ -312,21 +325,47 @@ def confirm(meeting_id: str, fact_id: str, body: Confirmation):
     """Settle one item the checks could not confirm: keep it as written, or take it out."""
     if body.action not in ("keep", "remove"):
         raise HTTPException(422, "Use keep or remove.")
+    retype = fact_id == "meeting-type" and body.action == "remove"   # not this type: the one it sounded like
+    new_type, documents = _render_as_detected(meeting_id) if retype else (None, None)
+    old = set()
 
     def change(m):
         _locked(m)
         item = next((c for c in m.get("needsConfirmation") or [] if c["id"] == fact_id), None)
         if item is None:
             raise HTTPException(404, "Nothing to confirm with that id.")
-        if fact_id == "meeting-type":   # "remove" means: not this type, use the one it sounded like
-            if body.action == "remove":
-                m["type"] = item["detectedType"]
-                m["distributionList"] = _distribution(m["type"])
+        if retype:
+            if item["detectedType"] != new_type:
+                raise HTTPException(409, "The meeting changed meanwhile. Try again.")
+            old.update(name for files in (m.get("documents") or {}).values() for name in files.values())
+            m.update(type=new_type, distributionList=_distribution(new_type), documents=documents)
         elif body.action == "remove":
             m["decisions"] = [d for d in m.get("decisions") or [] if d["id"] != fact_id]
             m["actionItems"] = [a for a in m.get("actionItems") or [] if a["id"] != fact_id]
         _resolve(m, fact_id)
-    return _update(meeting_id, change)
+    m = _update(meeting_id, change)
+    kept = {name for files in (documents or {}).values() for name in files.values()}
+    for name in old - kept:   # the previous type's files; names come from our own documents map
+        (jobs.work_dir(meeting_id) / "minutes" / Path(name).name).unlink(missing_ok=True)
+    return m
+
+
+def _render_as_detected(meeting_id: str) -> tuple[str, dict]:
+    """Rebuild the PDFs and DOCX files as the detected type before anything
+    changes, outside the database lock (it takes seconds). If it fails, the
+    meeting keeps its type and documents."""
+    m = meeting_for(meeting_id)
+    _locked(m)
+    item = next((c for c in m.get("needsConfirmation") or [] if c["id"] == "meeting-type"), None)
+    if item is None:
+        raise HTTPException(404, "Nothing to confirm with that id.")
+    try:
+        documents = jobs.rerender(meeting_id, item["detectedType"])
+    except jobs.StageFailed:
+        raise HTTPException(503, "The documents could not be rebuilt for the new meeting type. Nothing was changed.")
+    if documents is None:
+        raise HTTPException(409, "These minutes cannot be rebuilt for another meeting type. Process the recording again.")
+    return item["detectedType"], documents
 
 
 @router.patch("/meetings/{meeting_id}/participants")
@@ -373,7 +412,7 @@ def transcript(meeting_id: str):
 
 
 @router.post("/meetings/{meeting_id}/send")
-def send(meeting_id: str, idempotency_key: str | None = Header(default=None, max_length=128)):
+def send(meeting_id: str, request: Request, idempotency_key: str | None = Header(default=None, max_length=128)):
     meeting_for(meeting_id)
     try:
         m, started = delivery.begin(meeting_id, manual=True, key=idempotency_key)
@@ -381,6 +420,8 @@ def send(meeting_id: str, idempotency_key: str | None = Header(default=None, max
         raise HTTPException(409, str(e))
     if started:
         delivery.deliver_async(meeting_id)
+    else:   # already sending or sent (often by the server itself): not this person's send
+        request.state.audit_status = security.ALREADY
     return m
 
 
@@ -537,9 +578,13 @@ def deactivate_template(template_id: str):
 
 # ---------------------------------------------------------------- system
 def _probe(url: str) -> bool:
+    """Does a server answer there? Any HTTP reply below 500 counts: llama-server
+    has no /api/version and answers 404, which still means it is running."""
     try:
         with delivery._OPENER.open(url, timeout=2) as r:
             return r.status < 500
+    except urllib.error.HTTPError as e:
+        return e.code < 500
     except OSError:
         return False
 
@@ -557,23 +602,33 @@ def system():
         mail_ok = True
     except ValueError:
         mail_ok = False
+    llm = _probe((os.getenv("MOM_LLM_URL") or "http://127.0.0.1:11434").rstrip("/") + "/api/version")
+    # one row per service, stable ids; the language model is part of the minutes writer
     services = [
-        {"id": "asr", "available": _tool("asr"), "description": "Speech recognition"},
-        {"id": "speakers", "available": _tool("diarize"), "description": "Speaker diarization"},
-        {"id": "minutes", "available": _tool("minutes"), "description": "Minutes writer"},
-        {"id": "automation", "available": all(delivery.routing().values()),
-         "description": "Routing by meeting type" + (" through n8n" if delivery.n8n_available() else "")},
-        {"id": "mail", "available": mail_ok, "description": "Local SMTP"},
-        {"id": "storage", "available": free > 2 * 1024**3, "description": f"{free // 1024**3} GB free"},
-        {"id": "llm", "available": _probe(os.getenv("MOM_LLM_URL", "http://127.0.0.1:11434") + "/api/version"),
-         "description": "Local language model"},
+        {"id": "asr", "name": "Speech recognition", "available": _tool("asr"),
+         "description": "Turns the recording into text on this server"},
+        {"id": "speakers", "name": "Speaker detection", "available": _tool("diarize"),
+         "description": "Tells the voices in the recording apart"},
+        {"id": "minutes", "name": "Minutes writer", "available": _tool("minutes") and llm,
+         "description": "Writes the minutes with the local language model"
+                        + ("" if llm else "; the language model is not answering")},
+        {"id": "automation", "name": "Routing", "available": all(delivery.routing().values()),
+         "description": "Picks the distribution list by meeting type" + (" through n8n" if delivery.n8n_available() else "")},
+        {"id": "mail", "name": "Mail", "available": mail_ok, "description": "Sends the minutes through the local mail server"},
+        {"id": "storage", "name": "Storage", "available": free > 2 * 1024**3, "description": f"{free // 1024**3} GB free"},
     ]
     return {"local": True, "lastCheckedAt": now_iso(), "host": os.uname().nodename, "services": services,
             "capabilities": {"autoModeAvailable": delivery.AUTO_AVAILABLE}}
 
 
 def _dummy() -> dict:
-    return {k: "x" for k in ("audio", "work", "session", "type", "date", "start")}
+    return {k: "x" for k in ("audio", "work", "session", "type", "date", "start", "render")}
+
+
+@router.get("/routing")
+def routing():
+    """Per meeting type, the list's display name and how many receive it; never the addresses."""
+    return {t: {"name": LIST_NAMES[t], "recipients": len(_distribution(t))} for t in TYPES}
 
 
 @router.get("/capabilities")
@@ -583,9 +638,9 @@ def capabilities():
 
 # ---------------------------------------------------------------- admin
 @router.get("/admin/audit")
-def audit():
-    """The latest 500 entries of the append-only audit trail."""
-    return security.audit_rows()
+def audit(limit: int = Query(500, ge=1, le=500), before: int | None = Query(None, ge=1)):
+    """The append-only audit trail, newest first; page with ?before=<id of the last row>."""
+    return security.audit_rows(limit, before)
 
 
 class Approval(BaseModel):

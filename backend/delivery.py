@@ -25,7 +25,7 @@ from datetime import datetime, timedelta, timezone
 
 import store
 from schemas import ActionItem, Minutes
-from security import now_iso
+from security import audit_server, now_iso
 from pathlib import Path
 
 from services.EmailService import EmailService, SMTPSettings
@@ -129,7 +129,7 @@ def begin(meeting_id: str, *, manual: bool, key: str | None = None) -> tuple[dic
 def payload(m: dict) -> dict:
     names = {p["id"]: p["name"] for p in m.get("participants", [])}
     minutes = Minutes(
-        title=m["title"], meeting_type=m["type"], language="ro", summary=m.get("summary") or "",
+        title=m["title"], meeting_type=m["type"], language=m.get("minutesLanguage") or "ro", summary=m.get("summary") or "",
         attendees=[p["name"] for p in m.get("participants", [])],
         decisions=[d["text"] for d in m.get("decisions") or []],
         action_items=[ActionItem(text=a["task"], owner=names.get(a.get("ownerParticipantId")), deadline=a.get("deadline"))
@@ -220,7 +220,8 @@ class Scheduler(threading.Thread):
                 except NotSendable:
                     stop(m["id"])
                     continue
-                if started:
+                if started:   # the server's own send: its own audit row, never the person watching
+                    audit_server("/api/meetings/{meeting_id}/send", m["id"], 202)
                     deliver_async(m["id"])
 
     def run(self):

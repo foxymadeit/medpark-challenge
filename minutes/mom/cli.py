@@ -1,6 +1,8 @@
 """mom: minutes from a meeting transcript, fully offline.
 
   mom purge DIR [--days 30]   delete minutes files older than the retention period
+  mom render MoM_<date>_<type>.render.json --type executive
+                              the same minutes as another meeting type (PDF + DOCX), no model
   mom report TRANSCRIPT [--session diarizer.json] [--type medical|executive|administrative]
              [--date 2026-09-26] [--start 14:10] [--number 14] [--place ...]
              [--chair ...] [--secretary ...] [--lang ro,ru,en] [--out DIR]
@@ -14,7 +16,7 @@ import time
 from pathlib import Path
 
 from .llm import DEFAULT_MODEL, DEFAULT_URL, LocalLLM
-from .pipeline import run
+from .pipeline import rerender, run
 from .schemas import LANGS, MEETING_TYPES, Meeting
 
 
@@ -39,7 +41,14 @@ def main(argv=None) -> None:
     q = sub.add_parser("purge", help="delete minutes files older than the retention period")
     q.add_argument("dir")
     q.add_argument("--days", type=float, default=30)
+    r = sub.add_parser("render", help="render saved minutes again as another meeting type")
+    r.add_argument("state", help="the .render.json the report left next to the minutes")
+    r.add_argument("--type", required=True, choices=MEETING_TYPES)
     a = ap.parse_args(argv)
+    if a.cmd == "render":
+        for lang, f in rerender(a.state, a.type)["files"].items():
+            print(f"  {lang}: {f['pdf']}\n      {f['docx']}")
+        return
     if a.cmd == "purge":
         print(f"deleted {purge(Path(a.dir), a.days)} files older than {a.days:g} days")
         return

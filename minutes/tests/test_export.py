@@ -31,7 +31,8 @@ OPTIONAL = {"startedAt", "endedAt", "audioFilename", "durationSeconds", "audioBy
             "summary", "decisions", "actionItems", "transcript", "speakerTimeline", "sendScheduledAt", "sentAt",
             "sendingStartedAt", "deliveryFailedAt", "processingState", "deliveryState", "failureReference",
             "processingStartedAt", "processingEndsAt", "sendWindowSeconds", "reviewFlags", "demoGenerated",
-            "reviewState", "templateId", "agendaTopics"}
+            "reviewState", "templateId", "agendaTopics",
+            "minutesLanguage"}   # the language the summary and items are written in
 
 
 def build():
@@ -46,6 +47,7 @@ def test_keys_are_the_frontend_meeting_type():
     assert all(set(a) <= {"id", "task", "ownerParticipantId", "deadline", "sourceTimestampSeconds", "completed"} for a in m["actionItems"])
     assert set(m["transcript"][0]) == {"id", "speakerId", "startSeconds", "endSeconds", "text"}
     assert m["status"] == "ready" and m["reviewState"] == "needs_review" and m["type"] == "medical"
+    assert m["minutesLanguage"] == "ro"
 
 
 def test_owners_and_deadlines_resolve_or_stay_null():

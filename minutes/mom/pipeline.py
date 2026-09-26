@@ -15,7 +15,7 @@ from .anonymize import anonymize_text
 from .extract import extract
 from .meeting_type import detect as detect_type
 from .normalize import load_transcript
-from .schemas import MEETING_TYPES, Meeting, fresh, to_dict
+from .schemas import LANGS, MEETING_TYPES, Meeting, fresh, to_dict
 from .verify import report as verify_report
 from .verify import verify
 from .write import owner_display, write_body
@@ -86,17 +86,11 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
     t = time.perf_counter()
     stem = f"MoM_{meeting.date}_{meeting.type}"
     model = getattr(llm, "model", "local model")
-
-    def render(lang):
-        people = [{**p, "name": anonymize_text(p["name"], patients)} for p in meeting.attendees] or attendees(lines, lang, patients)
-        m = replace(meeting, attendees=people)
-        pdf = render_pdf.compile_pdf(render_pdf.tex_source(m, bodies[lang], lang, model, verified),
-                                     render_pdf.xmp_source(m, lang, model), out_dir / f"{stem}_{lang}.pdf")
-        docx = render_docx.render(m, latexcheck.parse(bodies[lang]), lang, model, verified, out_dir / f"{stem}_{lang}.docx")
-        return lang, str(pdf), str(docx)
-
-    with ThreadPoolExecutor(len(langs)) as pool:
-        files = {lang: {"pdf": pdf, "docx": docx} for lang, pdf, docx in pool.map(render, langs)}
+    people = {lang: [{**p, "name": anonymize_text(p["name"], patients)} for p in meeting.attendees]
+              or attendees(lines, lang, patients) for lang in langs}
+    state = {"meeting": to_dict(meeting), "bodies": bodies, "attendees": people, "model": model, "verified": verified}
+    render_path = _save_state(state, out_dir / f"{stem}.render.json")
+    files = render_documents(state, out_dir)
     timings["render"] = time.perf_counter() - t
     timings["total"] = time.perf_counter() - t0
 
@@ -108,9 +102,58 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
     fresh(app_path).write_text(json.dumps(meeting_json(meeting, facts, lines, bodies[langs[0]], langs[0], patients),
                                           ensure_ascii=False, indent=1), encoding="utf-8")
     os.chmod(app_path, 0o600)
-    result = {"files": files, "facts": str(facts_path), "meeting": str(app_path), "checks": counts, "writing": write_reports,
+    result = {"files": files, "facts": str(facts_path), "render": str(render_path), "meeting": str(app_path), "checks": counts, "writing": write_reports,
               "timings_s": {k: round(v, 1) for k, v in timings.items()}, "llm": dict(getattr(llm, "stats", {})),
               "lines": len(lines), "model": model, "detected_type": detected,
               "model_digest": llm.digest() if hasattr(llm, "digest") else ""}
     fresh(out_dir / f"{stem}.report.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     return result
+
+
+def render_documents(state: dict, out_dir) -> dict:
+    """The PDF and DOCX per language from a render state: the meeting header,
+    the checked body per language, the attendees per language, the model and
+    the verification count. No language model is involved."""
+    meeting, out_dir = Meeting(**state["meeting"]), Path(out_dir)
+    stem = f"MoM_{meeting.date}_{meeting.type}"
+    model, verified = state["model"], state["verified"]
+
+    def render(lang):
+        m = replace(meeting, attendees=state["attendees"][lang])
+        body = state["bodies"][lang]
+        pdf = render_pdf.compile_pdf(render_pdf.tex_source(m, body, lang, model, verified),
+                                     render_pdf.xmp_source(m, lang, model), out_dir / f"{stem}_{lang}.pdf")
+        docx = render_docx.render(m, latexcheck.parse(body), lang, model, verified, out_dir / f"{stem}_{lang}.docx")
+        return lang, str(pdf), str(docx)
+
+    langs = list(state["bodies"])
+    with ThreadPoolExecutor(len(langs)) as pool:
+        return {lang: {"pdf": pdf, "docx": docx} for lang, pdf, docx in pool.map(render, langs)}
+
+
+def rerender(render_file, meeting_type: str) -> dict:
+    """Render the saved minutes again as another meeting type: the title,
+    metadata and file names follow the type; the text stays as checked.
+    The render file moves to the new type's name."""
+    render_file = Path(render_file)
+    if meeting_type not in MEETING_TYPES:
+        raise ValueError(f"meeting type must be one of {', '.join(MEETING_TYPES)}")
+    state = json.loads(render_file.read_text(encoding="utf-8"))
+    state["meeting"] = {**state["meeting"], "type": meeting_type}
+    meeting = Meeting(**state["meeting"])
+    dt.date.fromisoformat(meeting.date)   # part of every file name
+    if not state["bodies"] or any(lang not in LANGS for lang in state["bodies"]) or set(state["attendees"]) < set(state["bodies"]):
+        raise ValueError("the render file does not match the minutes languages")
+    for body in state["bodies"].values():   # the file sits on disk between runs: check the bodies again
+        latexcheck.parse(body)
+    files = render_documents(state, render_file.parent)
+    moved = _save_state(state, render_file.parent / f"MoM_{meeting.date}_{meeting_type}.render.json")
+    if moved != render_file:
+        render_file.unlink(missing_ok=True)
+    return {"files": files, "render": str(moved)}
+
+
+def _save_state(state: dict, path: Path) -> Path:
+    fresh(path).write_text(json.dumps(state, ensure_ascii=False, indent=1), encoding="utf-8")
+    os.chmod(path, 0o600)
+    return path

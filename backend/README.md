@@ -34,13 +34,14 @@ the backend and Ollama on an internal network with no route out.
 ## Pipeline stages
 
 Each stage is a command run without a shell; `{audio}`, `{work}`,
-`{session}`, `{type}`, `{date}` and `{start}` are filled in per argument.
+`{session}`, `{type}`, `{date}`, `{start}` and `{render}` are filled in per argument.
 
 | Variable | Default | Tool |
 |---|---|---|
 | `LIMINAL_ASR_CMD` | `python -m asr_llm.cli {audio} --skip-llm --out {work}/asr.json` | transcription, branch `samoilov-asr-llm` |
 | `LIMINAL_DIARIZE_CMD` | `diarizer file {audio} --out {work}/diarization --plain` | speakers, branch `Coflazo-Branch` (`diarization/`) |
 | `LIMINAL_MINUTES_CMD` | `mom report {work}/transcript.json --session {session} --type {type} --date {date} --start {start} --out {work}/minutes` | minutes, branch `Coflazo-Branch` (`minutes/`) |
+| `LIMINAL_RENDER_CMD` | `mom render {render} --type {type}` | the same minutes as another meeting type, no model (`minutes/`) |
 
 `LIMINAL_<STAGE>_CWD` sets a stage's working folder; point each command at
 its own virtual environment's Python. Transcription and diarization run side
@@ -48,6 +49,12 @@ by side; the backend unwraps the recogniser's JSON into
 `{work}/transcript.json` for the minutes step. If diarization fails the
 minutes still come out, without speaker owners. Stage output goes to
 `data/meetings/<id>/logs/`, owner-only; no transcript text is logged.
+
+When someone moves a meeting to the type it sounded like, the backend runs
+the render command on the minutes' `.render.json` first, outside the database
+lock. Only if it succeeds do the type, the distribution list and `documents`
+change together; the previous type's files are then deleted. If it fails the
+request answers 503 and nothing changes.
 
 A job that was running when the server stopped goes back to the queue on the
 next start.

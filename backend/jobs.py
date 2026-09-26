@@ -9,8 +9,10 @@ the team's own tools in their own virtual environments:
   LIMINAL_DIARIZE_CMD   diarizer file {audio} --out {work}/diarization --plain
   LIMINAL_MINUTES_CMD   mom report {work}/transcript.json --session {session} --type {type}
                         --date {date} --start {start} --out {work}/minutes
+  LIMINAL_RENDER_CMD    mom render {render} --type {type}
+                        (the same minutes as another meeting type; no model)
 
-and optionally LIMINAL_ASR_CWD, LIMINAL_DIARIZE_CWD, LIMINAL_MINUTES_CWD.
+and optionally LIMINAL_ASR_CWD, LIMINAL_DIARIZE_CWD, LIMINAL_MINUTES_CWD, LIMINAL_RENDER_CWD.
 Commands are split with shlex and run without a shell; placeholders are
 filled per argument, so a path with spaces stays one argument.
 """
@@ -40,6 +42,7 @@ DEFAULT_CMDS = {
     "diarize": "diarizer file {audio} --out {work}/diarization --plain",
     "minutes": "mom report {work}/transcript.json --session {session} --type {type} --date {date} "
                "--start {start} --out {work}/minutes",
+    "render": "mom render {render} --type {type}",
 }
 # seconds of work per second of audio, used only for the ETA shown while processing
 ETA = {"asr": 0.12, "diarize": 0.15, "minutes": 0.04}
@@ -61,6 +64,18 @@ def enqueue(meeting_id: str) -> None:
         con.execute("DELETE FROM jobs WHERE meeting_id=? AND state IN ('queued','failed','done')", (meeting_id,))
         con.execute("INSERT INTO jobs(meeting_id,state,created_at,updated_at) VALUES(?,?,?,?)",
                     (meeting_id, "queued", time.time(), time.time()))
+
+
+def queue_position(meeting_id: str) -> int | None:
+    """How many meetings are ahead of this one: the one running, then the
+    queued ones before it. None when it has no job waiting or running."""
+    con = store.db()
+    mine = con.execute("SELECT id, state FROM jobs WHERE meeting_id=? AND state IN ('queued','running') "
+                       "ORDER BY id DESC LIMIT 1", (meeting_id,)).fetchone()
+    if mine is None or mine["state"] == "running":
+        return None if mine is None else 0
+    return con.execute("SELECT COUNT(*) FROM jobs WHERE meeting_id<>? AND (state='running' OR (state='queued' AND id<?))",
+                       (meeting_id, mine["id"])).fetchone()[0]
 
 
 def recover() -> int:
@@ -257,9 +272,11 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
         if label in claimed:
             continue
         n = _NUM.search(label)
-        participants.append({"id": f"{m['id']}-voice-{slot}", "name": label if not n or not label.lower().startswith(("speaker", "vorbitor", "участник")) else f"Participant {n.group(1)}",
+        numbered = n and label.lower().startswith(("speaker", "vorbitor", "участник"))
+        # speakerNumber lets the app write "Participantul 3" / "Участник 3"; name is the English fallback
+        participants.append({"id": f"{m['id']}-voice-{slot}", "name": f"Participant {n.group(1)}" if numbered else label,
                              "speakerId": label, "speakerSlot": slot, "speakingSeconds": round(talk.get(label, 0.0)),
-                             "detected": True})
+                             "detected": True, **({"speakerNumber": int(n.group(1))} if numbered else {})})
     for p in participants:   # one voice card per detected speaker, for naming them later
         if p.get("detected") and store.get("clusters", p["id"]) is None:
             store.put("clusters", {"id": p["id"], "meetingId": m["id"], "speakerId": p["speakerId"], "label": p["name"],
@@ -313,18 +330,16 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
 
     export = next(minutes_dir.glob("*.meeting.json"), None)
     exported = json.loads(export.read_text(encoding="utf-8")) if export else {}
-    documents = {}
-    for f in sorted(minutes_dir.glob("MoM_*_*.*")):
-        lang_ext = re.search(r"_(ro|ru|en)\.(pdf|docx)$", f.name)
-        if lang_ext:
-            documents.setdefault(lang_ext.group(1), {})[lang_ext.group(2)] = f.name
+    documents = _documents(minutes_dir)
+    lang = exported.get("minutesLanguage") if exported.get("minutesLanguage") in SUMMARY_WORDS else _main_language(segments)
     transcript = [{"id": f"seg-{i}", "speakerId": _speaker_for(s, turns), "startSeconds": round(s["start"], 2),
                    "endSeconds": round(s["end"], 2), "text": s["text"],
                    **({"language": s["language"]} if s.get("language") in ("ro", "ru", "en", "mixed") else {})}
                   for i, s in enumerate(segments, 1)]
     m.update(
         participants=participants,
-        summary=exported.get("summary") or _summary(facts),
+        summary=exported.get("summary") or _summary(facts, lang),
+        minutesLanguage=lang,
         decisions=decisions,
         actionItems=actions,
         transcript=transcript,
@@ -337,13 +352,64 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
     delivery.after_processing(m)
 
 
-def _summary(facts: list[dict]) -> str:
+def _documents(minutes_dir: Path, meeting_type: str = "") -> dict:
+    """{lang: {pdf, docx}} from the minutes folder, only this type's files when given."""
+    documents = {}
+    for f in sorted(minutes_dir.glob("MoM_*")):
+        found = re.search(r"_([a-z]+)_(ro|ru|en)\.(pdf|docx)$", f.name)
+        if found and meeting_type in ("", found.group(1)):
+            documents.setdefault(found.group(2), {})[found.group(3)] = f.name
+    return documents
+
+
+def rerender(meeting_id: str, meeting_type: str) -> dict | None:
+    """Build the documents again as another meeting type from the minutes'
+    render file (no model). Returns the new {lang: {pdf, docx}}, or None when
+    these minutes have no render file. Raises StageFailed."""
+    work = work_dir(meeting_id)
+    state = next((work / "minutes").glob("*.render.json"), None)
+    if state is None:
+        return None
+    run_stage("render", {"render": str(state), "type": meeting_type, "work": str(work)}, work / "logs")
+    documents = _documents(work / "minutes", meeting_type)
+    if not documents:
+        raise StageFailed("render wrote no documents")
+    return documents
+
+
+# the fallback summary, when the minutes have none: words and plural forms per language
+SUMMARY_WORDS = {
+    "en": ("Topics", ("decision", "decisions"), ("action", "actions")),
+    "ro": ("Subiecte", ("decizie", "decizii", "de decizii"), ("acțiune", "acțiuni", "de acțiuni")),
+    "ru": ("Темы", ("решение", "решения", "решений"), ("поручение", "поручения", "поручений")),
+}
+
+
+def _plural(n: int, forms: tuple, lang: str) -> str:
+    """CLDR plural rules: en one/other, ro one/few/other, ru one/few/many."""
+    if lang == "en":
+        form = forms[0] if n == 1 else forms[1]
+    elif lang == "ro":
+        form = forms[0] if n == 1 else forms[1] if n == 0 or 1 <= n % 100 <= 19 else forms[2]
+    else:
+        form = forms[0] if n % 10 == 1 and n % 100 != 11 else \
+            forms[1] if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14 else forms[2]
+    return f"{n} {form}"
+
+
+def _main_language(segments: list[dict]) -> str:
+    spoken = [s["language"] for s in segments if s.get("language") in SUMMARY_WORDS]
+    return max(SUMMARY_WORDS, key=spoken.count) if spoken else "ro"
+
+
+def _summary(facts: list[dict], lang: str = "ro") -> str:
     topics = [f["text"] for f in facts if f["kind"] == "topic" and f.get("status") in ("ok", "confirm")]
     decided = sum(f["kind"] == "decision" and f.get("status") == "ok" for f in facts)
     acts = sum(f["kind"] == "action" and f.get("status") in ("ok", "confirm") for f in facts)
     if not topics:
         return ""
-    return f"Topics: {'; '.join(topics)}. {decided} decisions, {acts} actions."
+    label, decision, action = SUMMARY_WORDS[lang]
+    return f"{label}: {'; '.join(topics)}. {_plural(decided, decision, lang)}, {_plural(acts, action, lang)}."
 
 
 def _line_start(evidence: list[str], segments: list[dict]) -> float | None:
