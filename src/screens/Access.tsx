@@ -120,7 +120,7 @@ export function SignUp() {
       <div data-field="password">
         <PasswordField label={t('signup.password')} placeholder={t('signup.passwordPh')} autoComplete="new-password" value={form.password} onChange={set('password')} error={errors.password} />
       </div>
-      <Button type="submit" variant="primary" block>
+      <Button type="submit" variant="primary" block disabled={!form.name.trim() || !form.email.trim() || !form.password}>
         {t('signup.submit')}
       </Button>
       <p className="access-alt">
@@ -191,7 +191,8 @@ export function LogIn() {
           error={errors.email}
         />
         <PasswordField label={t('signup.password')} placeholder={t('login.passwordPh')} autoComplete="current-password" value={password} onChange={(v) => (setPassword(v), setErrors((er) => ({ ...er, password: undefined })))} error={errors.password} />
-        <Button type="submit" variant="primary" block>
+        {/* Inactive until both fields have something; format errors still show on submit. */}
+        <Button type="submit" variant="primary" block disabled={!email.trim() || !password}>
           {t('login.submit')}
         </Button>
         {!account && (

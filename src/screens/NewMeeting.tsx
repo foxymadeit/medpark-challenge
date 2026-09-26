@@ -1,6 +1,7 @@
-import { CalendarBlankIcon, CheckIcon, EnvelopeSimpleIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { CheckIcon, EnvelopeSimpleIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DatePicker } from '../components/DatePicker';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail, todayISO } from '../lib/format';
 import { useStore } from '../store/AppStore';
@@ -51,48 +52,36 @@ export function NewMeeting() {
         {/* The meeting's name is the headline; the pen (or a click on it) makes it editable. */}
         <div className="stack" style={{ gap: 4 }}>
           <p className="section-title">{t('newMeeting.name')}</p>
-          {editingName ? (
-            <input
-              autoFocus
-              className="input headline-input"
-              aria-label={t('newMeeting.name')}
-              placeholder={suggestedName}
-              value={nameDraft}
-              maxLength={120}
-              onChange={(e) => setNameDraft(e.target.value)}
-              onFocus={(e) => e.target.select()}
-              onBlur={commitName}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') commitName();
-                if (e.key === 'Escape') setEditingName(false);
-              }}
-            />
-          ) : (
-            <div className="headline">
-              <h1 className="t-h1 headline__text" onClick={startName}>
-                {draft.title?.trim() || suggestedName}
-              </h1>
-              <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
-                <PencilSimpleIcon size={20} aria-hidden />
-              </button>
-            </div>
-          )}
-          {/* Date: native picker (keyboard + screen reader friendly), styled as a chip. */}
-          <label className="date-chip">
-            <CalendarBlankIcon size={18} aria-hidden />
-            <span className="sr-only">{t('newMeeting.date')}</span>
-            <input
-              type="date"
-              value={draft.date ?? todayISO()}
-              onChange={(e) => setDraft({ date: e.target.value || undefined })}
-              aria-describedby="nm-date-rel"
-            />
-            {(draft.date ?? todayISO()) === todayISO() && (
-              <span id="nm-date-rel" className="date-chip__tag">
-                {t('review.today')}
-              </span>
+          {/* Name and date on one line; the date wraps below on narrow screens. */}
+          <div className="headline-row">
+            {editingName ? (
+              <input
+                autoFocus
+                className="input headline-input"
+                aria-label={t('newMeeting.name')}
+                placeholder={suggestedName}
+                value={nameDraft}
+                maxLength={120}
+                onChange={(e) => setNameDraft(e.target.value)}
+                onFocus={(e) => e.target.select()}
+                onBlur={commitName}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') commitName();
+                  if (e.key === 'Escape') setEditingName(false);
+                }}
+              />
+            ) : (
+              <div className="headline">
+                <h1 className="t-h1 headline__text" onClick={startName}>
+                  {draft.title?.trim() || suggestedName}
+                </h1>
+                <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
+                  <PencilSimpleIcon size={20} aria-hidden />
+                </button>
+              </div>
             )}
-          </label>
+            <DatePicker label={t('newMeeting.date')} value={draft.date ?? todayISO()} onChange={(v) => setDraft({ date: v === todayISO() ? undefined : v })} />
+          </div>
           {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
           {selectedTemplate && (
             <span className="tag template-tag">

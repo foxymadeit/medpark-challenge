@@ -6,6 +6,9 @@
   width: 464px;
   padding: var(--sm-space-8);
 }
+/* Log in / sign up keep the original black primary (user request); blue is for in-app actions. */
+.access-card .btn--primary { background: var(--sm-ink-primary); }
+.access-card .btn--primary:hover:not(:disabled) { background: #2b2b2b; }
 .access-alt { display: flex; align-items: center; justify-content: center; gap: var(--sm-space-1); }
 .access-alt svg + .note { margin-left: 4px; }
 .access-stack { gap: var(--sm-space-4); width: min(464px, 100%); }
@@ -51,13 +54,10 @@
 .headline { display: flex; align-items: center; gap: var(--sm-space-2); min-width: 0; }
 .headline__text { min-width: 0; overflow-wrap: anywhere; cursor: text; }
 .headline__pen { flex-shrink: 0; width: 36px; height: 36px; }
-.date-chip { position: relative; display: inline-flex; align-items: center; gap: var(--sm-space-2); align-self: flex-start; height: 36px; margin-top: var(--sm-space-2); padding: 0 var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); color: var(--sm-ink-secondary); cursor: pointer; }
-.date-chip:hover { background: var(--sm-surface-ground); }
-.date-chip:focus-within { border-color: var(--sm-ink-primary); }
-.date-chip input { border: 0; padding: 0; background: transparent; color: var(--sm-ink-primary); font: 500 15px/20px var(--sm-font-body); cursor: pointer; }
-.date-chip input:focus { outline: none; }
+.headline-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sm-space-2) var(--sm-space-4); }
+.headline-row .headline-input { flex: 1 1 320px; width: auto; }
+.headline-row .datepicker { margin-top: 0; align-self: center; }
 .template-tag { align-self: flex-start; gap: 6px; margin-top: var(--sm-space-2); }
-.date-chip__tag { padding: 1px 6px; border-radius: 6px; background: var(--sm-surface-ground); color: var(--sm-ink-secondary); font: 500 12px/16px var(--sm-font-body); }
 .headline-input { height: 48px; padding: 0 12px; margin-left: -13.5px; width: calc(100% + 13.5px); font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
 .new-meeting { flex-direction: row; align-items: flex-start; justify-content: center; gap: 48px; padding-top: 34px; }
 /* One centred 656px column (the template card was removed on request). */

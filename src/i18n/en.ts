@@ -138,6 +138,10 @@ export const en = {
     admin: 'Admin',
     adminDesc: 'Everything, plus manages participants.',
   },
+  date: {
+    prevMonth: 'Previous month',
+    nextMonth: 'Next month',
+  },
   accessTitle: {
     receives: 'Participant',
     organizer: 'Organizer',

@@ -135,6 +135,10 @@
     "admin": "Administrator",
     "adminDesc": "Totul, plus gestionează participanții."
   },
+  "date": {
+    "prevMonth": "Luna precedentă",
+    "nextMonth": "Luna următoare"
+  },
   "accessTitle": {
     "receives": "Participant",
     "organizer": "Organizator",
