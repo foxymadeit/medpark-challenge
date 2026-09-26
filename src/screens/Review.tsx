@@ -5,13 +5,14 @@ import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { SummaryPoints } from '../components/SummaryPoints';
 import { Dialog } from '../components/Dialog';
+import { MomPreview } from '../components/MomPreview';
 import { Dropdown } from '../components/Dropdown';
 import { TranscriptLines } from '../components/Minutes';
 import { PeopleStack } from '../components/PeopleStack';
 import { useI18n } from '../i18n/I18nProvider';
 import { addDays, DUE_OFFSETS, dueRelative, formatDayMonth, formatWeekdayDate, isEmail, uid } from '../lib/format';
 import { speakerNamer } from '../lib/meeting';
-import { downloadMomPdf, momPdfUrl } from '../lib/momPdf';
+import { downloadMomPdf } from '../lib/momPdf';
 import { lineTokens } from '../lib/transcript';
 import { detectedLanguages } from '../mocks';
 import { AddParticipantModal } from './Participants';
@@ -229,12 +230,7 @@ export function Review() {
 
   // Voices in the transcript that aren't meeting participants (unknown voices and uninvited colleagues).
   const [transcriptOpen, setTranscriptOpen] = useState(false);
-  const [previewing, setPreviewing] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null); // MoM PDF shown in the preview popup
-  const closePreview = () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(null);
-  };
+  const [previewOpen, setPreviewOpen] = useState(false); // MoM text preview popup
   const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id));
   const nameOf = speakerNamer(meeting, resolvePerson, t);
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
@@ -413,18 +409,9 @@ export function Review() {
         <p className="action-bar__left note">{t('review.teach')}</p>
         <Button
           icon={<FileMagnifyingGlassIcon size={20} aria-hidden />}
-          disabled={previewing}
-          aria-busy={previewing}
-          onClick={async () => {
-            setPreviewing(true);
-            try {
-              setPreviewUrl(await momPdfUrl(meeting, t, lang));
-            } finally {
-              setPreviewing(false);
-            }
-          }}
+          onClick={() => setPreviewOpen(true)}
         >
-          {previewing ? t('pdf.preparing') : t('review.preview')}
+          {t('review.preview')}
         </Button>
         <Button variant="ink" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send}>
           {t('review.send')}
@@ -432,9 +419,9 @@ export function Review() {
       </div>
 
       {/* The MoM exactly as it will be sent, in a popup; download from here, or close and keep editing. */}
-      {previewUrl && (
-        <Dialog title={t('review.preview')} onClose={closePreview} className="modal--pdf">
-          <iframe className="pdf-preview" src={previewUrl} title={t('review.preview')} />
+      {previewOpen && (
+        <Dialog title={t('review.preview')} onClose={() => setPreviewOpen(false)} className="modal--mom">
+          <MomPreview meeting={meeting} />
           <div className="page__actions" style={{ paddingTop: 0 }}>
             <Button icon={<DownloadSimpleIcon size={20} aria-hidden />} onClick={() => void downloadMomPdf(meeting, t, lang)}>
               {t('record.download')}
@@ -443,7 +430,7 @@ export function Review() {
               variant="ink"
               icon={<PaperPlaneTiltIcon size={20} aria-hidden />}
               onClick={() => {
-                closePreview();
+                setPreviewOpen(false);
                 send();
               }}
             >

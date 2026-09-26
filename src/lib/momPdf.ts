@@ -4,7 +4,6 @@ import { speakerNamer } from './meeting';
 import type { Lang } from '../i18n/I18nProvider';
 import type { Meeting } from '../types';
 import { dueRelative, formatDayMonth, formatFullDate, todayISO } from './format';
-import { lineTokens } from './transcript';
 
 type T = (key: string, vars?: Record<string, string | number>) => string;
 
@@ -45,18 +44,6 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
   const nameOf = speakerNamer(meeting, () => undefined, t);
   const type = t(`types.${meeting.type}`);
 
-  const participants: Content = {
-    table: {
-      headerRows: 1,
-      widths: ['*', '*', '*'],
-      body: [
-        [t('pdf.colName'), t('pdf.colRole'), t('pdf.colEmail')].map((h) => ({ text: h, style: 'th' })),
-        ...meeting.participants.map((p) => [{ text: p.name, bold: true }, p.roleThen || '—', { text: p.email ?? '—', color: INK_2 }]),
-      ],
-    },
-    layout: hairlineTable,
-  };
-
   const tasks: Content[] = groupTasks(meeting.tasks).flatMap((g) => [
     { text: nameOf(g.ownerId), style: 'owner' },
     {
@@ -72,14 +59,6 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
       margin: [0, 0, 0, 10],
     } as Content,
   ]);
-
-  const transcript: Content[] = meeting.transcript.map((line) => ({
-    margin: [0, 0, 0, 8],
-    stack: [
-      { text: [{ text: `${line.at}  `, color: INK_2, fontSize: 9 }, { text: nameOf(line.speakerId), bold: true }] },
-      { text: lineTokens(line).map((tok) => (tok.kind === 'kw' ? { text: tok.text, bold: true } : { text: tok.text })) },
-    ],
-  }));
 
   const meta =
     meeting.status === 'sent'
@@ -119,19 +98,12 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
       { text: meta, style: 'note' },
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 499, y2: 0, lineWidth: 0.75, lineColor: HAIRLINE }], margin: [0, 14, 0, 0] },
 
-      { text: t('record.participants'), style: 'h2' },
-      participants,
-      { text: t('pdf.frozen', { date }), style: 'note', margin: [0, 6, 0, 0] },
-
+      // The MoM that goes out holds only the minutes: summary and tasks (owner, deadline). No participants list, no transcript.
       { text: t('review.summary'), style: 'h2' },
       meeting.summary?.length ? { ul: meeting.summary.map((point) => ({ text: point, margin: [0, 0, 0, 4] })), margin: [0, 0, 0, 4] } : { text: t('review.noSummary'), style: 'note' },
 
       { text: t('review.tasks'), style: 'h2' },
       ...(tasks.length ? tasks : [{ text: t('pdf.noTasks'), style: 'note' } as Content]),
-
-      { text: t('review.transcript'), style: 'h2', pageBreak: 'before' },
-      { text: t('review.highlighted'), style: 'note', margin: [0, 0, 0, 10] },
-      ...transcript,
     ],
   };
 
@@ -143,10 +115,4 @@ const fileName = (meeting: Meeting) => `MoM-${safeName(meeting.title)}-${meeting
 /** Downloads the MoM PDF. */
 export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
   (await buildMomPdf(meeting, t, lang)).download(fileName(meeting));
-}
-
-/** The MoM PDF as an object URL, for the in-app preview. Revoke it when the preview closes. */
-export async function momPdfUrl(meeting: Meeting, t: T, lang: Lang): Promise<string> {
-  const pdf = await buildMomPdf(meeting, t, lang);
-  return new Promise((resolve) => pdf.getBlob((blob: Blob) => resolve(URL.createObjectURL(blob))));
 }

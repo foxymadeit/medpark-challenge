@@ -469,13 +469,9 @@
   },
   "pdf": {
     "title": "Proces-verbal al ședinței",
-    "colName": "Nume",
-    "colRole": "Funcția la ședință",
-    "colEmail": "E-mail",
     "colTask": "Sarcină",
     "colPatient": "Pacient",
     "colDue": "Termen",
-    "frozen": "Funcții și participanți la data de {date}.",
     "noTasks": "Nicio sarcină.",
     "generated": "Generat de Liminal la {date}",
     "page": "{n} / {total}",
