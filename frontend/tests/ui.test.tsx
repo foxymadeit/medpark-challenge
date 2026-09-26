@@ -258,6 +258,9 @@ describe("application flows", () => {
   });
 });
 
+// Steps that round-trip the fake IndexedDB and change route are wall-clock
+// bound; on a loaded 2-core machine they outrun the 1 s findBy default.
+const SLOW_STEP = { timeout: 10000 };
 describe("upload and empty/error states", () => {
   it("accepts a checked dropped file, supports remove/replace and starts processing", async () => {
     const { createMeeting, getPeople } = await import("../src/api/meetings");
@@ -291,7 +294,11 @@ describe("upload and empty/error states", () => {
     );
     mount(`/meetings/${m.id}/upload`);
     const drop = (
-      await screen.findByRole("heading", { name: "Drop the recording here" })
+      await screen.findByRole(
+        "heading",
+        { name: "Drop the recording here" },
+        SLOW_STEP,
+      )
     ).closest("section")!;
     fireEvent.drop(drop, {
       dataTransfer: {
@@ -317,10 +324,11 @@ describe("upload and empty/error states", () => {
     });
     await screen.findByText("replacement.m4a");
     fireEvent.click(screen.getByRole("button", { name: "Write the minutes" }));
-    await screen.findByText("Audio prepared");
+    // Store the audio, start processing and open it on its first stage.
+    await screen.findByText("Transcribing", { selector: "strong" }, SLOW_STEP);
     expect((await getMeeting(m.id)).status).toBe("processing");
     expect((await getMeeting(m.id)).audioFilename).toBe("replacement.m4a");
-  });
+  }, 30000); // Two SLOW_STEP waits; the 15 s default would cut them short.
   it("rejects a misleading upload before metadata decoding", async () => {
     mount("/meetings/meeting-001/upload");
     const drop = (

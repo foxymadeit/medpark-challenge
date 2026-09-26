@@ -128,6 +128,13 @@ describe("demo workflow with no network", () => {
     const m = await create();
     await updateMeeting(m.id, { durationSeconds: 120, status: "uploaded" });
     await startProcessing(m.id);
+    // At 0 % the demo already reports the server's stages, so the page never
+    // draws the old five-step list first.
+    expect((await getMeeting(m.id)).stages?.map((s) => s.id)).toEqual([
+      "transcribe",
+      "speakers",
+      "minutes",
+    ]);
     vi.setSystemTime(now.getTime() + 6000);
     expect((await getMeeting(m.id)).progress).toBe(50);
     const persisted = JSON.parse(localStorage.getItem("secure-mom-v2")!);
