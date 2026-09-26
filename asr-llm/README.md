@@ -146,6 +146,46 @@ checked by back-translation (`back_ok`). Runtime only reads the merged JSON. The
 fusion and minutes prompts get the ~24 rows that match the text, the best five with
 a short definition.
 
+Until the Qwen translation runs, `build_glossary.py merge` takes the Harvard terms whose
+Romanian **and** Russian names both come from Wikidata's human labels: 806 terms, which
+with the ICD-10, ICU and hospital rows makes 892 trilingual rows. The 1,373 Harvard terms
+without both labels stay in `english_extra`, English only.
+
+### Snapping misheard terms back (`asr_llm/correct.py`, on by default)
+
+After ASR, each utterance is compared, in its own language, with the glossary's terms of
+one to four words. A span is replaced by the dictionary spelling only when all of these hold:
+
+- the span is at least 6 letters long and scores at least 88 (rapidfuzz ratio) against the
+  term, on a key that ignores case, diacritics, `ё/й` and doubled letters;
+- the first letter matches and each word keeps its last two letters, so a case ending is never
+  overwritten ("пневманией" stays; only "пневмания" becomes "пневмония");
+- the difference is not only in the ending, since that is inflection ("ecografia"), not an error;
+- the term is in the utterance's language: a Russian term never lands in a Romanian sentence.
+
+Every change goes into the transcript's `corrections` list (time, language, before, after,
+score), so a reviewer can see and undo it. `MOM_CORRECT_TERMS=false` turns it off. This is
+the post-processing kind of contextual correction, with no retraining
+([SpellMapper](https://arxiv.org/pdf/2306.02317); orthographic and phonetic distance for
+clinical text, [Fivez et al.](https://arxiv.org/pdf/1710.07045)).
+
+### Word-level language merge (`MOM_CS_MERGE`, off until the gold says otherwise)
+
+Every utterance is already decoded as `ro` and `ru`. With the merge on, the winning decode keeps
+its words, but a run of two or more words that the other decode heard with a mean word
+probability at least `MOM_CS_MARGIN` (0.25) higher over the same time span, written in that
+language's own script, replaces the winner's words there. The segment's language becomes, for
+example, `ro+ru`. This is the "two monolingual decodes, pick per span by confidence" approach
+([Weiner et al.](https://arxiv.org/pdf/2109.00921)). A forced-Russian decode of Romanian speech
+reads fluently, which is why the margin is wide and the default is off until measured.
+
+### Which setup ships: `scripts/kaggle_asr_bakeoff`
+
+A wrapper around `asr_train.zeroshot` that also runs the product's Whisper pipeline four ways
+(large-v3 and turbo, merge off and on), times an hour of audio for each model, and scores the
+term corrector before and after on every engine's output. Push it with
+`kaggle kernels push -p asr-llm/scripts/kaggle_asr_bakeoff`; results land in `out/report.json`.
+
 ## Fine-tuning an ASR model (dev time only)
 
 `asr_train/` builds a RO/RU/EN training set with spliced code-switching, fine-tunes
