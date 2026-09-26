@@ -14,13 +14,9 @@ export default function Layout() {
     return () => clearInterval(timer);
   }, []);
   const { pathname } = useLocation();
-  const tabs = [
-    "/meetings",
-    "/action-items",
-    "/history",
-    "/people",
-    "/system",
-  ].includes(pathname);
+  // On a phone the bottom bar is the only way between sections, so it is
+  // on every page except the two where a person is speaking into the mic.
+  const tabs = !/\/(record|enroll)$/.test(pathname);
   return (
     <>
       <TopBar />
