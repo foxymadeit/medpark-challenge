@@ -68,7 +68,7 @@
 
   .review__panes { flex-direction: column; padding-bottom: 136px; }
   /* Stacked panes grow with their content; the page scrolls instead of each pane. */
-  .review__pane, .review__pane--transcript { flex: none; height: auto; max-height: none; min-height: 0; overflow: visible; }
+  .review__pane, .review__pane--transcript, .review__pane--tasks { flex: none; min-width: 0; height: auto; max-height: none; min-height: 0; overflow: visible; }
 
   .record__panes { flex-direction: column; align-items: stretch; }
   .record__people { width: 100%; }

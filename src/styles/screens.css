@@ -213,8 +213,8 @@
   overflow: auto;
   padding: var(--sm-space-6);
 }
-.review__pane--transcript { width: 536px; flex-shrink: 0; }
-.review__pane--tasks { flex: 1; min-width: 0; }
+.review__pane--transcript { flex: 0 1 536px; min-width: 380px; }
+.review__pane--tasks { flex: 1 1 0; min-width: 440px; }
 .transcript { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }
 .transcript__line { display: flex; flex-direction: column; gap: var(--sm-space-1); }
 .transcript__text { line-height: 26px; }
@@ -222,13 +222,20 @@
 .review__title-input { height: 44px; max-width: 560px; font: 600 24px/30px var(--sm-font-sign); }
 
 /* Summary: Task · Owner · Deadline. */
-.summary-table { width: 100%; border-collapse: collapse; }
+.summary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.summary-table th:nth-child(1) { width: 36%; }
+.summary-table th:nth-child(3) { width: 96px; }
+.summary-table th:nth-child(4) { width: 32px; }
+.summary-table td { overflow-wrap: break-word; }
+.summary-table .who__name, .summary-table .owner-email-line { max-width: 100%; }
+/* Names wrap (they matter); only the email truncates. */
+.summary-table .who__name.truncate { overflow: visible; white-space: normal; text-overflow: clip; }
+.summary-table .owner-email-line .truncate { min-width: 0; }
 .summary-table th { padding: 0 12px 8px 0; border-bottom: 1px solid var(--sm-surface-hairline); color: var(--sm-title-muted); font: 500 13px/18px var(--sm-font-body); text-align: left; white-space: nowrap; }
 .summary-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--sm-surface-hairline); vertical-align: top; }
 .summary-table tbody tr:last-child td { border-bottom: 0; }
-.summary-table td:first-child { width: 42%; }
 .summary-table td:nth-child(3) { white-space: nowrap; padding-top: 14px; }
-.summary-table td:nth-child(4) { width: 32px; padding-right: 0; }
+.summary-table td:nth-child(4) { padding-right: 0; }
 .summary-table tr.is-editing td { background: var(--sm-surface-ground); }
 .summary-table tr.is-editing td:first-child { padding-left: 8px; border-radius: 10px 0 0 10px; }
 .summary-table tr.is-editing td:nth-child(4) { border-radius: 0 10px 10px 0; }
