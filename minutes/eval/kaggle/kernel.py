@@ -89,12 +89,25 @@ def serve():
     raise RuntimeError("ollama did not start: " + Path("/tmp/ollama.log").read_text()[-500:])
 
 
+def install_ollama():
+    """The installer now ships a .tar.zst and needs zstd, which the Kaggle image
+    lacks. Install zstd first; if the script still fails, show why and unpack
+    the release archive directly."""
+    sh("apt-get -qq update > /dev/null && apt-get -qq install -y zstd pciutils > /dev/null", check=False, timeout=600)
+    if sh("curl -fsSL https://ollama.com/install.sh | sh > /tmp/ollama-install.log 2>&1", check=False).returncode != 0:
+        log("install.sh failed:\n" + Path("/tmp/ollama-install.log").read_text(errors="replace")[-1500:])
+        base = "https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64"
+        if sh(f"curl -fsSL {base}.tar.zst | zstd -d | tar -x -C /usr", check=False).returncode != 0:
+            sh(f"curl -fsSL {base}.tgz | tar -xz -C /usr")
+    sh("ollama --version", check=False)
+
+
 def run():
     threading.Thread(target=heartbeat, daemon=True).start()
     STATE["step"] = "setup"
     sh("git clone -q --depth 1 -b Coflazo-Branch https://github.com/foxymadeit/medpark-challenge /tmp/repo")
     sh(f"{sys.executable} -m pip install -q -e /tmp/repo/minutes")
-    sh("curl -fsSL https://ollama.com/install.sh | sh > /tmp/ollama-install.log 2>&1")
+    install_ollama()
     serve()
     try:  # grammar counts for fluency; optional
         sh("apt-get -qq update && apt-get -qq install -y openjdk-17-jre-headless > /dev/null", timeout=600)
