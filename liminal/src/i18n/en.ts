@@ -311,6 +311,7 @@ export const en = {
     titleLabel: 'Meeting title',
     edit: 'Edit',
     send: 'Send MoM',
+    preview: 'Preview MoM',
     cancel: 'Cancel',
     save: 'Save changes',
     teach: 'Your fixes teach the AI.',

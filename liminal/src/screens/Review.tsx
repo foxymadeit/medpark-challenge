@@ -1,4 +1,4 @@
-import { CaretDownIcon, CheckIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, CheckIcon, FileMagnifyingGlassIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
@@ -10,6 +10,7 @@ import { PeopleStack } from '../components/PeopleStack';
 import { useI18n } from '../i18n/I18nProvider';
 import { addDays, DUE_OFFSETS, dueRelative, formatDayMonth, formatWeekdayDate, isEmail, uid } from '../lib/format';
 import { speakerNamer } from '../lib/meeting';
+import { previewMomPdf } from '../lib/momPdf';
 import { lineTokens } from '../lib/transcript';
 import { detectedLanguages } from '../mocks';
 import { AddParticipantModal } from './Participants';
@@ -201,7 +202,7 @@ function HeardPanel({ meeting, voiceName, unknown }: { meeting: Meeting; voiceNa
 
 /** 05 — Review the AI minutes, then send. Every editable value carries a pen. */
 export function Review() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
   const { account, meetings, setTasks, setSummary, sendMeeting, resolvePerson, correctToken, removeToken, flagTokenLang, editLine, removeLine, updateMeeting } = useStore();
@@ -227,6 +228,7 @@ export function Review() {
 
   // Voices in the transcript that aren't meeting participants (unknown voices and uninvited colleagues).
   const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
   const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id));
   const nameOf = speakerNamer(meeting, resolvePerson, t);
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
@@ -398,6 +400,22 @@ export function Review() {
 
       <div className="action-bar">
         <p className="action-bar__left note">{t('review.teach')}</p>
+        <Button
+          icon={<FileMagnifyingGlassIcon size={20} aria-hidden />}
+          disabled={previewing}
+          aria-busy={previewing}
+          onClick={async () => {
+            const win = window.open('', '_blank');
+            setPreviewing(true);
+            try {
+              await previewMomPdf(meeting, t, lang, win);
+            } finally {
+              setPreviewing(false);
+            }
+          }}
+        >
+          {previewing ? t('pdf.preparing') : t('review.preview')}
+        </Button>
         <Button variant="ink" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send}>
           {t('review.send')}
         </Button>
