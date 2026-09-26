@@ -6,6 +6,7 @@ import pytest
 from asr_train.finetune import (
     absolute_manifest,
     check_manifests,
+    main,
     optim_config,
     parse_args,
     resolve_resume,
@@ -63,6 +64,12 @@ def test_check_reports_hours_and_missing_audio(tmp_path):
     report = check_manifests(_dataset(tmp_path))
     assert report["train"]["hours"] == 1.0 and report["train"]["missing_audio"] == 0
     assert report["dev"]["missing_audio"] == 1 and report["dev"]["first_missing"] == ["audio/gone.flac"]
+    assert report["train"]["hours_by_source"] == {"?": 1.0}
+
+
+def test_training_refuses_missing_audio(tmp_path):
+    with pytest.raises(SystemExit, match="manifests not usable"):
+        main(["--data-dir", str(_dataset(tmp_path / "ds")), "--out", str(tmp_path / "out")])
 
 
 def test_resume_auto_picks_the_newest(tmp_path):

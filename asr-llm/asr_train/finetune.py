@@ -120,6 +120,13 @@ def absolute_manifest(data: Path, out: Path, name: str, rank: str = "0") -> Path
     return dest
 
 
+def _sum_by(rows: list[dict], key: str) -> dict:
+    out: dict = {}
+    for r in rows:
+        out[r.get(key, "?")] = out.get(r.get(key, "?"), 0.0) + r["duration"]
+    return out
+
+
 def check_manifests(data: Path) -> dict:
     report = {}
     for name in ("train", "dev"):
@@ -134,6 +141,7 @@ def check_manifests(data: Path) -> dict:
             "rows": len(rows),
             "files": len(files),
             "hours": round(sum(r["duration"] for r in rows) / 3600, 2),
+            "hours_by_source": {k: round(v / 3600, 2) for k, v in sorted(_sum_by(rows, "source").items())},
             "missing_audio": len(missing),
             "first_missing": missing[:3],
         }
@@ -185,9 +193,14 @@ def load_base(name: str):
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
     data = args.data_dir.expanduser().resolve()
+    report = check_manifests(data)
+    print(json.dumps(report, indent=1), flush=True)
     if args.check:
-        print(json.dumps(check_manifests(data), indent=1))
         return
+    # A broken data build should cost seconds of GPU quota, not a failed 11 h session.
+    bad = {k: v for k, v in report.items() if "error" in v or v["missing_audio"] or not v["rows"]}
+    if bad:
+        raise SystemExit(f"manifests not usable: {bad}")
 
     import lightning.pytorch as pl
     import torch
