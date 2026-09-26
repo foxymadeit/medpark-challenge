@@ -77,11 +77,16 @@ class WhisperAsr:
             if ranked and ranked[0][0] not in languages:
                 languages.append(ranked[0][0])
         results = [self._decode(samples, lang) for lang in languages]
-        text, language, _ = max(results, key=_biased_score)
-        hypotheses = [Hypothesis(language=lang, text=t, score=s) for t, lang, s in results if t]
+        text, language, _, _ = max(results, key=_biased_score)
+        hypotheses = [Hypothesis(language=lang, text=t, score=s, words=w) for t, lang, s, w in results if t]
+        if settings.cs_merge and len(hypotheses) > 1:
+            best = next(h for h in hypotheses if h.language == language)
+            merged, switched = merge_words(best, [h for h in hypotheses if h is not best])
+            if switched:
+                return merged, f"{language}+{'+'.join(switched)}", hypotheses
         return text, language, hypotheses
 
-    def _decode(self, samples: np.ndarray, language: str) -> tuple[str, str, float]:
+    def _decode(self, samples: np.ndarray, language: str) -> tuple[str, str, float, list]:
         """Text in one forced language, scored by duration-weighted avg_logprob."""
         segments, _ = self._model.transcribe(
             samples,
@@ -90,6 +95,7 @@ class WhisperAsr:
             beam_size=5,
             condition_on_previous_text=False,
             vad_filter=False,
+            word_timestamps=settings.cs_merge,
         )
         # Whisper's own silence rule, applied per utterance.
         kept = [
@@ -98,19 +104,52 @@ class WhisperAsr:
             if not (s.no_speech_prob > 0.6 and s.avg_logprob < -1.0) and not _is_hallucination(s.text)
         ]
         if not kept:
-            return "", language, float("-inf")
+            return "", language, float("-inf"), []
         weights = [max(s.end - s.start, 1e-3) for s in kept]
         score = sum(s.avg_logprob * w for s, w in zip(kept, weights)) / sum(weights)
-        return " ".join(s.text.strip() for s in kept).strip(), language, score
+        words = [(w.start, w.end, w.word.strip(), w.probability) for s in kept for w in (getattr(s, "words", None) or [])]
+        return " ".join(s.text.strip() for s in kept).strip(), language, score, words
 
     def close(self) -> None:
         self._model = None
         gc.collect()
 
 
-def _biased_score(result: tuple[str, str, float]) -> float:
-    _, language, score = result
+def _biased_score(result: tuple) -> float:
+    _, language, score, _ = result
     return score + (settings.home_bias if language == settings.home_language else 0.0)
+
+
+def _script_ok(word: str, language: str) -> bool:
+    letters = [c for c in word if c.isalpha()]
+    cyr = sum("\u0400" <= c <= "\u04ff" for c in letters)
+    return bool(letters) and (cyr == len(letters) if language == "ru" else cyr == 0)
+
+
+def merge_words(best: Hypothesis, others: list[Hypothesis]) -> tuple[str, list[str]]:
+    """Winner's words, with runs from another language's decode swapped in where that decode
+    was clearly more confident over the same time span and wrote the run in its own script.
+    Two monolingual decodes chosen per span by confidence, as in Weiner et al. 2021 (arXiv:2109.00921)."""
+    words = list(best.words)
+    switched: list[str] = []
+
+    def beats(w) -> bool:  # this word, in its own script, clearly above the winner's words it overlaps
+        inside = [x[3] for x in best.words if x[1] > w[0] and x[0] < w[1]]
+        return _script_ok(w[2], other.language) and w[3] >= (sum(inside) / len(inside) if inside else 0.0) + settings.cs_margin
+
+    for other in others:
+        run: list[tuple[float, float, str, float]] = []
+        for w in list(other.words) + [None]:
+            if w is not None and beats(w):
+                run.append(w)
+                continue
+            if len(run) >= settings.cs_min_words:
+                t0, t1 = run[0][0], run[-1][1]
+                words = sorted([x for x in words if not (x[1] > t0 and x[0] < t1)] + run, key=lambda x: x[0])
+                if other.language not in switched:
+                    switched.append(other.language)
+            run = []
+    return " ".join(w[2] for w in words), switched
 
 
 def transcribe_batches(engine: WhisperAsr, batches) -> list[AsrChunk]:

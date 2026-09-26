@@ -32,6 +32,7 @@ def main() -> None:
     parser.add_argument("--from-minutes", type=Path, default=None)
     parser.add_argument("--to-languages", default="")
     parser.add_argument("--out", type=Path, default=None)
+    parser.add_argument("--transcript-out", type=Path, default=None, help="Also write the transcript alone, for the minutes step.")
     args = parser.parse_args()
     if args.fusion:
         settings.fusion = args.fusion
@@ -75,6 +76,8 @@ def main() -> None:
             diarization=args.diarization,
         )
 
+    if args.transcript_out:  # plain transcript JSON (top-level `segments`), what `mom report` reads
+        args.transcript_out.write_text(json.dumps(result.transcript.model_dump(), indent=2, ensure_ascii=False), encoding="utf-8")
     text = json.dumps(result.model_dump(), indent=2, ensure_ascii=False)
     if args.out:
         args.out.write_text(text, encoding="utf-8")

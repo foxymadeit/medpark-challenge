@@ -9,6 +9,7 @@ from .audio import decode_audio, duration_s
 from .batching import pack_batches
 from .clean import collapse_repeat_segments
 from .config import settings
+from .correct import correct_segments
 from .diarization import load_turns, speaker_for, split_at_turns
 from .fuse import fuse_single
 from .llm import make_llm
@@ -52,6 +53,7 @@ def transcribe_audio(audio_path: Path, diarization: Path | None = None) -> tuple
             if c.text
         ]
     )
+    corrections = correct_segments(segments) if settings.correct_terms else []
     transcript = Transcript(
         source=str(audio_path),
         duration_s=duration_s(audio),
@@ -59,6 +61,7 @@ def transcribe_audio(audio_path: Path, diarization: Path | None = None) -> tuple
         asr_model=engine.model_id,
         segments=segments,
         text=format_segments(segments),
+        corrections=corrections,
     )
     return transcript, timings
 

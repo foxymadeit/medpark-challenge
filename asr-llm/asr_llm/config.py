@@ -65,6 +65,14 @@ class Settings(BaseSettings):
     fuse_min_cover: float = 0.85  # share of output words that must come from the hypotheses
     fuse_max_drop: float = 0.05  # may not swap wholesale to a hypothesis scored this much below the best
 
+    # Snap near-miss medical terms to the glossary after ASR (asr_llm/correct.py).
+    correct_terms: bool = True
+    # Word-level language merge (asr_llm.asr.merge_words): a run of words the other
+    # language's decode heard more confidently replaces the winner's words in that time span.
+    cs_merge: bool = False
+    cs_margin: float = 0.25  # mean word probability the other decode must beat the winner by
+    cs_min_words: int = 2
+
     ffmpeg_bin: str = "ffmpeg"
 
 

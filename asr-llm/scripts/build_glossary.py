@@ -159,11 +159,22 @@ def stage_merge() -> None:
     keep = [r for r in glossary["aligned"] if r.get("source") not in ("harvard", "icu")]
     have = {r["en"].casefold() for r in keep}
     added = []
-    for r in json.loads(TRANSLATED.read_text(encoding="utf-8")):
+    if TRANSLATED.exists():
+        rows = json.loads(TRANSLATED.read_text(encoding="utf-8"))
+    else:  # no machine translation yet: only terms whose RO and RU come from Wikidata's human labels
+        wiki = json.loads(WIKIDATA.read_text(encoding="utf-8"))
+        rows = []
+        for t in load_terms():
+            w = wiki.get(t["en"].casefold()) or wiki.get(t["en"]) or {}
+            if w.get("ro") and w.get("ru"):
+                rows.append({**t, "ro": w["ro"], "ru": w["ru"], "def_ro": "", "def_ru": "", "wikidata": w["qid"], "back_ok": True})
+    for r in rows:
         if r["ro"] and r["ru"] and r["en"].casefold() not in have:
+            have.add(r["en"].casefold())
             added.append({k: r[k] for k in ("source", "en", "ro", "ru", "def_en", "def_ro", "def_ru", "wikidata", "back_ok")})
     glossary["aligned"] = keep + added
-    glossary.pop("english_extra", None)  # now aligned, with translations
+    # Terms still without RO/RU stay English-only; retrieval and scoring read them from here.
+    glossary["english_extra"] = sorted({t["en"] for t in load_terms()} - have, key=str.casefold)
     glossary["meta"]["harvard_icu"] = (
         "Harvard Health dictionary + ICU list. RO/RU from Wikidata labels where a medical entity exists, "
         "else machine translation checked by back-translation (back_ok). Spot-check before relying on it."

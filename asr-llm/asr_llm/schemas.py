@@ -13,6 +13,8 @@ class Hypothesis(BaseModel):
     # Whisper: duration-weighted avg_logprob. None for engines that give no score.
     score: float | None = None
     source: str = "whisper"
+    # (start, end, word, probability) per word, for the word-level language merge. Not saved.
+    words: list[tuple[float, float, str, float]] = Field(default_factory=list, exclude=True)
 
 
 class SpeechSegment(BaseModel):
@@ -32,6 +34,8 @@ class Transcript(BaseModel):
     asr_model: str
     segments: list[SpeechSegment]
     text: str
+    # Every term the glossary corrected after ASR: start, language, before, after, score.
+    corrections: list[dict] = Field(default_factory=list)
 
 
 class ActionItem(BaseModel):
