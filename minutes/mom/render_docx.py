@@ -14,7 +14,7 @@ from docx.shared import Mm, Pt, RGBColor
 
 from .latexcheck import unescape
 from .render_pdf import DOC_WORD, TEMPLATE
-from .schemas import Meeting, format_date
+from .schemas import Meeting, format_date, fresh
 
 TEAL, SLATE, CHARCOAL, GREY = RGBColor(0x00, 0x82, 0x86), RGBColor(0x51, 0x59, 0x63), RGBColor(0x40, 0x3E, 0x3D), RGBColor(0xB3, 0xB7, 0xBA)
 HEAD, BODY = "Montserrat", "PT Serif"
@@ -117,7 +117,7 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
 
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    doc.save(out_path)
+    doc.save(fresh(out_path))
     out_path.chmod(0o600)
     return out_path
 

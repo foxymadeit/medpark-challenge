@@ -144,7 +144,7 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
         args = dict(b.args)
         r = expected.get(b.fact_id, {})
         if b.kind == "action" and r:
-            args["owner"] = latexcheck.escape(r.get("owner", ""))
+            args["owner"] = latexcheck.escape(anonymize_text(r.get("owner", ""), list(patients)))
             args["deadline"] = latexcheck.escape(r.get("deadline", ""))
         for key in ("text", "title", "vote"):
             if key not in args:

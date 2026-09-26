@@ -44,7 +44,7 @@ def load_transcript(path, session=None) -> list:
 def _try_json(raw: str):
     try:
         return json.loads(raw)
-    except ValueError:
+    except (ValueError, RecursionError):   # RecursionError: a file of deeply nested brackets
         return None
 
 

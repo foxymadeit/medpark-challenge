@@ -73,5 +73,14 @@ def format_date(iso: str, lang: str) -> str:
     return f"{d.day} {_EN_MONTHS[d.month - 1]} {d.year}" if lang == "en" else d.strftime("%d.%m.%Y")
 
 
+def fresh(path) -> "Path":
+    """Remove whatever sits at an output path (a planted symlink included)
+    so the write that follows creates a new file instead of following it."""
+    from pathlib import Path
+    path = Path(path)
+    path.unlink(missing_ok=True)
+    return path
+
+
 def to_dict(obj) -> dict:
     return asdict(obj)

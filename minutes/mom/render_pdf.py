@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 from . import latexcheck
-from .schemas import Meeting, format_date
+from .schemas import Meeting, format_date, fresh
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "template"
 DOC_WORD = {"ro": "Proces-verbal", "ru": "Протокол", "en": "Minutes"}
@@ -84,6 +84,6 @@ def compile_pdf(tex: str, xmp: str, out_pdf: Path) -> Path:
             errors = [l for l in log.splitlines() if l.startswith("!")][:5]
             raise RuntimeError("LaTeX failed: " + (" | ".join(errors) or run.stderr[-400:]))
         out_pdf.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(pdf, out_pdf)
+        shutil.copyfile(pdf, fresh(out_pdf))
         os.chmod(out_pdf, 0o600)
     return out_pdf
