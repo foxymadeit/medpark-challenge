@@ -150,7 +150,7 @@ Dates are relative to the recording day (call it D).
 ### Decisions
 
 | # | Decision | Where |
-|---|---|---|
+|--|--------------|------|
 | D1 | Coronary angiography for the room 14 patient tomorrow at 09:00, with hydration from tonight | Cristina, "Bine, aprobăm" |
 | D2 | Order 200 HME and bacterial filters; the director signs the financial approval today | Cristina, in Russian |
 | D3 | Hand-hygiene audit every two weeks until the JCI mock survey (20 October) | Cristina, "every two weeks. That's final." |
@@ -161,7 +161,7 @@ Dates are relative to the recording day (call it D).
 ### Actions
 
 | # | Owner | Action | Deadline as said | Date |
-|---|---|---|---|---|
+|--|------|----------|--------|-----|
 | A1 | Roman Roman | Schedule the angiography and confirm | "până mâine la ora opt" | D+1, 08:00 |
 | A2 | Stanislav Gulica | Check the INR in the morning | "mâine la ora șase" | D+1, 06:00 |
 | A3 | Cristina Iftodi | Sign the financial approval for the filters | "сегодня" | D |
