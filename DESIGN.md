@@ -267,7 +267,7 @@ need no fallback. Keep Geist Mono to digits and times.
 
 | Role | Use |
 |---|---|
-| `display` 40/46 | Sign-in line and hero figures only |
+| `display` 40/46 | Hero figures only |
 | `h1` 28/34 | Screen title, one per screen |
 | `h2` 20/26 | Meeting title |
 | `h3` 16/22 | Card and section titles |

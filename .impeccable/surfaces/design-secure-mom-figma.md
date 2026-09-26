@@ -11,7 +11,7 @@ Scope: every product screen as an alternative design in its own file, [Secure MO
 Audience and job: anyone attending a Medpark meeting starts it, records or uploads, checks the minutes and lets them send; everyone reads the minutes and their own action items.
 Constraints: fully offline; UI in English with a RO/RU switch; minutes auto-send with an undo window; WCAG 2.2 AA; large touch targets.
 Memorable moment: the route marker sliding from Record to Sent (Smart Animate, 280 ms).
-Unresolved: authentication method (sign-in screen assumes hospital accounts).
+Resolved: no sign-in (product decision); the sign-in and signed-out screens are not built.
 
 ## Revision, 2026-09-25
 

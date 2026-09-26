@@ -1,6 +1,6 @@
 # Liminal — local API contract
 
-The existing React + TypeScript + Vite client uses `src/api/meetings.ts` for all meeting, participant, audio, and delivery operations. Pages do not access browser storage. `src/api/client.ts` provides relative `/api` requests with `credentials: include`, generic errors and a 20-second timeout. Real authentication uses `/api/auth/login`, `/api/auth/me`, and `/api/auth/logout`.
+The existing React + TypeScript + Vite client uses `src/api/meetings.ts` for all meeting, participant, audio, and delivery operations. Pages do not access browser storage. `src/api/client.ts` provides relative `/api` requests with generic errors and a 20-second timeout. There is no sign-in: no accounts, passwords, sessions or cookies. Every page on the hospital network can call every endpoint, and every meeting is visible to all. Access is limited by where the server runs (127.0.0.1, or the hospital network only), and the server's audit trail records every change and every read of a recording, transcript or document with the time and network address.
 
 ## Run and demo mode
 
@@ -14,11 +14,9 @@ Local, git-ignored `.env.local`:
 
 ```ini
 VITE_DEMO_MODE=true
-VITE_DEMO_EMAIL=admin@medpark.local
-VITE_DEMO_PASSWORD=CHANGE_ME
 ```
 
-Restart Vite after changing the environment. Demo login is `admin@medpark.local` / `<VITE_DEMO_PASSWORD from .env.local>`. Replace CHANGE_ME locally; quote passwords containing #. These browser-visible variables are development configuration, never production authentication. Demo authentication is additionally gated on `import.meta.env.DEV`; production builds never accept these credentials. Passwords and authentication tokens are not stored in localStorage. The versioned `secure-mom-demo-auth-v3` session marker contains version, account ID and email only. Stale sessions are discarded; account name/role are never restored from participant data.
+Restart Vite after changing the environment. Demo mode is additionally gated on `import.meta.env.DEV`; production builds never use the demo store.
 
 Demo metadata is stored under `secure-mom-v2` in localStorage. Audio blobs and prototype voice samples are stored in the `secure-mom-audio` IndexedDB database. No external services are required: fonts, icons and department SVGs are served locally. Processing lasts 12 seconds in demo mode and returns clearly labeled sample content, not speech recognition of the uploaded recording. Speaker activity is explicitly simulated. Enrollment does not perform biometric recognition. Delivery changes the local status to `sent`; no real email is sent.
 
@@ -41,7 +39,7 @@ Types are defined in `src/types/meeting.ts`:
 - Department: `medical | executive | administrative`.
 - Status: `draft | recording | uploaded | processing | sending_soon | ready | sending | sent | stopped | failed`.
 - Meeting includes `sendMode: manual | auto`, `reviewState: not_ready | needs_review | reviewed`, title, timestamps, input mode, participants, distribution list, audio metadata, decisions, summary, action items, raw transcript, speaker timeline, progress, and scheduled/sent timestamps.
-- `UserAccount`, `StaffProfile`, temporal `StaffRoleAssignment`, and immutable `MeetingParticipantSnapshot` are separate concepts. Historical meetings and exports render snapshots.
+- `StaffProfile`, temporal `StaffRoleAssignment`, and immutable `MeetingParticipantSnapshot` are separate concepts. Historical meetings and exports render snapshots.
 - `VoiceProfile` and `DetectedSpeakerCluster` are separate from staff identity. An unidentified cluster is never inferred from a staff member without enrollment.
 - `MeetingTemplate` stores staff IDs and reusable setup data; each created meeting snapshots its setup and participants.
 - Action item includes immutable ID, task, nullable participant owner, nullable deadline, completion flag and optional source timestamp. Unresolved fields stay null.
@@ -51,22 +49,19 @@ Types are defined in `src/types/meeting.ts`:
 
 | Method / path                                 | Input                                                       | Response                                                                               |
 | --------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| POST `/api/auth/login`                        | `{email,password}`                                          | AuthUser `{id,email,name,role,initials?}` and HttpOnly session cookie                  |
-| GET `/api/auth/me`                            | —                                                           | AuthUser or 401                                                                        |
-| POST `/api/auth/logout`                       | —                                                           | 204; invalidate server session                                                         |
 | GET `/api/meetings`                           | —                                                           | `Meeting[]` including current states; newest first                                     |
 | POST `/api/meetings`                          | `{title,type,inputMode,participants}`                       | Created `Meeting` with server distribution routing                                     |
 | GET `/api/meetings/{id}`                      | —                                                           | Complete `Meeting`, including current processing/minutes state                         |
 | PATCH `/api/meetings/{id}`                    | Allowed changed fields                                      | Updated `Meeting`                                                                      |
 | POST `/api/meetings/{id}/recording`           | Multipart `audio` blob                                      | 204 or persisted metadata                                                              |
-| GET `/api/meetings/{id}/recording`            | —                                                           | Audio binary; authenticated streaming/range support recommended                        |
+| GET `/api/meetings/{id}/recording`            | —                                                           | Audio binary; streaming/range support recommended                                      |
 | POST `/api/meetings/{id}/upload`              | Multipart `audio` file                                      | 204 or persisted metadata                                                              |
 | POST `/api/meetings/{id}/process`             | —                                                           | Updated `Meeting`; enqueue local processing                                            |
 | GET `/api/meetings/{id}/processing`           | —                                                           | `Meeting` with progress, estimated finish, speaker events and status                   |
 | GET `/api/meetings/{id}/minutes`              | —                                                           | `Meeting` with generated minutes                                                       |
 | PATCH `/api/meetings/{id}/minutes`            | `{summary?,decisions?}`                                     | Updated `Meeting`; reset active review window                                          |
 | PATCH `/api/meetings/{id}/actions/{actionId}` | `{task?,ownerParticipantId?,deadline?,completed?}`          | Updated `Meeting`                                                                      |
-| PATCH `/api/meetings/{id}/participants`       | `{participants}`                                            | Updated `Meeting`; participant identities remain separate from AuthUser                |
+| PATCH `/api/meetings/{id}/participants`       | `{participants}`                                            | Updated `Meeting`                                                                      |
 | POST `/api/meetings/{id}/feedback`            | `{meetingId,field,before,after,sourceTimestamp?,createdAt}` | Persisted correction feedback; does not claim model training                           |
 | POST `/api/meetings/{id}/review`              | —                                                           | Updated `Meeting` with `reviewState: reviewed` after validation                        |
 | GET `/api/meetings/{id}/transcript`           | —                                                           | `TranscriptSegment[]`, original text only                                              |
@@ -81,17 +76,16 @@ Types are defined in `src/types/meeting.ts`:
 | POST `/api/people/{id}/voice-enrollment`      | Multipart `audio`                                           | 204; store local enrollment metadata                                                   |
 | GET `/api/templates`                          | —                                                           | Active templates                                                                       |
 | GET `/api/templates/{id}`                     | —                                                           | Template                                                                               |
-| POST/PATCH `/api/templates[/{id}]`            | Template setup metadata                                     | ADMIN-only create/update                                                               |
-| POST `/api/templates/{id}/deactivate`         | —                                                           | ADMIN-only deactivation                                                                |
-| GET `/api/admin`                              | —                                                           | ADMIN-only users, staff, roles and distribution lists                                  |
-| POST `/api/admin/users`                       | Account fields                                              | ADMIN-only account creation                                                            |
-| PATCH `/api/admin/users/{id}`                 | `{active}`                                                  | ADMIN-only account activation                                                          |
-| POST/PATCH `/api/admin/people[/{id}]`         | Official staff fields                                       | ADMIN-only staff creation/update/deactivation                                          |
-| POST `/api/admin/people/{id}/roles`           | `{title,department,validFrom}`                              | ADMIN-only temporal role assignment; closes current role                               |
-| PATCH `/api/admin/lists/{id}`                 | Distribution-list fields                                    | ADMIN-only list management                                                             |
+| POST/PATCH `/api/templates[/{id}]`            | Template setup metadata                                     | Template create/update                                                                 |
+| POST `/api/templates/{id}/deactivate`         | —                                                           | Template deactivation                                                                  |
+| GET `/api/admin`                              | —                                                           | Staff, roles and distribution lists                                                    |
+| POST/PATCH `/api/admin/people[/{id}]`         | Official staff fields                                       | Staff creation/update/deactivation                                                     |
+| POST `/api/admin/people/{id}/roles`           | `{title,department,validFrom}`                              | Temporal role assignment; closes current role                                          |
+| PATCH `/api/admin/lists/{id}`                 | Distribution-list fields                                    | List management                                                                        |
+| GET `/api/admin/audit`                        | —                                                           | Latest 500 audit entries `{at,address,method,route,meetingId,status}`, never content   |
 | GET `/api/system`                             | —                                                           | `{local:boolean,services:[{id,available}]}` for `asr,speakers,automation,mail,storage` |
 | GET `/api/capabilities`                       | —                                                           | `{autoModeAvailable}`; the Liminal backend reports `true`                              |
-| GET `/api/routing`                            | —                                                           | `{medical, executive, administrative}`: recipient addresses (or a count) per type. Optional: without it the app reads `/api/admin` for administrators, else shows no count |
+| GET `/api/routing`                            | —                                                           | `{medical, executive, administrative}`: recipient addresses (or a count) per type. Optional: without it the app reads the distribution lists in `/api/admin`, else shows no count |
 | POST `/api/meetings/{id}/confirmations/{factId}` | `{action: "keep" \| "remove"}`                           | Updated `Meeting`; settles one item the checks could not confirm                       |
 | GET `/api/meetings/{id}/documents/{lang}.{ext}` | `lang` ro/ru/en, `ext` pdf/docx                            | The Medpark-template minutes file for that language                                    |
 
@@ -118,14 +112,11 @@ Frontend recordings use the browser-supported MediaRecorder MIME (`audio/webm;co
 
 Processing may return `processingState: queued | running | failed | complete` and an optional opaque `failureReference`. Delivery may return `deliveryState: scheduled | stopped | sending | sent | failed` and an optional failure reference. A failed delivery leaves minutes available and must never report the meeting as sent. The backend owns queue order, retries, idempotency and failure references.
 
-Authenticated sessions expire after 30 minutes without pointer, keyboard or touch activity in the frontend prototype. The backend must enforce its own idle and absolute session limits; frontend timers are only a usability layer.
-
 ## Backend security and processing requirements
 
-- Parameterized SQL or ORM; Argon2id/bcrypt password hashing, generic login failures and login rate limiting.
-- Session cookie `HttpOnly`, `Secure` in deployment, `SameSite=Strict`; enforce authentication and authorization on every endpoint. Apply CSRF protections for state-changing requests.
+- Parameterized SQL or ORM. Bind every port to 127.0.0.1 or the hospital network only, since there is no sign-in; keep an append-only audit trail of every change and every read of a recording, transcript or document with the time and network address. Apply CSRF protections (Origin check) for state-changing requests.
 - Generate server-side random audio filenames; validate MIME/content, size and duration. Never trust client filenames, IDs, recipient lists or frontend route protection.
-- Never return passwords, store frontend JWTs, execute uploaded data, or log audio/transcripts.
+- Never execute uploaded data or log audio/transcripts.
 - Keep raw multilingual ASR separate from normalized structured minutes. Preserve overlap, acronyms, regional speech, unfinished statements and speaker uncertainty.
 - Use measured diarization durations for percentages; deterministic unique speaker slots within each meeting. The frontend must not fabricate real-mode speaker identities or measurements.
 - Local processing only: FastAPI → local pipeline → department routing by meeting type → local Mailpit/MailHog/SMTP. No Gmail, Outlook, SendGrid, external SMTP or external AI APIs during the demo.
@@ -139,10 +130,10 @@ npm run lint
 npm run build
 ```
 
-Tests cover authenticated routing, demo credentials, language persistence, original transcript preservation, department setup, manual review, data editing/completion, metadata/audio persistence, processing across navigation, the demo store's 30-second Auto logic, explicit send/idempotency, unresolved-data blocking, file constraints and the mocked MediaRecorder lifecycle. A physical microphone and actual local mail/backend delivery still need integration testing on the deployment machine.
+Tests cover opening straight on the Meetings page with no sign-in, reaching Administration and System from the top bar, language persistence, original transcript preservation, department setup, manual review, data editing/completion, metadata/audio persistence, processing across navigation, the demo store's 30-second Auto logic, explicit send/idempotency, unresolved-data blocking, file constraints and the mocked MediaRecorder lifecycle. A physical microphone and actual local mail/backend delivery still need integration testing on the deployment machine.
 
-## Account and participant boundary
+## People
 
-`GET /api/auth/me` returns the authenticated **account** (`AuthUser`), including `role: "admin" | "staff"`. `GET /api/people` returns active official staff available for selection. These models must never share a current-user variable. The demo admin is Administrator / AD; Elena Ciobanu is only a participant. The server must enforce every Admin and template write permission; hidden frontend controls are not authorization.
+`GET /api/people` returns active official staff available for selection as participants. There is no current user: the app never assumes who is at the keyboard, so action items are shown for everyone (with Open and Overdue filters), not "mine".
 
 Demo delivery transitions `ready/sending_soon → sending → sent`, with a persisted 800 ms simulated delivery phase. Reopening reconciles elapsed timestamps; this does not send email. Backend scheduling, retries, delivery receipts and idempotency belong to the local server.

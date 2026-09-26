@@ -33,7 +33,7 @@ Everything runs inside the hospital. There are no cloud calls at any point, and 
 - Speaker labels: unknown number of speakers (1 to many). Voices can be enrolled so minutes show names instead of "Speaker N".
 - Interface language: English, with a RO/RU switch.
 - Devices: desktop, tablet and phone.
-- Open decision: authentication method (current screens show username and password on a local account).
+- Access: no sign-in, by product decision. The app opens on the Meetings page and every page is open to anyone who can reach it; access is limited by where it runs (127.0.0.1 on the server, or the hospital network only).
 
 ## Brand Commitments
 
