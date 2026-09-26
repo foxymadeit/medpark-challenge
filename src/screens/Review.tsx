@@ -176,9 +176,9 @@ export function Review() {
             <h2 id="rv-transcript" className="section-title">
               {t('review.transcript')}
             </h2>
-            <p className="note row" style={{ gap: 6 }}>
+            <p className="note hint">
               <PencilSimpleIcon size={14} aria-hidden />
-              {t('review.word.hint')}
+              <span>{t('review.word.hint')}</span>
             </p>
           </div>
           {removed && (

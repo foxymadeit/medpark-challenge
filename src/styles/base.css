@@ -76,6 +76,10 @@ button {
 .t-h1      { font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
 .t-h2      { font: 600 20px/26px var(--sm-font-sign); letter-spacing: -0.2px; }
 .t-h3      { font: 600 16px/22px var(--sm-font-sign); letter-spacing: -0.08px; }
+/* Icon + hint text: icon pinned to the first line, same in every language however the text wraps. */
+.hint { display: flex; align-items: flex-start; gap: 6px; margin: 0; }
+.hint svg { flex-shrink: 0; margin-top: 2px; }
+
 /* Container titles: one step quieter than the content they hold. */
 .section-title { margin: 0; color: var(--sm-title-muted); font: 600 14px/20px var(--sm-font-sign); letter-spacing: 0.1px; }
 .t-plate   { font: 500 12px/16px var(--sm-font-sign); letter-spacing: 0.24px; }

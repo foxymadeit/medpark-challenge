@@ -247,7 +247,7 @@ export const en = {
     sendingIn_one: 'Sending to {count} participant in',
     stopReview: 'Stop & review',
     word: {
-      hint: 'Click any word to fix it. Dotted words may be misheard.',
+      hint: 'Click a word to fix it.',
       didYouMean: 'Did you mean',
       fix: 'Correct the word',
       edit: 'Edit…',

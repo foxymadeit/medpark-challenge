@@ -246,7 +246,7 @@
     "sendingIn": "Se trimite la {count} de participanți în",
     "stopReview": "Oprește și verifică",
     "word": {
-      "hint": "Faceți clic pe orice cuvânt pentru a-l corecta. Cuvintele punctate pot fi auzite greșit.",
+      "hint": "Faceți clic pe un cuvânt pentru a-l corecta.",
       "didYouMean": "Ați vrut să spuneți",
       "fix": "Corectați cuvântul",
       "edit": "Editează…",
