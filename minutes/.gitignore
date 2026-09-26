@@ -1,0 +1,13 @@
+.venv/
+examples/*.aux
+examples/*.log
+examples/*.fdb_latexmk
+examples/*.fls
+examples/*.out
+examples/*.xmpi
+examples/pdfa.xmpi
+examples/prev_*.png
+examples/build*.log
+template/logo-standalone.aux
+template/logo-standalone.log
+out/
