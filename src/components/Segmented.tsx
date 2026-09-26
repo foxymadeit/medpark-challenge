@@ -10,7 +10,8 @@ interface Props<T extends string> {
   options: Option<T>[];
   value: T;
   onChange: (value: T) => void;
-  variant?: 'default' | 'fill' | 'lang';
+  /** fill = stretch to the row; auto = items size to their label; lang = compact top-bar switch. */
+  variant?: 'default' | 'fill' | 'auto' | 'lang';
 }
 
 /** Radio-group segmented control with roving tabindex and arrow-key navigation. */

@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DatePicker } from '../components/DatePicker';
 import { EmailsField } from '../components/EmailsField';
+import { Segmented } from '../components/Segmented';
 import { useI18n } from '../i18n/I18nProvider';
 import { todayISO } from '../lib/format';
 import { useStore } from '../store/AppStore';
-import { MEETING_TYPES } from '../types';
+import { MEETING_TYPES, type MeetingType } from '../types';
 
 /** 01 — name, date, type, optional emails, then Record / Upload tiles (templates start from the Templates page). */
 export function NewMeeting() {
@@ -78,17 +79,13 @@ export function NewMeeting() {
           <p className="t-strong" id="nm-type">
             {t('newMeeting.type')}
           </p>
-          <div className="chips" role="radiogroup" aria-labelledby="nm-type" aria-describedby="nm-type-hint">
-            {MEETING_TYPES.map((type) => {
-              const on = draft.type === type;
-              return (
-                <button key={type} type="button" role="radio" aria-checked={on} className="chip" onClick={() => setDraft({ type })}>
-                  {on && <CheckIcon size={16} aria-hidden />}
-                  {t(`types.${type}`)}
-                </button>
-              );
-            })}
-          </div>
+          <Segmented<MeetingType>
+            label={t('newMeeting.type')}
+            variant="auto"
+            value={draft.type}
+            onChange={(type) => setDraft({ type })}
+            options={MEETING_TYPES.map((type) => ({ value: type, label: t(`types.${type}`) }))}
+          />
           {/* What the selected type changes: the vocabulary the minutes are written in. */}
           <p className="note" id="nm-type-hint" aria-live="polite">
             {t(`newMeeting.typeDesc.${draft.type}`)}
