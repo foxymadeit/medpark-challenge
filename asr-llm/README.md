@@ -114,6 +114,41 @@ MOM_ASR_COMPUTE_TYPE=int8_float16 python -m asr_llm.cli ../data/Medpark_audio.m4
 python -m asr_llm.score transcript.json
 ```
 
+## Mixed-language sentences: two fusion modes (compare them)
+
+Every utterance keeps all its decodes (`segments[].hypotheses`). A fusion step then picks or
+combines them. In both modes the result must be built from hypothesis words (≥85 %), otherwise
+the acoustic winner stays: a forced-Russian decode of Romanian speech reads fluently, so fluency
+is not evidence.
+
+| `MOM_FUSION` | What runs | Cost |
+|---|---|---|
+| `debate` | every model proposes a text for **every** sentence, then sees the others and revises (`MOM_DEBATE_ROUNDS=2`); majority wins | models × rounds × sentences |
+| `single` | one model, only **unclear** utterances (ro/ru scores within `FUSE_MARGIN`, or best below `FUSE_FLOOR`), 15 per call | a fraction of one pass |
+
+Models come from GGUF files or a local Ollama:
+
+```bash
+brew install ollama && brew services start ollama          # listens on 127.0.0.1 only
+ollama pull qwen3.5:9b && ollama pull gemma4:12b && ollama pull gpt-oss:20b
+
+# compare on the same transcript (hypotheses from the Kaggle bench or a local run)
+MOM_LLM_MODEL=ollama:qwen3.5:9b python -m asr_llm.cli --from-transcript t.json --fusion single --fuse-only --out single.json
+MOM_FUSION_MODELS='["ollama:qwen3.5:9b","ollama:gemma4:12b","ollama:gpt-oss:20b"]' \
+  python -m asr_llm.cli --from-transcript t.json --fusion debate --fuse-only --out debate.json
+python -m asr_llm.score single.json --gold data/gold_0-180s.txt --window 180
+python -m asr_llm.score debate.json --gold data/gold_0-180s.txt --window 180
+```
+
+## Trilingual medical dictionary
+
+`scripts/build_glossary.py` (dev time only) turns the 2,050 Harvard terms plus
+`data/icu_terms_en.txt` into RO/RU/EN rows with definitions: Wikidata labels for
+entities with a MeSH/UMLS/ICD id first, then Qwen2.5-32B on Kaggle for the rest,
+checked by back-translation (`back_ok`). Runtime only reads the merged JSON. The
+fusion and minutes prompts get the ~24 rows that match the text, the best five with
+a short definition.
+
 ## With diarization
 
 ```bash

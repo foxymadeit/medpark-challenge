@@ -1,0 +1,117 @@
+# ICU / cardiology / surgery terms spoken in hospital rounds. One English term per line.
+# build_glossary.py adds Romanian and Russian. Extend freely; keep it generic, no patient data.
+norepinephrine
+epinephrine
+dobutamine
+dopamine
+vasopressin
+vasopressor
+inotrope
+echocardiography
+transthoracic echocardiography
+ejection fraction
+mitral regurgitation
+tricuspid regurgitation
+aortic stenosis
+chordae tendineae rupture
+three-vessel coronary artery disease
+coronary angiography
+percutaneous coronary intervention
+thrombus aspiration
+stent
+myocardial infarction
+cardiogenic shock
+septic shock
+hypovolemia
+fluid resuscitation
+hemodynamic instability
+arterial line
+central venous catheter
+blood pressure
+heart rate
+atrial fibrillation
+ventricular tachycardia
+cardiac arrest
+cardiopulmonary resuscitation
+defibrillation
+pacemaker
+heart failure
+pulmonary edema
+pleural effusion
+pneumothorax
+chest drain
+mechanical ventilation
+non-invasive ventilation
+BiPAP
+oxygen saturation
+respiratory failure
+hypercapnia
+hypoxemia
+arterial blood gas
+intubation
+extubation
+tracheostomy
+sedation
+propofol
+midazolam
+fentanyl
+analgesia
+delirium
+Glasgow Coma Scale
+external ventricular drain
+intracranial pressure
+stroke
+cerebral hemorrhage
+creatinine
+urea
+acute kidney injury
+dialysis
+continuous renal replacement therapy
+diuresis
+furosemide
+potassium
+sodium
+lactate
+troponin
+C-reactive protein
+procalcitonin
+hemoglobin
+platelets
+leukocytes
+international normalized ratio
+anticoagulation
+heparin
+enoxaparin
+antibiotic
+meropenem
+vancomycin
+piperacillin-tazobactam
+sepsis
+urosepsis
+pneumonia
+blood culture
+laparotomy
+laparoscopy
+adrenalectomy
+gastrostomy
+postoperative
+operating room
+anesthesia
+transfusion
+red blood cell concentrate
+fresh frozen plasma
+nasogastric tube
+urinary catheter
+enteral nutrition
+parenteral nutrition
+mobilization
+physiotherapy
+pressure ulcer
+discharge
+transfer
+intensive care unit
+ward round
+consultation
+oncologist
+cardiologist
+neurosurgeon

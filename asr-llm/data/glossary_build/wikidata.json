@@ -1,0 +1,6412 @@
+{
+ "5-alpha reductase": {
+  "qid": "Q143333",
+  "ru": "5-альфа-редуктаза"
+ },
+ "abdominal muscles": {
+  "qid": "Q275150",
+  "ru": "Прямая мышца живота"
+ },
+ "abdominoplasty": {
+  "qid": "Q811133",
+  "ru": "Абдоминопластика"
+ },
+ "abrasion": {
+  "qid": "Q939378",
+  "ru": "ссадина"
+ },
+ "abscess": {
+  "qid": "Q164655",
+  "ro": "Abces",
+  "ru": "абсцесс"
+ },
+ "abutment": {
+  "qid": "Q3603876"
+ },
+ "accommodation": {
+  "qid": "Q419793",
+  "ru": "аккомодация"
+ },
+ "ace": {
+  "qid": "Q128861",
+  "ro": "enzima de conversie a angiotensinei",
+  "ru": "ангиотензин-превращающий фермент"
+ },
+ "ace inhibitor": {
+  "qid": "Q288280",
+  "ro": "inhibitor al enzimei de conversie a angiotensinei",
+  "ru": "ингибитор АПФ"
+ },
+ "acetabulum": {
+  "qid": "Q1130461",
+  "ru": "Вертлужная впадина"
+ },
+ "acetaldehyde": {
+  "qid": "Q61457",
+  "ro": "Acetaldehidă",
+  "ru": "ацетальдегид"
+ },
+ "acetaminophen": {
+  "qid": "Q57055",
+  "ro": "acetaminofen",
+  "ru": "парацетамол"
+ },
+ "acetylcholine": {
+  "qid": "Q180623",
+  "ro": "Acetilcolină",
+  "ru": "ацетилхолин"
+ },
+ "achlorhydria": {
+  "qid": "Q340548",
+  "ru": "ахлоргидрия"
+ },
+ "acne": {
+  "qid": "Q79928",
+  "ro": "acnee",
+  "ru": "акне"
+ },
+ "acquired immunodeficiency syndrome": {
+  "qid": "Q12199",
+  "ro": "SIDA",
+  "ru": "синдром приобретённого иммунного дефицита"
+ },
+ "acquisition": {
+  "qid": "Q133500",
+  "ro": "învățare",
+  "ru": "научение"
+ },
+ "acromioclavicular joint": {
+  "qid": "Q1640207",
+  "ro": "Articulația acromioclaviculară",
+  "ru": "Акромиально-ключичный сустав"
+ },
+ "actin": {
+  "qid": "Q185269",
+  "ro": "Actină",
+  "ru": "Актин"
+ },
+ "actinic keratosis": {
+  "qid": "Q422225"
+ },
+ "active surveillance": {
+  "qid": "Q2161551",
+  "ru": "выжидательная тактика"
+ },
+ "acupressure": {
+  "qid": "Q3033223",
+  "ro": "Acupresură",
+  "ru": "акупрессура"
+ },
+ "acupuncture": {
+  "qid": "Q121713",
+  "ro": "acupunctură",
+  "ru": "акупунктура"
+ },
+ "acute kidney injury": {
+  "qid": "Q424337",
+  "ro": "Leziuni renale acute",
+  "ru": "острая почечная недостаточность"
+ },
+ "acute pain": {
+  "qid": "Q16534541"
+ },
+ "adaptive immunity": {
+  "qid": "Q1645075",
+  "ro": "sistemul imunitar adaptiv",
+  "ru": "приобретённый иммунитет"
+ },
+ "adenocarcinoma": {
+  "qid": "Q356033",
+  "ru": "аденокарцинома"
+ },
+ "adenoma": {
+  "qid": "Q272741",
+  "ru": "аденома"
+ },
+ "adenosine triphosphate": {
+  "qid": "Q80863",
+  "ro": "adenozintrifosfat",
+  "ru": "аденозинтрифосфат"
+ },
+ "adhesion": {
+  "qid": "Q187640",
+  "ro": "adeziune celulară",
+  "ru": "агрегация клеток"
+ },
+ "adipose tissue": {
+  "qid": "Q193583",
+  "ro": "țesut adipos",
+  "ru": "жировая ткань"
+ },
+ "adrenal glands": {
+  "qid": "Q712294",
+  "ro": "glandă suprarenală",
+  "ru": "надпочечники"
+ },
+ "adrenalectomy": {
+  "qid": "Q366774",
+  "ru": "Адреналэктомия"
+ },
+ "adrenaline": {
+  "qid": "Q132621",
+  "ro": "Adrenalină",
+  "ru": "адреналин"
+ },
+ "advanced sleep phase syndrome": {
+  "qid": "Q1125121"
+ },
+ "aerobic exercise": {
+  "qid": "Q1152037",
+  "ru": "аэробное упражнение"
+ },
+ "aerophagia": {
+  "qid": "Q381619",
+  "ro": "Aerofagie",
+  "ru": "Аэрофагия"
+ },
+ "age-related macular degeneration": {
+  "qid": "Q830308",
+  "ru": "возрастная макулодистрофия"
+ },
+ "agnosia": {
+  "qid": "Q220322",
+  "ro": "agnozie",
+  "ru": "агнозия"
+ },
+ "agoraphobia": {
+  "qid": "Q174589",
+  "ro": "agorafobie",
+  "ru": "агорафобия"
+ },
+ "aids": {
+  "qid": "Q12199",
+  "ro": "SIDA",
+  "ru": "синдром приобретённого иммунного дефицита"
+ },
+ "albinism": {
+  "qid": "Q81867",
+  "ro": "albinism",
+  "ru": "альбинизм"
+ },
+ "albumin": {
+  "qid": "Q169219",
+  "ro": "albumină",
+  "ru": "альбумины"
+ },
+ "albuminuria": {
+  "qid": "Q974792",
+  "ro": "albuminurie",
+  "ru": "Альбуминурия"
+ },
+ "alcohol abuse": {
+  "qid": "Q7331102",
+  "ro": "abuz de alcool",
+  "ru": "злоупотребление алкоголем"
+ },
+ "alcohol dehydrogenase": {
+  "qid": "Q410754",
+  "ro": "alcool dehidrogenază",
+  "ru": "алкогольдегидрогеназа"
+ },
+ "alcohol dependence": {
+  "qid": "Q4713263",
+  "ru": "алкогольная зависимость"
+ },
+ "alcoholism": {
+  "qid": "Q15326",
+  "ro": "alcoolism",
+  "ru": "алкоголизм"
+ },
+ "aldosterone": {
+  "qid": "Q184564",
+  "ro": "Aldosteron",
+  "ru": "Альдостерон"
+ },
+ "alimentary canal": {
+  "qid": "Q11829360",
+  "ro": "tract gastrointestinal",
+  "ru": "желудочно-кишечный тракт"
+ },
+ "allele": {
+  "qid": "Q80726",
+  "ro": "alelă",
+  "ru": "аллели"
+ },
+ "allergen": {
+  "qid": "Q186752",
+  "ro": "alergen",
+  "ru": "аллерген"
+ },
+ "allergic rhinitis": {
+  "qid": "Q272436",
+  "ro": "rinită alergică",
+  "ru": "поллиноз"
+ },
+ "allergy": {
+  "qid": "Q42982",
+  "ro": "alergie",
+  "ru": "аллергия"
+ },
+ "allodynia": {
+  "qid": "Q1888634",
+  "ro": "alodinie",
+  "ru": "Аллодиния"
+ },
+ "alopecia areata": {
+  "qid": "Q5075435",
+  "ru": "очаговая алопеция"
+ },
+ "alopecia totalis": {
+  "qid": "Q4734614",
+  "ru": "тотальная алопеция"
+ },
+ "alopecia universalis": {
+  "qid": "Q4734616"
+ },
+ "alpha waves": {
+  "qid": "Q2469782",
+  "ru": "Альфа-ритм"
+ },
+ "alveolar bone": {
+  "qid": "Q448692",
+  "ru": "альвеолярный отросток"
+ },
+ "alveoli": {
+  "qid": "Q191341",
+  "ro": "alveolă pulmonară",
+  "ru": "лёгочная альвеола"
+ },
+ "alzheimer's disease": {
+  "qid": "Q11081",
+  "ro": "boala Alzheimer",
+  "ru": "болезнь Альцгеймера"
+ },
+ "amd": {
+  "qid": "Q412621",
+  "ro": "Metildopa",
+  "ru": "метилдопа"
+ },
+ "amnesia": {
+  "qid": "Q11072",
+  "ro": "Amnezie",
+  "ru": "амнезия"
+ },
+ "amputation": {
+  "qid": "Q17044521",
+  "ru": "хирургическая ампутация"
+ },
+ "amsler grid": {
+  "qid": "Q478046",
+  "ru": "Сетка Амслера"
+ },
+ "amygdala": {
+  "qid": "Q338924",
+  "ro": "Amigdala",
+  "ru": "миндалевидное тело"
+ },
+ "amylase": {
+  "qid": "Q17153",
+  "ro": "Amilază",
+  "ru": "амилаза"
+ },
+ "amyloid": {
+  "qid": "Q6740853",
+  "ru": "амилоид"
+ },
+ "anagen": {
+  "qid": "Q15320933"
+ },
+ "anal canal": {
+  "qid": "Q2465231",
+  "ro": "Canal anal",
+  "ru": "заднепроходной канал человека"
+ },
+ "analgesia": {
+  "qid": "Q484785",
+  "ro": "analgezie",
+  "ru": "анальгезия"
+ },
+ "analgesic": {
+  "qid": "Q173235",
+  "ro": "analgezic",
+  "ru": "анальгетик"
+ },
+ "anaphylaxis": {
+  "qid": "Q168800",
+  "ro": "anafilaxie",
+  "ru": "анафилаксия"
+ },
+ "androgen": {
+  "qid": "Q62614",
+  "ro": "androgen",
+  "ru": "андрогены"
+ },
+ "androgenetic alopecia": {
+  "qid": "Q2276095",
+  "ru": "андрогенная алопеция"
+ },
+ "anemia": {
+  "qid": "Q5445",
+  "ro": "anemie",
+  "ru": "анемия"
+ },
+ "anencephaly": {
+  "qid": "Q529292",
+  "ru": "Анэнцефалия"
+ },
+ "anesthesia": {
+  "qid": "Q131130",
+  "ro": "anestezie",
+  "ru": "анестезия"
+ },
+ "aneurysm": {
+  "qid": "Q189389",
+  "ro": "anevrism",
+  "ru": "аневризма"
+ },
+ "angina pectoris": {
+  "qid": "Q180762",
+  "ro": "angină pectorală",
+  "ru": "стенокардия"
+ },
+ "angiogenesis": {
+  "qid": "Q539568",
+  "ru": "Ангиогенез"
+ },
+ "angiography": {
+  "qid": "Q468414",
+  "ro": "angiografie",
+  "ru": "ангиография"
+ },
+ "angioplasty": {
+  "qid": "Q539795",
+  "ro": "angioplastie",
+  "ru": "Ангиопластика"
+ },
+ "angiotensin": {
+  "qid": "Q65963433",
+  "ro": "angiotensine",
+  "ru": "Ангиотензин"
+ },
+ "angiotensin i": {
+  "qid": "Q70560144"
+ },
+ "angiotensin ii": {
+  "qid": "Q412999"
+ },
+ "angiotensin-converting enzyme": {
+  "qid": "Q128861",
+  "ro": "enzima de conversie a angiotensinei",
+  "ru": "ангиотензин-превращающий фермент"
+ },
+ "ankylosing spondylitis": {
+  "qid": "Q52849",
+  "ro": "spondilită anchilozantă",
+  "ru": "анкилозирующий спондилоартрит"
+ },
+ "annulus fibrosus": {
+  "qid": "Q4769759"
+ },
+ "anorexia": {
+  "qid": "Q131749",
+  "ro": "Anorexie nervoasă",
+  "ru": "нервная анорексия"
+ },
+ "anti-cyclic citrullinated peptide": {
+  "qid": "Q262881"
+ },
+ "antiandrogen": {
+  "qid": "Q574820",
+  "ru": "антиандроген"
+ },
+ "antibiotic": {
+  "qid": "Q12187",
+  "ro": "antibiotic",
+  "ru": "антибиотик"
+ },
+ "antibody": {
+  "qid": "Q79460",
+  "ro": "anticorp",
+  "ru": "антитела"
+ },
+ "anticoagulant": {
+  "qid": "Q215118",
+  "ro": "anticoagulant",
+  "ru": "антикоагулянты"
+ },
+ "anticoagulants": {
+  "qid": "Q215118",
+  "ro": "anticoagulant",
+  "ru": "антикоагулянты"
+ },
+ "anticonvulsants": {
+  "qid": "Q576618",
+  "ro": "anticonvulsiv",
+  "ru": "противоэпилептический препарат"
+ },
+ "antidepressant": {
+  "qid": "Q76560",
+  "ro": "antidepresiv",
+  "ru": "антидепрессант"
+ },
+ "antiemetic": {
+  "qid": "Q575136",
+  "ro": "antiemetic",
+  "ru": "противорвотные средства"
+ },
+ "antigen": {
+  "qid": "Q103537",
+  "ro": "antigen",
+  "ru": "антиген"
+ },
+ "antigen-presenting cell": {
+  "qid": "Q1047791",
+  "ru": "антигенпредставляющая клетка"
+ },
+ "antihistamine": {
+  "qid": "Q324089",
+  "ro": "antihistaminic",
+  "ru": "антигистаминный препарат"
+ },
+ "antioxidant": {
+  "qid": "Q133948",
+  "ro": "antioxidant",
+  "ru": "антиоксиданты"
+ },
+ "antipsychotic": {
+  "qid": "Q208144",
+  "ro": "antipsihotice",
+  "ru": "антипсихотический препарат"
+ },
+ "antiseptic": {
+  "qid": "Q50377188",
+  "ro": "antiseptic local",
+  "ru": "местное противоинфекционное средство"
+ },
+ "aorta": {
+  "qid": "Q101004",
+  "ro": "aortă",
+  "ru": "аорта"
+ },
+ "aortic stenosis": {
+  "qid": "Q531019",
+  "ro": "stenoză aortică",
+  "ru": "стеноз аортального клапана"
+ },
+ "aortic valve": {
+  "qid": "Q616071",
+  "ro": "valvă aortică",
+  "ru": "аортальный клапан"
+ },
+ "aphasia": {
+  "qid": "Q2836",
+  "ro": "afazie",
+  "ru": "афазия"
+ },
+ "apnea": {
+  "qid": "Q754424",
+  "ro": "apnee",
+  "ru": "апноэ"
+ },
+ "apolipoproteins": {
+  "qid": "Q416890",
+  "ro": "apolipoproteină",
+  "ru": "Аполипопротеины"
+ },
+ "apoptosis": {
+  "qid": "Q14599311",
+  "ro": "apoptoză",
+  "ru": "апоптоз"
+ },
+ "apraxia": {
+  "qid": "Q498916",
+  "ru": "апраксия"
+ },
+ "aqueous humor": {
+  "qid": "Q827681",
+  "ro": "umoare apoasă",
+  "ru": "Водянистая влага"
+ },
+ "arb": {
+  "qid": "Q18032334",
+  "ru": "Бестропин 1"
+ },
+ "arbovirus": {
+  "qid": "Q630622",
+  "ro": "Arbovirus",
+  "ru": "Арбовирусы"
+ },
+ "arousal": {
+  "qid": "Q379784",
+  "ru": "возбуждение"
+ },
+ "arrhythmia": {
+  "qid": "Q189331",
+  "ro": "aritmie cardiacă",
+  "ru": "аритмия"
+ },
+ "arterial blood gas": {
+  "qid": "Q648497",
+  "ro": "gazometrie sanguină"
+ },
+ "arterioles": {
+  "qid": "Q501908",
+  "ru": "артериола"
+ },
+ "arteriosclerosis": {
+  "qid": "Q184559",
+  "ro": "arterioscleroză",
+  "ru": "артериосклероз"
+ },
+ "arteriovenous malformation": {
+  "qid": "Q1584110",
+  "ru": "Артериовенозная мальформация"
+ },
+ "artery": {
+  "qid": "Q9655",
+  "ro": "arteră",
+  "ru": "артерия"
+ },
+ "arthritis": {
+  "qid": "Q170990",
+  "ro": "artrită",
+  "ru": "артрит"
+ },
+ "arthrocentesis": {
+  "qid": "Q4797646"
+ },
+ "arthrodesis": {
+  "qid": "Q708143",
+  "ru": "артродез"
+ },
+ "arthropathy": {
+  "qid": "Q708176",
+  "ro": "artropatie",
+  "ru": "артропатия"
+ },
+ "arthroplasty": {
+  "qid": "Q708178",
+  "ru": "эндопротезирование"
+ },
+ "arthroscopy": {
+  "qid": "Q708232",
+  "ru": "артроскопия"
+ },
+ "articular cartilage": {
+  "qid": "Q3704713"
+ },
+ "asphyxia": {
+  "qid": "Q193840",
+  "ro": "asfixie",
+  "ru": "асфиксия"
+ },
+ "aspiration": {
+  "qid": "Q19750554"
+ },
+ "aspirin": {
+  "qid": "Q18216",
+  "ro": "aspirină",
+  "ru": "ацетилсалициловая кислота"
+ },
+ "assisted living": {
+  "qid": "Q315412",
+  "ro": "centru de locuit asistat",
+  "ru": "учреждение по оказанию помощи в проживании"
+ },
+ "asthma": {
+  "qid": "Q35869",
+  "ro": "astm",
+  "ru": "бронхиальная астма"
+ },
+ "astigmatism": {
+  "qid": "Q177895",
+  "ro": "astigmatism",
+  "ru": "астигматизм"
+ },
+ "astringent": {
+  "qid": "Q378705",
+  "ru": "вяжущее средство"
+ },
+ "asystole": {
+  "qid": "Q752800",
+  "ru": "Асистолия"
+ },
+ "ataxia": {
+  "qid": "Q154709",
+  "ro": "Ataxie",
+  "ru": "Мозжечковая атаксия"
+ },
+ "atheroma": {
+  "qid": "Q1058276",
+  "ro": "Plăci ateromatoase",
+  "ru": "Атерома"
+ },
+ "atherosclerosis": {
+  "qid": "Q12252367",
+  "ro": "ateroscleroză",
+  "ru": "атеросклероз"
+ },
+ "atherosclerotic plaque": {
+  "qid": "Q1058276",
+  "ro": "Plăci ateromatoase",
+  "ru": "Атерома"
+ },
+ "atlas": {
+  "qid": "Q162827",
+  "ro": "Atlas geografic",
+  "ru": "географический атлас"
+ },
+ "atopic dermatitis": {
+  "qid": "Q268667",
+  "ro": "eczemă",
+  "ru": "атопический дерматит"
+ },
+ "atopic rhinitis": {
+  "qid": "Q272436",
+  "ro": "rinită alergică",
+  "ru": "поллиноз"
+ },
+ "atopy": {
+  "qid": "Q757678",
+  "ru": "Атопия"
+ },
+ "atp": {
+  "qid": "Q80863",
+  "ro": "adenozintrifosfat",
+  "ru": "аденозинтрифосфат"
+ },
+ "atria": {
+  "qid": "Q1074839",
+  "ru": "предсердие"
+ },
+ "atrial fibrillation": {
+  "qid": "Q815819",
+  "ro": "fibrilație atrială",
+  "ru": "фибрилляция предсердий"
+ },
+ "atrioventricular node": {
+  "qid": "Q509053"
+ },
+ "atrium": {
+  "qid": "Q1074839",
+  "ru": "предсердие"
+ },
+ "atrophy": {
+  "qid": "Q194520",
+  "ro": "atrofiere",
+  "ru": "атрофия"
+ },
+ "atypical lobular hyperplasia": {
+  "qid": "Q55779983"
+ },
+ "audiologist": {
+  "qid": "Q1644347",
+  "ro": "audiolog",
+  "ru": "аудиолог"
+ },
+ "audiometry": {
+  "qid": "Q758881",
+  "ru": "Аудиометрия"
+ },
+ "auditory nerve": {
+  "qid": "Q2519137",
+  "ru": "кохлеарный нерв"
+ },
+ "aura": {
+  "qid": "Q739481",
+  "ru": "аура"
+ },
+ "autoantibodies": {
+  "qid": "Q785022",
+  "ru": "Аутоантитела"
+ },
+ "autoimmune disease": {
+  "qid": "Q8084905",
+  "ro": "boală autoimună",
+  "ru": "аутоиммунные заболевания"
+ },
+ "autonomic nervous system": {
+  "qid": "Q171064",
+  "ro": "sistem nervos vegetativ",
+  "ru": "вегетативная нервная система"
+ },
+ "autonomic neuropathy": {
+  "qid": "Q18554095"
+ },
+ "autopsy": {
+  "qid": "Q41482",
+  "ro": "autopsie",
+  "ru": "вскрытие"
+ },
+ "av node": {
+  "qid": "Q509053"
+ },
+ "avulsion": {
+  "qid": "Q791556"
+ },
+ "axis": {
+  "qid": "Q792567",
+  "ru": "эпистрофей"
+ },
+ "axon": {
+  "qid": "Q178999",
+  "ro": "axon",
+  "ru": "аксон"
+ },
+ "axon terminal": {
+  "qid": "Q5413568"
+ },
+ "b cell": {
+  "qid": "Q188930",
+  "ro": "Limfocit B",
+  "ru": "B-лимфоциты"
+ },
+ "bacteria": {
+  "qid": "Q158013",
+  "ro": "Legionella",
+  "ru": "Легионеллы"
+ },
+ "balloon angioplasty": {
+  "qid": "Q539795",
+  "ro": "angioplastie",
+  "ru": "Ангиопластика"
+ },
+ "bariatric surgery": {
+  "qid": "Q357503",
+  "ru": "бариатрическая хирургия"
+ },
+ "barrett's esophagus": {
+  "qid": "Q808892",
+  "ru": "Пищевод Барретта"
+ },
+ "basal cell carcinoma": {
+  "qid": "Q809758",
+  "ro": "Bazaliom",
+  "ru": "базалиома"
+ },
+ "basal ganglia": {
+  "qid": "Q464210",
+  "ru": "базальные ганглии"
+ },
+ "basilar artery": {
+  "qid": "Q500339",
+  "ro": "Arteră bazilară",
+  "ru": "базилярная артерия"
+ },
+ "benign prostatic hyperplasia": {
+  "qid": "Q506659",
+  "ro": "hiperplazia benignă de prostată",
+  "ru": "аденома простаты"
+ },
+ "benzodiazepines": {
+  "qid": "Q83871",
+  "ro": "benzodiazepină",
+  "ru": "бензодиазепин"
+ },
+ "bereavement": {
+  "qid": "Q64700236",
+  "ro": "doliu",
+  "ru": "утрата"
+ },
+ "beriberi": {
+  "qid": "Q184084",
+  "ro": "beriberi",
+  "ru": "Бери-бери"
+ },
+ "beta agonists": {
+  "qid": "Q50316261"
+ },
+ "beta carotene": {
+  "qid": "Q306135",
+  "ro": "Beta-caroten",
+  "ru": "β-каротин"
+ },
+ "biguanides": {
+  "qid": "Q20064627",
+  "ru": "Бигуаниды"
+ },
+ "bile": {
+  "qid": "Q65979",
+  "ro": "bilă",
+  "ru": "жёлчь человека"
+ },
+ "bile acids": {
+  "qid": "Q413288",
+  "ro": "acid biliar",
+  "ru": "Жёлчные кислоты"
+ },
+ "binge drinking": {
+  "qid": "Q1521260",
+  "ru": "пьянство"
+ },
+ "binocular vision": {
+  "qid": "Q609543",
+  "ro": "vedere binoculară",
+  "ru": "Бинокулярное зрение"
+ },
+ "bioavailability": {
+  "qid": "Q461809",
+  "ro": "biodisponibilitate",
+  "ru": "биодоступность"
+ },
+ "biochanin a": {
+  "qid": "Q864222",
+  "ru": "Биоханин А"
+ },
+ "biofeedback": {
+  "qid": "Q864329",
+  "ro": "biofeedback",
+  "ru": "биологическая обратная связь"
+ },
+ "biomarker": {
+  "qid": "Q864574",
+  "ro": "biomarker",
+  "ru": "биомаркер"
+ },
+ "biopsy": {
+  "qid": "Q179991",
+  "ro": "biopsie",
+  "ru": "биопсия"
+ },
+ "bisphosphonate": {
+  "qid": "Q412205",
+  "ro": "bisfosfonat",
+  "ru": "бисфосфонат"
+ },
+ "blackout": {
+  "qid": "Q180007",
+  "ro": "sincopă",
+  "ru": "обморок"
+ },
+ "blepharoplasty": {
+  "qid": "Q2559992",
+  "ru": "блефаропластика"
+ },
+ "blister": {
+  "qid": "Q276469",
+  "ro": "bășică",
+  "ru": "волдырь"
+ },
+ "blood alcohol concentration": {
+  "qid": "Q886470",
+  "ro": "alcoolemie",
+  "ru": "Определение содержания алкоголя в крови"
+ },
+ "blood clot": {
+  "qid": "Q886684",
+  "ru": "кровяной сгусток"
+ },
+ "blood culture": {
+  "qid": "Q886695",
+  "ro": "hemocultură",
+  "ru": "гемокультура"
+ },
+ "blood pressure": {
+  "qid": "Q82642",
+  "ro": "tensiune sanguină",
+  "ru": "кровяное давление"
+ },
+ "blood vessels": {
+  "qid": "Q988343",
+  "ro": "vas sangvin",
+  "ru": "кровеносный сосуд"
+ },
+ "bmd": {
+  "qid": "Q2484592",
+  "ru": "Мышечная дистрофия Беккера"
+ },
+ "bmi": {
+  "qid": "Q131191",
+  "ro": "Indice de masă corporală",
+  "ru": "индекс массы тела"
+ },
+ "body mass index": {
+  "qid": "Q131191",
+  "ro": "Indice de masă corporală",
+  "ru": "индекс массы тела"
+ },
+ "bone mineral density": {
+  "qid": "Q2304401"
+ },
+ "botox": {
+  "qid": "Q208413",
+  "ro": "toxina botulinică",
+  "ru": "ботулотоксин"
+ },
+ "bph": {
+  "qid": "Q506659",
+  "ro": "hiperplazia benignă de prostată",
+  "ru": "аденома простаты"
+ },
+ "brachial plexus": {
+  "qid": "Q846961",
+  "ro": "Plexul brahial",
+  "ru": "Плечевое нервное сплетение"
+ },
+ "brachytherapy": {
+  "qid": "Q896687",
+  "ru": "Брахитерапия"
+ },
+ "bradycardia": {
+  "qid": "Q217111",
+  "ro": "bradicardie",
+  "ru": "брадикардия"
+ },
+ "brain imaging": {
+  "qid": "Q551875",
+  "ru": "нейровизуализация"
+ },
+ "brain stem": {
+  "qid": "Q182228",
+  "ro": "trunchi cerebral",
+  "ru": "мозговой ствол"
+ },
+ "brain waves": {
+  "qid": "Q60442",
+  "ru": "Нейронные колебания"
+ },
+ "broca's area": {
+  "qid": "Q728285",
+  "ro": "Aria lui Broca",
+  "ru": "Центр Брока"
+ },
+ "bronchiole": {
+  "qid": "Q502704",
+  "ru": "бронхиола"
+ },
+ "bronchodilator": {
+  "qid": "Q927234",
+  "ru": "бронхолитики"
+ },
+ "bruit": {
+  "qid": "Q3491504"
+ },
+ "bunion": {
+  "qid": "Q852574",
+  "ro": "hallux valgus",
+  "ru": "Hallux valgus"
+ },
+ "bursa": {
+  "qid": "Q1431311",
+  "ru": "Синовиальная сумка"
+ },
+ "bursitis": {
+  "qid": "Q645363",
+  "ru": "бурсит"
+ },
+ "bypass": {
+  "qid": "Q5004192",
+  "ro": "evitare",
+  "ru": "beipass"
+ },
+ "c-reactive protein": {
+  "qid": "Q422766",
+  "ro": "Proteina C reactivă",
+  "ru": "C-реактивный белок"
+ },
+ "cabg": {
+  "qid": "Q186020",
+  "ru": "аортокоронарное шунтирование"
+ },
+ "calcification": {
+  "qid": "Q933382"
+ },
+ "calcitonin": {
+  "qid": "Q24783750"
+ },
+ "calcium": {
+  "qid": "Q706",
+  "ro": "calciu",
+  "ru": "кальций"
+ },
+ "calcium channel blockers": {
+  "qid": "Q421700",
+  "ru": "антагонист кальция"
+ },
+ "callus": {
+  "qid": "Q1388855",
+  "ro": "Bătătură",
+  "ru": "Костная мозоль"
+ },
+ "cancellous bone": {
+  "qid": "Q1759640",
+  "ru": "губчатая костная ткань"
+ },
+ "cancer": {
+  "qid": "Q12078",
+  "ro": "cancer",
+  "ru": "злокачественная опухоль"
+ },
+ "capillaries": {
+  "qid": "Q103142",
+  "ro": "vas capilar",
+  "ru": "капилляр"
+ },
+ "capsaicin": {
+  "qid": "Q273169",
+  "ro": "Capsaicină",
+  "ru": "капсаицин"
+ },
+ "carbohydrate": {
+  "qid": "Q11358",
+  "ro": "carbohidrat",
+  "ru": "углеводы"
+ },
+ "carbon monoxide": {
+  "qid": "Q2025",
+  "ro": "Monoxid de carbon",
+  "ru": "угарный газ"
+ },
+ "carcinogen": {
+  "qid": "Q187661",
+  "ro": "carcinogen",
+  "ru": "канцероген"
+ },
+ "carcinogenesis": {
+  "qid": "Q1637543",
+  "ro": "carcinogeneză",
+  "ru": "канцерогенез"
+ },
+ "carcinoma": {
+  "qid": "Q33525",
+  "ro": "carcinom",
+  "ru": "карцинома"
+ },
+ "cardiac arrest": {
+  "qid": "Q202837",
+  "ro": "stop cardiorespirator",
+  "ru": "остановка сердца"
+ },
+ "cardiac catheterization": {
+  "qid": "Q1615191",
+  "ro": "cateterizare cardiacă"
+ },
+ "cardiac output": {
+  "qid": "Q596579",
+  "ru": "минутный объём кровообращения"
+ },
+ "cardiac resynchronization therapy": {
+  "qid": "Q3428020"
+ },
+ "cardiac tamponade": {
+  "qid": "Q929313",
+  "ru": "Тампонада сердца"
+ },
+ "cardiogenic shock": {
+  "qid": "Q2477062",
+  "ru": "Кардиогенный шок"
+ },
+ "cardiologist": {
+  "qid": "Q3264451",
+  "ro": "cardiolog",
+  "ru": "кардиолог"
+ },
+ "cardioplegia": {
+  "qid": "Q2145069",
+  "ru": "Кардиоплегия"
+ },
+ "cardiopulmonary bypass": {
+  "qid": "Q552304",
+  "ro": "circulație extracorporală",
+  "ru": "искусственное кровообращение"
+ },
+ "cardiopulmonary bypass machine": {
+  "qid": "Q29513568",
+  "ro": "aparat inimă-plămân",
+  "ru": "аппарат искусственного кровообращения"
+ },
+ "cardiopulmonary resuscitation": {
+  "qid": "Q185325",
+  "ro": "resuscitare cardiopulmonară",
+  "ru": "сердечно-лёгочная реанимация"
+ },
+ "carotenoids": {
+  "qid": "Q191907",
+  "ro": "carotenoidă",
+  "ru": "каротиноид"
+ },
+ "carotid artery": {
+  "qid": "Q430741",
+  "ru": "Сонная артерия"
+ },
+ "carotid artery disease": {
+  "qid": "Q18555923",
+  "ru": "заболевание сонной артерии"
+ },
+ "carotid bruit": {
+  "qid": "Q5045540"
+ },
+ "carotid endarterectomy": {
+  "qid": "Q5045544"
+ },
+ "carpal tunnel syndrome": {
+  "qid": "Q332293",
+  "ro": "Sindromul de canal carpian",
+  "ru": "синдром запястного канала"
+ },
+ "cartilage": {
+  "qid": "Q502730",
+  "ro": "cartilaj",
+  "ru": "хрящ"
+ },
+ "cartilaginous joint": {
+  "qid": "Q2865752"
+ },
+ "case-control study": {
+  "qid": "Q961652",
+  "ru": "Исследование \"случай-контроль\""
+ },
+ "cataplexy": {
+  "qid": "Q944473",
+  "ro": "cataplexie",
+  "ru": "Катаплексия"
+ },
+ "cataract": {
+  "qid": "Q127724",
+  "ro": "cataractă",
+  "ru": "катаракта"
+ },
+ "cathartic": {
+  "qid": "Q3774852"
+ },
+ "catheter": {
+  "qid": "Q652297",
+  "ro": "cateter",
+  "ru": "Катетер"
+ },
+ "cation": {
+  "qid": "Q326277",
+  "ro": "cation",
+  "ru": "катион"
+ },
+ "cauda equina": {
+  "qid": "Q1051445",
+  "ru": "Конский хвост (спинной мозг)"
+ },
+ "causalgia": {
+  "qid": "Q18555343"
+ },
+ "cavity": {
+  "qid": "Q28654015",
+  "ro": "cavitate anatomică",
+  "ru": "анатомическая полость"
+ },
+ "ccu": {
+  "qid": "Q5094647",
+  "ro": "Unitate de anestezie și terapie intensivă",
+  "ru": "Отделение реанимации и интенсивной терапии"
+ },
+ "celiac disease": {
+  "qid": "Q11088",
+  "ro": "boala celiacă",
+  "ru": "целиакия"
+ },
+ "celiac plexus": {
+  "qid": "Q612258",
+  "ru": "солнечное сплетение"
+ },
+ "cell": {
+  "qid": "Q7868",
+  "ro": "celulă",
+  "ru": "клетка"
+ },
+ "cell senescence": {
+  "qid": "Q9075999",
+  "ro": "Senescența celulară",
+  "ru": "клеточное старение"
+ },
+ "cell-mediated immunity": {
+  "qid": "Q189146",
+  "ru": "Клеточный иммунитет"
+ },
+ "cementum": {
+  "qid": "Q848382",
+  "ru": "цемент"
+ },
+ "central nervous system": {
+  "qid": "Q47273",
+  "ro": "sistemul nervos central",
+  "ru": "центральная нервная система"
+ },
+ "central sleep apnea": {
+  "qid": "Q3620651"
+ },
+ "central venous catheter": {
+  "qid": "Q190404",
+  "ru": "Центральный венозный катетер"
+ },
+ "cerebellum": {
+  "qid": "Q130983",
+  "ro": "cerebel",
+  "ru": "мозжечок"
+ },
+ "cerebral aneurysm": {
+  "qid": "Q1198391",
+  "ro": "anevrism intracranian",
+  "ru": "аневризмы сосудов головного мозга"
+ },
+ "cerebral angiography": {
+  "qid": "Q5064095",
+  "ro": "angiografie cerebrală"
+ },
+ "cerebral cortex": {
+  "qid": "Q75839",
+  "ro": "Cortex cerebral",
+  "ru": "Кора больших полушарий"
+ },
+ "cerebral hemorrhage": {
+  "qid": "Q12202",
+  "ro": "accident vascular cerebral",
+  "ru": "инсульт"
+ },
+ "cerebral infarction": {
+  "qid": "Q1209150",
+  "ro": "infarct cerebral",
+  "ru": "ишемический инсульт"
+ },
+ "cerebrovascular accident": {
+  "qid": "Q12202",
+  "ro": "accident vascular cerebral",
+  "ru": "инсульт"
+ },
+ "cervical radiculopathy": {
+  "qid": "Q9324221"
+ },
+ "cfs": {
+  "qid": "Q209733",
+  "ro": "sindromul oboselii cronice",
+  "ru": "синдром хронической усталости"
+ },
+ "chemoprevention": {
+  "qid": "Q1069606"
+ },
+ "chest drain": {
+  "qid": "Q1969019",
+  "ru": "дренаж по Бюлау"
+ },
+ "cheyne-stokes respiration": {
+  "qid": "Q1071481",
+  "ru": "Дыхание Чейна — Стокса"
+ },
+ "chlorosis": {
+  "qid": "Q1754218",
+  "ru": "этиоляция"
+ },
+ "cholecystokinin": {
+  "qid": "Q21503572",
+  "ro": "Colecistokinină",
+  "ru": "Холецистокинин"
+ },
+ "cholesterol": {
+  "qid": "Q43656",
+  "ro": "Colesterol",
+  "ru": "холестерин"
+ },
+ "cholinergic neuron": {
+  "qid": "Q12167532"
+ },
+ "chondrocalcinosis": {
+  "qid": "Q559082",
+  "ru": "Хондрокальциноз"
+ },
+ "chondrocyte": {
+  "qid": "Q775480",
+  "ru": "Хондроцит"
+ },
+ "chondromalacia": {
+  "qid": "Q18555116",
+  "ru": "хондромаляция"
+ },
+ "choroid": {
+  "qid": "Q271762",
+  "ro": "Coroida",
+  "ru": "хориоидеа"
+ },
+ "chromosome": {
+  "qid": "Q37748",
+  "ro": "cromozom",
+  "ru": "хромосома"
+ },
+ "chronic fatigue syndrome": {
+  "qid": "Q209733",
+  "ro": "sindromul oboselii cronice",
+  "ru": "синдром хронической усталости"
+ },
+ "chronic kidney disease": {
+  "qid": "Q736715",
+  "ro": "Insuficiență renală",
+  "ru": "хроническая болезнь почек"
+ },
+ "chronic pain": {
+  "qid": "Q1088113",
+  "ro": "durere cronică",
+  "ru": "хроническая боль"
+ },
+ "chronic pain syndrome": {
+  "qid": "Q1088113",
+  "ro": "durere cronică",
+  "ru": "хроническая боль"
+ },
+ "chronic paroxysmal hemicrania": {
+  "qid": "Q947829"
+ },
+ "chylomicron": {
+  "qid": "Q423126",
+  "ro": "chilomicron",
+  "ru": "Хиломикрон"
+ },
+ "chyme": {
+  "qid": "Q945611",
+  "ru": "химус"
+ },
+ "cicatricial alopecia": {
+  "qid": "Q5119338",
+  "ru": "Рубцовая алопеция"
+ },
+ "cilia": {
+  "qid": "Q180436",
+  "ro": "Cil",
+  "ru": "реснички"
+ },
+ "ciliary body": {
+  "qid": "Q1048080",
+  "ru": "цилиарное тело"
+ },
+ "circadian rhythm": {
+  "qid": "Q208353",
+  "ro": "ritmul circadian",
+  "ru": "циркадный ритм"
+ },
+ "cirrhosis": {
+  "qid": "Q147778",
+  "ro": "ciroză",
+  "ru": "цирроз печени"
+ },
+ "ck": {
+  "qid": "Q409458",
+  "ro": "Creatinfosfokinază",
+  "ru": "Креатинкиназа"
+ },
+ "classic migraine": {
+  "qid": "Q18553762"
+ },
+ "claudication": {
+  "qid": "Q2888709",
+  "ro": "Claudicație"
+ },
+ "clinical trial": {
+  "qid": "Q30612",
+  "ro": "studiu clinic",
+  "ru": "клинические исследования"
+ },
+ "cluster headache": {
+  "qid": "Q166907",
+  "ru": "кластерные головные боли"
+ },
+ "cochlea": {
+  "qid": "Q317857",
+  "ro": "cohlee",
+  "ru": "улитка"
+ },
+ "cochlear implant": {
+  "qid": "Q724965",
+  "ro": "implant cohlear",
+  "ru": "кохлеарный имплантат"
+ },
+ "coenzyme": {
+  "qid": "Q1050086",
+  "ro": "Coenzimă",
+  "ru": "кофермент"
+ },
+ "cognitive behavioral therapy": {
+  "qid": "Q1147152",
+  "ro": "terapie cognitiv-comportamentală",
+  "ru": "когнитивно-поведенческая психотерапия"
+ },
+ "cognitive impairment": {
+  "qid": "Q57859955",
+  "ro": "disfuncție cognitivă",
+  "ru": "когнитивное нарушение"
+ },
+ "cognitive reserve": {
+  "qid": "Q579471",
+  "ru": "Когнитивный резерв"
+ },
+ "colic": {
+  "qid": "Q13121526",
+  "ro": "Colică",
+  "ru": "колика"
+ },
+ "collagen": {
+  "qid": "Q26868",
+  "ro": "colagen",
+  "ru": "коллаген"
+ },
+ "collagenase": {
+  "qid": "Q304956"
+ },
+ "collateral circulation": {
+  "qid": "Q5145979",
+  "ru": "Коллатерали"
+ },
+ "colon": {
+  "qid": "Q5982337",
+  "ro": "colon",
+  "ru": "ободочная кишка человека"
+ },
+ "colonoscopy": {
+  "qid": "Q840387",
+  "ro": "coloscopie",
+  "ru": "колоноскопия"
+ },
+ "colorectal adenoma": {
+  "qid": "Q2825480",
+  "ru": "аденома толстой кишки"
+ },
+ "colostomy": {
+  "qid": "Q595453",
+  "ru": "Колостома"
+ },
+ "colostrum": {
+  "qid": "Q192746",
+  "ru": "молозиво"
+ },
+ "coma": {
+  "qid": "Q159557",
+  "ro": "comă",
+  "ru": "кома"
+ },
+ "combined hyperlipidemia": {
+  "qid": "Q5150905"
+ },
+ "common migraine": {
+  "qid": "Q3724157"
+ },
+ "communicable disease": {
+  "qid": "Q18123741",
+  "ro": "boală infecțioasă",
+  "ru": "инфекционное заболевание"
+ },
+ "compact bone": {
+  "qid": "Q1594789",
+  "ru": "компактная костная ткань"
+ },
+ "complicated grief": {
+  "qid": "Q6881260"
+ },
+ "compression fracture": {
+  "qid": "Q55234470"
+ },
+ "computed tomography": {
+  "qid": "Q32566",
+  "ro": "tomografie computerizată",
+  "ru": "компьютерная томография"
+ },
+ "conception": {
+  "qid": "Q14890574",
+  "ro": "fertilizare",
+  "ru": "оплодотворение"
+ },
+ "conductive hearing loss": {
+  "qid": "Q1581308",
+  "ru": "Кондуктивная тугоухость"
+ },
+ "cones": {
+  "qid": "Q147298",
+  "ro": "celulă cu con",
+  "ru": "колбочки"
+ },
+ "congestive heart failure": {
+  "qid": "Q181754",
+  "ro": "insuficiență cardiacă",
+  "ru": "сердечная недостаточность"
+ },
+ "conjugate vaccine": {
+  "qid": "Q5161160",
+  "ro": "vaccin conjugat"
+ },
+ "conjunctiva": {
+  "qid": "Q273554",
+  "ru": "конъюнктива"
+ },
+ "conjunctivitis": {
+  "qid": "Q167844",
+  "ro": "conjunctivită",
+  "ru": "конъюнктивит"
+ },
+ "connective tissue": {
+  "qid": "Q25615",
+  "ro": "țesut conjunctiv",
+  "ru": "соединительная ткань"
+ },
+ "consultation": {
+  "qid": "Q4014799",
+  "ru": "визит к врачу"
+ },
+ "contact dermatitis": {
+  "qid": "Q783903",
+  "ru": "контактный дерматит"
+ },
+ "continuous positive airway pressure": {
+  "qid": "Q5165502",
+  "ru": "СИПАП"
+ },
+ "continuous renal replacement therapy": {
+  "qid": "Q114396035"
+ },
+ "contractile proteins": {
+  "qid": "Q69633297"
+ },
+ "contracture": {
+  "qid": "Q1480291",
+  "ro": "contractură",
+  "ru": "Контрактура"
+ },
+ "contrast medium": {
+  "qid": "Q6849688",
+  "ro": "substanță de contrast",
+  "ru": "контрастное вещество"
+ },
+ "control group": {
+  "qid": "Q2148398",
+  "ru": "контрольная группа"
+ },
+ "contusion": {
+  "qid": "Q574491",
+  "ro": "contuzie",
+  "ru": "Ушиб"
+ },
+ "convulsion": {
+  "qid": "Q852376",
+  "ro": "convulsie",
+  "ru": "конвульсия"
+ },
+ "corn": {
+  "qid": "Q154558",
+  "ro": "bătătură",
+  "ru": "шипица"
+ },
+ "cornea": {
+  "qid": "Q168291",
+  "ro": "cornee",
+  "ru": "роговица"
+ },
+ "coronary angiography": {
+  "qid": "Q1482382",
+  "ru": "Коронарография"
+ },
+ "coronary artery bypass surgery": {
+  "qid": "Q186020",
+  "ru": "аортокоронарное шунтирование"
+ },
+ "coronary artery disease": {
+  "qid": "Q844935",
+  "ro": "Boală arterială coronariană",
+  "ru": "коронарная недостаточность"
+ },
+ "coronary care unit": {
+  "qid": "Q2604639"
+ },
+ "coronary heart disease": {
+  "qid": "Q10260689"
+ },
+ "corpus callosum": {
+  "qid": "Q223851",
+  "ru": "мозолистое тело"
+ },
+ "corpus luteum": {
+  "qid": "Q749637",
+  "ru": "Жёлтое тело"
+ },
+ "cortex": {
+  "qid": "Q2346577",
+  "ro": "cortex",
+  "ru": "кора"
+ },
+ "cortical bone": {
+  "qid": "Q1594789",
+  "ru": "компактная костная ткань"
+ },
+ "corticotropin-releasing factor": {
+  "qid": "Q386664",
+  "ru": "Кортиколиберин"
+ },
+ "cortisol": {
+  "qid": "Q190875",
+  "ro": "Cortizol",
+  "ru": "кортизол"
+ },
+ "cpap": {
+  "qid": "Q5165502",
+  "ru": "СИПАП"
+ },
+ "cpr": {
+  "qid": "Q185325",
+  "ro": "resuscitare cardiopulmonară",
+  "ru": "сердечно-лёгочная реанимация"
+ },
+ "craving": {
+  "qid": "Q391682",
+  "ru": "крейвинг"
+ },
+ "creatine kinase": {
+  "qid": "Q409458",
+  "ro": "Creatinfosfokinază",
+  "ru": "Креатинкиназа"
+ },
+ "creatinine": {
+  "qid": "Q426660",
+  "ro": "Creatinină",
+  "ru": "креатинин"
+ },
+ "crepitus": {
+  "qid": "Q615235",
+  "ru": "крепитация"
+ },
+ "creutzfeldt-jakob disease": {
+  "qid": "Q49989",
+  "ro": "Boala Creutzfeldt-Jacob",
+  "ru": "Болезнь Крейтцфельдта — Якоба"
+ },
+ "crohn's disease": {
+  "qid": "Q1472",
+  "ro": "boala Crohn",
+  "ru": "болезнь Крона"
+ },
+ "crown": {
+  "qid": "Q143720",
+  "ro": "coroană",
+  "ru": "стоматологическая коронка"
+ },
+ "crp": {
+  "qid": "Q422766",
+  "ro": "Proteina C reactivă",
+  "ru": "C-реактивный белок"
+ },
+ "cryotherapy": {
+  "qid": "Q863803",
+  "ro": "Crioterapie",
+  "ru": "Криотерапия"
+ },
+ "crystalline lens": {
+  "qid": "Q146701",
+  "ro": "cristalin",
+  "ru": "хрусталик"
+ },
+ "ct": {
+  "qid": "Q779",
+  "ro": "Connecticut",
+  "ru": "Коннектикут"
+ },
+ "ct angiography": {
+  "qid": "Q1024492",
+  "ru": "КТ-ангиография"
+ },
+ "cubital tunnel syndrome": {
+  "qid": "Q11611457"
+ },
+ "curettage": {
+  "qid": "Q1428130",
+  "ru": "Абразия"
+ },
+ "cushing's syndrome": {
+  "qid": "Q219102",
+  "ro": "Sindromul Cushing",
+  "ru": "синдром гиперкортицизма"
+ },
+ "cyanosis": {
+  "qid": "Q192120",
+  "ro": "cianoză",
+  "ru": "цианоз"
+ },
+ "cyclic guanosine monophosphate": {
+  "qid": "Q422511",
+  "ru": "Циклический гуанозинмонофосфат"
+ },
+ "cyclooxygenase": {
+  "qid": "Q410251",
+  "ro": "Ciclooxigenază",
+  "ru": "Циклооксигеназа"
+ },
+ "cyst": {
+  "qid": "Q193211",
+  "ru": "киста"
+ },
+ "cystoid macular edema": {
+  "qid": "Q18556331"
+ },
+ "cytokines": {
+  "qid": "Q212354",
+  "ro": "Citokine",
+  "ru": "Цитокины"
+ },
+ "daidzein": {
+  "qid": "Q408732",
+  "ro": "Daidzeină"
+ },
+ "dandruff": {
+  "qid": "Q117484",
+  "ro": "Mătreață",
+  "ru": "перхоть"
+ },
+ "decongestant": {
+  "qid": "Q430719",
+  "ro": "Decongestionant",
+  "ru": "антиконгестант"
+ },
+ "deep sleep": {
+  "qid": "Q3964845"
+ },
+ "deep venous thrombosis": {
+  "qid": "Q1762339",
+  "ru": "Тромбоз глубоких вен"
+ },
+ "defibrillation": {
+  "qid": "Q954202",
+  "ro": "defibrilare",
+  "ru": "дефибрилляция"
+ },
+ "defibrillator": {
+  "qid": "Q1450682",
+  "ru": "дефибриллятор"
+ },
+ "degenerative disease": {
+  "qid": "Q1755122",
+  "ro": "boală neurodegenerativă",
+  "ru": "нейродегенеративное заболевание"
+ },
+ "degenerative disk disease": {
+  "qid": "Q11773731",
+  "ru": "Дегенеративно-дистрофическое заболевание диска"
+ },
+ "delayed sleep phase syndrome": {
+  "qid": "Q1470530",
+  "ru": "Синдром задержки фазы сна"
+ },
+ "delirium": {
+  "qid": "Q160796",
+  "ro": "delir",
+  "ru": "делирий"
+ },
+ "delusion": {
+  "qid": "Q189643",
+  "ro": "delir",
+  "ru": "бред"
+ },
+ "dementia": {
+  "qid": "Q83030",
+  "ro": "demență",
+  "ru": "деменция"
+ },
+ "dementia pugilistica": {
+  "qid": "Q5114004",
+  "ru": "хроническая травматическая энцефалопатия"
+ },
+ "demulcent": {
+  "qid": "Q3512172"
+ },
+ "dendritic cells": {
+  "qid": "Q506253",
+  "ro": "celulă dendritică",
+  "ru": "дендритная клетка"
+ },
+ "denial": {
+  "qid": "Q1343202",
+  "ru": "отрицание"
+ },
+ "dental implant": {
+  "qid": "Q143680",
+  "ro": "implant dentar",
+  "ru": "Зубной имплантат"
+ },
+ "dentin": {
+  "qid": "Q189637",
+  "ru": "дентин"
+ },
+ "deoxyribonucleic acid": {
+  "qid": "Q7430",
+  "ro": "ADN",
+  "ru": "ДНК"
+ },
+ "dermal papilla": {
+  "qid": "Q2050786"
+ },
+ "dermatomyositis": {
+  "qid": "Q681160",
+  "ru": "Дерматомиозит"
+ },
+ "dermis": {
+  "qid": "Q505531",
+  "ro": "dermă",
+  "ru": "дерма"
+ },
+ "desiccated thyroid": {
+  "qid": "Q9358614"
+ },
+ "detrusor muscle": {
+  "qid": "Q568055",
+  "ru": "Детрузор мочевого пузыря"
+ },
+ "diabetes": {
+  "qid": "Q12206",
+  "ro": "diabet",
+  "ru": "сахарный диабет"
+ },
+ "diabetic ketoacidosis": {
+  "qid": "Q877827",
+  "ru": "Диабетический кетоацидоз"
+ },
+ "diabetic retinopathy": {
+  "qid": "Q631361",
+  "ru": "диабетическая ретинопатия"
+ },
+ "dialysis": {
+  "qid": "Q202301",
+  "ro": "Dializă renală",
+  "ru": "Почечный диализ"
+ },
+ "diaphragm": {
+  "qid": "Q9654",
+  "ro": "diafragmă toracică",
+  "ru": "диафрагма"
+ },
+ "diastole": {
+  "qid": "Q492905",
+  "ru": "Диастола"
+ },
+ "diastolic blood pressure": {
+  "qid": "Q42015777",
+  "ru": "диастолическое давление крови"
+ },
+ "diastolic heart failure": {
+  "qid": "Q3799239"
+ },
+ "dietary fiber": {
+  "qid": "Q215210",
+  "ro": "fibră alimentară",
+  "ru": "пищевые волокна"
+ },
+ "dietary supplements": {
+  "qid": "Q645858",
+  "ro": "supliment alimentar",
+  "ru": "биологически активные добавки"
+ },
+ "digestive tract": {
+  "qid": "Q11829360",
+  "ro": "tract gastrointestinal",
+  "ru": "желудочно-кишечный тракт"
+ },
+ "digital rectal examination": {
+  "qid": "Q29109565"
+ },
+ "dihydrotestosterone": {
+  "qid": "Q411054",
+  "ro": "Dihidrotestosteron",
+  "ru": "Дигидротестостерон"
+ },
+ "discharge": {
+  "qid": "Q102186550"
+ },
+ "discoid lupus erythematosus": {
+  "qid": "Q1228801"
+ },
+ "diskectomy": {
+  "qid": "Q3029776",
+  "ru": "Nukleotomie"
+ },
+ "diuresis": {
+  "qid": "Q584691",
+  "ru": "Диурез"
+ },
+ "diuretic": {
+  "qid": "Q200656",
+  "ro": "Diuretic",
+  "ru": "диуретик"
+ },
+ "diverticulitis": {
+  "qid": "Q1066061",
+  "ro": "Diverticulită",
+  "ru": "дивертикулит"
+ },
+ "diverticulum": {
+  "qid": "Q1141055",
+  "ru": "дивертикул"
+ },
+ "dna": {
+  "qid": "Q7430",
+  "ro": "ADN",
+  "ru": "ДНК"
+ },
+ "dnr": {
+  "qid": "Q6535129",
+  "ru": "отказ от реанимации"
+ },
+ "dobutamine": {
+  "qid": "Q422782",
+  "ru": "Добутамин"
+ },
+ "dopamine": {
+  "qid": "Q170304",
+  "ro": "dopamină",
+  "ru": "дофамин"
+ },
+ "doxazosin": {
+  "qid": "Q419939",
+  "ro": "Doxazosină",
+  "ru": "доксазозин"
+ },
+ "dressler's syndrome": {
+  "qid": "Q1258666",
+  "ru": "Постинфарктный синдром"
+ },
+ "dri": {
+  "qid": "Q899647"
+ },
+ "drusen": {
+  "qid": "Q1140528"
+ },
+ "duodenitis": {
+  "qid": "Q1266418",
+  "ru": "Дуоденит"
+ },
+ "duodenum": {
+  "qid": "Q134955",
+  "ro": "duoden",
+  "ru": "двенадцатиперстная кишка человека"
+ },
+ "dura mater": {
+  "qid": "Q1394389",
+  "ro": "Dura mater",
+  "ru": "твёрдая мозговая оболочка"
+ },
+ "dysarthria": {
+  "qid": "Q225957",
+  "ro": "disartrie",
+  "ru": "дизартрия"
+ },
+ "dyspareunia": {
+  "qid": "Q120395",
+  "ro": "dispareunie",
+  "ru": "Болезненный половой акт"
+ },
+ "dyspepsia": {
+  "qid": "Q653971",
+  "ru": "диспепсия"
+ },
+ "dysphagia": {
+  "qid": "Q623289",
+  "ro": "disfagie",
+  "ru": "Дисфагия"
+ },
+ "dysplasia": {
+  "qid": "Q1128996",
+  "ru": "дисплазия"
+ },
+ "dyspnea": {
+  "qid": "Q188008",
+  "ro": "dispnee",
+  "ru": "одышка"
+ },
+ "dystonia": {
+  "qid": "Q906492",
+  "ro": "Distonie",
+  "ru": "дистония"
+ },
+ "eardrum": {
+  "qid": "Q173801",
+  "ro": "Timpan",
+  "ru": "барабанная перепонка"
+ },
+ "earwax": {
+  "qid": "Q76418",
+  "ro": "cerumen",
+  "ru": "ушная сера"
+ },
+ "ecg": {
+  "qid": "Q79785",
+  "ro": "electrocardiogramă",
+  "ru": "электрокардиография"
+ },
+ "echocardiography": {
+  "qid": "Q216933",
+  "ro": "ecocardiografie",
+  "ru": "Эхокардиография"
+ },
+ "eclampsia": {
+  "qid": "Q552348",
+  "ro": "eclampsie",
+  "ru": "эклампсия"
+ },
+ "ectopic pregnancy": {
+  "qid": "Q207087",
+  "ro": "sarcină ectopică",
+  "ru": "внематочная беременность"
+ },
+ "ectropion": {
+  "qid": "Q662298",
+  "ru": "Выворот век"
+ },
+ "eczema": {
+  "qid": "Q229256",
+  "ro": "dermatită",
+  "ru": "дерматит"
+ },
+ "ed": {
+  "qid": "Q184674",
+  "ro": "disfuncție erectilă",
+  "ru": "эректильная дисфункция"
+ },
+ "edema": {
+  "qid": "Q152234",
+  "ro": "edem",
+  "ru": "отёк"
+ },
+ "eeg": {
+  "qid": "Q179965",
+  "ro": "Electroencefalografie",
+  "ru": "электроэнцефалография"
+ },
+ "effusion": {
+  "qid": "Q2398806",
+  "ru": "выпот"
+ },
+ "ejaculation": {
+  "qid": "Q14820885",
+  "ro": "Ejaculare",
+  "ru": "эякуляция"
+ },
+ "ejection fraction": {
+  "qid": "Q641303"
+ },
+ "ekg": {
+  "qid": "Q24089059"
+ },
+ "elastin": {
+  "qid": "Q409747",
+  "ro": "Elastină",
+  "ru": "Эластин"
+ },
+ "electroencephalogram": {
+  "qid": "Q4531136",
+  "ro": "Electroencefalogramă",
+  "ru": "электроэнцефалограмма"
+ },
+ "electrolysis": {
+  "qid": "Q64403",
+  "ro": "Electroliză",
+  "ru": "электролиз"
+ },
+ "electrolyte": {
+  "qid": "Q162908",
+  "ro": "Electrolit",
+  "ru": "электролит"
+ },
+ "electromyography": {
+  "qid": "Q507369",
+  "ro": "electromiogramă",
+  "ru": "электромиография"
+ },
+ "elimination diets": {
+  "qid": "Q14627108"
+ },
+ "ellagic acid": {
+  "qid": "Q422044",
+  "ro": "Acid elagic",
+  "ru": "Эллаговая кислота"
+ },
+ "embolic stroke": {
+  "qid": "Q12202",
+  "ro": "accident vascular cerebral",
+  "ru": "инсульт"
+ },
+ "embolism": {
+  "qid": "Q275466",
+  "ru": "эмболия"
+ },
+ "emetic": {
+  "qid": "Q1930829",
+  "ro": "Emetic",
+  "ru": "Рвотные средства"
+ },
+ "encephalitis": {
+  "qid": "Q199615",
+  "ro": "encefalită",
+  "ru": "энцефалит"
+ },
+ "endarterectomy": {
+  "qid": "Q81476"
+ },
+ "endemic": {
+  "qid": "Q506680",
+  "ro": "boală endemică",
+  "ru": "эндемические заболевания"
+ },
+ "endocarditis": {
+  "qid": "Q82504",
+  "ro": "endocardită",
+  "ru": "эндокардит"
+ },
+ "endocardium": {
+  "qid": "Q721856",
+  "ro": "Endocard",
+  "ru": "эндокард"
+ },
+ "endometrium": {
+  "qid": "Q839508",
+  "ru": "эндометрий"
+ },
+ "endorphins": {
+  "qid": "Q190528",
+  "ro": "endorfina",
+  "ru": "эндорфины"
+ },
+ "endoscope": {
+  "qid": "Q580725",
+  "ru": "эндоскоп"
+ },
+ "endoscopy": {
+  "qid": "Q212809",
+  "ro": "endoscopie",
+  "ru": "эндоскопия"
+ },
+ "endothelins": {
+  "qid": "Q106318493",
+  "ru": "Эндотелин"
+ },
+ "endothelium-derived relaxing factor": {
+  "qid": "Q207843",
+  "ro": "monoxid de azot",
+  "ru": "оксид азота(II)"
+ },
+ "enkephalin": {
+  "qid": "Q325101",
+  "ru": "Энкефалины"
+ },
+ "enoxaparin": {
+  "qid": "Q416516",
+  "ro": "Enoxaparină sodică",
+  "ru": "lobenox"
+ },
+ "enteral nutrition": {
+  "qid": "Q3879930",
+  "ru": "зондовое питание"
+ },
+ "enteric nervous system": {
+  "qid": "Q586582",
+  "ro": "sistem nervos enteric",
+  "ru": "Энтеральная нервная система"
+ },
+ "entropion": {
+  "qid": "Q1327273",
+  "ru": "Энтропион"
+ },
+ "enzyme": {
+  "qid": "Q8047",
+  "ro": "enzimă",
+  "ru": "ферменты"
+ },
+ "eosinophils": {
+  "qid": "Q107238",
+  "ro": "eozinofil",
+  "ru": "эозинофильные гранулоциты"
+ },
+ "epicondylitis": {
+  "qid": "Q2457358",
+  "ru": "golfer elbow"
+ },
+ "epidemic": {
+  "qid": "Q44512",
+  "ro": "epidemie",
+  "ru": "эпидемия"
+ },
+ "epidermis": {
+  "qid": "Q212743",
+  "ro": "epidermă",
+  "ru": "эпидермис"
+ },
+ "epidural space": {
+  "qid": "Q3966104"
+ },
+ "epinephrine": {
+  "qid": "Q132621",
+  "ro": "Adrenalină",
+  "ru": "адреналин"
+ },
+ "epithelial cells": {
+  "qid": "Q15176415",
+  "ru": "эпителиальная клетка"
+ },
+ "epithelium": {
+  "qid": "Q41301",
+  "ro": "epiteliu",
+  "ru": "эпителий"
+ },
+ "erectile dysfunction": {
+  "qid": "Q184674",
+  "ro": "disfuncție erectilă",
+  "ru": "эректильная дисфункция"
+ },
+ "ergonomics": {
+  "qid": "Q1750812",
+  "ro": "ergonomie",
+  "ru": "эргономика"
+ },
+ "eructation": {
+  "qid": "Q209789",
+  "ro": "eructație",
+  "ru": "отрыжка"
+ },
+ "erythema": {
+  "qid": "Q1166142",
+  "ro": "eritem",
+  "ru": "эритема"
+ },
+ "erythema nodosum": {
+  "qid": "Q1363738"
+ },
+ "erythrocyte sedimentation rate": {
+  "qid": "Q111208",
+  "ro": "VSH",
+  "ru": "скорость оседания эритроцитов"
+ },
+ "erythropoietin": {
+  "qid": "Q14852026",
+  "ro": "Eritropoietină",
+  "ru": "Эритропоэтин"
+ },
+ "esophagitis": {
+  "qid": "Q298230",
+  "ro": "esofagită",
+  "ru": "эзофагит"
+ },
+ "esophagus": {
+  "qid": "Q173710",
+  "ro": "esofag",
+  "ru": "пищевод человека"
+ },
+ "essential hypertension": {
+  "qid": "Q988405",
+  "ru": "эссенциальная гипертензия"
+ },
+ "esterified estrogens": {
+  "qid": "Q25091273"
+ },
+ "estradiol": {
+  "qid": "Q4721888"
+ },
+ "estrogen": {
+  "qid": "Q277954",
+  "ro": "estrogen",
+  "ru": "эстрогены"
+ },
+ "estrogen receptor": {
+  "qid": "Q5401858"
+ },
+ "etidronate": {
+  "qid": "Q2758338",
+  "ro": "Acid etidronic",
+  "ru": "оксиэтилидендифосфоновая кислота"
+ },
+ "eustachian tube": {
+  "qid": "Q320561",
+  "ro": "Trompa lui Eustachio",
+  "ru": "евстахиева труба"
+ },
+ "euthyroid": {
+  "qid": "Q3731285"
+ },
+ "executive functions": {
+  "qid": "Q783092",
+  "ro": "funcții executive",
+  "ru": "исполнительные функции"
+ },
+ "exercise": {
+  "qid": "Q219067",
+  "ro": "exercițiu fizic",
+  "ru": "физические упражнения"
+ },
+ "exophthalmos": {
+  "qid": "Q684383",
+  "ro": "Exoftalmie",
+  "ru": "экзофтальм"
+ },
+ "exostosis": {
+  "qid": "Q1384176",
+  "ru": "Экзостоз"
+ },
+ "external otitis": {
+  "qid": "Q680873",
+  "ru": "наружный отит"
+ },
+ "extubation": {
+  "qid": "Q770206"
+ },
+ "false negative": {
+  "qid": "Q1369221",
+  "ru": "ошибка второго рода"
+ },
+ "familial combined hyperlipidemia": {
+  "qid": "Q2242370"
+ },
+ "familial hypercholesterolemia": {
+  "qid": "Q2711291",
+  "ru": "Семейная гиперхолестеринемия"
+ },
+ "fat": {
+  "qid": "Q127980",
+  "ro": "grăsime",
+  "ru": "жиры"
+ },
+ "fatigue": {
+  "qid": "Q9690",
+  "ro": "epuizare",
+  "ru": "переутомление"
+ },
+ "fatty acids": {
+  "qid": "Q61476",
+  "ro": "acizi grași",
+  "ru": "жирные кислоты"
+ },
+ "fatty streak": {
+  "qid": "Q5438018",
+  "ru": "Жировая полоса"
+ },
+ "febrile": {
+  "qid": "Q38933",
+  "ro": "febră",
+  "ru": "лихорадка"
+ },
+ "fecal occult blood test": {
+  "qid": "Q2488276"
+ },
+ "femur": {
+  "qid": "Q176503",
+  "ro": "Femur",
+  "ru": "бедренная кость"
+ },
+ "fentanyl": {
+  "qid": "Q407541",
+  "ro": "fentanil",
+  "ru": "фентанил"
+ },
+ "ferritin": {
+  "qid": "Q22327449",
+  "ru": "ферритин"
+ },
+ "fetal alcohol syndrome": {
+  "qid": "Q400277",
+  "ru": "фетальный алкогольный синдром"
+ },
+ "fiber": {
+  "qid": "Q215210",
+  "ro": "fibră alimentară",
+  "ru": "пищевые волокна"
+ },
+ "fibrillation": {
+  "qid": "Q1001150",
+  "ro": "fibrilație",
+  "ru": "Фибрилляция сердца"
+ },
+ "fibrin": {
+  "qid": "Q27205",
+  "ro": "Fibrină",
+  "ru": "Фибрин"
+ },
+ "fibrinogen": {
+  "qid": "Q381899",
+  "ro": "Fibrinogen",
+  "ru": "Фибриноген"
+ },
+ "fibroadenoma": {
+  "qid": "Q1410808",
+  "ru": "фиброаденома"
+ },
+ "fibroblast": {
+  "qid": "Q463418",
+  "ro": "Fibroblast",
+  "ru": "Фибробласт"
+ },
+ "fibroid": {
+  "qid": "Q4667072",
+  "ru": "Фиброма"
+ },
+ "fibromyalgia": {
+  "qid": "Q540571",
+  "ro": "fibromialgie",
+  "ru": "фибромиалгия"
+ },
+ "fibula": {
+  "qid": "Q302896",
+  "ro": "Fibulă",
+  "ru": "малоберцовая кость"
+ },
+ "finasteride": {
+  "qid": "Q424167",
+  "ro": "Finasteride",
+  "ru": "финастерид"
+ },
+ "flat feet": {
+  "qid": "Q653200",
+  "ru": "Плоскостопие"
+ },
+ "flatulence": {
+  "qid": "Q160184",
+  "ro": "flatulență",
+  "ru": "флатуленция"
+ },
+ "flavonoids": {
+  "qid": "Q3561192",
+  "ro": "flavonoide",
+  "ru": "Флавоноиды"
+ },
+ "flexibility": {
+  "qid": "Q295130",
+  "ru": "Пластичность (экология)"
+ },
+ "floaters": {
+  "qid": "Q142807",
+  "ro": "miodezopsii",
+  "ru": "мушки летающие"
+ },
+ "fluid resuscitation": {
+  "qid": "Q4529664"
+ },
+ "fluorescein angiography": {
+  "qid": "Q1434206"
+ },
+ "fluoride": {
+  "qid": "Q44793182",
+  "ro": "fluorură",
+  "ru": "фторид"
+ },
+ "fluoroscopy": {
+  "qid": "Q614984",
+  "ru": "Рентгеноскопия"
+ },
+ "follicle": {
+  "qid": "Q866324",
+  "ro": "folicul de păr",
+  "ru": "волосяной фолликул"
+ },
+ "follicle-stimulating hormone": {
+  "qid": "Q200774",
+  "ro": "hormon foliculostimulant",
+  "ru": "фолликулостимулирующий гормон"
+ },
+ "folliculitis": {
+  "qid": "Q942755",
+  "ru": "Фолликулит"
+ },
+ "fovea": {
+  "qid": "Q865103",
+  "ru": "центральная ямка"
+ },
+ "free radical": {
+  "qid": "Q185056",
+  "ro": "radical",
+  "ru": "свободные радикалы"
+ },
+ "frontal lobe": {
+  "qid": "Q749520",
+  "ru": "лобная доля"
+ },
+ "frontotemporal lobar degeneration": {
+  "qid": "Q18579",
+  "ru": "лобно-височная дегенерация"
+ },
+ "frozen shoulder": {
+  "qid": "Q52854"
+ },
+ "fructose": {
+  "qid": "Q122043",
+  "ro": "Fructoză",
+  "ru": "фруктоза"
+ },
+ "fsh": {
+  "qid": "Q200774",
+  "ro": "hormon foliculostimulant",
+  "ru": "фолликулостимулирующий гормон"
+ },
+ "fundoplication": {
+  "qid": "Q1474190",
+  "ru": "Фундопликация по Ниссену"
+ },
+ "fungus": {
+  "qid": "Q764",
+  "ru": "грибы"
+ },
+ "furosemide": {
+  "qid": "Q388801",
+  "ro": "furosemidă",
+  "ru": "фуросемид"
+ },
+ "gamma-aminobutyric acid": {
+  "qid": "Q210021",
+  "ro": "acid γ-aminobutiric",
+  "ru": "гамма-аминомасляная кислота"
+ },
+ "ganglion": {
+  "qid": "Q108158",
+  "ro": "ganglion",
+  "ru": "ганглий"
+ },
+ "ganglion cyst": {
+  "qid": "Q1144367",
+  "ru": "Гигрома"
+ },
+ "gangrene": {
+  "qid": "Q168805",
+  "ro": "cangrenă",
+  "ru": "гангрена"
+ },
+ "gastritis": {
+  "qid": "Q183130",
+  "ro": "gastrită",
+  "ru": "гастрит"
+ },
+ "gastroesophageal reflux disease": {
+  "qid": "Q223591",
+  "ro": "boală de reflux gastroesofagian",
+  "ru": "гастроэзофагеальная рефлюксная болезнь"
+ },
+ "gastrointestinal tract": {
+  "qid": "Q11829360",
+  "ro": "tract gastrointestinal",
+  "ru": "желудочно-кишечный тракт"
+ },
+ "gastrostomy": {
+  "qid": "Q1495687",
+  "ru": "Гастростомия"
+ },
+ "gene": {
+  "qid": "Q7187",
+  "ro": "genă",
+  "ru": "ген"
+ },
+ "gene therapy": {
+  "qid": "Q213901",
+  "ro": "terapie genică",
+  "ru": "генотерапия"
+ },
+ "generic drug": {
+  "qid": "Q506319",
+  "ro": "medicament generic",
+  "ru": "Дженерик"
+ },
+ "genistein": {
+  "qid": "Q415957",
+  "ro": "Genisteină",
+  "ru": "генистеин"
+ },
+ "gerd": {
+  "qid": "Q223591",
+  "ro": "boală de reflux gastroesofagian",
+  "ru": "гастроэзофагеальная рефлюксная болезнь"
+ },
+ "geriatrician": {
+  "qid": "Q2580327",
+  "ru": "гериатр"
+ },
+ "gfr": {
+  "qid": "Q18034659"
+ },
+ "giant cell arteritis": {
+  "qid": "Q707816",
+  "ru": "болезнь Хортона"
+ },
+ "gingiva": {
+  "qid": "Q104280",
+  "ro": "gingie",
+  "ru": "дёсны"
+ },
+ "gingivitis": {
+  "qid": "Q673083",
+  "ro": "gingivită",
+  "ru": "гингивит"
+ },
+ "glasgow coma scale": {
+  "qid": "Q461644",
+  "ro": "Scara Glasgow",
+  "ru": "шкала комы Глазго"
+ },
+ "glaucoma": {
+  "qid": "Q159701",
+  "ro": "glaucom",
+  "ru": "глаукома"
+ },
+ "glenohumeral joint": {
+  "qid": "Q1758798",
+  "ru": "Плечевой сустав"
+ },
+ "glomerular filtration rate": {
+  "qid": "Q1542839",
+  "ru": "Проба Реберга — Тареева"
+ },
+ "glucagon": {
+  "qid": "Q170617",
+  "ro": "Glucagon",
+  "ru": "Глюкагон"
+ },
+ "glucocorticoids": {
+  "qid": "Q422549",
+  "ru": "глюкокортикоид"
+ },
+ "glucose": {
+  "qid": "Q37525",
+  "ro": "glucoză",
+  "ru": "глюкоза"
+ },
+ "glucose intolerance": {
+  "qid": "Q2661464",
+  "ru": "нарушение толерантности к глюкозе"
+ },
+ "glutamate": {
+  "qid": "Q1532394"
+ },
+ "glycemic index": {
+  "qid": "Q273924",
+  "ru": "гликемический индекс"
+ },
+ "glycemic load": {
+  "qid": "Q1929014",
+  "ru": "Гликемическая нагрузка"
+ },
+ "glycogen": {
+  "qid": "Q174936",
+  "ro": "Glicogen",
+  "ru": "гликоген"
+ },
+ "gnrh": {
+  "qid": "Q5581324"
+ },
+ "goblet cells": {
+  "qid": "Q813622",
+  "ru": "Бокаловидная клетка"
+ },
+ "goiter": {
+  "qid": "Q165135",
+  "ru": "зоб"
+ },
+ "gonadotropin-releasing hormone": {
+  "qid": "Q5581324"
+ },
+ "gonioscopy": {
+  "qid": "Q1414474",
+  "ru": "Гониоскопия"
+ },
+ "gout": {
+  "qid": "Q133087",
+  "ro": "gută",
+  "ru": "подагра"
+ },
+ "gram": {
+  "qid": "Q41803",
+  "ro": "gram",
+  "ru": "грамм"
+ },
+ "greenstick fracture": {
+  "qid": "Q1552265"
+ },
+ "grief": {
+  "qid": "Q1026040",
+  "ro": "durere",
+  "ru": "горе"
+ },
+ "gullet": {
+  "qid": "Q173710",
+  "ro": "esofag",
+  "ru": "пищевод человека"
+ },
+ "gum disease": {
+  "qid": "Q1059765",
+  "ru": "болезнь периодонта"
+ },
+ "gums": {
+  "qid": "Q104280",
+  "ro": "gingie",
+  "ru": "дёсны"
+ },
+ "hair bulb": {
+  "qid": "Q11913721"
+ },
+ "hallucination": {
+  "qid": "Q130741",
+  "ro": "halucinație",
+  "ru": "галлюцинация"
+ },
+ "happiness": {
+  "qid": "Q8",
+  "ro": "fericire",
+  "ru": "счастье"
+ },
+ "hashimoto's thyroiditis": {
+  "qid": "Q11094",
+  "ro": "Tiroidita Hashimoto",
+  "ru": "аутоиммунный тиреоидит"
+ },
+ "hay fever": {
+  "qid": "Q3740609",
+  "ru": "аллергический ринит"
+ },
+ "hba1c": {
+  "qid": "Q311213",
+  "ro": "hemoglobină glicată",
+  "ru": "гликированный гемоглобин"
+ },
+ "hdl": {
+  "qid": "Q410020",
+  "ru": "Липопротеины высокой плотности"
+ },
+ "hearing aid": {
+  "qid": "Q323808",
+  "ru": "слуховой аппарат"
+ },
+ "heart attack": {
+  "qid": "Q12152",
+  "ro": "infarct miocardic",
+  "ru": "инфаркт миокарда"
+ },
+ "heart block": {
+  "qid": "Q1361515",
+  "ru": "блокада сердца"
+ },
+ "heart failure": {
+  "qid": "Q181754",
+  "ro": "insuficiență cardiacă",
+  "ru": "сердечная недостаточность"
+ },
+ "heart murmur": {
+  "qid": "Q1060911",
+  "ro": "murmur cardiac",
+  "ru": "murmur"
+ },
+ "heart rate": {
+  "qid": "Q1073121",
+  "ro": "ritm cardiac",
+  "ru": "частота сердечных сокращений"
+ },
+ "heartburn": {
+  "qid": "Q537297",
+  "ro": "pirozis",
+  "ru": "изжога"
+ },
+ "heel spur": {
+  "qid": "Q15646785",
+  "ru": "Пяточная шпора"
+ },
+ "helicobacter pylori": {
+  "qid": "Q180556",
+  "ro": "Helicobacter pylori",
+  "ru": "Helicobacter pylori"
+ },
+ "helper t cells": {
+  "qid": "Q632518",
+  "ro": "Limfocit T helper",
+  "ru": "Т-хелперы"
+ },
+ "hematemesis": {
+  "qid": "Q1570161",
+  "ro": "hematemeză"
+ },
+ "hematoma": {
+  "qid": "Q468787",
+  "ro": "hematom",
+  "ru": "гематома"
+ },
+ "hematuria": {
+  "qid": "Q373597",
+  "ru": "гематурия"
+ },
+ "hemianopia": {
+  "qid": "Q363342",
+  "ro": "Hemianopsie",
+  "ru": "Гемианопсия"
+ },
+ "hemiparesis": {
+  "qid": "Q2291130",
+  "ru": "Гемипарез"
+ },
+ "hemiplegia": {
+  "qid": "Q304497",
+  "ru": "гемиплегия"
+ },
+ "hemochromatosis": {
+  "qid": "Q3144934",
+  "ru": "гемохроматоз"
+ },
+ "hemodynamic instability": {
+  "qid": "Q102187085"
+ },
+ "hemoglobin": {
+  "qid": "Q43041",
+  "ro": "hemoglobină",
+  "ru": "гемоглобины"
+ },
+ "hemoptysis": {
+  "qid": "Q647099",
+  "ro": "hemoptizie",
+  "ru": "кровохарканье"
+ },
+ "hemorrhage": {
+  "qid": "Q166019",
+  "ro": "hemoragie",
+  "ru": "кровотечение"
+ },
+ "hemorrhagic stroke": {
+  "qid": "Q1368943",
+  "ro": "hemoragie cerebrală",
+  "ru": "внутримозговое кровоизлияние"
+ },
+ "heparin": {
+  "qid": "Q190016",
+  "ro": "Heparină",
+  "ru": "гепарин"
+ },
+ "herd immunity": {
+  "qid": "Q736798",
+  "ro": "imunitate de turmă",
+  "ru": "популяционный иммунитет"
+ },
+ "herpes zoster": {
+  "qid": "Q182155",
+  "ro": "Zona zoster",
+  "ru": "опоясывающий лишай"
+ },
+ "hiatal hernia": {
+  "qid": "Q727153",
+  "ru": "грыжа пищеводного отверстия диафрагмы"
+ },
+ "high blood pressure": {
+  "qid": "Q41861",
+  "ro": "hipertensiune arterială",
+  "ru": "артериальная гипертензия"
+ },
+ "high-density lipoprotein": {
+  "qid": "Q410020",
+  "ru": "Липопротеины высокой плотности"
+ },
+ "hippocampus": {
+  "qid": "Q48360",
+  "ro": "Hipocamp",
+  "ru": "Гиппокамп"
+ },
+ "hirsutism": {
+  "qid": "Q1620594",
+  "ru": "гирсутизм"
+ },
+ "histamine": {
+  "qid": "Q61233",
+  "ro": "histamină",
+  "ru": "гистамин"
+ },
+ "hiv": {
+  "qid": "Q15787",
+  "ro": "HIV",
+  "ru": "вирус иммунодефицита человека"
+ },
+ "hives": {
+  "qid": "Q187440",
+  "ro": "Urticarie",
+  "ru": "крапивница"
+ },
+ "homeostasis": {
+  "qid": "Q103191",
+  "ro": "homeostazie",
+  "ru": "гомеостаз"
+ },
+ "homocysteine": {
+  "qid": "Q192466",
+  "ro": "Homocisteină",
+  "ru": "гомоцистеин"
+ },
+ "homocystinuria": {
+  "qid": "Q994859"
+ },
+ "hormones": {
+  "qid": "Q11364",
+  "ro": "hormon",
+  "ru": "гормон"
+ },
+ "host": {
+  "qid": "Q22327418",
+  "ro": "gazdă"
+ },
+ "hot flash": {
+  "qid": "Q1858291",
+  "ru": "прилив"
+ },
+ "hpa": {
+  "qid": "Q18035890"
+ },
+ "human immunodeficiency virus": {
+  "qid": "Q15787",
+  "ro": "HIV",
+  "ru": "вирус иммунодефицита человека"
+ },
+ "human leukocyte antigen": {
+  "qid": "Q911125",
+  "ro": "antigen leucocitar uman",
+  "ru": "Человеческий лейкоцитарный антиген"
+ },
+ "humoral immunity": {
+  "qid": "Q1142875",
+  "ru": "Гый иммунитет"
+ },
+ "huntington's disease": {
+  "qid": "Q190564",
+  "ro": "boala Huntington",
+  "ru": "болезнь Хантингтона"
+ },
+ "hyaluronic acid": {
+  "qid": "Q337231",
+  "ro": "acid hialuronic",
+  "ru": "Гиалуроновая кислота"
+ },
+ "hydrogen breath test": {
+  "qid": "Q2551557"
+ },
+ "hydrogenation": {
+  "qid": "Q214166",
+  "ro": "hidrogenare",
+  "ru": "гидрирование"
+ },
+ "hydroxyapatite": {
+  "qid": "Q413478",
+  "ro": "hidroxilapatită",
+  "ru": "Гидроксиапатит"
+ },
+ "hygiene hypothesis": {
+  "qid": "Q2109172",
+  "ru": "Гигиеническая гипотеза"
+ },
+ "hyperaldosteronism": {
+  "qid": "Q1640860",
+  "ru": "гиперальдостеронизм"
+ },
+ "hyperalgesia": {
+  "qid": "Q1633866",
+  "ru": "Гипералгезия"
+ },
+ "hypercapnia": {
+  "qid": "Q615759",
+  "ru": "гиперкапния"
+ },
+ "hypercholesterolemia": {
+  "qid": "Q762713",
+  "ru": "гиперхолестеринемия"
+ },
+ "hyperglycemia": {
+  "qid": "Q271993",
+  "ro": "hiperglicemie",
+  "ru": "гипергликемия"
+ },
+ "hyperinsulinemia": {
+  "qid": "Q14375936"
+ },
+ "hyperlipidemia": {
+  "qid": "Q1079120",
+  "ru": "гиперлипидемия"
+ },
+ "hyperopia": {
+  "qid": "Q177254",
+  "ro": "hipermetropie",
+  "ru": "дальнозоркость"
+ },
+ "hyperparathyroidism": {
+  "qid": "Q1344835",
+  "ru": "гиперпаратиреоз"
+ },
+ "hyperplasia": {
+  "qid": "Q835051",
+  "ro": "Hiperplazie",
+  "ru": "гиперплазия"
+ },
+ "hyperplastic polyp": {
+  "qid": "Q15992384"
+ },
+ "hypertension": {
+  "qid": "Q41861",
+  "ro": "hipertensiune arterială",
+  "ru": "артериальная гипертензия"
+ },
+ "hyperthyroidism": {
+  "qid": "Q16499",
+  "ru": "гипертиреоз"
+ },
+ "hypertriglyceridemia": {
+  "qid": "Q1467339",
+  "ru": "Гипертриглицеридемия"
+ },
+ "hyperuricemia": {
+  "qid": "Q49970",
+  "ru": "Гиперурикемия"
+ },
+ "hypnotic": {
+  "qid": "Q8609",
+  "ro": "hipnoză",
+  "ru": "гипноз"
+ },
+ "hypoglycemia": {
+  "qid": "Q202758",
+  "ro": "hipoglicemie",
+  "ru": "гипогликемия"
+ },
+ "hypogonadism": {
+  "qid": "Q938107",
+  "ru": "гипогонадизм"
+ },
+ "hypomania": {
+  "qid": "Q188611",
+  "ro": "hipomanie",
+  "ru": "гипомания"
+ },
+ "hypotension": {
+  "qid": "Q275419",
+  "ro": "hipotensiune",
+  "ru": "артериальная гипотензия"
+ },
+ "hypothalamus": {
+  "qid": "Q164386",
+  "ro": "hipotalamus",
+  "ru": "гипоталамус"
+ },
+ "hypothyroidism": {
+  "qid": "Q16501",
+  "ro": "hipotiroidism",
+  "ru": "гипотиреоз"
+ },
+ "hypovolemia": {
+  "qid": "Q1320276",
+  "ro": "hipovolemie",
+  "ru": "гиповолемия"
+ },
+ "hypoxemia": {
+  "qid": "Q1479485",
+  "ru": "гипоксемия"
+ },
+ "hypoxia": {
+  "qid": "Q105688",
+  "ro": "hipoxie",
+  "ru": "гипоксия"
+ },
+ "hysterectomy": {
+  "qid": "Q550675",
+  "ro": "histerectomie",
+  "ru": "гистерэктомия"
+ },
+ "ibd": {
+  "qid": "Q838966",
+  "ro": "sindromul de intestin iritabil",
+  "ru": "синдром раздражённого кишечника"
+ },
+ "icd": {
+  "qid": "Q50018",
+  "ro": "Clasificarea statistică internațională a bolilor și a problemelor de sănătate înrudite",
+  "ru": "Международная статистическая классификация болезней и проблем, связанных со здоровьем"
+ },
+ "idiopathic": {
+  "qid": "Q594841",
+  "ro": "idiopatie",
+  "ru": "идиопатическое заболевание"
+ },
+ "ige": {
+  "qid": "Q18027705"
+ },
+ "ileum": {
+  "qid": "Q233345",
+  "ro": "Ileon",
+  "ru": "подвздошная кишка человека"
+ },
+ "immunity": {
+  "qid": "Q1059",
+  "ro": "sistemul imunitar",
+  "ru": "иммунная система"
+ },
+ "immunization": {
+  "qid": "Q1415366",
+  "ro": "imunizare",
+  "ru": "иммунизация"
+ },
+ "immunoglobulin": {
+  "qid": "Q66559285",
+  "ru": "иммуноглобулин"
+ },
+ "immunoglobulin e": {
+  "qid": "Q79455",
+  "ru": "иммуноглобулин E"
+ },
+ "immunotherapy": {
+  "qid": "Q1427096",
+  "ro": "imunoterapie",
+  "ru": "иммунотерапия"
+ },
+ "impotence": {
+  "qid": "Q184674",
+  "ro": "disfuncție erectilă",
+  "ru": "эректильная дисфункция"
+ },
+ "incision": {
+  "qid": "Q4372969",
+  "ru": "порез"
+ },
+ "incontinence": {
+  "qid": "Q1147182",
+  "ro": "incontinență fecală",
+  "ru": "недержание кала"
+ },
+ "incubation period": {
+  "qid": "Q193566",
+  "ro": "Perioadă de incubație",
+  "ru": "инкубационный период"
+ },
+ "infarction": {
+  "qid": "Q207550",
+  "ro": "infarct",
+  "ru": "инфаркт"
+ },
+ "infection": {
+  "qid": "Q166231",
+  "ro": "infecție",
+  "ru": "инфекция"
+ },
+ "infectious arthritis": {
+  "qid": "Q924421",
+  "ro": "Artrită infecțioasă",
+  "ru": "септический артрит"
+ },
+ "inferior myocardial infarction": {
+  "qid": "Q18557038"
+ },
+ "inferior vena cava": {
+  "qid": "Q745438",
+  "ro": "venă cavă inferioară",
+  "ru": "нижняя полая вена"
+ },
+ "inflammation": {
+  "qid": "Q101991",
+  "ro": "inflamație",
+  "ru": "воспаление"
+ },
+ "inflammatory bowel disease": {
+  "qid": "Q917447",
+  "ro": "boli inflamatorii intestinale",
+  "ru": "воспалительное заболевание кишечника"
+ },
+ "injection": {
+  "qid": "Q245359",
+  "ro": "injecție",
+  "ru": "инъекция"
+ },
+ "innate immunity": {
+  "qid": "Q428253",
+  "ro": "sistemul imunitar înnăscut",
+  "ru": "врождённый иммунитет"
+ },
+ "inner ear": {
+  "qid": "Q212344",
+  "ro": "ureche internă",
+  "ru": "внутреннее ухо"
+ },
+ "insomnia": {
+  "qid": "Q1869874",
+  "ro": "insomnie",
+  "ru": "бессонница"
+ },
+ "insulin": {
+  "qid": "Q50265665",
+  "ro": "insulină",
+  "ru": "инсулин"
+ },
+ "insulin resistance": {
+  "qid": "Q1053470",
+  "ro": "rezistență la insulină",
+  "ru": "Инсулинорезистентность"
+ },
+ "intense pulsed light": {
+  "qid": "Q1193171",
+  "ru": "Фотоэпиляция"
+ },
+ "intensity": {
+  "qid": "Q96278582",
+  "ru": "тяжесть"
+ },
+ "intensive care unit": {
+  "qid": "Q5094647",
+  "ro": "Unitate de anestezie și terapie intensivă",
+  "ru": "Отделение реанимации и интенсивной терапии"
+ },
+ "interferons": {
+  "qid": "Q188269",
+  "ro": "interferon",
+  "ru": "Интерферон"
+ },
+ "interleukins": {
+  "qid": "Q194908",
+  "ru": "Интерлейкины"
+ },
+ "intermediate-density lipoprotein": {
+  "qid": "Q2619230",
+  "ru": "Липопротеины промежуточной плотности"
+ },
+ "intermittent claudication": {
+  "qid": "Q1097957"
+ },
+ "international normalized ratio": {
+  "qid": "Q3494432"
+ },
+ "intervention": {
+  "qid": "Q179661",
+  "ro": "tratament medical",
+  "ru": "терапия"
+ },
+ "intervertebral disk": {
+  "qid": "Q502781",
+  "ro": "disc intervertebral",
+  "ru": "межпозвоночный диск"
+ },
+ "intracerebral hemorrhage": {
+  "qid": "Q1368943",
+  "ro": "hemoragie cerebrală",
+  "ru": "внутримозговое кровоизлияние"
+ },
+ "intracranial pressure": {
+  "qid": "Q1416096",
+  "ro": "Hipertensiune intracraniană",
+  "ru": "внутричерепное давление"
+ },
+ "intraocular lens": {
+  "qid": "Q32806",
+  "ro": "Lentilă intraoculară",
+  "ru": "искусственный хрусталик"
+ },
+ "intubation": {
+  "qid": "Q939018"
+ },
+ "iodides": {
+  "qid": "Q3801340",
+  "ro": "iodură",
+  "ru": "иодид"
+ },
+ "iris": {
+  "qid": "Q178748",
+  "ro": "iris",
+  "ru": "радужная оболочка"
+ },
+ "ischemia": {
+  "qid": "Q188151",
+  "ro": "Ischemie",
+  "ru": "ишемия"
+ },
+ "ischemic heart disease": {
+  "qid": "Q1444550",
+  "ru": "ишемическая болезнь сердца"
+ },
+ "ischemic stroke": {
+  "qid": "Q107538694"
+ },
+ "islets of langerhans": {
+  "qid": "Q728309",
+  "ro": "Insulele lui Langerhans",
+  "ru": "островки Лангерганса"
+ },
+ "isolated systolic hypertension": {
+  "qid": "Q7663896",
+  "ru": "систолическая гипертензия"
+ },
+ "isotonic": {
+  "qid": "Q2591946"
+ },
+ "iu": {
+  "qid": "Q8511208",
+  "ru": "Промежуточный увеит"
+ },
+ "jejunum": {
+  "qid": "Q185765",
+  "ro": "Jejun",
+  "ru": "тощая кишка человека"
+ },
+ "jet lag": {
+  "qid": "Q192579",
+  "ru": "джетлаг"
+ },
+ "joint": {
+  "qid": "Q9644",
+  "ro": "articulație",
+  "ru": "сустав"
+ },
+ "keloid": {
+  "qid": "Q1131260",
+  "ru": "келоид"
+ },
+ "keratectomy": {
+  "qid": "Q3201118"
+ },
+ "keratin": {
+  "qid": "Q189474",
+  "ro": "Keratină",
+  "ru": "Кератины"
+ },
+ "keratinocytes": {
+  "qid": "Q1473931",
+  "ru": "Кератиноцит"
+ },
+ "keratoconjunctivitis sicca": {
+  "qid": "Q1162694",
+  "ro": "Sindromul ochiului uscat",
+  "ru": "Сухой кератоконъюнктивит"
+ },
+ "keshan disease": {
+  "qid": "Q1739759"
+ },
+ "ketones": {
+  "qid": "Q170744",
+  "ro": "cetonă",
+  "ru": "кетон"
+ },
+ "kidney failure": {
+  "qid": "Q476921",
+  "ro": "insuficiență renală",
+  "ru": "почечная недостаточность"
+ },
+ "kyphoplasty": {
+  "qid": "Q1795138"
+ },
+ "labile hypertension": {
+  "qid": "Q85775462"
+ },
+ "laceration": {
+  "qid": "Q4391416",
+  "ru": "рваная рана"
+ },
+ "lactase": {
+  "qid": "Q379764",
+  "ro": "Lactază",
+  "ru": "лактаза"
+ },
+ "lactate": {
+  "qid": "Q161249",
+  "ro": "Acid lactic",
+  "ru": "молочная кислота"
+ },
+ "lactic acidosis": {
+  "qid": "Q1500373",
+  "ro": "acidoză lactică",
+  "ru": "Лактатацидоз"
+ },
+ "lactose intolerance": {
+  "qid": "Q219223",
+  "ro": "intoleranță de lactoză",
+  "ru": "непереносимость лактозы"
+ },
+ "lacunar stroke": {
+  "qid": "Q6469117",
+  "ru": "Lacunar stroke"
+ },
+ "laminectomy": {
+  "qid": "Q1801578",
+  "ru": "ламинэктомия"
+ },
+ "langerhans cells": {
+  "qid": "Q1623344",
+  "ru": "клетки Лангерганса"
+ },
+ "laparoscopy": {
+  "qid": "Q675754",
+  "ro": "laparoscopie",
+  "ru": "лапароскопия"
+ },
+ "laparotomy": {
+  "qid": "Q1130374",
+  "ru": "лапаротомия"
+ },
+ "laser": {
+  "qid": "Q38867",
+  "ro": "laser",
+  "ru": "лазер"
+ },
+ "laser hair removal": {
+  "qid": "Q783007",
+  "ru": "Лазерная эпиляция"
+ },
+ "latex allergy": {
+  "qid": "Q1754830"
+ },
+ "laxative": {
+  "qid": "Q217972",
+  "ro": "laxativ",
+  "ru": "слабительное"
+ },
+ "ldl": {
+  "qid": "Q28749",
+  "ro": "lipoproteine de densitate mică",
+  "ru": "Липопротеины низкой плотности"
+ },
+ "left atrium": {
+  "qid": "Q1989441",
+  "ru": "левое предсердие"
+ },
+ "left ventricle": {
+  "qid": "Q876089",
+  "ru": "левый желудочек"
+ },
+ "left ventricular hypertrophy": {
+  "qid": "Q1628627"
+ },
+ "lensometer": {
+  "qid": "Q943756"
+ },
+ "leptin": {
+  "qid": "Q14851942",
+  "ro": "Leptină",
+  "ru": "Лептин"
+ },
+ "lesion": {
+  "qid": "Q827023",
+  "ro": "leziune",
+  "ru": "поражение"
+ },
+ "leukocytes": {
+  "qid": "Q42395",
+  "ro": "leucocit",
+  "ru": "лейкоцит"
+ },
+ "leukotrienes": {
+  "qid": "Q424190",
+  "ro": "Leucotrienă",
+  "ru": "Лейкотриены"
+ },
+ "levothyroxine sodium": {
+  "qid": "Q773449",
+  "ro": "levotiroxină",
+  "ru": "левотироксин натрия"
+ },
+ "lh": {
+  "qid": "Q18030596",
+  "ro": "hormonul luteinizant",
+  "ru": "Лютеинизирующий гормон"
+ },
+ "libido": {
+  "qid": "Q178066",
+  "ro": "excitare sexuală",
+  "ru": "Либидо"
+ },
+ "lice": {
+  "qid": "Q6481228",
+  "ro": "Phthiraptera",
+  "ru": "пухоеды и вши"
+ },
+ "ligament": {
+  "qid": "Q39888",
+  "ro": "ligament",
+  "ru": "связка"
+ },
+ "ligature": {
+  "qid": "Q2144381",
+  "ru": "лигатура"
+ },
+ "lignans": {
+  "qid": "Q424634",
+  "ro": "Lignan",
+  "ru": "Лигнаны"
+ },
+ "limbic system": {
+  "qid": "Q192560",
+  "ro": "sistemul limbic",
+  "ru": "Лимбическая система"
+ },
+ "liothyronine sodium": {
+  "qid": "Q327362",
+  "ro": "Triiodotironină",
+  "ru": "трийодтиронин"
+ },
+ "lipase": {
+  "qid": "Q380967",
+  "ro": "lipază",
+  "ru": "Липаза"
+ },
+ "lipids": {
+  "qid": "Q11367",
+  "ro": "lipid",
+  "ru": "липиды"
+ },
+ "lipoatrophy": {
+  "qid": "Q3500973"
+ },
+ "lipoma": {
+  "qid": "Q689985",
+  "ru": "Липома"
+ },
+ "lipoprotein": {
+  "qid": "Q28350",
+  "ro": "lipoproteină",
+  "ru": "липопротеины"
+ },
+ "lipoprotein(a)": {
+  "qid": "Q21112670",
+  "ru": "Липопротеин (a)"
+ },
+ "liposuction": {
+  "qid": "Q825490",
+  "ru": "Липосакция"
+ },
+ "liver": {
+  "qid": "Q9368",
+  "ro": "ficat",
+  "ru": "печень"
+ },
+ "living will": {
+  "qid": "Q67374899"
+ },
+ "long-term memory": {
+  "qid": "Q18601",
+  "ru": "долговременная память"
+ },
+ "low-density lipoprotein": {
+  "qid": "Q28749",
+  "ro": "lipoproteine de densitate mică",
+  "ru": "Липопротеины низкой плотности"
+ },
+ "lower esophageal sphincter": {
+  "qid": "Q3958693"
+ },
+ "lumbar puncture": {
+  "qid": "Q719444",
+  "ro": "puncție lombară",
+  "ru": "люмбальная пункция"
+ },
+ "lutein": {
+  "qid": "Q422067",
+  "ro": "lutetina",
+  "ru": "лютеин"
+ },
+ "luteinizing hormone": {
+  "qid": "Q50265477",
+  "ro": "hormonul luteinizant",
+  "ru": "Лютеинизирующий гормон"
+ },
+ "lyme disease": {
+  "qid": "Q201989",
+  "ro": "boala Lyme",
+  "ru": "болезнь Лайма"
+ },
+ "lymph nodes": {
+  "qid": "Q170758",
+  "ro": "ganglion limfatic",
+  "ru": "лимфатический узел"
+ },
+ "lymphatic system": {
+  "qid": "Q712604",
+  "ro": "sistem limfatic",
+  "ru": "лимфатическая система"
+ },
+ "lymphedema": {
+  "qid": "Q916398",
+  "ru": "Лимфостаз"
+ },
+ "lymphocyte": {
+  "qid": "Q715347",
+  "ro": "limfocit",
+  "ru": "лимфоциты"
+ },
+ "lymphoma": {
+  "qid": "Q208414",
+  "ro": "limfom",
+  "ru": "лимфома"
+ },
+ "macrocytic anemia": {
+  "qid": "Q2070695"
+ },
+ "macrophage": {
+  "qid": "Q184204",
+  "ro": "macrofag",
+  "ru": "макрофаг"
+ },
+ "macula": {
+  "qid": "Q747023",
+  "ru": "жёлтое пятно"
+ },
+ "macular degeneration": {
+  "qid": "Q27429789",
+  "ru": "макулодистрофия"
+ },
+ "magnetic resonance imaging": {
+  "qid": "Q161238",
+  "ro": "imagistică prin rezonanță magnetică",
+  "ru": "магнитно-резонансная томография"
+ },
+ "major depression": {
+  "qid": "Q42844",
+  "ro": "tulburare depresivă majoră",
+  "ru": "большое депрессивное расстройство"
+ },
+ "malaise": {
+  "qid": "Q2673323",
+  "ro": "maleza"
+ },
+ "malignant hypertension": {
+  "qid": "Q1641132",
+  "ru": "гипертонический криз"
+ },
+ "malnutrition": {
+  "qid": "Q12167",
+  "ro": "malnutriție",
+  "ru": "недоедание"
+ },
+ "mast cell": {
+  "qid": "Q191989",
+  "ru": "Тучные клетки"
+ },
+ "mastopexy": {
+  "qid": "Q1790202",
+  "ru": "Подтяжка груди"
+ },
+ "masturbation": {
+  "qid": "Q8396",
+  "ro": "masturbare",
+  "ru": "мастурбация"
+ },
+ "mechanical ventilation": {
+  "qid": "Q3766250",
+  "ro": "ventilație mecanică",
+  "ru": "механическая вентиляция"
+ },
+ "medicaid": {
+  "qid": "Q1141363",
+  "ro": "Medicaid",
+  "ru": "Медикейд"
+ },
+ "medicare": {
+  "qid": "Q559392",
+  "ro": "Medicare",
+  "ru": "Медикэр"
+ },
+ "medulla": {
+  "qid": "Q189033",
+  "ro": "Bulb rahidian",
+  "ru": "продолговатый мозг"
+ },
+ "megaloblastic anemia": {
+  "qid": "Q10832211",
+  "ru": "мегалобластная анемия"
+ },
+ "melanin": {
+  "qid": "Q187526",
+  "ro": "melanină",
+  "ru": "меланины"
+ },
+ "melanoma": {
+  "qid": "Q180614",
+  "ro": "melanom cutanat",
+  "ru": "меланома"
+ },
+ "melatonin": {
+  "qid": "Q180912",
+  "ro": "Melatonină",
+  "ru": "мелатонин"
+ },
+ "membrane": {
+  "qid": "Q1587185",
+  "ro": "membrană biologică",
+  "ru": "биологическая мембрана"
+ },
+ "meninges": {
+  "qid": "Q268930",
+  "ro": "meninge",
+  "ru": "мозговые оболочки"
+ },
+ "meningitis": {
+  "qid": "Q48143",
+  "ro": "meningită",
+  "ru": "менингит"
+ },
+ "menopause": {
+  "qid": "Q177708",
+  "ro": "menopauză",
+  "ru": "менопауза"
+ },
+ "meropenem": {
+  "qid": "Q421670",
+  "ro": "Meropenem",
+  "ru": "меропенем"
+ },
+ "metabolic syndrome": {
+  "qid": "Q657193",
+  "ru": "метаболический синдром"
+ },
+ "metabolism": {
+  "qid": "Q1057",
+  "ro": "metabolism",
+  "ru": "метаболизм"
+ },
+ "metastasis": {
+  "qid": "Q181876",
+  "ro": "metastază",
+  "ru": "метастаз"
+ },
+ "metered-dose inhaler": {
+  "qid": "Q16897784"
+ },
+ "methanobrevibacter smithii": {
+  "qid": "Q309517",
+  "ro": "Methanobrevibacter smithii",
+  "ru": "Methanobrevibacter smithii"
+ },
+ "microalbuminuria": {
+  "qid": "Q1676817"
+ },
+ "microaneurysm": {
+  "qid": "Q66133392"
+ },
+ "microgram": {
+  "qid": "Q1645498",
+  "ru": "микрограмм"
+ },
+ "micronutrients": {
+  "qid": "Q531507",
+  "ru": "микронутриент"
+ },
+ "micturition": {
+  "qid": "Q105726",
+  "ro": "micțiune",
+  "ru": "мочеиспускание"
+ },
+ "midazolam": {
+  "qid": "Q423071",
+  "ro": "Midazolam",
+  "ru": "мидазолам"
+ },
+ "middle ear": {
+  "qid": "Q501553",
+  "ro": "ureche medie",
+  "ru": "среднее ухо"
+ },
+ "migraine with aura": {
+  "qid": "Q18553762"
+ },
+ "migraine without aura": {
+  "qid": "Q3724157"
+ },
+ "mild cognitive impairment": {
+  "qid": "Q1472703"
+ },
+ "milligram": {
+  "qid": "Q3241121",
+  "ro": "miligram",
+  "ru": "миллиграмм"
+ },
+ "mindfulness": {
+  "qid": "Q341045",
+  "ro": "mindfulness",
+  "ru": "осознанность"
+ },
+ "mitochondria": {
+  "qid": "Q39572",
+  "ro": "mitocondrie",
+  "ru": "митохондрия"
+ },
+ "mitral regurgitation": {
+  "qid": "Q268292",
+  "ru": "Недостаточность митрального клапана"
+ },
+ "mitral valve": {
+  "qid": "Q369939",
+  "ru": "митральный клапан"
+ },
+ "mitral valve prolapse": {
+  "qid": "Q735652",
+  "ru": "пролапс митрального клапана"
+ },
+ "mitral valve stenosis": {
+  "qid": "Q1140794",
+  "ru": "Стеноз митрального клапана"
+ },
+ "monoclonal antibody": {
+  "qid": "Q422248",
+  "ro": "anticorp monoclonal",
+  "ru": "моноклональное антитело"
+ },
+ "monocytes": {
+  "qid": "Q107244",
+  "ro": "monocit",
+  "ru": "моноцит"
+ },
+ "motilin": {
+  "qid": "Q126440",
+  "ru": "мотилин"
+ },
+ "motor neuron": {
+  "qid": "Q1133903",
+  "ru": "мотонейрон"
+ },
+ "mri": {
+  "qid": "Q1027",
+  "ro": "Mauritius",
+  "ru": "Маврикий"
+ },
+ "mucous membrane": {
+  "qid": "Q1219805",
+  "ro": "mucoasă",
+  "ru": "слизистая оболочка"
+ },
+ "multi-infarct dementia": {
+  "qid": "Q69059904"
+ },
+ "multinodular goiter": {
+  "qid": "Q16887028"
+ },
+ "multiple sclerosis": {
+  "qid": "Q8277",
+  "ro": "scleroză multiplă",
+  "ru": "рассеянный склероз"
+ },
+ "muscle fatigue": {
+  "qid": "Q6940317",
+  "ru": "мышечная усталость"
+ },
+ "muse": {
+  "qid": "Q579348",
+  "ro": "Alprostadil",
+  "ru": "алпростадил"
+ },
+ "mutation": {
+  "qid": "Q42918",
+  "ro": "mutație genetică",
+  "ru": "мутация"
+ },
+ "myalgia": {
+  "qid": "Q474959",
+  "ro": "mialgie",
+  "ru": "миалгия"
+ },
+ "myasthenia": {
+  "qid": "Q270421",
+  "ro": "slăbiciune musculară",
+  "ru": "мышечная слабость"
+ },
+ "mydriatic": {
+  "qid": "Q1956532"
+ },
+ "myelography": {
+  "qid": "Q2122468",
+  "ru": "Миелография"
+ },
+ "myelopathy": {
+  "qid": "Q2303951",
+  "ro": "mielopatie"
+ },
+ "myocardial infarction": {
+  "qid": "Q12152",
+  "ro": "infarct miocardic",
+  "ru": "инфаркт миокарда"
+ },
+ "myocardial rupture": {
+  "qid": "Q4388752",
+  "ru": "разрыв сердца"
+ },
+ "myocarditis": {
+  "qid": "Q186235",
+  "ro": "miocardită",
+  "ru": "миокардит"
+ },
+ "myocardium": {
+  "qid": "Q84133",
+  "ro": "miocard",
+  "ru": "миокард"
+ },
+ "myocyte": {
+  "qid": "Q428914",
+  "ro": "Miocit",
+  "ru": "миоциты"
+ },
+ "myofibrils": {
+  "qid": "Q318623",
+  "ro": "miofibrilă",
+  "ru": "миофибрилла"
+ },
+ "myopia": {
+  "qid": "Q168403",
+  "ro": "Miopie",
+  "ru": "близорукость"
+ },
+ "myosin": {
+  "qid": "Q271727",
+  "ro": "miozină",
+  "ru": "Миозин"
+ },
+ "narcolepsy": {
+  "qid": "Q189561",
+  "ro": "narcolepsie",
+  "ru": "нарколепсия"
+ },
+ "nasolabial folds": {
+  "qid": "Q1425611"
+ },
+ "natural killer cells": {
+  "qid": "Q332181",
+  "ro": "limfocită NK",
+  "ru": "Естественные киллеры"
+ },
+ "nebulizer": {
+  "qid": "Q73346845",
+  "ru": "небулайзеры и ингаляторы"
+ },
+ "necrosis": {
+  "qid": "Q178069",
+  "ro": "necroză",
+  "ru": "некроз"
+ },
+ "needle biopsy": {
+  "qid": "Q72410173"
+ },
+ "neoadjuvant therapy": {
+  "qid": "Q6991934"
+ },
+ "neonatal": {
+  "qid": "Q898674",
+  "ro": "neonatologie",
+  "ru": "неонатология"
+ },
+ "neoplasm": {
+  "qid": "Q1216998",
+  "ro": "neoplasm",
+  "ru": "неоплазия"
+ },
+ "nephritis": {
+  "qid": "Q401402",
+  "ro": "nefrită",
+  "ru": "нефрит"
+ },
+ "nephropathy": {
+  "qid": "Q1054718",
+  "ro": "nefropatie",
+  "ru": "нефропатия"
+ },
+ "nerve block": {
+  "qid": "Q4379667",
+  "ru": "Проводниковая анестезия"
+ },
+ "nerve growth factor": {
+  "qid": "Q417782",
+  "ru": "Фактор роста нервов"
+ },
+ "neuralgia": {
+  "qid": "Q1136940",
+  "ru": "Невралгия"
+ },
+ "neurologist": {
+  "qid": "Q783906",
+  "ro": "neurolog",
+  "ru": "невролог"
+ },
+ "neuromuscular junction": {
+  "qid": "Q776995",
+  "ru": "нервно-мышечный синапс"
+ },
+ "neuron": {
+  "qid": "Q43054",
+  "ro": "neuron",
+  "ru": "нейрон"
+ },
+ "neuropathy": {
+  "qid": "Q945238",
+  "ro": "neuropatie periferică",
+  "ru": "периферическая невропатия"
+ },
+ "neurosurgeon": {
+  "qid": "Q9385011",
+  "ro": "neurochirurg",
+  "ru": "нейрохирург"
+ },
+ "neurosyphilis": {
+  "qid": "Q7888578",
+  "ru": "Нейросифилис"
+ },
+ "neutral spine": {
+  "qid": "Q7003025",
+  "ru": "осанка"
+ },
+ "neutropenia": {
+  "qid": "Q1435822",
+  "ro": "neutropenie"
+ },
+ "neutrophils": {
+  "qid": "Q188417",
+  "ro": "neutrofil",
+  "ru": "нейтрофильные гранулоциты"
+ },
+ "nitric oxide": {
+  "qid": "Q207843",
+  "ro": "monoxid de azot",
+  "ru": "оксид азота(II)"
+ },
+ "nitroglycerin": {
+  "qid": "Q162867",
+  "ro": "nitroglicerină",
+  "ru": "нитроглицерин"
+ },
+ "nk": {
+  "qid": "Q332181",
+  "ro": "limfocită NK",
+  "ru": "Естественные киллеры"
+ },
+ "nmda receptor": {
+  "qid": "Q414896",
+  "ru": "NMDA-рецептор"
+ },
+ "no": {
+  "qid": "Q1814990",
+  "ru": "нет"
+ },
+ "nociceptors": {
+  "qid": "Q412542",
+  "ru": "Ноцицептор"
+ },
+ "nocturia": {
+  "qid": "Q1426443",
+  "ro": "nicturie",
+  "ru": "никтурия"
+ },
+ "nodule": {
+  "qid": "Q582484",
+  "ru": "узелок"
+ },
+ "nomogram": {
+  "qid": "Q721129",
+  "ro": "Nomografie",
+  "ru": "Номограмма"
+ },
+ "non-invasive ventilation": {
+  "qid": "Q855172"
+ },
+ "nonsteroidal anti-inflammatory drug": {
+  "qid": "Q188724",
+  "ro": "antiinflamatoare non-steroidiene",
+  "ru": "нестероидный противовоспалительный препарат"
+ },
+ "noradrenaline": {
+  "qid": "Q186242",
+  "ro": "Noradrenalină",
+  "ru": "норадреналин"
+ },
+ "norepinephrine": {
+  "qid": "Q186242",
+  "ro": "Noradrenalină",
+  "ru": "норадреналин"
+ },
+ "nsaid": {
+  "qid": "Q188724",
+  "ro": "antiinflamatoare non-steroidiene",
+  "ru": "нестероидный противовоспалительный препарат"
+ },
+ "nucleus accumbens": {
+  "qid": "Q1476178",
+  "ru": "прилежащее ядро"
+ },
+ "nucleus pulposus": {
+  "qid": "Q3346043"
+ },
+ "nutrients": {
+  "qid": "Q181394",
+  "ro": "nutrient",
+  "ru": "питательное вещество"
+ },
+ "obesity": {
+  "qid": "Q12174",
+  "ro": "obezitate",
+  "ru": "ожирение"
+ },
+ "obstructive sleep apnea": {
+  "qid": "Q16606552"
+ },
+ "occipital lobe": {
+  "qid": "Q848340",
+  "ru": "Затылочная доля"
+ },
+ "occlusion": {
+  "qid": "Q968808",
+  "ru": "Окклюзия"
+ },
+ "occult": {
+  "qid": "Q178934",
+  "ro": "ocultism",
+  "ru": "оккультизм"
+ },
+ "omega-3 fatty acids": {
+  "qid": "Q191756",
+  "ro": "acid gras omega 3",
+  "ru": "Омега-3-ненасыщенные жирные кислоты"
+ },
+ "oncogene": {
+  "qid": "Q207609",
+  "ru": "Онкоген"
+ },
+ "oncologist": {
+  "qid": "Q16062369",
+  "ro": "oncolog",
+  "ru": "онколог"
+ },
+ "onychomycosis": {
+  "qid": "Q917620",
+  "ro": "Onicomicoză",
+  "ru": "онихомикоз"
+ },
+ "operating room": {
+  "qid": "Q1060822",
+  "ru": "Операционный блок"
+ },
+ "ophthalmologist": {
+  "qid": "Q12013238",
+  "ro": "oftalmolog",
+  "ru": "офтальмолог"
+ },
+ "ophthalmoscope": {
+  "qid": "Q16583733",
+  "ru": "офтальмоскоп"
+ },
+ "opioid": {
+  "qid": "Q427523",
+  "ro": "opioide",
+  "ru": "опиоид"
+ },
+ "optic disk": {
+  "qid": "Q16873995",
+  "ru": "диск зрительного нерва"
+ },
+ "optic nerve": {
+  "qid": "Q186029",
+  "ro": "nerv optic",
+  "ru": "зрительный нерв"
+ },
+ "optician": {
+  "qid": "Q1996635",
+  "ro": "optician",
+  "ru": "оптик"
+ },
+ "optimism": {
+  "qid": "Q485446",
+  "ro": "optimism",
+  "ru": "оптимизм"
+ },
+ "optometrist": {
+  "qid": "Q3354501",
+  "ro": "optometrist",
+  "ru": "оптометрист"
+ },
+ "oral glucose tolerance test": {
+  "qid": "Q1501412",
+  "ro": "test de toleranță la glucoză",
+  "ru": "глюкозотолерантный тест"
+ },
+ "oral mucosa": {
+  "qid": "Q1776131",
+  "ru": "слизистая оболочка полости рта"
+ },
+ "orbit": {
+  "qid": "Q156075",
+  "ro": "Orbita",
+  "ru": "глазница"
+ },
+ "orchiectomy": {
+  "qid": "Q58929",
+  "ro": "castrare",
+  "ru": "кастрация"
+ },
+ "orgasm": {
+  "qid": "Q5887",
+  "ro": "orgasm",
+  "ru": "оргазм"
+ },
+ "orthosis": {
+  "qid": "Q1410069",
+  "ru": "Ортез"
+ },
+ "orthostatic hypotension": {
+  "qid": "Q7104966",
+  "ru": "ортостатический коллапс"
+ },
+ "osseointegration": {
+  "qid": "Q1541818",
+  "ru": "Остеоинтеграция"
+ },
+ "ossification": {
+  "qid": "Q1121544",
+  "ro": "Osteogeneză",
+  "ru": "оссификация"
+ },
+ "osteoarthritis": {
+  "qid": "Q62736",
+  "ro": "osteoartrită",
+  "ru": "остеоартроз"
+ },
+ "osteoblasts": {
+  "qid": "Q917177",
+  "ro": "osteoblast",
+  "ru": "остеобласт"
+ },
+ "osteoclasts": {
+  "qid": "Q828410",
+  "ro": "osteoclast",
+  "ru": "остеокласт"
+ },
+ "osteocytes": {
+  "qid": "Q913236",
+  "ro": "Osteocit",
+  "ru": "Остеоциты"
+ },
+ "osteomalacia": {
+  "qid": "Q860395",
+  "ru": "остеомаляция"
+ },
+ "osteomyelitis": {
+  "qid": "Q938983",
+  "ro": "osteomielită",
+  "ru": "остеомиелит"
+ },
+ "osteopath": {
+  "qid": "Q11885948",
+  "ro": "osteopat"
+ },
+ "osteopenia": {
+  "qid": "Q1367706",
+  "ro": "ostopenie",
+  "ru": "остеопения"
+ },
+ "osteophyte": {
+  "qid": "Q923339",
+  "ru": "Остеофит"
+ },
+ "osteoporosis": {
+  "qid": "Q165328",
+  "ro": "osteoporoză",
+  "ru": "остеопороз"
+ },
+ "osteotomy": {
+  "qid": "Q2167748",
+  "ru": "остеотомия"
+ },
+ "otic capsule": {
+  "qid": "Q262489"
+ },
+ "otitis externa": {
+  "qid": "Q680873",
+  "ru": "наружный отит"
+ },
+ "otitis media": {
+  "qid": "Q223254",
+  "ro": "otită medie",
+  "ru": "средний отит"
+ },
+ "otosclerosis": {
+  "qid": "Q756610",
+  "ro": "Otoscleroză",
+  "ru": "отосклероз"
+ },
+ "outbreak": {
+  "qid": "Q44512",
+  "ro": "epidemie",
+  "ru": "эпидемия"
+ },
+ "outer ear": {
+  "qid": "Q609753",
+  "ro": "ureche externă",
+  "ru": "наружное ухо"
+ },
+ "outpatient": {
+  "qid": "Q67147922",
+  "ro": "pacient în ambulatoriu"
+ },
+ "ovariectomy": {
+  "qid": "Q1751597",
+  "ru": "Оофорэктомия"
+ },
+ "overactive bladder": {
+  "qid": "Q331231",
+  "ru": "гиперактивность мочевого пузыря"
+ },
+ "overweight": {
+  "qid": "Q332428",
+  "ru": "избыточная масса тела"
+ },
+ "ovulation": {
+  "qid": "Q187082",
+  "ru": "овуляция"
+ },
+ "oxidant": {
+  "qid": "Q187689",
+  "ro": "agent oxidant",
+  "ru": "окислитель"
+ },
+ "oxygen saturation": {
+  "qid": "Q3045040",
+  "ru": "Тканевая оксиметрия"
+ },
+ "oxygenated blood": {
+  "qid": "Q618362",
+  "ru": "артериальная кровь"
+ },
+ "pacemaker": {
+  "qid": "Q372713",
+  "ro": "stimulator cardiac",
+  "ru": "электрокардиостимулятор"
+ },
+ "pad": {
+  "qid": "Q378681",
+  "ro": "boala arterială periferică",
+  "ru": "заболевание периферических артерий"
+ },
+ "palate": {
+  "qid": "Q172605",
+  "ro": "Palatul tare",
+  "ru": "нёбо"
+ },
+ "palliative care": {
+  "qid": "Q29483",
+  "ro": "îngrijire paliativă",
+  "ru": "паллиативная помощь"
+ },
+ "palpitation": {
+  "qid": "Q1123260",
+  "ro": "Palpitații",
+  "ru": "нарушенное сердцебиение"
+ },
+ "palsy": {
+  "qid": "Q68212673"
+ },
+ "pancreas": {
+  "qid": "Q9618",
+  "ro": "pancreas",
+  "ru": "поджелудочная железа"
+ },
+ "pandemic": {
+  "qid": "Q12184",
+  "ro": "pandemie",
+  "ru": "пандемия"
+ },
+ "papillary muscles": {
+  "qid": "Q1913658"
+ },
+ "paraplegia": {
+  "qid": "Q1049655",
+  "ru": "параплегия"
+ },
+ "parasomnias": {
+  "qid": "Q559869",
+  "ru": "парасомния"
+ },
+ "parasympathetic nervous system": {
+  "qid": "Q185589",
+  "ro": "sistem nervos parasimpatic",
+  "ru": "парасимпатическая нервная система"
+ },
+ "parathyroid hormone": {
+  "qid": "Q202476",
+  "ro": "Parathormon",
+  "ru": "Паратиреоидный гормон"
+ },
+ "parenteral nutrition": {
+  "qid": "Q21653202",
+  "ru": "Парентеральное питание"
+ },
+ "parietal lobe": {
+  "qid": "Q815334",
+  "ro": "Lobul parietal",
+  "ru": "теменная доля"
+ },
+ "parkinson's disease": {
+  "qid": "Q11085",
+  "ro": "boala Parkinson",
+  "ru": "болезнь Паркинсона"
+ },
+ "paroxysmal hemicrania": {
+  "qid": "Q42324521"
+ },
+ "patch test": {
+  "qid": "Q1347105",
+  "ru": "аппликационный тест"
+ },
+ "patella": {
+  "qid": "Q229081",
+  "ro": "patelă",
+  "ru": "надколенник"
+ },
+ "pathology": {
+  "qid": "Q7208",
+  "ro": "patologie",
+  "ru": "патология"
+ },
+ "patient-controlled analgesia": {
+  "qid": "Q73522917"
+ },
+ "pcos": {
+  "qid": "Q500816",
+  "ro": "sindromul ovarelor polichistice",
+  "ru": "синдром поликистозных яичников"
+ },
+ "pellagra": {
+  "qid": "Q221441",
+  "ro": "pelagră",
+  "ru": "Пеллагра"
+ },
+ "pelvic floor": {
+  "qid": "Q813683",
+  "ru": "Диафрагма таза"
+ },
+ "penile prosthesis": {
+  "qid": "Q2069010",
+  "ru": "имплантат полового члена"
+ },
+ "peptic ulcer": {
+  "qid": "Q172941",
+  "ro": "ulcer gastric",
+  "ru": "язва желудка"
+ },
+ "percutaneous coronary intervention": {
+  "qid": "Q2008344",
+  "ru": "чрескожное коронарное вмешательство"
+ },
+ "percutaneous diskectomy": {
+  "qid": "Q7167195"
+ },
+ "percutaneous electrical nerve stimulation": {
+  "qid": "Q11784952",
+  "ru": "электроакупунктура"
+ },
+ "performance anxiety": {
+  "qid": "Q135399683"
+ },
+ "perfusion": {
+  "qid": "Q640448",
+  "ro": "perfuzie intravenoasă",
+  "ru": "внутривенное вливание"
+ },
+ "pericarditis": {
+  "qid": "Q501561",
+  "ro": "pericardita",
+  "ru": "перикардит"
+ },
+ "pericardium": {
+  "qid": "Q193302",
+  "ro": "pericard",
+  "ru": "перикард"
+ },
+ "perimenopause": {
+  "qid": "Q1268526"
+ },
+ "perineum": {
+  "qid": "Q105499",
+  "ro": "perineu",
+  "ru": "промежность"
+ },
+ "periodic limb movement disorder": {
+  "qid": "Q13038909"
+ },
+ "periodization": {
+  "qid": "Q7579936"
+ },
+ "periodontal disease": {
+  "qid": "Q1059765",
+  "ru": "болезнь периодонта"
+ },
+ "periodontitis": {
+  "qid": "Q520127",
+  "ro": "parodontită",
+  "ru": "пародонтит"
+ },
+ "peripheral artery disease": {
+  "qid": "Q378681",
+  "ro": "boala arterială periferică",
+  "ru": "заболевание периферических артерий"
+ },
+ "peripheral nervous system": {
+  "qid": "Q169953",
+  "ro": "sistem nervos periferic",
+  "ru": "периферическая нервная система"
+ },
+ "peripheral neuropathy": {
+  "qid": "Q945238",
+  "ro": "neuropatie periferică",
+  "ru": "периферическая невропатия"
+ },
+ "peripheral vascular disease": {
+  "qid": "Q26695607",
+  "ru": "периферическое сосудистое заболевание"
+ },
+ "peristalsis": {
+  "qid": "Q308695",
+  "ro": "Peristaltism",
+  "ru": "перистальтика"
+ },
+ "peritoneal dialysis": {
+  "qid": "Q1756474",
+  "ru": "Перитонеодиализ"
+ },
+ "peritonitis": {
+  "qid": "Q223102",
+  "ro": "peritonită",
+  "ru": "перитонит"
+ },
+ "pernicious anemia": {
+  "qid": "Q1346016",
+  "ro": "anemia pernicioasă",
+  "ru": "пернициозная анемия"
+ },
+ "pessary": {
+  "qid": "Q174952",
+  "ru": "пессарий"
+ },
+ "pessimism": {
+  "qid": "Q484954",
+  "ro": "pesimism",
+  "ru": "пессимизм"
+ },
+ "pet scan": {
+  "qid": "Q208376",
+  "ro": "tomografie cu emisie de pozitroni",
+  "ru": "позитронно-эмиссионная томография"
+ },
+ "petechiae": {
+  "qid": "Q1412657",
+  "ro": "peteșii",
+  "ru": "петехия"
+ },
+ "phacoemulsification": {
+  "qid": "Q558352",
+  "ru": "Факоэмульсификация"
+ },
+ "phagocytes": {
+  "qid": "Q107647",
+  "ro": "fagocit",
+  "ru": "фагоцит"
+ },
+ "phenothiazines": {
+  "qid": "Q16023748",
+  "ru": "фенотиазин"
+ },
+ "photocoagulation": {
+  "qid": "Q73523884",
+  "ru": "коагуляция светом"
+ },
+ "photodynamic therapy": {
+  "qid": "Q1428072",
+  "ro": "Terapie fotodinamică",
+  "ru": "Фотодинамическая терапия"
+ },
+ "photophobia": {
+  "qid": "Q281289",
+  "ro": "fotofobie",
+  "ru": "светобоязнь"
+ },
+ "photopsia": {
+  "qid": "Q1305428",
+  "ru": "фотопсия"
+ },
+ "photorefractive keratectomy": {
+  "qid": "Q565832",
+  "ru": "Фоторефракционная кератэктомия"
+ },
+ "physiatrist": {
+  "qid": "Q2012484",
+  "ro": "fiziatru",
+  "ru": "физиотерапевт"
+ },
+ "physical fitness": {
+  "qid": "Q309252",
+  "ro": "condiție fizică",
+  "ru": "фитнес"
+ },
+ "physiotherapy": {
+  "qid": "Q186005",
+  "ro": "fizioterapie",
+  "ru": "Медицинская физическая реабилитация (ЛФК)"
+ },
+ "phytochemicals": {
+  "qid": "Q1639139",
+  "ro": "fitonutrient",
+  "ru": "фитохимикалы"
+ },
+ "phytoestrogen": {
+  "qid": "Q414496",
+  "ro": "Fitoestrogen",
+  "ru": "Фитоэстрогены"
+ },
+ "pick's disease": {
+  "qid": "Q18576",
+  "ru": "болезнь Пика"
+ },
+ "pineal gland": {
+  "qid": "Q198654",
+  "ro": "Glandă pineală",
+  "ru": "шишковидное тело"
+ },
+ "pituitary gland": {
+  "qid": "Q156871",
+  "ro": "hipofiză",
+  "ru": "гипофиз"
+ },
+ "placebo": {
+  "qid": "Q269829",
+  "ro": "placebo",
+  "ru": "плацебо"
+ },
+ "placebo effect": {
+  "qid": "Q16303139",
+  "ru": "Эффект плацебо"
+ },
+ "plantar fascia": {
+  "qid": "Q383204",
+  "ru": "подошвенная фасция"
+ },
+ "plantar fasciitis": {
+  "qid": "Q52851",
+  "ro": "fasciita plantară",
+  "ru": "плантарный фасциит"
+ },
+ "plantar wart": {
+  "qid": "Q2251669",
+  "ru": "Подошвенные бородавки"
+ },
+ "plaque": {
+  "qid": "Q143504",
+  "ro": "placă bacteriană",
+  "ru": "Зубной налёт"
+ },
+ "plasma": {
+  "qid": "Q10251",
+  "ro": "plasmă",
+  "ru": "плазма"
+ },
+ "plasma cells": {
+  "qid": "Q250694",
+  "ro": "Plasmocit",
+  "ru": "плазматическая клетка"
+ },
+ "plasmin": {
+  "qid": "Q2619971",
+  "ro": "Plasmină",
+  "ru": "фибринолизин"
+ },
+ "platelet": {
+  "qid": "Q101026",
+  "ro": "trombocit",
+  "ru": "тромбоцит"
+ },
+ "platelets": {
+  "qid": "Q101026",
+  "ro": "trombocit",
+  "ru": "тромбоцит"
+ },
+ "pleural effusion": {
+  "qid": "Q1334541",
+  "ro": "pneumonie",
+  "ru": "плевральный выпот"
+ },
+ "pneumonia": {
+  "qid": "Q12192",
+  "ro": "pneumonie",
+  "ru": "пневмония"
+ },
+ "pneumothorax": {
+  "qid": "Q203601",
+  "ro": "pneumotorax",
+  "ru": "пневмоторакс"
+ },
+ "podiatrist": {
+  "qid": "Q3393065",
+  "ro": "medic podolog"
+ },
+ "poliosis": {
+  "qid": "Q567852"
+ },
+ "polycystic ovary syndrome": {
+  "qid": "Q500816",
+  "ro": "sindromul ovarelor polichistice",
+  "ru": "синдром поликистозных яичников"
+ },
+ "polydipsia": {
+  "qid": "Q635195",
+  "ro": "polidipsie",
+  "ru": "полидипсия"
+ },
+ "polymyositis": {
+  "qid": "Q980926",
+  "ru": "полимиозит"
+ },
+ "polyp": {
+  "qid": "Q657665",
+  "ro": "polip",
+  "ru": "полип"
+ },
+ "polysomnography": {
+  "qid": "Q1754874",
+  "ru": "полисомнография"
+ },
+ "polyuria": {
+  "qid": "Q1124286",
+  "ro": "poliurie",
+  "ru": "полиурия"
+ },
+ "positive psychology": {
+  "qid": "Q718809",
+  "ro": "psihologie pozitivă",
+  "ru": "позитивная психология"
+ },
+ "positron emission tomography": {
+  "qid": "Q208376",
+  "ro": "tomografie cu emisie de pozitroni",
+  "ru": "позитронно-эмиссионная томография"
+ },
+ "post-traumatic headache": {
+  "qid": "Q3664169"
+ },
+ "post-traumatic stress disorder": {
+  "qid": "Q202387",
+  "ro": "tulburare de stres posttraumatic",
+  "ru": "посттравматическое стрессовое расстройство"
+ },
+ "posterior chamber": {
+  "qid": "Q760318",
+  "ru": "задняя камера"
+ },
+ "posterior myocardial infarction": {
+  "qid": "Q18557034"
+ },
+ "postherpetic neuralgia": {
+  "qid": "Q182155",
+  "ro": "Zona zoster",
+  "ru": "опоясывающий лишай"
+ },
+ "postmenopausal osteoporosis": {
+  "qid": "Q55950294"
+ },
+ "postmenopause": {
+  "qid": "Q69565005"
+ },
+ "postpartum": {
+  "qid": "Q749115",
+  "ru": "послеродовой период"
+ },
+ "potassium": {
+  "qid": "Q703",
+  "ro": "potasiu",
+  "ru": "калий"
+ },
+ "power": {
+  "qid": "Q25107",
+  "ro": "putere",
+  "ru": "власть"
+ },
+ "prazosin": {
+  "qid": "Q425296",
+  "ro": "Prazosină",
+  "ru": "празозин"
+ },
+ "prediabetes": {
+  "qid": "Q2087205",
+  "ru": "предиабет"
+ },
+ "preeclampsia": {
+  "qid": "Q61335",
+  "ro": "preeclampsie",
+  "ru": "преэклампсия"
+ },
+ "prehypertension": {
+  "qid": "Q7239981"
+ },
+ "premature atrial contraction": {
+  "qid": "Q7240236",
+  "ru": "Преждевременное сокращение предсердий"
+ },
+ "premature ejaculation": {
+  "qid": "Q319312",
+  "ro": "ejaculare precoce",
+  "ru": "Преждевременная эякуляция"
+ },
+ "premature ventricular contraction": {
+  "qid": "Q26781137",
+  "ru": "Желудочковая экстрасистолия"
+ },
+ "presbycusis": {
+  "qid": "Q1756133"
+ },
+ "pressure ulcer": {
+  "qid": "Q308978",
+  "ro": "escară",
+  "ru": "Пролежень"
+ },
+ "priapism": {
+  "qid": "Q156590",
+  "ro": "priapism",
+  "ru": "приапизм"
+ },
+ "prick test": {
+  "qid": "Q2045012",
+  "ru": "Прик-тест"
+ },
+ "primary hypertension": {
+  "qid": "Q988405",
+  "ru": "эссенциальная гипертензия"
+ },
+ "prion": {
+  "qid": "Q47051",
+  "ro": "prion",
+  "ru": "прионы"
+ },
+ "probiotic": {
+  "qid": "Q1816730",
+  "ro": "probiotic",
+  "ru": "пробиотики"
+ },
+ "procalcitonin": {
+  "qid": "Q786600",
+  "ru": "прокальцитонин"
+ },
+ "prodrome": {
+  "qid": "Q1140331",
+  "ru": "Продромальный период"
+ },
+ "progesterone": {
+  "qid": "Q26963",
+  "ro": "progesteron",
+  "ru": "прогестерон"
+ },
+ "progestin": {
+  "qid": "Q11320751",
+  "ru": "прогестин"
+ },
+ "progestogen": {
+  "qid": "Q45071",
+  "ru": "прогестогены"
+ },
+ "prognosis": {
+  "qid": "Q592442",
+  "ru": "прогноз"
+ },
+ "prolapse": {
+  "qid": "Q2112703",
+  "ro": "Prolaps",
+  "ru": "Пролапс"
+ },
+ "propofol": {
+  "qid": "Q422740",
+  "ro": "Propofol",
+  "ru": "пропофол"
+ },
+ "proprioception": {
+  "qid": "Q1129066",
+  "ro": "analizator kinestezic",
+  "ru": "проприоцепция"
+ },
+ "proptosis": {
+  "qid": "Q684383",
+  "ro": "Exoftalmie",
+  "ru": "экзофтальм"
+ },
+ "prospective study": {
+  "qid": "Q2113324"
+ },
+ "prostaglandins": {
+  "qid": "Q209717",
+  "ro": "Prostaglandină",
+  "ru": "простагландины"
+ },
+ "prostate cancer": {
+  "qid": "Q181257",
+  "ro": "cancer de prostată",
+  "ru": "рак простаты"
+ },
+ "prostate gland": {
+  "qid": "Q9625",
+  "ro": "prostată",
+  "ru": "предстательная железа"
+ },
+ "prostate-specific antigen": {
+  "qid": "Q409450",
+  "ru": "простатический специфический антиген"
+ },
+ "prostatism": {
+  "qid": "Q67517771"
+ },
+ "prostatitis": {
+  "qid": "Q372752",
+  "ro": "prostatită",
+  "ru": "простатит"
+ },
+ "prosthesis": {
+  "qid": "Q181802",
+  "ro": "Proteză",
+  "ru": "протез"
+ },
+ "protease inhibitor": {
+  "qid": "Q166774",
+  "ru": "ингибитор протеазы"
+ },
+ "protein": {
+  "qid": "Q8054",
+  "ro": "proteină",
+  "ru": "белок"
+ },
+ "pruritus": {
+  "qid": "Q199602",
+  "ro": "Mâncărime",
+  "ru": "зуд"
+ },
+ "psa": {
+  "qid": "Q1196567",
+  "ro": "mesaj de interes public",
+  "ru": "социальная реклама"
+ },
+ "pseudoephedrine": {
+  "qid": "Q263958",
+  "ru": "(+)-псевдоэфедрин"
+ },
+ "pseudogout": {
+  "qid": "Q559082",
+  "ru": "Хондрокальциноз"
+ },
+ "psoriasis": {
+  "qid": "Q179945",
+  "ro": "Psoriazis",
+  "ru": "псориаз"
+ },
+ "psychodynamic therapy": {
+  "qid": "Q2279219",
+  "ro": "psihoterapie psihodinamică",
+  "ru": "Психодинамическая терапия"
+ },
+ "psychosomatic": {
+  "qid": "Q3410143"
+ },
+ "ptosis": {
+  "qid": "Q622427",
+  "ru": "птоз верхнего века"
+ },
+ "ptsd": {
+  "qid": "Q202387",
+  "ro": "tulburare de stres posttraumatic",
+  "ru": "посттравматическое стрессовое расстройство"
+ },
+ "puborectalis muscle": {
+  "qid": "Q842547"
+ },
+ "pudendal nerve": {
+  "qid": "Q1753038",
+  "ro": "nerv pudendal",
+  "ru": "половой нерв"
+ },
+ "pulmonary edema": {
+  "qid": "Q857667",
+  "ro": "edem pulmonar",
+  "ru": "отёк лёгких"
+ },
+ "pulmonary embolism": {
+  "qid": "Q220570",
+  "ro": "embolie pulmonară",
+  "ru": "тромбоэмболия лёгочной артерии"
+ },
+ "pulmonary veins": {
+  "qid": "Q535352",
+  "ro": "vene pulmonare",
+  "ru": "лёгочная вена"
+ },
+ "pulp": {
+  "qid": "Q48286",
+  "ru": "пульпа зуба"
+ },
+ "pulse pressure": {
+  "qid": "Q1759415",
+  "ro": "Presiune cardiovasculară de puls",
+  "ru": "пульсовое давление"
+ },
+ "pupil": {
+  "qid": "Q48282",
+  "ro": "student",
+  "ru": "ученик"
+ },
+ "pus": {
+  "qid": "Q105943",
+  "ro": "Puroi",
+  "ru": "гной"
+ },
+ "pyridoxine": {
+  "qid": "Q423746",
+  "ro": "Piridoxină",
+  "ru": "Пиридоксин"
+ },
+ "quadriplegia": {
+  "qid": "Q944758",
+  "ru": "тетраплегия"
+ },
+ "quarantine": {
+  "qid": "Q182899",
+  "ro": "carantină",
+  "ru": "карантин"
+ },
+ "radial tunnel syndrome": {
+  "qid": "Q3961656"
+ },
+ "radiation": {
+  "qid": "Q18335",
+  "ro": "radiație",
+  "ru": "излучение"
+ },
+ "radiculopathy": {
+  "qid": "Q175180",
+  "ru": "Радикулопатия"
+ },
+ "rales": {
+  "qid": "Q973331",
+  "ru": "хрипы"
+ },
+ "randomized controlled trial": {
+  "qid": "Q1436668",
+  "ru": "рандомизированное контролируемое испытание"
+ },
+ "range of motion": {
+  "qid": "Q494478"
+ },
+ "rapid eye movement sleep": {
+  "qid": "Q211402",
+  "ro": "Mișcare rapidă a ochilor",
+  "ru": "фаза быстрого сна"
+ },
+ "rct": {
+  "qid": "Q1436668",
+  "ru": "рандомизированное контролируемое испытание"
+ },
+ "reactive arthritis": {
+  "qid": "Q1327700",
+  "ru": "синдром Рейтера"
+ },
+ "rectocele": {
+  "qid": "Q964891"
+ },
+ "rectum": {
+  "qid": "Q158716",
+  "ro": "rect",
+  "ru": "прямая кишка человека"
+ },
+ "regurgitation": {
+  "qid": "Q1930043",
+  "ru": "регургитация"
+ },
+ "rejection": {
+  "qid": "Q112206836"
+ },
+ "relapse": {
+  "qid": "Q2292472"
+ },
+ "rem": {
+  "qid": "Q190444",
+  "ro": "pământuri rare",
+  "ru": "редкоземельные элементы"
+ },
+ "renal artery stenosis": {
+  "qid": "Q515376",
+  "ro": "stenoza arterei renale"
+ },
+ "renin": {
+  "qid": "Q258915",
+  "ro": "Renină",
+  "ru": "Ренин"
+ },
+ "reperfusion": {
+  "qid": "Q11834229"
+ },
+ "respiration": {
+  "qid": "Q9530",
+  "ro": "respirație",
+  "ru": "дыхание"
+ },
+ "respiratory failure": {
+  "qid": "Q767485",
+  "ro": "insuficiență respiratorie",
+  "ru": "дыхательная недостаточность"
+ },
+ "restenosis": {
+  "qid": "Q6590597"
+ },
+ "restless legs syndrome": {
+  "qid": "Q916280",
+  "ro": "sindromul picioarelor neliniștite",
+  "ru": "синдром беспокойных ног"
+ },
+ "resuscitation": {
+  "qid": "Q5491454",
+  "ro": "resuscitare",
+  "ru": "реанимация"
+ },
+ "retina": {
+  "qid": "Q169342",
+  "ro": "retină",
+  "ru": "сетчатка"
+ },
+ "retinal detachment": {
+  "qid": "Q625164",
+  "ru": "отслоение сетчатки"
+ },
+ "retinoid": {
+  "qid": "Q420418",
+  "ru": "ретиноид"
+ },
+ "retrograde ejaculation": {
+  "qid": "Q1759920",
+  "ru": "Ретроградная эякуляция"
+ },
+ "retrospective study": {
+  "qid": "Q70436236"
+ },
+ "revascularization": {
+  "qid": "Q7317735"
+ },
+ "rheumatic disease": {
+  "qid": "Q684924",
+  "ro": "reumatism",
+  "ru": "Ревматизм"
+ },
+ "rheumatism": {
+  "qid": "Q684924",
+  "ro": "reumatism",
+  "ru": "Ревматизм"
+ },
+ "rheumatoid arthritis": {
+  "qid": "Q187255",
+  "ro": "artrită reumatoidă",
+  "ru": "ревматоидный артрит"
+ },
+ "rheumatoid factor": {
+  "qid": "Q702883",
+  "ru": "Ревматоидный фактор"
+ },
+ "rheumatologist": {
+  "qid": "Q5997943",
+  "ru": "ревматолог"
+ },
+ "rheumatology": {
+  "qid": "Q327657",
+  "ro": "reumatologie",
+  "ru": "ревматология"
+ },
+ "rhinoplasty": {
+  "qid": "Q840929",
+  "ro": "Rinoplastia",
+  "ru": "ринопластика"
+ },
+ "rhytidectomy": {
+  "qid": "Q1423937",
+  "ru": "Подтяжка лица"
+ },
+ "right atrium": {
+  "qid": "Q1652353",
+  "ru": "правое предсердие"
+ },
+ "right coronary artery": {
+  "qid": "Q429285",
+  "ru": "правая коронарная артерия"
+ },
+ "right ventricle": {
+  "qid": "Q1308310",
+  "ru": "правый желудочек"
+ },
+ "ringworm": {
+  "qid": "Q1909343",
+  "ru": "трихофития"
+ },
+ "rinne test": {
+  "qid": "Q1759298",
+  "ru": "Акуметр"
+ },
+ "risk factor": {
+  "qid": "Q1475848",
+  "ro": "factor de risc",
+  "ru": "фактор риска"
+ },
+ "rls": {
+  "qid": "Q916280",
+  "ro": "sindromul picioarelor neliniștite",
+  "ru": "синдром беспокойных ног"
+ },
+ "rods": {
+  "qid": "Q12145303",
+  "ru": "род"
+ },
+ "root": {
+  "qid": "Q41500",
+  "ro": "rădăcină",
+  "ru": "корень"
+ },
+ "root canal": {
+  "qid": "Q848390",
+  "ru": "корневой канал"
+ },
+ "root canal therapy": {
+  "qid": "Q905815",
+  "ru": "перепломбировка каналов зуба"
+ },
+ "rosacea": {
+  "qid": "Q831530",
+  "ru": "розацеа"
+ },
+ "rotator cuff": {
+  "qid": "Q1764136",
+  "ro": "Coiful rotatorilor",
+  "ru": "Вращательная манжета плеча"
+ },
+ "rupture": {
+  "qid": "Q1624736",
+  "ru": "Разрыв"
+ },
+ "sacroiliitis": {
+  "qid": "Q2213687",
+  "ru": "сакроилеит"
+ },
+ "sacrum": {
+  "qid": "Q233316",
+  "ro": "15:55",
+  "ru": "крестец"
+ },
+ "sad": {
+  "qid": "Q169251",
+  "ro": "tristețe",
+  "ru": "грусть"
+ },
+ "saline": {
+  "qid": "Q275792",
+  "ro": "Ser fiziologic",
+  "ru": "изотонический раствор"
+ },
+ "salivary gland": {
+  "qid": "Q134938",
+  "ro": "glandă salivară",
+  "ru": "слюнные железы"
+ },
+ "saphenous vein": {
+  "qid": "Q30015816",
+  "ru": "подкожная вена"
+ },
+ "sarcolemma": {
+  "qid": "Q1545001",
+  "ru": "Сарколемма"
+ },
+ "sarcoma": {
+  "qid": "Q223911",
+  "ro": "Sarcom",
+  "ru": "саркома"
+ },
+ "sausage digit": {
+  "qid": "Q517782"
+ },
+ "schlemm's canal": {
+  "qid": "Q1535320",
+  "ro": "canalul Schlemm",
+  "ru": "канал Шлемма"
+ },
+ "sciatica": {
+  "qid": "Q565276",
+  "ro": "sciatică",
+  "ru": "ишиас"
+ },
+ "sclera": {
+  "qid": "Q193107",
+  "ro": "Sclerotică",
+  "ru": "склера"
+ },
+ "scleroderma": {
+  "qid": "Q958797",
+  "ro": "Scleroderma",
+  "ru": "системная склеродермия"
+ },
+ "scoliosis": {
+  "qid": "Q174857",
+  "ro": "scolioză",
+  "ru": "сколиоз"
+ },
+ "scotoma": {
+  "qid": "Q950591",
+  "ru": "Скотома"
+ },
+ "scurvy": {
+  "qid": "Q163865",
+  "ro": "scorbut",
+  "ru": "Цинга"
+ },
+ "seasonal affective disorder": {
+  "qid": "Q1051223",
+  "ru": "Сезонное аффективное расстройство"
+ },
+ "sebaceous gland": {
+  "qid": "Q212328",
+  "ro": "glandă sebacee",
+  "ru": "сальные железы"
+ },
+ "seborrheic dermatitis": {
+  "qid": "Q448310",
+  "ro": "Seboree",
+  "ru": "себорейный дерматит"
+ },
+ "secondary hypertension": {
+  "qid": "Q987319"
+ },
+ "secretion": {
+  "qid": "Q84230",
+  "ro": "secreție",
+  "ru": "секреция"
+ },
+ "sed rate": {
+  "qid": "Q111208",
+  "ro": "VSH",
+  "ru": "скорость оседания эритроцитов"
+ },
+ "sedation": {
+  "qid": "Q574801",
+  "ru": "седация"
+ },
+ "sedative": {
+  "qid": "Q847705",
+  "ro": "Sedativ",
+  "ru": "Седативные средства"
+ },
+ "seizure": {
+  "qid": "Q852376",
+  "ro": "convulsie",
+  "ru": "конвульсия"
+ },
+ "self-help group": {
+  "qid": "Q107584900"
+ },
+ "senescence": {
+  "qid": "Q438971",
+  "ro": "senilitate",
+  "ru": "дряхлость"
+ },
+ "senile dementia": {
+  "qid": "Q11610626"
+ },
+ "sensorineural hearing loss": {
+  "qid": "Q928697",
+  "ru": "Нейросенсорная тугоухость"
+ },
+ "sepsis": {
+  "qid": "Q183134",
+  "ro": "septicemie",
+  "ru": "сепсис"
+ },
+ "septic shock": {
+  "qid": "Q1765564",
+  "ro": "șoc septic",
+  "ru": "септический шок"
+ },
+ "septicemia": {
+  "qid": "Q183134",
+  "ro": "septicemie",
+  "ru": "сепсис"
+ },
+ "septum": {
+  "qid": "Q30104011",
+  "ru": "межсердечная перегородка"
+ },
+ "serms": {
+  "qid": "Q903917",
+  "ru": "Селективные модуляторы эстрогенных рецепторов"
+ },
+ "seroma": {
+  "qid": "Q727291",
+  "ru": "Серома"
+ },
+ "serotonin": {
+  "qid": "Q167934",
+  "ro": "serotonină",
+  "ru": "серотонин"
+ },
+ "sesamoiditis": {
+  "qid": "Q4411017"
+ },
+ "set": {
+  "qid": "Q7456220"
+ },
+ "sexual dysfunction": {
+  "qid": "Q1137463",
+  "ro": "disfuncție sexuală",
+  "ru": "сексуальная дисфункция"
+ },
+ "shock": {
+  "qid": "Q178061",
+  "ro": "șoc",
+  "ru": "шок"
+ },
+ "short-term memory": {
+  "qid": "Q18599",
+  "ro": "memorie de scurtă durată",
+  "ru": "кратковременная память"
+ },
+ "shunt": {
+  "qid": "Q5038334"
+ },
+ "side effect": {
+  "qid": "Q2047938",
+  "ro": "efect advers",
+  "ru": "нежелательное явление"
+ },
+ "sigmoid colon": {
+  "qid": "Q677253",
+  "ro": "colon sigmoid",
+  "ru": "сигмовидная кишка"
+ },
+ "sigmoidoscopy": {
+  "qid": "Q941169",
+  "ru": "ректороманоскопия"
+ },
+ "sildenafil citrate": {
+  "qid": "Q27126379"
+ },
+ "sinoatrial node": {
+  "qid": "Q286020",
+  "ru": "водитель ритма сердца"
+ },
+ "sinus node": {
+  "qid": "Q286020",
+  "ru": "водитель ритма сердца"
+ },
+ "sinus rhythm": {
+  "qid": "Q44492277"
+ },
+ "sleep apnea": {
+  "qid": "Q213600",
+  "ro": "apnee în somn",
+  "ru": "апноэ во сне"
+ },
+ "sleep paralysis": {
+  "qid": "Q486851",
+  "ro": "paralizie în somn",
+  "ru": "сонный паралич"
+ },
+ "sling": {
+  "qid": "Q5099515"
+ },
+ "slit lamp": {
+  "qid": "Q965041",
+  "ru": "Щелевая лампа"
+ },
+ "slow-wave sleep": {
+  "qid": "Q3964845"
+ },
+ "small intestine": {
+  "qid": "Q11090",
+  "ro": "intestin subțire",
+  "ru": "тонкая кишка"
+ },
+ "sodium": {
+  "qid": "Q658",
+  "ro": "sodiu",
+  "ru": "натрий"
+ },
+ "somatization": {
+  "qid": "Q2723947",
+  "ru": "соматизация"
+ },
+ "somnambulism": {
+  "qid": "Q388626",
+  "ro": "somnambulism",
+  "ru": "сомнамбулизм"
+ },
+ "spasm": {
+  "qid": "Q574360",
+  "ro": "spasm",
+  "ru": "спазм"
+ },
+ "sphincter": {
+  "qid": "Q746416",
+  "ro": "sfincter",
+  "ru": "Сфинктер"
+ },
+ "sphygmomanometer": {
+  "qid": "Q503968",
+  "ru": "сфигмоманометр"
+ },
+ "spina bifida": {
+  "qid": "Q844717",
+  "ro": "spină bifidă",
+  "ru": "Расщепление позвоночника"
+ },
+ "spinal fusion": {
+  "qid": "Q770609",
+  "ru": "спондилодез"
+ },
+ "spinal stenosis": {
+  "qid": "Q1478321",
+  "ro": "stenoză spinală",
+  "ru": "Стеноз позвоночного канала"
+ },
+ "spinal tap": {
+  "qid": "Q719444",
+  "ro": "puncție lombară",
+  "ru": "люмбальная пункция"
+ },
+ "spinous process": {
+  "qid": "Q915235",
+  "ru": "остистый отросток"
+ },
+ "spirometry": {
+  "qid": "Q653305",
+  "ro": "spirometrie",
+  "ru": "спирометрия"
+ },
+ "splenic flexure syndrome": {
+  "qid": "Q838966",
+  "ro": "sindromul de intestin iritabil",
+  "ru": "синдром раздражённого кишечника"
+ },
+ "spondylolisthesis": {
+  "qid": "Q973524",
+  "ru": "смещение позвонка"
+ },
+ "spondylosis": {
+  "qid": "Q1097028",
+  "ro": "spondiloză",
+  "ru": "спондилёз"
+ },
+ "spongy bone": {
+  "qid": "Q1759640",
+  "ru": "губчатая костная ткань"
+ },
+ "sprain": {
+  "qid": "Q470747",
+  "ro": "entorsă",
+  "ru": "растяжение связок"
+ },
+ "sputum": {
+  "qid": "Q259346",
+  "ro": "expectorație",
+  "ru": "мокрота"
+ },
+ "squamous cell": {
+  "qid": "Q66562845"
+ },
+ "stable angina": {
+  "qid": "Q3617336"
+ },
+ "stages of change": {
+  "qid": "Q495240"
+ },
+ "stenosis": {
+  "qid": "Q2343082",
+  "ro": "stenoza",
+  "ru": "стеноз"
+ },
+ "stent": {
+  "qid": "Q1325542",
+  "ro": "stent",
+  "ru": "стент"
+ },
+ "sterilization": {
+  "qid": "Q191618",
+  "ro": "sterilizare",
+  "ru": "стерилизация"
+ },
+ "steroids": {
+  "qid": "Q177911",
+  "ro": "steroid",
+  "ru": "стероиды"
+ },
+ "stimulant": {
+  "qid": "Q211036",
+  "ro": "stimulent",
+  "ru": "психостимулятор"
+ },
+ "stomach": {
+  "qid": "Q1029907",
+  "ro": "stomac",
+  "ru": "желудок человека"
+ },
+ "strain": {
+  "qid": "Q576145"
+ },
+ "strength": {
+  "qid": "Q1785966",
+  "ru": "физическая сила"
+ },
+ "strength training": {
+  "qid": "Q12834857",
+  "ru": "силовой тренинг"
+ },
+ "streptokinase": {
+  "qid": "Q24770617"
+ },
+ "stress": {
+  "qid": "Q123414",
+  "ro": "stres",
+  "ru": "стресс"
+ },
+ "stress fracture": {
+  "qid": "Q41392",
+  "ru": "стрессовый перелом"
+ },
+ "stria": {
+  "qid": "Q596942",
+  "ru": "Стрии"
+ },
+ "stroke": {
+  "qid": "Q12202",
+  "ro": "accident vascular cerebral",
+  "ru": "инсульт"
+ },
+ "stupor": {
+  "qid": "Q268594",
+  "ru": "ступор"
+ },
+ "subacute thyroiditis": {
+  "qid": "Q4368173",
+  "ru": "Подострый тиреоидит"
+ },
+ "subarachnoid hemorrhage": {
+  "qid": "Q693442",
+  "ru": "субарахноидальное кровоизлияние"
+ },
+ "subarachnoid space": {
+  "qid": "Q2361541",
+  "ru": "субарахноидальное пространство"
+ },
+ "subcutaneous tissue": {
+  "qid": "Q1164665",
+  "ro": "hipoderm",
+  "ru": "Подкожная ткань"
+ },
+ "subdural hematoma": {
+  "qid": "Q3144926",
+  "ro": "hematom subdural",
+  "ru": "Субдуральная гематома"
+ },
+ "substance abuse": {
+  "qid": "Q3184856",
+  "ro": "abuz de substanțe",
+  "ru": "злоупотребление веществом"
+ },
+ "substance dependence": {
+  "qid": "Q182413",
+  "ro": "toxicomanie",
+  "ru": "токсикомания"
+ },
+ "sulcus": {
+  "qid": "Q2560248",
+  "ru": "Борозда (нейроанатомия)"
+ },
+ "sundowning": {
+  "qid": "Q3916681",
+  "ru": "вечерняя спутанность"
+ },
+ "superior vena cava": {
+  "qid": "Q736995",
+  "ro": "vena cavă superioară",
+  "ru": "верхняя полая вена"
+ },
+ "suppository": {
+  "qid": "Q180799",
+  "ro": "supozitor",
+  "ru": "суппозитории"
+ },
+ "suprachiasmatic nucleus": {
+  "qid": "Q1156516",
+  "ru": "Супрахиазмальное ядро"
+ },
+ "supraventricular tachycardia": {
+  "qid": "Q1598909",
+  "ru": "суправентрикулярная тахикардия"
+ },
+ "suture": {
+  "qid": "Q17148674"
+ },
+ "sympathetic nervous system": {
+  "qid": "Q187215",
+  "ro": "sistem nervos simpatic",
+  "ru": "симпатическая нервная система"
+ },
+ "synapse": {
+  "qid": "Q187181",
+  "ro": "sinapsă",
+  "ru": "синапс"
+ },
+ "syncope": {
+  "qid": "Q180007",
+  "ro": "sincopă",
+  "ru": "обморок"
+ },
+ "synovectomy": {
+  "qid": "Q971969"
+ },
+ "synovial fluid": {
+  "qid": "Q25581",
+  "ru": "Синовиальная жидкость"
+ },
+ "synovial joint": {
+  "qid": "Q2741512",
+  "ru": "синовиальное соединение"
+ },
+ "synovitis": {
+  "qid": "Q538432",
+  "ru": "Синовит"
+ },
+ "synovium": {
+  "qid": "Q575064",
+  "ro": "membrană sinovială",
+  "ru": "синовиальная оболочка"
+ },
+ "systemic": {
+  "qid": "Q139894076"
+ },
+ "systemic lupus erythematosus": {
+  "qid": "Q1485",
+  "ro": "lupus eritematos sistemic",
+  "ru": "системная красная волчанка"
+ },
+ "systole": {
+  "qid": "Q496359",
+  "ro": "Suflu cardiac sistolic",
+  "ru": "систола"
+ },
+ "systolic blood pressure": {
+  "qid": "Q42015775",
+  "ru": "систолическое давление крови"
+ },
+ "systolic heart failure": {
+  "qid": "Q17326470"
+ },
+ "t cell": {
+  "qid": "Q193529",
+  "ro": "Limfocit T",
+  "ru": "T-лимфоцит"
+ },
+ "t lymphocyte": {
+  "qid": "Q193529",
+  "ro": "Limfocit T",
+  "ru": "T-лимфоцит"
+ },
+ "tachycardia": {
+  "qid": "Q209583",
+  "ro": "tahicardie",
+  "ru": "тахикардия"
+ },
+ "tamoxifen": {
+  "qid": "Q412178",
+  "ro": "tamoxifen",
+  "ru": "тамоксифен"
+ },
+ "tamsulosin": {
+  "qid": "Q418480",
+  "ru": "тамсулозин"
+ },
+ "tardive dyskinesia": {
+  "qid": "Q1546328",
+  "ru": "поздняя дискинезия"
+ },
+ "tarsal coalition": {
+  "qid": "Q15666414"
+ },
+ "tartar": {
+  "qid": "Q144037",
+  "ro": "tartru dentar",
+  "ru": "Зубной камень"
+ },
+ "tdd": {
+  "qid": "Q73401802",
+  "ru": "местное применение"
+ },
+ "tempo": {
+  "qid": "Q209120",
+  "ru": "TEMPO"
+ },
+ "temporal lobe": {
+  "qid": "Q744385",
+  "ro": "lob temporal",
+  "ru": "височная доля"
+ },
+ "tendinitis": {
+  "qid": "Q499574",
+  "ru": "Тендинит"
+ },
+ "tendon": {
+  "qid": "Q232358",
+  "ro": "tendon",
+  "ru": "сухожилие"
+ },
+ "tendonitis": {
+  "qid": "Q499574",
+  "ru": "Тендинит"
+ },
+ "tenosynovitis": {
+  "qid": "Q1505689",
+  "ru": "тендовагинит"
+ },
+ "tens": {
+  "qid": "Q142091",
+  "ru": "Электромиостимуляция"
+ },
+ "tension headache": {
+  "qid": "Q1338684",
+  "ru": "Головная боль напряжения"
+ },
+ "terazosin": {
+  "qid": "Q280786"
+ },
+ "testosterone": {
+  "qid": "Q1318776",
+  "ro": "Testosteron",
+  "ru": "тестостерон"
+ },
+ "thalamus": {
+  "qid": "Q184215",
+  "ro": "talamus",
+  "ru": "таламус"
+ },
+ "thiazolidinediones": {
+  "qid": "Q133300652",
+  "ro": "tiazolidindionă",
+  "ru": "тиазолидиндионы"
+ },
+ "thrombolysis": {
+  "qid": "Q1931577",
+  "ro": "Tromboliză",
+  "ru": "Тромболитическая терапия"
+ },
+ "thrombosis": {
+  "qid": "Q261327",
+  "ro": "tromboză",
+  "ru": "тромбоз"
+ },
+ "thunderclap headache": {
+  "qid": "Q4121036"
+ },
+ "thymus": {
+  "qid": "Q163987",
+  "ro": "timus",
+  "ru": "тимус"
+ },
+ "thyroid gland": {
+  "qid": "Q16399",
+  "ro": "glandă tiroidă",
+  "ru": "щитовидная железа"
+ },
+ "thyroid hormone": {
+  "qid": "Q422106",
+  "ro": "hormoni tiroidieni",
+  "ru": "тиреоидный гормон"
+ },
+ "thyroid-stimulating hormone": {
+  "qid": "Q211544",
+  "ru": "Тиреотропный гормон"
+ },
+ "thyroidectomy": {
+  "qid": "Q1351681",
+  "ru": "Тиреоидэктомия"
+ },
+ "thyroiditis": {
+  "qid": "Q11835644",
+  "ru": "Тиреоидит"
+ },
+ "thyrotoxicosis": {
+  "qid": "Q3991731"
+ },
+ "thyroxine": {
+  "qid": "Q216852",
+  "ro": "tiroxină",
+  "ru": "тироксин"
+ },
+ "tia": {
+  "qid": "Q593958",
+  "ro": "Atacul ischemic tranzitoriu",
+  "ru": "транзиторная ишемическая атака"
+ },
+ "tibia": {
+  "qid": "Q178366",
+  "ro": "tibie",
+  "ru": "большеберцовая кость"
+ },
+ "tic douloureux": {
+  "qid": "Q1132120",
+  "ru": "невралгия тройничного нерва"
+ },
+ "ticlopidine": {
+  "qid": "Q420571",
+  "ro": "Ticlopidină"
+ },
+ "tincture": {
+  "qid": "Q969804",
+  "ro": "Tinctură",
+  "ru": "настойка"
+ },
+ "tinea capitis": {
+  "qid": "Q650766",
+  "ru": "Трихофития"
+ },
+ "tinea pedis": {
+  "qid": "Q5609817",
+  "ro": "piciorul atletului",
+  "ru": "нога спортсмена"
+ },
+ "tinnitus": {
+  "qid": "Q192309",
+  "ro": "Tinitus",
+  "ru": "тиннитус"
+ },
+ "tissue": {
+  "qid": "Q40397",
+  "ro": "țesut",
+  "ru": "ткань"
+ },
+ "tissue plasminogen activator": {
+  "qid": "Q24738954"
+ },
+ "tooth decay": {
+  "qid": "Q133772",
+  "ro": "carie dentară",
+  "ru": "кариес зубов"
+ },
+ "toxic": {
+  "qid": "Q139827081"
+ },
+ "toxin": {
+  "qid": "Q184651",
+  "ro": "toxină",
+  "ru": "токсин"
+ },
+ "tpa": {
+  "qid": "Q1644947",
+  "ro": "Tenecteplază",
+  "ru": "тенектеплаза"
+ },
+ "trabecular bone": {
+  "qid": "Q1759640",
+  "ru": "губчатая костная ткань"
+ },
+ "trabecular meshwork": {
+  "qid": "Q750873",
+  "ru": "Трабекулярная сеть"
+ },
+ "trabeculectomy": {
+  "qid": "Q3177088",
+  "ru": "Трабекулоэктомия"
+ },
+ "tracheostomy": {
+  "qid": "Q324921",
+  "ru": "трахеостомия"
+ },
+ "tracheotomy": {
+  "qid": "Q324921",
+  "ru": "трахеостомия"
+ },
+ "traction": {
+  "qid": "Q1385001",
+  "ru": "Тракция"
+ },
+ "trans fatty acid": {
+  "qid": "Q243465",
+  "ro": "grăsimi trans",
+  "ru": "Транс-жиры"
+ },
+ "transcutaneous electrical nerve stimulation": {
+  "qid": "Q142091",
+  "ru": "Электромиостимуляция"
+ },
+ "transdermal": {
+  "qid": "Q139845574"
+ },
+ "transfer": {
+  "qid": "Q1820378"
+ },
+ "transient ischemic attack": {
+  "qid": "Q593958",
+  "ro": "Atacul ischemic tranzitoriu",
+  "ru": "транзиторная ишемическая атака"
+ },
+ "transplantation": {
+  "qid": "Q105196",
+  "ro": "transplant",
+  "ru": "трансплантация"
+ },
+ "transurethral resection of the prostate": {
+  "qid": "Q1759552"
+ },
+ "traumatic grief": {
+  "qid": "Q6881260"
+ },
+ "tremor": {
+  "qid": "Q7944",
+  "ro": "cutremur",
+  "ru": "землетрясение"
+ },
+ "tricuspid regurgitation": {
+  "qid": "Q1780241",
+  "ru": "Недостаточность трёхстворчатого клапана"
+ },
+ "tricuspid valve": {
+  "qid": "Q1344255",
+  "ro": "valvă tricuspidă",
+  "ru": "трикуспидальный клапан"
+ },
+ "tricyclic antidepressant": {
+  "qid": "Q908843",
+  "ro": "antidepresiv triciclic",
+  "ru": "трициклический антидепрессант"
+ },
+ "trigeminal neuralgia": {
+  "qid": "Q1132120",
+  "ru": "невралгия тройничного нерва"
+ },
+ "trigger point": {
+  "qid": "Q741032",
+  "ru": "Триггерная точка"
+ },
+ "triglyceride": {
+  "qid": "Q186319",
+  "ro": "trigliceridă",
+  "ru": "жиры"
+ },
+ "triiodothyronine": {
+  "qid": "Q327362",
+  "ro": "Triiodotironină",
+  "ru": "трийодтиронин"
+ },
+ "troponin": {
+  "qid": "Q7846262",
+  "ru": "Тропонин"
+ },
+ "trust": {
+  "qid": "Q659974",
+  "ro": "încredere",
+  "ru": "доверие"
+ },
+ "trypsin": {
+  "qid": "Q127450",
+  "ro": "Tripsină",
+  "ru": "Трипсин"
+ },
+ "tsh": {
+  "qid": "Q211544",
+  "ru": "Тиреотропный гормон"
+ },
+ "tumor": {
+  "qid": "Q133212",
+  "ro": "tumoare",
+  "ru": "опухоль"
+ },
+ "tympanic membrane": {
+  "qid": "Q173801",
+  "ro": "Timpan",
+  "ru": "барабанная перепонка"
+ },
+ "type 2 diabetes": {
+  "qid": "Q3025883",
+  "ro": "diabet zaharat de tipul 2",
+  "ru": "сахарный диабет 2-го типа"
+ },
+ "ulcer": {
+  "qid": "Q164655",
+  "ro": "Abces",
+  "ru": "абсцесс"
+ },
+ "ultrasound": {
+  "qid": "Q162564",
+  "ro": "ultrasunet",
+  "ru": "ультразвук"
+ },
+ "unsaturated fat": {
+  "qid": "Q652555",
+  "ru": "ненасыщенный жир"
+ },
+ "unstable angina": {
+  "qid": "Q2032041",
+  "ru": "нестабильная стенокардия"
+ },
+ "upper esophageal sphincter": {
+  "qid": "Q1407428",
+  "ro": "sfincter esofagian superior",
+  "ru": "Верхний пищеводный сфинктер"
+ },
+ "urea": {
+  "qid": "Q48318",
+  "ro": "uree",
+  "ru": "мочевина"
+ },
+ "ureter": {
+  "qid": "Q9385",
+  "ro": "ureter",
+  "ru": "мочеточник"
+ },
+ "urethra": {
+  "qid": "Q9386",
+  "ro": "uretră",
+  "ru": "мочеиспускательный канал"
+ },
+ "urethritis": {
+  "qid": "Q1122485",
+  "ru": "уретрит"
+ },
+ "urinary catheter": {
+  "qid": "Q59651608"
+ },
+ "urinary frequency": {
+  "qid": "Q352585",
+  "ro": "Polachiurie",
+  "ru": "частое мочеиспускание"
+ },
+ "urinary incontinence": {
+  "qid": "Q281490",
+  "ro": "incontinență urinară",
+  "ru": "недержание мочи"
+ },
+ "urologist": {
+  "qid": "Q17345122",
+  "ro": "urolog",
+  "ru": "уролог"
+ },
+ "urosepsis": {
+  "qid": "Q2501165"
+ },
+ "urticaria": {
+  "qid": "Q187440",
+  "ro": "Urticarie",
+  "ru": "крапивница"
+ },
+ "uveitis": {
+  "qid": "Q280027",
+  "ro": "Uveită",
+  "ru": "увеит"
+ },
+ "uvula": {
+  "qid": "Q273538",
+  "ro": "Uvulă",
+  "ru": "язычок"
+ },
+ "uvulopalatopharyngoplasty": {
+  "qid": "Q3047612"
+ },
+ "vaccination": {
+  "qid": "Q192995",
+  "ro": "vaccinare",
+  "ru": "вакцинация"
+ },
+ "vaginismus": {
+  "qid": "Q1128431",
+  "ro": "Vaginism",
+  "ru": "вагинизм"
+ },
+ "vancomycin": {
+  "qid": "Q424027",
+  "ro": "vancomicină",
+  "ru": "ванкомицин"
+ },
+ "variant angina pectoris": {
+  "qid": "Q1469637",
+  "ru": "стенокардия Принцметала"
+ },
+ "vascular dementia": {
+  "qid": "Q583908",
+  "ro": "demență vasculară",
+  "ru": "сосудистая деменция"
+ },
+ "vascular surgery": {
+  "qid": "Q1498222",
+  "ro": "chirurgie vasculară",
+  "ru": "сосудистая хирургия"
+ },
+ "vasculitis": {
+  "qid": "Q644318",
+  "ro": "vasculită",
+  "ru": "васкулит"
+ },
+ "vasectomy": {
+  "qid": "Q690838",
+  "ro": "vasectomie",
+  "ru": "вазэктомия"
+ },
+ "vasodilation": {
+  "qid": "Q14859627",
+  "ru": "вазодилатация"
+ },
+ "vasodilator": {
+  "qid": "Q4008956",
+  "ru": "вазодилататор"
+ },
+ "vasopressin": {
+  "qid": "Q183011",
+  "ro": "arginină vasopresină",
+  "ru": "антидиуретический гормон"
+ },
+ "vector": {
+  "qid": "Q107994",
+  "ro": "Vector biologic",
+  "ru": "переносчик"
+ },
+ "vein": {
+  "qid": "Q9609",
+  "ro": "venă",
+  "ru": "вена"
+ },
+ "venous leak": {
+  "qid": "Q7920193",
+  "ru": "венозная утечка"
+ },
+ "ventilator": {
+  "qid": "Q584049",
+  "ro": "ventilație",
+  "ru": "вентиляция"
+ },
+ "ventricular arrhythmia": {
+  "qid": "Q21402560"
+ },
+ "ventricular fibrillation": {
+  "qid": "Q848662",
+  "ru": "Фибрилляция желудочков"
+ },
+ "ventricular septal defect": {
+  "qid": "Q838139",
+  "ru": "Дефект межжелудочковой перегородки"
+ },
+ "ventricular tachycardia": {
+  "qid": "Q56002",
+  "ru": "Тахикардия желудочков"
+ },
+ "venules": {
+  "qid": "Q388209",
+  "ru": "венулы"
+ },
+ "vertebra": {
+  "qid": "Q180323",
+  "ro": "vertebră",
+  "ru": "позвонок"
+ },
+ "vertebral artery": {
+  "qid": "Q516546",
+  "ro": "arteră vertebrală",
+  "ru": "позвоночная артерия"
+ },
+ "vertebroplasty": {
+  "qid": "Q785954",
+  "ro": "Augmentare vertebrală",
+  "ru": "вертебропластика"
+ },
+ "vertigo": {
+  "qid": "Q10686316",
+  "ro": "vertij",
+  "ru": "вертиго"
+ },
+ "vestibular system": {
+  "qid": "Q596832",
+  "ru": "вестибулярный аппарат"
+ },
+ "viral": {
+  "qid": "Q139815213"
+ },
+ "viscera": {
+  "qid": "Q546191",
+  "ro": "viscer",
+  "ru": "внутренности"
+ },
+ "visceral fat": {
+  "qid": "Q2528491"
+ },
+ "visual acuity": {
+  "qid": "Q555066",
+  "ro": "Acuitate vizuală",
+  "ru": "острота зрения"
+ },
+ "visual cortex": {
+  "qid": "Q75785",
+  "ru": "Зрительная кора"
+ },
+ "visual field": {
+  "qid": "Q2364768",
+  "ro": "câmp vizual",
+  "ru": "визуальное поле"
+ },
+ "vital signs": {
+  "qid": "Q1067560",
+  "ro": "semn vital",
+  "ru": "признаки жизни"
+ },
+ "vitamin d": {
+  "qid": "Q175621",
+  "ro": "vitamina D",
+  "ru": "витамин D"
+ },
+ "vitrectomy": {
+  "qid": "Q924295",
+  "ru": "Витроэктомия"
+ },
+ "vldl": {
+  "qid": "Q419074",
+  "ro": "Lipoproteina de densitate foarte mică",
+  "ru": "Липопротеины очень низкой плотности"
+ },
+ "vsd": {
+  "qid": "Q838139",
+  "ru": "Дефект межжелудочковой перегородки"
+ },
+ "vulvodynia": {
+  "qid": "Q1571008",
+  "ru": "вульводиния"
+ },
+ "warfarin": {
+  "qid": "Q113368879",
+  "ro": "Warfarină",
+  "ru": "варфарин"
+ },
+ "wart": {
+  "qid": "Q101971",
+  "ro": "neg",
+  "ru": "бородавка"
+ },
+ "water brash": {
+  "qid": "Q537297",
+  "ro": "pirozis",
+  "ru": "изжога"
+ },
+ "weber test": {
+  "qid": "Q1759298",
+  "ru": "Акуметр"
+ },
+ "wernicke's area": {
+  "qid": "Q824214",
+  "ro": "aria Wernicke",
+  "ru": "Область Вернике"
+ },
+ "wernicke-korsakoff syndrome": {
+  "qid": "Q622901",
+  "ro": "Sindromul Korsakoff",
+  "ru": "синдром Корсакова"
+ },
+ "whiplash": {
+  "qid": "Q1147223",
+  "ru": "Хлыстовая травма"
+ },
+ "white matter": {
+  "qid": "Q822050",
+  "ro": "substanță albă",
+  "ru": "белое вещество"
+ },
+ "will": {
+  "qid": "Q155656",
+  "ro": "testament",
+  "ru": "завещание"
+ },
+ "withdrawal": {
+  "qid": "Q498902",
+  "ro": "sevraj",
+  "ru": "абстинентный синдром"
+ },
+ "xanthelasma": {
+  "qid": "Q1500346",
+  "ru": "Ксантелазма"
+ },
+ "xanthoma": {
+  "qid": "Q1199732"
+ },
+ "yohimbine": {
+  "qid": "Q412226",
+  "ro": "Yohimbină",
+  "ru": "Иохимбин"
+ },
+ "zoonotic disease": {
+  "qid": "Q182672",
+  "ro": "zoonoză",
+  "ru": "зооноз"
+ }
+}
