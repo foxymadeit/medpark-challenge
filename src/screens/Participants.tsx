@@ -166,7 +166,7 @@ export function Participants() {
           {!onlyYou && <p className="lead">{t('participants.lead')}</p>}
         </div>
         {!onlyYou && (
-          <Button variant="primary" icon={<UserPlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
+          <Button variant="ink" icon={<UserPlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
             {t('participants.add')}
           </Button>
         )}
@@ -203,7 +203,7 @@ export function Participants() {
           <UsersThreeIcon size={32} aria-hidden />
           <h2 className="t-h2">{t('participants.emptyTitle')}</h2>
           <p className="lead">{t('participants.emptyLead')}</p>
-          <Button variant="primary" icon={<UserPlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)} className="empty-state__cta">
+          <Button variant="ink" icon={<UserPlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)} className="empty-state__cta">
             {t('participants.add')}
           </Button>
         </div>
