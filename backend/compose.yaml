@@ -5,8 +5,9 @@
 #                                             and n8n (routing, editor at http://127.0.0.1:5678); then bash n8n/setup.sh
 #   docker compose --profile server up -d     + the backend and Ollama, for the Linux reference server
 #
-# On a laptop the backend usually runs on the host (it needs the ASR,
-# diarizer and minutes tools and the GPU); see README.md.
+#   docker compose -f compose.yaml -f compose.gpu.yaml --profile server up -d
+#                                             the same with the GPU given to Ollama and the backend
+# On a laptop the backend usually runs on the host instead; see README.md.
 services:
   gateway:
     # The only container with a foot outside the internal network, and it runs
@@ -75,8 +76,12 @@ services:
     networks: [internal]
 
   liminal-backend:
+    # the web app, the backend and the three pipeline tools in one image
     profiles: [server]
-    build: .
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile.server
+      args: {GPU: "${LIMINAL_GPU:-1}"}   # LIMINAL_GPU=0 for a CPU-only server
     restart: unless-stopped
     env_file:
       - path: .env
@@ -86,9 +91,12 @@ services:
       SMTP_HOST: mailpit
       SMTP_ALLOWED_HOSTS: mailpit
       MOM_LLM_URL: http://ollama:11434
+      LIMINAL_N8N_WEBHOOK: http://n8n:5678/webhook/liminal-minutes
       LIMINAL_ALLOW_PRIVATE_NETWORK: "1"    # the in-process guard still refuses every public address
-      LIMINAL_INTERNAL_HOSTS: mailpit,ollama
-    volumes: [liminal:/data]
+      LIMINAL_INTERNAL_HOSTS: mailpit,ollama,n8n
+    volumes:
+      - liminal:/data
+      - ../asr-llm/models:/opt/liminal/asr-llm/models:ro   # fetched once: python asr-llm/scripts/fetch_whisper.py large-v3
     networks: [internal]
 
 networks:

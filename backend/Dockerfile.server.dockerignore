@@ -1,0 +1,17 @@
+**/.git
+**/.venv
+**/venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/node_modules
+frontend/dist
+asr-llm/models/whisper
+asr-llm/models/whisper-turbo
+asr-llm/models/llm
+asr-llm/runs
+backend/data
+backend/.env
+data
+diarization/data
+sessions

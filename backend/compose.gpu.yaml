@@ -1,8 +1,15 @@
-# The reference GPU server: give Ollama the card.
+# The reference GPU server: Ollama and the backend's transcription share the card.
 #   docker compose -f compose.yaml -f compose.gpu.yaml --profile server up -d
 # Needs the NVIDIA Container Toolkit. A CPU-only server leaves this file out.
 services:
   ollama:
+    deploy:
+      resources:
+        reservations:
+          devices: [{driver: nvidia, count: 1, capabilities: [gpu]}]
+  liminal-backend:
+    environment:
+      LIMINAL_PROFILE: gpu
     deploy:
       resources:
         reservations:
