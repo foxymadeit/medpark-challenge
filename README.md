@@ -300,10 +300,13 @@ the writing prompt.
 
 **The gate: zero external calls.** Every Python process installs a socket guard
 that refuses any address outside the machine. The model client also ignores
-proxy settings and refuses redirects. Docker Compose binds every port to
-127.0.0.1 on an internal network with no route out. Mail goes to a local SMTP
-server (Mailpit in the demo). `backend/scripts/offline_check.sh` proves all
-three, and the jury can pull the cable during the demo.
+proxy settings and refuses redirects. In Docker Compose, the backend, the
+model server, n8n and the mail server sit on an internal network that Docker
+gives no route out; the only container with a second network is a bare
+port-forwarding gateway (socat, no application code) that publishes ports on
+127.0.0.1. Mail goes to a local SMTP server (Mailpit in the demo).
+`backend/scripts/offline_check.sh` proves all of it, and the jury can pull the
+cable during the demo.
 
 **The architecture, and the line nothing crosses.**
 
@@ -352,19 +355,25 @@ hospital's internal use.
 
 <p align="center"><img src="docs/readme/n8n.png" alt="The n8n workflow: Minutes from Liminal, Prepare the email, Route by meeting type, then Email the Medical, Executive or Administrative board" width="85%"></p>
 
-1. **Webhook.** The backend posts the checked minutes and the three PDFs.
+1. **Webhook.** The backend posts the checked minutes, the three PDFs and the
+   meeting's distribution list, with a shared secret; n8n refuses requests
+   without it.
 2. **Prepare.** One Code node writes the subject ("MoM | Medical | …") and body
-   and attaches the RO, RU and EN PDFs. An unknown type tag fails the webhook
+   and attaches the RO, RU and EN PDFs. The title is flattened to one line, so
+   it cannot add an email header. An unknown type tag fails the webhook
    on purpose, so the backend mails directly instead of recording a delivery
    that never happened.
 3. **Switch on the meeting type.** Medical, Executive or Administrative.
 4. **Email that list** through the hospital mail server, participants on copy.
 
-Hospital IT changes a distribution list in n8n's editor without touching code.
+Administrators edit the distribution lists in Liminal, the one place they
+live; n8n reads them from each request, and hospital IT can change the routing
+itself in n8n's editor without touching code.
 Telemetry, update checks, templates and community packages are switched off,
 and `offline_check.sh` fails if any comes back on. Tested against Mailpit:
-each type reached its own list with all three PDFs attached
-(`backend/n8n/check_routing.py`).
+each type reached its own list with all three PDFs attached, a request with
+the wrong secret got 403, and a title carrying a Bcc header arrived as plain
+text (`backend/n8n/check_routing.py`).
 
 The speaker labeller runs on a 2017 dual-core laptop in real time, so it adds
 no GPU load. The end-to-end hour test (below) measures the rest on one T4.
@@ -375,7 +384,8 @@ test behind for each control.
 
 | Threat | Control | Proof |
 |---|---|---|
-| Audio or text leaving the building | socket guard in every process, loopback-only model client, internal compose network | `offline_check.sh`, socket-blocking tests in all four Python parts |
+| Audio or text leaving the building | socket guard in every process, loopback-only model client; every container on an internal network with no route out, behind a bare port-forwarding gateway (**tightened after our review**) | `offline_check.sh`, socket-blocking tests in all four Python parts |
+| Forged minutes sent to a board | the mail endpoint needs an administrator and passes the origin check and audit trail; the n8n webhook needs the backend's secret (**found and fixed in our review**) | `test_nobody_signed_out_can_send_mail`, `check_routing.py` |
 | Password guessing | scrypt, one generic error, 5 failures per account (20 per address) per 15 min | `test_login_is_generic_rate_limited…` |
 | Stolen or stale sessions | HttpOnly SameSite=Strict cookie, only its SHA-256 stored, 30 min idle, 12 h absolute | `test_session_cookie_flags…` |
 | Cross-site forgery | state changes need this server's Origin | `test_state_changes_from_another_origin…` |
