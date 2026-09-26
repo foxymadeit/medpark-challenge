@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     fuse_floor: float = -0.8  # best score below this = unclear
     fuse_window: int = 15
     fuse_min_cover: float = 0.85  # share of output words that must come from the hypotheses
+    fuse_max_drop: float = 0.05  # may not swap wholesale to a hypothesis scored this much below the best
     debate_rounds: int = 2
     debate_window: int = 1  # 1 = after every sentence, as proposed
 

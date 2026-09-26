@@ -36,6 +36,7 @@ _HALLUCINATIONS = {
     "să vă mulțumim",
     "vă mulțumim pentru vizionare",
     "nu uitați să vă abonați",
+    "nu uitați să dați like să lăsați un comentariu și să distribuiți acest video",
     "thank you for watching",
     "thanks for watching",
 }

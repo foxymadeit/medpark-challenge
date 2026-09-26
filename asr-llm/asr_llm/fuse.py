@@ -29,7 +29,9 @@ A whisper score is the average log-probability of that decode; closer to 0 means
 
 Rules:
 - Build each output ONLY from words that appear in that utterance's hypotheses. Never add, translate or explain.
-- A fluent hypothesis is not proof. A forced-Russian decode of Romanian speech can be a fluent translation. Trust scores and medical sense together.
+- A fluent hypothesis is not proof. A forced-Russian decode of Romanian speech comes out as a fluent Russian *translation*,
+  often with invented names or places. Such meetings are mostly Romanian with Russian and English words mixed in.
+  Prefer the higher score; switch to a lower-scored hypothesis only for the words that clearly belong to that language.
 - If the speaker switches language mid-sentence, combine the matching spans from different hypotheses.
 - Write each word in its own script: Romanian in Latin with diacritics, Russian in Cyrillic, English in English.
 - Use the glossary (ro | ru | en) to recognise medical terms. Do not insert a glossary term that no hypothesis contains.
@@ -66,6 +68,23 @@ def grounded(text: str, seg: SpeechSegment, min_cover: float) -> bool:
     return bool(tokens) and sum(t in vocab for t in tokens) / len(tokens) >= min_cover
 
 
+def acoustically_plausible(text: str, seg: SpeechSegment, max_drop: float) -> bool:
+    """Reject a wholesale swap to a hypothesis that fit the audio clearly worse.
+
+    Measured on the sample: a 7B model replaced Romanian with the fluent forced-Russian
+    translation in 12 of 25 utterances. Mixing spans is allowed; swapping is not.
+    """
+    scored = [h for h in seg.hypotheses if h.score is not None]
+    tokens = set(_fold(text).split())
+    if not scored or not tokens:
+        return True
+    # Same home-language head start the acoustic pick used (asr._biased_score).
+    biased = lambda h: h.score + (settings.home_bias if h.language == settings.home_language else 0.0)  # noqa: E731
+    share = lambda h: len(tokens & set(_fold(h.text).split())) / len(tokens)  # noqa: E731
+    source = max(scored, key=share)
+    return share(source) < 0.8 or biased(source) >= max(map(biased, scored)) - max_drop
+
+
 def render(ids: list[int], segments: list[SpeechSegment]) -> str:
     lines = []
     for i in ids:
@@ -94,10 +113,14 @@ def _proposals(model: ChatModel, ids: list[int], segments: list[SpeechSegment], 
 
 
 def _apply(seg: SpeechSegment, row: dict | None) -> SpeechSegment:
-    if not row or not grounded(row["text"], seg, settings.fuse_min_cover):
+    if not row or not usable(row["text"], seg):
         return seg
     langs = [lang for lang in row.get("languages") or [] if lang in settings.asr_languages]
     return seg.model_copy(update={"text": row["text"].strip(), "language": "+".join(dict.fromkeys(langs)) or seg.language})
+
+
+def usable(text: str, seg: SpeechSegment) -> bool:
+    return grounded(text, seg, settings.fuse_min_cover) and acoustically_plausible(text, seg, settings.fuse_max_drop)
 
 
 def _windows(ids: list[int], size: int) -> Iterable[list[int]]:
@@ -136,7 +159,7 @@ def fuse_debate(
             model.close()
     out = list(segments)
     for i in ids:
-        valid = [p[i] for p in proposals if i in p and grounded(p[i]["text"], segments[i], settings.fuse_min_cover)]
+        valid = [p[i] for p in proposals if i in p and usable(p[i]["text"], segments[i])]
         if valid:
             votes = Counter(_fold(row["text"]) for row in valid)
             best = votes.most_common(1)[0][0]

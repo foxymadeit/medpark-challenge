@@ -64,3 +64,14 @@ def test_debate_majority_wins_and_second_round_sees_others():
     assert out[1].text == "Facem ecografie mâine"
     assert any("Other reviewers" in call for call in models[0].calls)
     assert len(models[0].calls) == 4  # 2 utterances x 2 rounds: every sentence, every round
+
+
+def test_wholesale_swap_to_worse_scored_hypothesis_is_rejected():
+    # ro fits the audio better; the LLM prefers the fluent Russian translation.
+    s = seg(3, "și dreapta și stânga", "и правая и левая", -0.35, -0.66)
+    s_unclear = seg(4, "și dreapta și stânga", "и правая и левая", -0.50, -0.58)
+    llm = FakeLlm({1: "и правая и левая"})
+    assert fuse_single(llm, [s, s_unclear])[1] == s_unclear
+    assert llm.calls, "the unclear utterance must reach the LLM"
+    mixed = FakeLlm({1: "și dreapta и левая"})
+    assert fuse_single(mixed, [s, s_unclear])[1].text == "și dreapta и левая"
