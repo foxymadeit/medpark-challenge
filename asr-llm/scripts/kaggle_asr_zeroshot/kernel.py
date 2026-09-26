@@ -21,10 +21,11 @@ def sh(cmd: str, **kwargs) -> None:
 
 
 # What this push runs. The full bench: NEMO = "parakeet,canary,jackrabbit", SETS = "all".
-# Last push: a Whisper speed re-check (batched decode) on gold, the synthetic round and a timed hour;
+# Last pushes: Whisper speed re-checks (batched decode) on gold, the synthetic round and a timed hour;
 # the NeMo numbers from the full run of 2026-09-26 stand.
 NEMO = ""
 SETS = "gold"
+WHISPER = "turbo"  # large-v3 (the product's GPU default) | turbo
 
 sh(f"git clone -q --depth 1 -b {BRANCH} https://github.com/foxymadeit/medpark-challenge {REPO}")
 # faster-whisper + pydantic-settings: the cut child uses asr_llm's Silero VAD to split long recordings.
@@ -37,6 +38,7 @@ bench = f"{sys.executable} -m asr_train.zeroshot --work /kaggle/working --sets {
 if NEMO:
     sh(f"{bench} --models {NEMO}", cwd=ASR)
 # Whisper runs the asr_llm pipeline: its deps and weights come after the NeMo runs. The test sets are reused.
-sh(f"pip install -q -e '{ASR}[asr]' && python scripts/fetch_whisper.py large-v3", cwd=ASR)
-env = {**os.environ, "MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16"}
+sh(f"pip install -q -e '{ASR}[asr]' && python scripts/fetch_whisper.py {WHISPER}", cwd=ASR)
+env = {**os.environ, "MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16",
+       "MOM_ASR_MODEL_DIR": "models/whisper" if WHISPER == "large-v3" else "models/whisper-turbo"}
 sh(f"{bench} --models whisper", cwd=ASR, env=env)

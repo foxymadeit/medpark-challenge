@@ -58,6 +58,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     # The TDT loss holds batch x frames x tokens x 8193 vocab floats (three copies): ~5 GB for one pair of
     # 20 s clips, on top of ~10 GB of weights, grads and AdamW state. 12 s cuts that ~6x; both T4s hit OOM at 20.
     p.add_argument("--max-duration", type=float, default=float(_env("MAX_DURATION", "12")))
+    # Full fine-tune of 627M params needs ~12.5 GB for weights, grads and AdamW state alone: a T4 ran out
+    # at the first optimizer step. Frozen layers get no grads and no optimizer state.
+    p.add_argument("--freeze-layers", type=int, default=int(_env("FREEZE_LAYERS", "12")),
+                   help="Keep the subsampling and this many lower encoder layers (of 24) as they are.")
     p.add_argument("--exclude-sources", default=_env("EXCLUDE_SOURCES", "rompar"),
                    help="Comma-separated manifest sources left out of training. rompar: its transcripts do not "
                         "match its audio (every model, 0.72+ CER on it vs 0.02-0.04 on FLEURS).")
@@ -247,6 +251,12 @@ def train_model(args: argparse.Namespace, data: Path, rank: str) -> None:
         kwargs["strategy"] = DDPStrategy(timeout=timedelta(minutes=10))
 
     model = load_base(args.base_model)
+    if args.freeze_layers:
+        model.encoder.pre_encode.requires_grad_(False)
+        for layer in model.encoder.layers[: args.freeze_layers]:
+            layer.requires_grad_(False)
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print({"trainable_params_m": round(trainable / 1e6), "frozen_layers": args.freeze_layers}, flush=True)
     trainer = pl.Trainer(
         **kwargs,
         logger=pl.loggers.CSVLogger(str(out), name="logs"),
