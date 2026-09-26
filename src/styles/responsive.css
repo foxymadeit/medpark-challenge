@@ -87,7 +87,6 @@
 
   .page { padding: 24px 16px; }
   .page__head--row { flex-wrap: wrap; gap: var(--sm-space-4); }
-  .type-options { grid-template-columns: 1fr; }
   .review { padding: 20px 16px 0; }
   .onb { padding: 32px 16px; }
   .recording { padding: 24px 16px; }

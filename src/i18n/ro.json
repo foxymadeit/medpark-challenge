@@ -155,11 +155,10 @@
     "title": "Ședință nouă",
     "name": "Numele ședinței",
     "type": "Tipul ședinței",
-    "typeHint": "Determină cine primește procesul-verbal.",
     "typeDesc": {
-      "medical": "Pacienți, paturi, doze",
-      "executive": "Decizii, responsabili, bugete",
-      "administrative": "Consumabile, săli, programări"
+      "medical": "Procesul-verbal pune accent pe pacienți, paturi și doze.",
+      "executive": "Procesul-verbal pune accent pe decizii, responsabili și bugete.",
+      "administrative": "Procesul-verbal pune accent pe consumabile, săli și programări."
     },
     "templateSelected": "Selectat · clic pentru a anula",
     "templateClear": "Anulează șablonul",

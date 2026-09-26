@@ -121,14 +121,6 @@
 .templates-side__item[aria-pressed='true'] .who__sub { color: var(--sm-action); font-weight: 500; }
 .templates-side__check { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--sm-action); color: var(--sm-surface-panel); }
 
-/* Meeting type: option cards with a one-line hint on what changes. */
-.type-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sm-space-2); }
-.type-option { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); color: var(--sm-ink-primary); text-align: left; }
-.type-option:hover { background: var(--sm-surface-ground); }
-.type-option__label { display: inline-flex; align-items: center; gap: 6px; font: 500 15px/20px var(--sm-font-body); }
-.type-option__desc { color: var(--sm-ink-secondary); font: 400 12px/16px var(--sm-font-body); }
-.type-option[aria-checked='true'] { border: 1.5px solid var(--sm-control); padding: 9.5px 13.5px; background: var(--sm-control); color: var(--sm-surface-panel); }
-.type-option[aria-checked='true'] .type-option__desc { color: #e4e6ea; }
 
 /* ── Recording ── */
 .recording { flex-direction: row; align-items: flex-start; gap: var(--sm-space-6); padding: 48px; }

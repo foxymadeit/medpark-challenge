@@ -54,22 +54,20 @@ export function NewMeeting() {
           <p className="t-strong" id="nm-type">
             {t('newMeeting.type')}
           </p>
-          <div className="type-options" role="radiogroup" aria-labelledby="nm-type" aria-describedby="nm-type-hint">
+          <div className="chips" role="radiogroup" aria-labelledby="nm-type" aria-describedby="nm-type-hint">
             {MEETING_TYPES.map((type) => {
               const on = draft.type === type;
               return (
-                <button key={type} type="button" role="radio" aria-checked={on} className="type-option" onClick={() => setDraft({ type })}>
-                  <span className="type-option__label">
-                    {on && <CheckIcon size={16} aria-hidden />}
-                    {t(`types.${type}`)}
-                  </span>
-                  <span className="type-option__desc">{t(`newMeeting.typeDesc.${type}`)}</span>
+                <button key={type} type="button" role="radio" aria-checked={on} className="chip" onClick={() => setDraft({ type })}>
+                  {on && <CheckIcon size={16} aria-hidden />}
+                  {t(`types.${type}`)}
                 </button>
               );
             })}
           </div>
-          <p className="note" id="nm-type-hint">
-            {t('newMeeting.typeHint')}
+          {/* What the selected type changes: the vocabulary the minutes are written in. */}
+          <p className="note" id="nm-type-hint" aria-live="polite">
+            {t(`newMeeting.typeDesc.${draft.type}`)}
           </p>
         </div>
 
