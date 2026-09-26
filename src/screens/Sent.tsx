@@ -56,7 +56,10 @@ export function Sent() {
           <h1 className="t-h1">
             {meeting.title}
           </h1>
-          <p className="lead" role="status" aria-live="polite">{done ? t('sent.doneLead', { count: meeting.sentTo ?? withEmail.length, date: formatDayMonth(meeting.date, lang) }) : t('sent.sendingLead', { count: withEmail.length })}</p>
+          <p className="lead" role="status" aria-live="polite">
+            {done ? t('sent.doneLead', { count: meeting.sentTo ?? withEmail.length }) : t('sent.sendingLead', { count: withEmail.length })}
+          </p>
+          {done && <p className="lead">{t('sent.saved', { date: formatDayMonth(meeting.date, lang) })}</p>}
         </div>
         {!done && (
           <div className="processing__progress sent__progress">

@@ -334,14 +334,15 @@
     "sendingLead_one": "Отправка {count} участнику",
     "sendingLead_few": "Отправка {count} участникам",
     "sendingLead_many": "Отправка {count} участникам",
-    "doneLead": "Отправлено {count} участникам. Сохранено в истории с ролями на {date}.",
-    "doneLead_one": "Отправлено {count} участнику. Сохранено в истории с ролями на {date}.",
+    "doneLead_one": "Отправлено {count} участнику.",
+    "doneLead_few": "Отправлено {count} участникам.",
+    "doneLead_many": "Отправлено {count} участникам.",
+    "doneLead": "Отправлено {count} участникам.",
+    "saved": "Сохранено в истории с ролями на {date}.",
     "sending": "Отправляем протокол…",
     "sendingLead": "Отправка {count} участникам",
     "toHistory": "Перейти в историю",
-    "download": "Скачать протокол (PDF)",
-    "doneLead_few": "Отправлено {count} участникам. Сохранено в истории с ролями на {date}.",
-    "doneLead_many": "Отправлено {count} участникам. Сохранено в истории с ролями на {date}."
+    "download": "Скачать протокол (PDF)"
   },
   "history": {
     "title": "История",
