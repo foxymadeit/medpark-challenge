@@ -117,11 +117,14 @@
   white-space: nowrap;
 }
 .chip:hover { background: var(--sm-surface-ground); }
+/* Selected chip = ink outline (Figma "Settings · B · Ink outline", 2045:2619): white, 1.5px ink border, check icon.
+   Padding drops by 0.5px so the thicker border doesn't shift the label. */
 .chip[aria-pressed='true'],
 .chip[aria-checked='true'] {
-  background: var(--sm-control);
-  border-color: var(--sm-control);
-  color: var(--sm-surface-panel);
+  padding: 0 15.5px;
+  border: 1.5px solid var(--sm-ink-primary);
+  background: var(--sm-surface-panel);
+  color: var(--sm-ink-primary);
 }
 .chip--sm { height: 36px; }
 .chip--lang {
@@ -160,10 +163,14 @@
   color: var(--sm-surface-panel);
   font-weight: 600;
 }
+/* Ink-outline variant (2045:2619): warm track, selected item is a raised white pill — everywhere, top-bar language switch included. */
+.segmented { gap: 2px; padding: 3px; border: 0; background: #f1efea; }
+.segmented .segmented__item { height: 36px; color: var(--sm-ink-secondary); font-weight: 500; }
+.segmented .segmented__item:hover { color: var(--sm-ink-primary); }
+.segmented .segmented__item[aria-checked='true'] { background: var(--sm-surface-panel); color: var(--sm-ink-primary); font-weight: 600; box-shadow: 0 2px 8px rgba(16, 16, 16, 0.06), 0 1px 3px rgba(16, 16, 16, 0.08); }
 .segmented--fill { display: flex; width: 100%; }
 .segmented--fill .segmented__item { flex: 1; width: auto; }
-.segmented--lang .segmented__item { width: 40px; height: 32px; color: var(--sm-ink-primary); }
-.segmented--lang .segmented__item[aria-checked='true'] { color: var(--sm-surface-panel); font-weight: 500; }
+.segmented--lang .segmented__item { width: 40px; height: 30px; }
 
 /* ── Surfaces ────────────────────────────────────────────── */
 .card {
