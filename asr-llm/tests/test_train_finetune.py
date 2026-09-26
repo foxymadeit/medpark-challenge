@@ -32,7 +32,7 @@ def test_hardware_profiles():
     assert (one_ampere["devices"], one_ampere["strategy"], one_ampere["precision"]) == (1, "auto", "bf16-mixed")
     cpu = trainer_kwargs(args, n_gpus=0, bf16_ok=False)
     assert (cpu["accelerator"], cpu["devices"], cpu["precision"]) == ("cpu", 1, "32")
-    assert two_t4["val_check_interval"] == 500 * 4  # batches = 500 optimizer steps at accum 4
+    assert two_t4["val_check_interval"] == 500 * 12  # batches = 500 optimizer steps at accum 12
     with pytest.raises(ValueError, match="only 1 GPU"):
         trainer_kwargs(parse_args(["--data-dir", "d", "--devices", "2"]), n_gpus=1, bf16_ok=True)
 
@@ -58,6 +58,15 @@ def test_manifest_paths_become_absolute_per_rank(tmp_path):
     assert dest.name == "train.rank1.jsonl"
     row = json.loads(dest.read_text().splitlines()[0])
     assert row["audio_filepath"] == str((data / "audio/a.flac").resolve())
+
+
+def test_manifest_drops_excluded_sources_and_fixes_cedillas(tmp_path):
+    rows = [{"audio_filepath": "a.flac", "duration": 1.0, "text": "susţine şi", "source": "cv_ro"},
+            {"audio_filepath": "b.flac", "duration": 1.0, "text": "x", "source": "rompar"}]
+    (tmp_path / "train.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
+    dest = absolute_manifest(tmp_path, tmp_path / "out", "train", exclude=frozenset({"rompar"}))
+    kept = [json.loads(line) for line in dest.read_text().splitlines()]
+    assert [r["text"] for r in kept] == ["susține și"]
 
 
 def test_check_reports_hours_and_missing_audio(tmp_path):

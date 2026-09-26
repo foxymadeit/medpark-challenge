@@ -24,7 +24,10 @@ inputs = Path("/kaggle/input")
 data = next(inputs.rglob("asrdata/train.jsonl")).parent
 # final.ckpt is written after fit returns, last.ckpt at every dev check: prefer final when both exist.
 resume = next(inputs.rglob("ft/ckpt/final.ckpt"), None) or next(inputs.rglob("ft/ckpt/last.ckpt"), None)
-cmd = [sys.executable, "-m", "asr_train.finetune", "--data-dir", str(data), "--out", "/kaggle/working/ft", "--max-hours", "11"]
+# A capped run: 3 h of training (setup adds ~45 min), a checkpoint every 250 steps, and the LR schedule
+# sized to what fits in 3 h, so a crash or the cap still leaves a usable last.ckpt / .nemo.
+cmd = [sys.executable, "-m", "asr_train.finetune", "--data-dir", str(data), "--out", "/kaggle/working/ft",
+       "--max-hours", "3", "--max-steps", "1500", "--val-every", "250"]
 if resume:
     cmd += ["--resume", str(resume)]
 print("+", " ".join(cmd), flush=True)

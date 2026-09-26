@@ -24,6 +24,8 @@ import argparse
 import json
 import os
 import time
+import unicodedata
+from datetime import timedelta
 from pathlib import Path
 
 from .common import read_jsonl, write_jsonl
@@ -46,12 +48,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--max-hours", type=float, default=float(_env("MAX_HOURS", "11")), help="Wall-clock budget of this session.")
     p.add_argument("--lr", type=float, default=float(_env("LR", "3e-5")))
     p.add_argument("--warmup", type=int, default=int(_env("WARMUP", "500")))
-    p.add_argument("--batch", type=int, default=int(_env("BATCH", "6")))
-    p.add_argument("--accum", type=int, default=int(_env("ACCUM", "4")))
+    # 2 x 12 = the same 24 utterances per update as 6 x 4, which ran a T4 out of memory in the first steps.
+    p.add_argument("--batch", type=int, default=int(_env("BATCH", "2")))
+    p.add_argument("--accum", type=int, default=int(_env("ACCUM", "12")))
     p.add_argument("--val-every", type=int, default=int(_env("VAL_EVERY", "500")), help="Optimizer steps between dev checks and checkpoints.")
     p.add_argument("--devices", type=int, default=int(_env("DEVICES", "0")), help="GPUs to use; 0 = all visible.")
     p.add_argument("--precision", default=_env("PRECISION", "auto"), help="auto | bf16-mixed | 16-mixed | 32.")
     p.add_argument("--workers", type=int, default=int(_env("WORKERS", "4")))
+    p.add_argument("--exclude-sources", default=_env("EXCLUDE_SOURCES", "rompar"),
+                   help="Comma-separated manifest sources left out of training. rompar: its transcripts do not "
+                        "match its audio (every model, 0.72+ CER on it vs 0.02-0.04 on FLEURS).")
     p.add_argument("--check", action="store_true", help="Only check manifests and audio files, then exit.")
     args = p.parse_args(argv)
     if args.data_dir is None:
@@ -109,12 +115,21 @@ def optim_config(lr: float, warmup: int, max_steps: int) -> dict:
     }
 
 
-def absolute_manifest(data: Path, out: Path, name: str, rank: str = "0") -> Path:
+# Cedilla s/t are the legacy spelling; the tokenizer only has the comma-below letters, so ţ became ⁇.
+_RO_LETTERS = str.maketrans("şţŞŢ", "șțȘȚ")
+
+
+def clean_label(text: str) -> str:
+    return unicodedata.normalize("NFC", text).translate(_RO_LETTERS)
+
+
+def absolute_manifest(data: Path, out: Path, name: str, rank: str = "0", exclude: frozenset = frozenset()) -> Path:
     """Manifests store paths relative to the dataset folder; NeMo wants absolute ones."""
     # One copy per DDP process, so no rank reads a file another rank is still writing.
-    rows = read_jsonl(data / f"{name}.jsonl")
+    rows = [r for r in read_jsonl(data / f"{name}.jsonl") if r.get("source") not in exclude]
     for row in rows:
         row["audio_filepath"] = str((data / row["audio_filepath"]).resolve())
+        row["text"] = clean_label(row["text"])
     dest = out / f"{name}.rank{rank}.jsonl"
     write_jsonl(dest, rows)
     return dest
@@ -193,6 +208,9 @@ def load_base(name: str):
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
     data = args.data_dir.expanduser().resolve()
+    rank = os.environ.get("LOCAL_RANK", "0")
+    if rank != "0":  # Lightning re-runs this module per extra GPU; rank 0 already checked the data
+        return train_model(args, data, rank)
     report = check_manifests(data)
     print(json.dumps(report, indent=1), flush=True)
     if args.check:
@@ -201,41 +219,39 @@ def main(argv: list[str] | None = None) -> None:
     bad = {k: v for k, v in report.items() if "error" in v or v["missing_audio"] or not v["rows"]}
     if bad:
         raise SystemExit(f"manifests not usable: {bad}")
+    train_model(args, data, rank)
 
+
+def train_model(args: argparse.Namespace, data: Path, rank: str) -> None:
     import lightning.pytorch as pl
     import torch
     from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
+    from lightning.pytorch.strategies import DDPStrategy
     from omegaconf import open_dict
 
     os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
     out = args.out.expanduser().resolve()
     ckpt_dir = out / "ckpt"
     resume = resolve_resume(args.resume, ckpt_dir)
-    rank = os.environ.get("LOCAL_RANK", "0")
-    train = absolute_manifest(data, out, "train", rank)
-    dev = absolute_manifest(data, out, "dev", rank)
+    exclude = frozenset(s for s in args.exclude_sources.split(",") if s)
+    train = absolute_manifest(data, out, "train", rank, exclude)
+    dev = absolute_manifest(data, out, "dev", rank, exclude)
 
     n_gpus = torch.cuda.device_count()
     kwargs = trainer_kwargs(args, n_gpus, bf16_ok=n_gpus > 0 and torch.cuda.is_bf16_supported())
-    print({"data": str(data), "out": str(out), "resume": resume, **kwargs}, flush=True)
+    print({"data": str(data), "out": str(out), "resume": resume, "excluded": sorted(exclude), **kwargs}, flush=True)
+    if kwargs["strategy"] == "ddp":  # a rank that dies (OOM) frees the others in 10 min, not NCCL's default 30
+        kwargs["strategy"] = DDPStrategy(timeout=timedelta(minutes=10))
 
     model = load_base(args.base_model)
     trainer = pl.Trainer(
         **kwargs,
         logger=pl.loggers.CSVLogger(str(out), name="logs"),
         callbacks=[
-            # Saved right after each dev check (not on a step count, which fires before that
-            # step's validation and would rank checkpoints by a stale val_wer).
-            ModelCheckpoint(
-                dirpath=str(ckpt_dir),
-                filename="step{step}-wer{val_wer:.4f}",
-                auto_insert_metric_name=False,
-                save_last=True,
-                save_top_k=2,
-                monitor="val_wer",
-                mode="min",
-                save_on_train_epoch_end=False,
-            ),
+            # last.ckpt only, written right after each dev check. A checkpoint with AdamW state is
+            # ~7.5 GB and Kaggle keeps ~20 GB of output: top-k copies would fill the disk mid-run.
+            # ponytail: no best-by-val_wer copy; the CSV log has val_wer per check if one is ever needed.
+            ModelCheckpoint(dirpath=str(ckpt_dir), save_last=True, save_top_k=0, save_on_train_epoch_end=False),
             LearningRateMonitor(logging_interval="step"),
             session_budget(args.max_hours),
         ],
@@ -255,6 +271,7 @@ def main(argv: list[str] | None = None) -> None:
     # Up to val_every steps may have passed since last.ckpt; keep them for the next session. All ranks call this.
     trainer.save_checkpoint(str(ckpt_dir / "final.ckpt"))
     if trainer.is_global_zero:
+        (ckpt_dir / "last.ckpt").unlink(missing_ok=True)  # final.ckpt supersedes it; frees 7.5 GB for the .nemo
         model.save_to(str(out / NEMO_NAME))
         print("saved", out / NEMO_NAME, flush=True)
 
