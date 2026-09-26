@@ -54,9 +54,12 @@ export default function SentPage() {
       <div className="sent-grid">
         <section className="panel minutes-card">
           <h2>{t("deliveredTo")}</h2>
-          {m.distributionList.map((list) => (
-            <div key={list} className="delivery-row">
-              <strong>{list}</strong>
+          {[
+            listName(m.type, t),
+            ...(m.participantSnapshots ?? []).map((p) => p.nameAtMeeting),
+          ].map((name) => (
+            <div key={name} className="delivery-row">
+              <strong>{name}</strong>
               <StatusTag status="sent" />
             </div>
           ))}

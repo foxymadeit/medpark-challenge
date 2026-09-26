@@ -6,6 +6,7 @@ import { invalidMinutes } from "../api/validation";
 import { listName } from "../api/routing";
 import type { Meeting } from "../types/meeting";
 import { notifyUpdate } from "../hooks/useData";
+import { useRouting } from "../hooks/useRouting";
 import Button from "./Button";
 import { formatTime } from "../utils";
 /** Empties linearly over the real send window. The timing is fixed once per
@@ -47,6 +48,7 @@ function CountdownBar({
 }
 export default function SendCountdown({ meeting }: { meeting: Meeting }) {
   const { t } = useTranslation();
+  const routing = useRouting();
   const [now, setNow] = useState(() => Date.now());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -115,7 +117,9 @@ export default function SendCountdown({ meeting }: { meeting: Meeting }) {
           <p>
             {stopped
               ? t("sendingStoppedDetail")
-              : t("reviewWindow", { count: meeting.distributionList.length })}
+              : routing?.[meeting.type]
+                ? t("reviewWindow", { count: routing[meeting.type] })
+                : t("reviewWindowPlain")}
           </p>
         </div>
         <div className="button-row">

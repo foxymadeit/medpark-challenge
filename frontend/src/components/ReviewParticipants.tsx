@@ -5,11 +5,13 @@ import { useData, notifyUpdate } from "../hooks/useData";
 import type { Meeting } from "../types/meeting";
 import Button from "./Button";
 import StatePanel from "./StatePanel";
-import { listName } from "../api/routing";
+import { routingLine } from "../api/routing";
+import { useRouting } from "../hooks/useRouting";
 
 export default function ReviewParticipants({ meeting }: { meeting: Meeting }) {
   const { t } = useTranslation();
   const { data, error, refresh } = useData(getPeople, 0);
+  const routing = useRouting();
   const [selected, setSelected] = useState(() =>
     meeting.participants.map((participant) => participant.id),
   );
@@ -21,12 +23,7 @@ export default function ReviewParticipants({ meeting }: { meeting: Meeting }) {
       <div className="section-heading spread">
         <div>
           <h2>{t("participantsRecipients")}</h2>
-          <small>
-            {t("routingToCount", {
-              list: listName(meeting.type, t),
-              count: meeting.distributionList.length,
-            })}
-          </small>
+          <small>{routingLine(meeting.type, routing, t)}</small>
         </div>
         <Button variant="quiet" onClick={() => setEditing(!editing)}>
           {t(editing ? "cancel" : "reviewParticipants")}

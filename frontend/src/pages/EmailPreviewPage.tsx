@@ -13,6 +13,8 @@ import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import { useMeeting } from "../hooks/useMeeting";
 import { LANGUAGE_NAMES, formatDay } from "../utils";
+import { listName } from "../api/routing";
+import { useRouting } from "../hooks/useRouting";
 
 const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -21,6 +23,7 @@ export default function EmailPreviewPage() {
   const navigate = useNavigate();
   const { data: meeting, error, refresh } = useMeeting();
   const [busy, setBusy] = useState(false);
+  const routing = useRouting();
   const [actionError, setActionError] = useState("");
   const recipients = useMemo(
     () =>
@@ -120,6 +123,14 @@ export default function EmailPreviewPage() {
           <div>
             <dt>{t("to")}</dt>
             <dd>
+              <span className="recipient-line">
+                {routing?.[meeting.type]
+                  ? t("listRecipients", {
+                      list: listName(meeting.type, t),
+                      count: routing[meeting.type],
+                    })
+                  : listName(meeting.type, t)}
+              </span>
               {meeting.participantSnapshots?.length
                 ? meeting.participantSnapshots.map((person) => (
                     <span className="recipient-line" key={person.staffId}>
