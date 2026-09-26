@@ -8,22 +8,8 @@ colors:
   ink: "#101010"
   ink-secondary: "#5b544b"
   ink-tertiary: "#6f685f"
-  medical: "#2d765c"
-  medical-tint: "#daf4e5"
-  executive: "#43607b"
-  executive-tint: "#e4f3ff"
-  administrative: "#8c459f"
-  administrative-tint: "#f0daf6"
   danger: "#b3261e"
   danger-tint: "#fbeae8"
-  speaker-1: "#3f78c4"
-  speaker-2: "#dc6f3f"
-  speaker-3: "#2f9e76"
-  speaker-4: "#d19a1f"
-  speaker-5: "#d4719a"
-  speaker-6: "#3f8a2f"
-  speaker-7: "#5b4bb0"
-  speaker-8: "#cf4f4c"
 typography:
   display:
     fontFamily: "Onest, system-ui, sans-serif"
@@ -93,7 +79,6 @@ typography:
 rounded:
   control: "10px"
   card: "18px"
-  dot: "999px"
 spacing:
   "4": "4px"
   "8": "8px"
@@ -150,7 +135,7 @@ The source of truth is the Figma file
 **Style guide** page covers everything below with live components, plus the
 EN/RO/RU glossary and writing rules. The token names in this file match the
 variables in the "Secure MOM v2" collection. In CSS they become
-`--sm-<group>-<name>`, for example `--sm-ink-primary` and `--sm-dept-medical`.
+`--sm-<group>-<name>`, for example `--sm-ink-primary` and `--sm-signal-danger`.
 
 ## Overview
 
@@ -163,14 +148,16 @@ numbers, and it stays out of the way until something needs a decision. The
 minutes are the only thing on screen that should feel loud.
 
 The page is warm bone, cards are white with a 1 px hairline and a shadow you
-notice only when it is missing. There is one ink. Colour turns up only when it
-means something: which board a meeting belongs to, who is speaking, or that a
-send can still be stopped. The references were HockeyStack and glasa.io for
+notice only when it is missing. There is one ink. The only colour is red, and
+it turns up only when something is recording, failed, or can still be stopped.
+Meeting types and speakers are told apart by their names, never by colour. The references were HockeyStack and glasa.io for
 restraint and density. We ruled out anything cartoonish, pointed or chatty.
 
 **Key characteristics**
 
 - One job per screen; everything else is one tap away.
+- Built for someone who has never seen it: three sections, three steps, and one
+  line of guidance where a first-time user has to choose.
 - Very little text. Titles name the thing, and there are no helper paragraphs.
 - Numbers (times, durations, dates, counts) are always set in Geist Mono.
 - Minutes auto-send on a 60-second countdown that anyone in the room can stop.
@@ -182,24 +169,18 @@ restraint and density. We ruled out anything cartoonish, pointed or chatty.
 
 ## Colors
 
-Warm neutrals and one near-black ink, with meaning carried by small spots of colour.
+Warm neutrals and one near-black ink. Red is the only colour.
 
 - **Surfaces.** `ground` is the page, `panel` is every card and sheet, and
   `hairline` is every divider and card edge at 1 px.
 - **Ink.** Use three steps and no more. `ink` is for anything you read to act.
   `ink-secondary` is for meta lines. `ink-tertiary` is only for labels you can
   safely ignore; it still passes 4.5:1 on both surfaces.
-- **Departments.** Medical is green, Executive blue-grey, Administrative plum.
-  They appear as a dot, a tint behind a letter tile, or a label, and never as
-  a button or a large field.
 - **Danger.** It is used for "Stop sending", destructive actions and errors,
   always together with a word.
-- **Speakers.** There are eight hues in a fixed order. They are checked for
-  colour-blind separation, and the worst adjacent pair is ΔE 8.2. The hues
-  never cycle: speaker 9 and later get an `ink-tertiary` dot, and their name
-  or number carries who they are. A speaker colour always
-  sits next to a name, so the lighter hues (`speaker-4`) can sit under 3:1
-  as decoration.
+- **No decorative colour.** Meeting types, speakers and statuses are words.
+  There are no department colours, speaker colours, coloured dots, or icons in
+  tinted squares. Speaker timelines use ink bars, one row per named person.
 
 ## Typography
 
@@ -232,9 +213,9 @@ The spacing base is 4 px (steps 4, 8, 12, 16, 24, 32, 48, 64).
 
 | Width | Grid | Behaviour |
 |---|---|---|
-| 1280 and up | 12 columns, 24 gutter, 64 margin (1440 frame, 1312 content) | Top bar with five sections. Minutes has a people rail on the right. |
+| 1280 and up | 12 columns, 24 gutter, 64 margin (1440 frame, 1312 content) | Top bar with three sections: Meetings, Action items, People. All meetings (history) opens from the Meetings screen; System opens from the account initials. Minutes has a people rail on the right. |
 | 768 to 1279 | 8 columns, 20 gutter, 32 margin | Recording sits side by side in landscape (1194). Minutes stacks in portrait (834). |
-| under 768 | 4 columns, 16 gutter, 20 margin (390 frame) | Bottom tab bar: Meetings, Action items, History, People. System lives in the account menu. |
+| under 768 | 4 columns, 16 gutter, 20 margin (390 frame) | Bottom tab bar: Meetings, Action items, People. System lives in the account menu. |
 
 Leave room for text to grow by 35% for RO and RU. The route labels
 ("Proces-verbal") are the first thing to break.
@@ -253,8 +234,7 @@ Nothing else casts a shadow. Lists inside cards are separated by hairlines, not 
 ## Shapes
 
 Controls (buttons, inputs, checkboxes, the language switch) use 10 px corners.
-Cards, sheets and dialogs use 18 px. Status dots and speaker dots are full
-circles. Nothing is square and nothing is pointed. Chevrons appear only inside
+Cards, sheets and dialogs use 18 px. The only dot is the red recording pulse. Nothing is square and nothing is pointed. Chevrons appear only inside
 a select, and arrows are never used as decoration. Every card edge is a 1 px
 hairline.
 
@@ -266,16 +246,15 @@ Pressed, Disabled and Focus states.
 - **Button**: Primary, Secondary, Danger, Quiet; 44 px tall, with an optional
   leading Phosphor Bold icon. Use one Primary per screen. Danger is only for
   "Stop sending" and delete.
-- **Door**: the three department entries on the start screen. The whole door
-  is the target.
-- **Tile**: one figure and one label.
-- **Speaker**: colour dot, name, talk time.
-- **Status**: a word first, with colour only in support.
+- **Door**: the three meeting types on the start screen: a name and where the
+  minutes go. No icon, no colour. The whole door is the target.
+- **Speaker**: name and talk time.
+- **Status**: a word on a neutral chip. Only Recording and Failed are red.
 - **Language switch**: EN, RO, RU, always top right. It switches the whole
   interface and the page `lang`.
 - **Input**: 48 px, with the label above the field and never inside it.
-- **Route**: Record, Transcribe, Speakers, Minutes, Sent. The marker slides
-  between stages.
+- **Route**: three stops, Record, Minutes, Sent. Transcribing and finding
+  speakers happen inside Minutes; the user never has to know those words.
 - **Send countdown**: the undo window. "Stop sending" stays visible and is
   first in tab order.
 - **Action item**: task, owner (speaker), deadline, and when it was said.
@@ -327,13 +306,13 @@ countdown bar still empties, because it carries meaning.
 **Do**
 
 - Use buttons that say what happens: "Send now", "Stop sending", "Write the minutes".
-- Put a name next to every speaker colour and a word next to every status colour.
+- Name every speaker and every status in words.
 - Keep a 2 px ink focus ring with a 2 px offset on every control.
 - Make "Now speaking" and the countdown polite live regions, and read the timer only on request.
 
 **Don't**
 
-- Use department or speaker colour as a background field or a button fill.
+- Colour-code meeting types or speakers, or put an icon in a tinted square.
 - Add helper paragraphs, empty-state illustrations or emoji.
 - Use pill-shaped cards, pointed shapes, or arrows as ornament.
 - Animate anything people do many times a day.
