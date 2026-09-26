@@ -381,6 +381,7 @@ test behind for each control.
 | A "recording" that makes ffmpeg read files or URLs | type checked by bytes, local files only, 500 MB and 3 h caps | `test_upload_checks_bytes_not_names` |
 | A transcript that runs commands through LaTeX | macro whitelist, shell escape off, paranoid file access | 14 injection tests |
 | Another account reading minutes or voiceprints | folders 0700, files 0600, `mom purge --days 30` | `test_voiceprints_and_sessions_are_private` |
+| Nobody can say who read or sent what | append-only audit trail: every change and every read of a recording, transcript or document, with user, time, route, meeting and result, never the content; SQLite triggers refuse edits and deletes; administrators only | `test_the_audit_trail_records_who_did_what…` |
 | A swapped model or package | models pinned by SHA-256, CycloneDX SBOM | `minutes/compliance/sbom.json` |
 | Script injection in the browser | React escaping, CSP `default-src 'self'`, no framing | frontend security report |
 

@@ -602,6 +602,12 @@ def capabilities(user: dict = Depends(current_user)):
 
 
 # ---------------------------------------------------------------- admin
+@router.get("/admin/audit")
+def audit(user: dict = Depends(require_admin)):
+    """The latest 500 entries of the append-only audit trail."""
+    return security.audit_rows()
+
+
 @router.get("/admin")
 def admin(user: dict = Depends(require_admin)):
     accounts = [security.account(dict(r)) for r in store.db().execute("SELECT * FROM users ORDER BY created_at")]

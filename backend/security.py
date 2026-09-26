@@ -185,3 +185,33 @@ def ensure_admin() -> None:
         path = store.DATA / "initial-admin-password.txt"
         path.write_text(f"{email}\n{password}\n")
         os.chmod(path, 0o600)
+
+
+# ---------------------------------------------------------------- audit trail
+# Who changed what, and who read a recording, transcript or document: route,
+# meeting and result, never the content. Append-only (triggers in store.py).
+_READS = ("/recording", "/transcript", "/documents/")
+
+
+class AuditTrail(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        path = request.url.path
+        if path.startswith("/api/") and (request.method not in ("GET", "HEAD", "OPTIONS") or any(r in path for r in _READS)):
+            route = getattr(request.scope.get("route"), "path", path)
+            token = request.cookies.get(COOKIE)
+            user = None
+            if token:
+                row = store.db().execute("SELECT user_id FROM sessions WHERE token_hash=?", (_digest(token),)).fetchone()
+                user = row["user_id"] if row else None
+            with store.tx() as c:
+                c.execute("INSERT INTO audit(at,user_id,method,route,meeting_id,status,address) VALUES(?,?,?,?,?,?,?)",
+                          (now_iso(), user, request.method, route, request.path_params.get("meeting_id"),
+                           response.status_code, _client(request)))
+        return response
+
+
+def audit_rows(limit: int = 500) -> list[dict]:
+    rows = store.db().execute("SELECT * FROM audit ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
+    return [{"at": r["at"], "userId": r["user_id"], "method": r["method"], "route": r["route"],
+             "meetingId": r["meeting_id"], "status": r["status"], "address": r["address"]} for r in rows]

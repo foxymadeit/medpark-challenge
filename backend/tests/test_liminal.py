@@ -331,3 +331,20 @@ def test_a_matching_type_changes_nothing(client, monkeypatch):
     monkeypatch.setenv("FAKE_DETECTED", "medical")
     m = processed(client)
     assert m["status"] == "sending_soon" and not m["needsConfirmation"]
+
+
+def test_the_audit_trail_records_who_did_what_and_cannot_be_rewritten(client):
+    m = processed(client)
+    client.get(f"/api/meetings/{m['id']}/documents/ro.pdf")
+    rows = client.get("/api/admin/audit").json()
+    actions = [(r["method"], r["route"]) for r in rows]
+    assert ("POST", "/api/meetings/{meeting_id}/upload") in actions
+    assert ("GET", "/api/meetings/{meeting_id}/documents/{name}") in actions
+    assert all(r["userId"] for r in rows if r["route"] != "/api/auth/login")
+    assert not any("Consiliul" in json.dumps(r) for r in rows)   # never the content
+    with pytest.raises(Exception):
+        with store.tx() as con:
+            con.execute("DELETE FROM audit")
+    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
+    login(client, "nurse@medpark.local", "long enough password")
+    assert client.get("/api/admin/audit").status_code == 403

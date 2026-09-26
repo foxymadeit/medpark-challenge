@@ -60,6 +60,7 @@ class SecurityHeaders(BaseHTTPMiddleware):
 
 
 app = FastAPI(title="Liminal", lifespan=lifespan)
+app.add_middleware(security.AuditTrail)
 app.add_middleware(security.OriginCheck)
 app.add_middleware(SecurityHeaders)
 app.include_router(api.router)

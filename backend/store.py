@@ -27,6 +27,11 @@ CREATE TABLE IF NOT EXISTS login_failures (key TEXT NOT NULL, at REAL NOT NULL);
 CREATE INDEX IF NOT EXISTS login_failures_key ON login_failures(key, at);
 CREATE TABLE IF NOT EXISTS docs (
   kind TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, updated_at REAL NOT NULL, PRIMARY KEY (kind, id));
+CREATE TABLE IF NOT EXISTS audit (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, user_id TEXT, method TEXT NOT NULL, route TEXT NOT NULL,
+  meeting_id TEXT, status INTEGER NOT NULL, address TEXT);
+CREATE TRIGGER IF NOT EXISTS audit_no_update BEFORE UPDATE ON audit BEGIN SELECT RAISE(ABORT, 'the audit trail is append-only'); END;
+CREATE TRIGGER IF NOT EXISTS audit_no_delete BEFORE DELETE ON audit BEGIN SELECT RAISE(ABORT, 'the audit trail is append-only'); END;
 CREATE TABLE IF NOT EXISTS jobs (
   id INTEGER PRIMARY KEY AUTOINCREMENT, meeting_id TEXT NOT NULL, state TEXT NOT NULL,
   attempts INTEGER NOT NULL DEFAULT 0, created_at REAL NOT NULL, updated_at REAL NOT NULL);
