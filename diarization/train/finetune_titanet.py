@@ -102,6 +102,66 @@ class Progress(pl.Callback):
               f"({(time.time() - self.t0) / 60:.1f} min in)", flush=True)
 
 
+class KeepFrozen(pl.Callback):
+    """Frozen blocks stay in eval mode, so their batch-norm statistics do not
+    drift toward the new data while the top of the network adapts."""
+
+    def __init__(self, modules):
+        self.modules = modules
+
+    def on_train_epoch_start(self, trainer, pl_module):
+        for m in self.modules:
+            m.eval()
+
+
+class EpochExport(pl.Callback):
+    """An ONNX file after every epoch, so the best epoch can be picked on
+    held-out meetings instead of trusting the last one."""
+
+    def __init__(self, out, meta, frozen):
+        self.out, self.meta, self.frozen = Path(out), meta, frozen
+
+    def on_train_epoch_end(self, trainer, pl_module):
+        path = self.out.with_suffix(f".e{trainer.current_epoch + 1}.onnx")
+        pl_module.eval()
+        pl_module.export(str(path))
+        add_meta(str(path), self.meta)
+        pl_module.train()
+        for m in self.frozen:
+            m.eval()
+        print(f"[save] epoch {trainer.current_epoch + 1} -> {path}", flush=True)
+
+
+def meta(cfg, labels):
+    """The metadata keys sherpa-onnx reads from a NeMo speaker model."""
+    pre = cfg.preprocessor
+    return {
+        "framework": "nemo",
+        "language": "multilingual meetings (fine-tuned)",
+        "url": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nemo/models/titanet_small",
+        "comment": f"TitaNet-small fine-tuned on {len(labels)} meeting speakers",
+        "sample_rate": pre.sample_rate,
+        "output_dim": cfg.decoder.emb_sizes,
+        "feature_normalize_type": pre.normalize,
+        "window_size_ms": int(float(pre.window_size) * 1000),
+        "window_stride_ms": int(float(pre.window_stride) * 1000),
+        "window_type": pre.window,
+        "feat_dim": pre.features,
+    }
+
+
+def freeze_below(model, keep):
+    """Freeze the encoder except its last `keep` blocks; the decoder always trains."""
+    blocks = list(model.encoder.encoder)
+    frozen = blocks[:len(blocks) - keep] if keep > 0 else blocks
+    for b in frozen:
+        for p in b.parameters():
+            p.requires_grad = False
+    n = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"[freeze] {len(frozen)} of {len(blocks)} encoder blocks frozen; {n / 1e6:.2f} M parameters train", flush=True)
+    return frozen
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--train", required=True)
@@ -115,6 +175,10 @@ def main():
     ap.add_argument("--rir-manifest", help="room impulse responses to convolve training pieces with")
     ap.add_argument("--noise-manifest", help="noises to mix into training pieces")
     ap.add_argument("--aug-prob", type=float, default=0.3, help="chance of each augmentation per piece")
+    ap.add_argument("--freeze-keep", type=int, default=-1,
+                    help="train only the last N encoder blocks plus the decoder (-1 trains everything)")
+    ap.add_argument("--grad-clip", type=float, default=None)
+    ap.add_argument("--export-every-epoch", action="store_true")
     a = ap.parse_args()
     gpu = torch.cuda.get_device_name(0) if torch.cuda.is_available() else "none"
     print(f"torch {torch.__version__}, CUDA {torch.version.cuda}, GPU {gpu}, NeMo {nemo.__version__}, "
@@ -139,30 +203,24 @@ def main():
         cfg.decoder.num_classes = len(labels)
         cfg.optim.lr = a.lr
 
-    trainer = pl.Trainer(max_epochs=a.epochs, accelerator="gpu", devices=1, precision="16-mixed",
+    trainer = pl.Trainer(max_epochs=a.epochs, accelerator="gpu", devices=1, precision="16-mixed", gradient_clip_val=a.grad_clip,
                          log_every_n_steps=20, fast_dev_run=a.smoke, enable_progress_bar=False,
-                         callbacks=[Progress(Path(a.out).with_suffix(".last.nemo"), a.progress)])
+                         callbacks=[])
     model = nemo_asr.models.EncDecSpeakerLabelModel(cfg=cfg, trainer=trainer)
     model.maybe_init_from_pretrained_checkpoint(OmegaConf.create({
         "init_from_pretrained_model": {"titanet": {"name": "titanet_small", "exclude": ["decoder.final"]}}}))
+    frozen = freeze_below(model, a.freeze_keep) if a.freeze_keep >= 0 else []
+    callbacks = [Progress(Path(a.out).with_suffix(".last.nemo"), a.progress)]
+    if frozen:
+        callbacks.append(KeepFrozen(frozen))
+    if a.export_every_epoch and not a.smoke:
+        callbacks.append(EpochExport(a.out, meta(cfg, labels), frozen))
+    trainer.callbacks.extend(callbacks)
     trainer.fit(model)
 
     model.eval()
     model.export(a.out)
-    pre = cfg.preprocessor
-    add_meta(a.out, {
-        "framework": "nemo",
-        "language": "multilingual meetings (fine-tuned)",
-        "url": "https://catalog.ngc.nvidia.com/orgs/nvidia/teams/nemo/models/titanet_small",
-        "comment": f"TitaNet-small fine-tuned on {len(labels)} meeting speakers",
-        "sample_rate": pre.sample_rate,
-        "output_dim": cfg.decoder.emb_sizes,
-        "feature_normalize_type": pre.normalize,
-        "window_size_ms": int(float(pre.window_size) * 1000),
-        "window_stride_ms": int(float(pre.window_stride) * 1000),
-        "window_type": pre.window,
-        "feat_dim": pre.features,
-    })
+    add_meta(a.out, meta(cfg, labels))
     print(f"wrote {a.out}")
 
 
