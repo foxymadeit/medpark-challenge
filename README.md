@@ -1,4 +1,4 @@
-# Secure MOM: offline speaker diarization
+# Secure MOM: offline diarization and minutes
 
 Secure MOM turns a hospital meeting into minutes: a summary, the decisions,
 and the action items with owners and deadlines, emailed to the right team.
@@ -6,9 +6,13 @@ We are building it for the Medpark International Hospital challenge at
 DeepTech GigaHack 2026 (Chișinău), where the rule is that audio and
 transcripts never leave the hospital.
 
-This branch holds the part that works out **who spoke when**, so an action
-item goes to the person who actually took it. The challenge lists speaker
-diarization as a strong bonus. It also holds the product's design system.
+This branch holds two parts of it. The diarizer works out **who spoke
+when**, so an action item goes to the person who actually took it; the
+challenge lists speaker diarization as a strong bonus. The minutes generator
+([minutes/](minutes/README.md)) turns the transcript into Medpark's minutes
+in Romanian, Russian and English, as PDF and DOCX, with every decision,
+owner and deadline checked by code against the transcript. The branch also
+holds the product's design system.
 
 ![The diarizer's test screen: five people introduce themselves, then hold a meeting in Romanian, Russian and English](diarization/demo/cli.gif)
 
@@ -38,7 +42,8 @@ normal speed and sped up 2x in the GIF.
 | Models on disk | 52 MB, bundled; nothing is downloaded at runtime |
 | Network calls at runtime | none (a test fails the build if any code opens a socket) |
 | Speakers per meeting | no limit set in advance; tested up to 14 in meetings and 100 in unit tests |
-| Tests | 74 passing |
+| Minutes: PDF per language, 2017 i5 | 4.3 s; RO, RU and EN compile in parallel |
+| Tests | 74 passing in the diarizer, 87 in the minutes |
 
 Accuracy here is 100 minus the diarization error rate (DER): the share of
 time that was missed, falsely marked as speech, or given to the wrong
@@ -52,6 +57,28 @@ like a far microphone (its speech is only 9 dB above the room), so until we
 label real Medpark audio, expect numbers nearer 66% there than 93%.
 Putting a microphone closer to the speakers moves a meeting into the first
 two rows.
+
+## Minutes
+
+`mom report transcript.txt` writes six documents: a PDF (PDF/A-2b) and a DOCX
+per language, in Medpark's colours, logo and type. A local model on
+127.0.0.1 finds the facts and words them; code checks each one:
+
+- the quote behind every fact is in the transcript lines it cites;
+- a decision has a decision act in those lines, so a proposal nobody took up
+  stays a note;
+- owners are named or speaking in those lines, and deadlines are computed
+  from the words said, never guessed;
+- items that fail a check go to "Needs confirmation" for a person to settle
+  before sending.
+
+The wording follows 41 published hospital and public-body minutes in the
+three languages (`minutes/research/corpus.md`). Sentences never say who
+spoke; names appear only in the attendance list and on action owners, and
+patients only as initials, age and bed. A PDF compiles in 4.3 s on the 2017
+laptop, the three languages in parallel. The model is chosen by a bake-off
+on Kaggle T4s over six scripted meetings with traps; its numbers go into
+[minutes/README.md](minutes/README.md) when the run finishes.
 
 ## Try it
 
@@ -272,14 +299,14 @@ a person's voiceprints (Art. 17, the right to erasure).
 | A3 | Footprint of the tech itself | 52 MB of models, CPU only, 232 MB of RAM. About 2 to 3 Wh per meeting hour on a 15 W laptop chip. We dropped the larger voice models (101 MB and 114 MB) after measuring that they did not beat the small one. Training took 3.3 GPU-hours on shared Kaggle T4s. | 4 Evidenced |
 | A4 | Do no significant harm | At 1,000 hospitals it still needs no data centre or new devices. It keeps no audio, so storage does not grow with use. | 2 Considered |
 | B1 | Digital Europe capacity fit | Trustworthy AI and cybersecurity applied to healthcare administration, running on premises. | 3 Integrated |
-| B2 | Trustworthy AI and AI Act | AI is in two places: finding speech and telling voices apart. Labels are anonymous by default (Speaker 1, 2). Naming people from their voice is biometric identification, which the AI Act treats with care, so it is opt-in, consented, local, deletable, and any label can be corrected by a person. It infers no emotions. | 3 Integrated |
-| B3 | Cybersecurity by design | The threat model and controls in the Security section, each with a test or a code reference. | 4 Evidenced |
+| B2 | Trustworthy AI and AI Act | AI is in two places: finding speech and telling voices apart. Labels are anonymous by default (Speaker 1, 2). Naming people from their voice is biometric identification, which the AI Act treats with care, so it is opt-in, consented, local, deletable, and any label can be corrected by a person. It infers no emotions. In the minutes, a local model drafts the text; code checks every fact against the transcript, unconfirmed items wait for a person, and each PDF and DOCX is marked as AI-generated in its footer and metadata (Art. 50). Assessment: `minutes/compliance/ai-act.md`, `altai.md`. | 3 Integrated |
+| B3 | Cybersecurity by design | The threat model and controls in the Security section, each with a test or a code reference. The minutes add a LaTeX macro whitelist with 14 injection tests, a model client that accepts only loopback and ignores proxies, and a CycloneDX SBOM (`minutes/compliance/sbom.json`). | 4 Evidenced |
 | B4 | Use of EU digital infrastructure | Next step is testing in a real hospital setting through the EU's healthcare testing facility (TEF-Health) or a European Digital Innovation Hub. Not contacted yet. | 1 Aware |
-| C1 | Personal data mapping and minimisation | We touch: audio (in memory only, never saved by the diarizer), turn times with labels, names typed by the user, and voiceprints of people who enroll. No audio is kept, and labels stay anonymous unless someone names them. | 3 Integrated |
+| C1 | Personal data mapping and minimisation | We touch: audio (in memory only, never saved by the diarizer), turn times with labels, names typed by the user, and voiceprints of people who enroll. No audio is kept, and labels stay anonymous unless someone names them. The minutes hold no quotes, name patients only by initials, age and bed, and keep the checked facts in an owner-only file on the server (`minutes/compliance/data-inventory.md`). | 3 Integrated |
 | C2 | Lawful basis and consent | Minutes: the hospital's legitimate interest in documenting its meetings (Art. 6). Voiceprints: explicit consent (Art. 9(2)(a)), now asked for and recorded with a time. Health details said in meetings belong to the transcript, handled by the transcription slice. | 3 Integrated |
 | C3 | Privacy by design and by default | Local processing only, owner-only files, no audio retention, anonymous by default, one-command erasure. All tested. | 4 Evidenced |
-| C4 | Experimentation ethics | All development used public recordings whose speakers consented (Common Voice, LibriSpeech, AMI). The live test used informed volunteers. The only hospital audio is the organisers' anonymised sample, which never went to a cloud. A DPIA (Art. 35) is needed before a real deployment and is not written yet. | 3 Integrated |
-| D1 | Sector policy fit | Digital health: hospital records produced locally, in line with the EU's rules for health data. It makes no clinical decisions, so it is outside the Medical Device Regulation. | 2 Considered |
+| C4 | Experimentation ethics | All development used public recordings whose speakers consented (Common Voice, LibriSpeech, AMI). The live test used informed volunteers. The only hospital audio is the organisers' anonymised sample, which never went to a cloud. A DPIA (Art. 35) is needed before a real deployment; a draft is in `minutes/compliance/dpia.md`. The minutes were developed on synthetic meetings only, and the model bake-off ran on Kaggle with no hospital data. | 3 Integrated |
+| D1 | Sector policy fit | Digital health: hospital records produced locally, in line with the EU's rules for health data. It makes no clinical decisions, so it is outside the Medical Device Regulation; the reasoning under MDCG 2019-11 is in `minutes/compliance/intended-purpose.md`. | 3 Integrated |
 | D2 | Stakeholders and value chain | Meeting chairs, attendees, hospital IT and the data protection officer. Medpark set the requirements through the challenge; we have not interviewed them directly yet. | 2 Considered |
 | D3 | Sector validation route | Label 5 minutes of real Medpark audio, then pilot in one board meeting with close microphones and measure accuracy there. | 2 Considered |
 | D4 | Sector evidence and data standards | Standard DER scoring and RTTM output, results on a public benchmark (AMI), held-out test voices, answer keys in the repo. | 3 Integrated |
