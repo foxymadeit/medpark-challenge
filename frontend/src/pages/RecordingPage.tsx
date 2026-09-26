@@ -182,7 +182,7 @@ function Recorder({ initial: m }: { initial: Meeting }) {
                 onClick={() => void rec.start()}
               >
                 <Microphone size={20} />
-                {t("startRecording")}
+                {t(rec.error ? "retry" : "startRecording")}
               </Button>
             )}
             {active && (
@@ -229,7 +229,7 @@ function Recorder({ initial: m }: { initial: Meeting }) {
         </section>
         <section className="panel speaking-panel">
           <h2>{t("nowSpeaking")}</h2>
-          {DEMO_MODE ? (
+          {DEMO_MODE && active && m.participants.length ? (
             <>
               <div className="current-speaker">
                 <SpeakerLabel person={m.participants[slot]} slot={slot} />
