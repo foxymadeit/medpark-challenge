@@ -1,6 +1,7 @@
 # Liminal's local services. Everything listens on 127.0.0.1 only.
 #
 #   docker compose up -d                      Mailpit (local SMTP + inbox at http://127.0.0.1:8025)
+#                                             and n8n (routing, editor at http://127.0.0.1:5678); then bash n8n/setup.sh
 #   docker compose --profile server up -d     + the backend and Ollama, for the Linux reference server
 #
 # On a laptop the backend usually runs on the host (it needs the ASR,
@@ -19,6 +20,36 @@ services:
         protocol: tcp
       - target: 8025
         published: "8025"
+        host_ip: 127.0.0.1
+        protocol: tcp
+
+  n8n:
+    # the routing engine: reads the meeting-type tag and emails that type's list.
+    # Community Edition, self-hosted, free for internal use. Everything that
+    # would call n8n's servers (telemetry, version checks, templates, community
+    # packages) is switched off below; the jury can pull the cable.
+    image: docker.n8n.io/n8nio/n8n@sha256:ffeb52485f78b1b06c9a832205853cf75da72a07a514c9a27724df85979d6c34   # 2.40.7
+    restart: unless-stopped
+    environment:
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_DIAGNOSTICS_CONFIG_FRONTEND: ""
+      N8N_DIAGNOSTICS_CONFIG_BACKEND: ""
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_TEMPLATES_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_HIRING_BANNER_ENABLED: "false"
+      N8N_COMMUNITY_PACKAGES_ENABLED: "false"
+      EXTERNAL_FRONTEND_HOOKS_URLS: ""
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
+      N8N_SECURE_COOKIE: "false"               # the editor is on 127.0.0.1 only
+      N8N_PAYLOAD_SIZE_MAX: "64"               # three PDFs, base64
+      GENERIC_TIMEZONE: Europe/Chisinau
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-change-me-on-the-hospital-server}
+    volumes: [n8n:/home/node/.n8n]
+    networks: [internal, edge]
+    ports:
+      - target: 5678
+        published: "5678"
         host_ip: 127.0.0.1
         protocol: tcp
 
@@ -60,5 +91,6 @@ networks:
   edge: {}                                  # only for publishing ports to 127.0.0.1
 
 volumes:
+  n8n: {}
   ollama: {}
   liminal: {}

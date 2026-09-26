@@ -1,0 +1,194 @@
+{
+  "id": "liminalRouting01",
+  "name": "Liminal: route the minutes by meeting type",
+  "active": false,
+  "nodes": [
+    {
+      "id": "b1c1a001-0000-4000-8000-000000000001",
+      "name": "Minutes from Liminal",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "b1c1a001-0000-4000-8000-00000000beef",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "liminal-minutes",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "b1c1a001-0000-4000-8000-000000000002",
+      "name": "Prepare the email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// The backend posts the checked minutes; this node turns them into one email.\nconst b = $input.first().json.body;\nconst m = b.minutes || {};\nconst LISTS = { medical: \"Medical board\", executive: \"Executive board\", administrative: \"Administrative board\" };\nif (!LISTS[m.meeting_type]) {\n  // an unknown tag must not look like a delivery: the backend then mails directly\n  throw new Error(`unknown meeting type: ${m.meeting_type}`);\n}\nconst lines = [`${m.title}`, \"\", m.summary || \"\", \"\"];\nif ((m.decisions || []).length) {\n  lines.push(\"Decisions:\");\n  m.decisions.forEach((d, i) => lines.push(`  ${i + 1}. ${d}`));\n  lines.push(\"\");\n}\nif ((m.action_items || []).length) {\n  lines.push(\"Action items:\");\n  m.action_items.forEach((a, i) => lines.push(`  ${i + 1}. ${a.text} | ${a.owner || \"owner not set\"} | ${a.deadline || \"no deadline set\"}`));\n  lines.push(\"\");\n}\nlines.push(\"The minutes in Romanian, Russian and English are attached (PDF/A).\");\nlines.push(\"Drafted by Liminal on the hospital's own server; every item was checked against the recording.\");\nconst binary = {};\n(b.documents || []).forEach((d, i) => {\n  binary[`doc${i}`] = { data: d.data, mimeType: d.mimeType || \"application/pdf\", fileName: d.fileName };\n});\nreturn [{\n  json: {\n    meetingId: b.meetingId,\n    meetingType: m.meeting_type,\n    subject: `MoM | ${LISTS[m.meeting_type].replace(\" board\", \"\")} | ${m.title}`,\n    text: lines.join(\"\\n\"),\n    cc: (b.participant_emails || []).join(\",\"),\n    attachments: Object.keys(binary).join(\",\"),\n  },\n  binary,\n}];"
+      }
+    },
+    {
+      "id": "b1c1a001-0000-4000-8000-000000000003",
+      "name": "Route by meeting type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "mode": "expression",
+        "numberOutputs": 3,
+        "output": "={{ ['medical', 'executive', 'administrative'].indexOf($json.meetingType) }}"
+      }
+    },
+    {
+      "id": "b1c1a001-0000-4000-8000-000000000010",
+      "name": "Email the Medical board",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        760,
+        120
+      ],
+      "parameters": {
+        "fromEmail": "Liminal <liminal@hospital.local>",
+        "toEmail": "medical-board@hospital.local, admin-board@hospital.local",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {
+          "ccEmail": "={{ $json.cc }}",
+          "attachments": "={{ $json.attachments }}",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "smtp": {
+          "id": "liminalMailpit01",
+          "name": "Hospital mail server (Mailpit in the demo)"
+        }
+      }
+    },
+    {
+      "id": "b1c1a001-0000-4000-8000-000000000011",
+      "name": "Email the Executive board",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        760,
+        300
+      ],
+      "parameters": {
+        "fromEmail": "Liminal <liminal@hospital.local>",
+        "toEmail": "executive-board@hospital.local",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {
+          "ccEmail": "={{ $json.cc }}",
+          "attachments": "={{ $json.attachments }}",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "smtp": {
+          "id": "liminalMailpit01",
+          "name": "Hospital mail server (Mailpit in the demo)"
+        }
+      }
+    },
+    {
+      "id": "b1c1a001-0000-4000-8000-000000000012",
+      "name": "Email the Administrative board",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        760,
+        480
+      ],
+      "parameters": {
+        "fromEmail": "Liminal <liminal@hospital.local>",
+        "toEmail": "admin-board@hospital.local",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.text }}",
+        "options": {
+          "ccEmail": "={{ $json.cc }}",
+          "attachments": "={{ $json.attachments }}",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "smtp": {
+          "id": "liminalMailpit01",
+          "name": "Hospital mail server (Mailpit in the demo)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Minutes from Liminal": {
+      "main": [
+        [
+          {
+            "node": "Prepare the email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare the email": {
+      "main": [
+        [
+          {
+            "node": "Route by meeting type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by meeting type": {
+      "main": [
+        [
+          {
+            "node": "Email the Medical board",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email the Executive board",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email the Administrative board",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none",
+    "saveDataErrorExecution": "all",
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "tags": []
+}

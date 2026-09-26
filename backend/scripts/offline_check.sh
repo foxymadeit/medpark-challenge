@@ -17,7 +17,11 @@ bad = [name + ":" + str(p.get("published")) for name, s in c["services"].items()
        for p in s.get("ports", []) if p.get("host_ip") not in ("127.0.0.1", "::1")]
 assert not bad, f"ports open beyond this machine: {bad}"
 assert c["networks"]["internal"].get("internal") is True, "the internal network can reach out"
-print("   ok: every port on 127.0.0.1; internal network has no route out")'
+env = c["services"].get("n8n", {}).get("environment", {})
+calls_home = [k for k in ("N8N_DIAGNOSTICS_ENABLED", "N8N_VERSION_NOTIFICATIONS_ENABLED", "N8N_TEMPLATES_ENABLED",
+                          "N8N_PERSONALIZATION_ENABLED", "N8N_COMMUNITY_PACKAGES_ENABLED") if env and env.get(k) != "false"]
+assert not calls_home, f"n8n would call its servers: {calls_home}"
+print("   ok: every port on 127.0.0.1; internal network has no route out; n8n telemetry, updates and templates off")'
 
 echo "3/3 listening sockets on Liminal ports"
 if command -v lsof >/dev/null; then
