@@ -1,0 +1,64 @@
+# Liminal's local services. Everything listens on 127.0.0.1 only.
+#
+#   docker compose up -d                      Mailpit (local SMTP + inbox at http://127.0.0.1:8025)
+#   docker compose --profile server up -d     + the backend and Ollama, for the Linux reference server
+#
+# On a laptop the backend usually runs on the host (it needs the ASR,
+# diarizer and minutes tools and the GPU); see README.md.
+services:
+  mailpit:
+    image: axllent/mailpit@sha256:74d609a42ec279aa63c6b4622a6fa9b5408d1ad5b1d76a1c4be40a265ce0863d
+    restart: unless-stopped
+    environment:
+      MP_DISABLE_VERSION_CHECK: "true"
+    networks: [internal, edge]
+    ports:
+      - target: 1025
+        published: "1025"
+        host_ip: 127.0.0.1
+        protocol: tcp
+      - target: 8025
+        published: "8025"
+        host_ip: 127.0.0.1
+        protocol: tcp
+
+  ollama:
+    profiles: [server]
+    image: ollama/ollama:${OLLAMA_TAG:-latest}   # pin a digest on the hospital server
+    restart: unless-stopped
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434          # inside the internal network only; not published
+      OLLAMA_NOPRUNE: "1"
+    volumes: [ollama:/root/.ollama]         # models are pulled once at setup, then the network can go
+    networks: [internal]
+
+  liminal-backend:
+    profiles: [server]
+    build: .
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      LIMINAL_DATA: /data
+      SMTP_HOST: mailpit
+      SMTP_ALLOWED_HOSTS: mailpit
+      MOM_LLM_URL: http://ollama:11434
+      LIMINAL_ALLOW_PRIVATE_NETWORK: "1"    # the in-process guard still refuses every public address
+      LIMINAL_INTERNAL_HOSTS: mailpit,ollama
+    volumes: [liminal:/data]
+    networks: [internal, edge]
+    ports:
+      - target: 8000
+        published: "8000"
+        host_ip: 127.0.0.1
+        protocol: tcp
+
+networks:
+  internal:
+    internal: true                          # no route out of this network
+  edge: {}                                  # only for publishing ports to 127.0.0.1
+
+volumes:
+  ollama: {}
+  liminal: {}
