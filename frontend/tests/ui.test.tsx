@@ -8,6 +8,7 @@ import {
   within,
 } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 import App from "../src/App";
 import i18n from "../src/i18n/i18n";
 import { getMeeting, getMeetings, updateMeeting } from "../src/api/meetings";
@@ -22,6 +23,21 @@ function mount(path = "/meetings", auth = true) {
   return render(<App />);
 }
 describe("application flows", () => {
+  it("keeps the signed-out page free of participant data and supports keyboard login", async () => {
+    const user = userEvent.setup();
+    mount("/login", false);
+    expect(screen.queryByText("Elena Ciobanu")).toBeNull();
+    expect(screen.queryByText("Dr. Ana Popescu")).toBeNull();
+    const username = screen.getByLabelText("Username");
+    const password = screen.getByLabelText("Password");
+    await user.clear(username);
+    await user.type(username, "admin@medpark.local");
+    await user.type(password, "wrong{Enter}");
+    await screen.findByRole("alert");
+    expect((password as HTMLInputElement).value).toBe("");
+    await user.type(password, "test-only-demo-password{Enter}");
+    await screen.findByRole("heading", { name: "Start a meeting" });
+  });
   it("protects routes, rejects invalid credentials, accepts normalized demo username and logs out", async () => {
     const fetch = vi.fn();
     vi.stubGlobal("fetch", fetch);

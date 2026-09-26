@@ -65,11 +65,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError("");
     try {
       if (!DEMO_MODE) await request("/auth/logout", { method: "POST" });
+    } catch {
+      setError("requestFailed");
+    } finally {
       sessionStorage.removeItem(DEMO_SESSION_KEY);
       sessionStorage.removeItem("secure-mom-demo-auth");
       setUser(null);
-    } catch {
-      setError("requestFailed");
     }
   }, []);
   const value = useMemo(

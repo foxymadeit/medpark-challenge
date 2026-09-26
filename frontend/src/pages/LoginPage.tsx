@@ -33,6 +33,7 @@ export default function LoginPage() {
               await login(email.trim(), password);
             } catch {
               setError(true);
+              setPassword("");
             } finally {
               setBusy(false);
             }
@@ -48,6 +49,8 @@ export default function LoginPage() {
           <InputField
             label={t("username")}
             autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
             value={email}
             maxLength={254}
             required
