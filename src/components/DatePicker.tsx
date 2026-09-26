@@ -94,7 +94,7 @@ export function DatePicker({ value, onChange, label }: { value: string; onChange
         onClick={() => (setFocus(value), setOpen((o) => !o))}
       >
         <CalendarBlankIcon size={18} aria-hidden />
-        <span className="date-chip__value">{parseDate(value).toLocaleDateString(locale, { weekday: 'short' })} {formatFullDate(value, lang)}</span>
+        <span className="date-chip__value">{formatFullDate(value, lang)}</span>
         {value === today && <span className="date-chip__tag">{t('review.today')}</span>}
         <CaretDownIcon size={14} aria-hidden />
       </button>
