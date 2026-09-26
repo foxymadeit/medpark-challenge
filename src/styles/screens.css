@@ -84,8 +84,8 @@
 }
 .start-tile:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-surface-hairline); }
 .start-tile__spacer { flex: 1; }
-.start-tile--record { flex: 0 0 320px; background: var(--sm-ink-primary); color: var(--sm-surface-panel); }
-.start-tile--record:hover { background: #2b2b2b; }
+.start-tile--record { flex: 0 0 320px; background: var(--sm-record); color: var(--sm-surface-panel); }
+.start-tile--record:hover { background: var(--sm-record-hover); }
 .start-tile__status { display: inline-flex; align-items: center; gap: var(--sm-space-2); color: var(--sm-surface-hairline); font: 400 13px/18px var(--sm-font-body); }
 .templates-side { display: flex; flex-direction: column; gap: var(--sm-space-4); width: 400px; margin-top: 56px; padding: var(--sm-space-6); border-radius: var(--sm-radius-panel); }
 .templates-side__list { margin: 0; padding: 0; list-style: none; }

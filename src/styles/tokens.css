@@ -13,6 +13,9 @@
 
   /* signal — errors only */
   --sm-signal-danger: #b3261e;
+  /* Record tile only (user request): warm red, AA with white and hairline text. Not for errors. */
+  --sm-record: #b83a2e;
+  --sm-record-hover: #a8322a;
 
   /* speaker — speaker dots + waveform only.
      Figma defines 01–04; add more here as the file grows. */
