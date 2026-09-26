@@ -332,13 +332,13 @@
   },
   "sent": {
     "title_one": "Протокол отправлен {count} участнику",
-    "sendingLead_one": "Письмо {count} участнику",
-    "sendingLead_few": "Письма {count} участникам",
-    "sendingLead_many": "Письма {count} участникам",
+    "sendingLead_one": "Отправка {count} участнику",
+    "sendingLead_few": "Отправка {count} участникам",
+    "sendingLead_many": "Отправка {count} участникам",
     "title": "Протокол отправлен {count} участникам",
     "lead": "Сохранено в Истории с должностями на {date}.",
     "sending": "Отправляем протокол…",
-    "sendingLead": "Письма {count} участникам",
+    "sendingLead": "Отправка {count} участникам",
     "toHistory": "Перейти в историю",
     "download": "Скачать протокол (PDF)"
   },

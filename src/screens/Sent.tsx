@@ -49,16 +49,14 @@ export function Sent() {
         </span>
         <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
           <h1 className="t-h1" role="status" aria-live="polite">
-            {done ? t('sent.title', { count: meeting.sentTo ?? withEmail.length }) : t('sent.sending')}
+            {done ? t('sent.title', { count: meeting.sentTo ?? withEmail.length }) : meeting.title}
           </h1>
           <p className="lead">{done ? t('sent.lead', { date: formatDayMonth(meeting.date, lang) }) : t('sent.sendingLead', { count: withEmail.length })}</p>
         </div>
         {!done && (
           <div className="processing__progress sent__progress">
+            {/* Symbolic: a bar that fills, no percentage. */}
             <ProgressBar value={elapsed / total} label={t('sent.sending')} />
-            <span className="processing__pct" aria-hidden>
-              {Math.round((elapsed / total) * 100)}%
-            </span>
           </div>
         )}
 
