@@ -270,6 +270,18 @@ export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onEditLine
                 })
               )}
             </p>}
+            {/* Pen at the line's right end while hovering its words: one click edits the whole sentence. */}
+            {onEditLine && editing !== li && (
+              <button
+                type="button"
+                className="icon-btn edit-btn transcript__pen"
+                aria-label={t('review.sentence.edit')}
+                title={t('review.sentence.edit')}
+                onClick={() => (player.stop(), setSelected(li), setDraft(lineText(l)), setEditing(li))}
+              >
+                <PencilSimpleIcon size={16} aria-hidden />
+              </button>
+            )}
             {sentences && selected === li && editing !== li && (
               <div className="sentence-actions" role="group" aria-label={t('review.sentence.actions')}>
                 <button

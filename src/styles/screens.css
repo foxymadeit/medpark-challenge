@@ -214,7 +214,12 @@
 .review__pane--transcript { flex: 0 1 536px; min-width: 380px; }
 .review__pane--tasks { flex: 1 1 0; min-width: 440px; }
 .transcript { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }
-.transcript__line { display: flex; flex-direction: column; gap: var(--sm-space-1); }
+.transcript__line { position: relative; display: flex; flex-direction: column; gap: var(--sm-space-1); }
+.transcript__line:has(.transcript__pen) .transcript__text { padding-right: 32px; }
+.transcript__pen { position: absolute; top: 26px; right: 0; opacity: 0; transition: opacity 120ms ease; }
+.transcript__line:hover .transcript__pen,
+.transcript__line:focus-within .transcript__pen { opacity: 1; }
+.transcript__line.is-selected .transcript__pen { right: 10px; top: 34px; }
 .transcript__text { line-height: 26px; }
 /* "Heard in this meeting": languages + voices outside the participant list. */
 .heard { display: flex; flex-direction: column; gap: var(--sm-space-3); padding: var(--sm-space-3) var(--sm-space-4); border-radius: var(--sm-radius-tile); background: var(--sm-surface-ground); }
@@ -243,6 +248,9 @@
 .review__title-input { height: 44px; max-width: 560px; font: 600 24px/30px var(--sm-font-sign); }
 
 /* Summary: Task · Owner · Deadline. */
+.summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
+.summary-head__add { height: 32px; margin: -6px -8px -6px 0; padding: 0 10px; font-size: 14px; }
+.summary-table__patient-input { height: 32px; margin-bottom: 6px; font-size: 13px; }
 .summary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .summary-table th:nth-child(1) { width: 36%; }
 .summary-table th:nth-child(3) { width: 96px; }

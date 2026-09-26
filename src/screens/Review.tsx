@@ -1,4 +1,4 @@
-import { CheckIcon, PaperPlaneTiltIcon, PencilSimpleIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
+import { CheckIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
@@ -7,7 +7,7 @@ import { Dropdown } from '../components/Dropdown';
 import { TranscriptLines } from '../components/Minutes';
 import { PeopleStack } from '../components/PeopleStack';
 import { useI18n } from '../i18n/I18nProvider';
-import { addDays, daysBetween, formatDayMonth, formatWeekdayDate, isEmail } from '../lib/format';
+import { addDays, daysBetween, formatDayMonth, formatWeekdayDate, isEmail, uid } from '../lib/format';
 import { speakerNamer } from '../lib/meeting';
 import { lineTokens } from '../lib/transcript';
 import { detectedLanguages } from '../mocks';
@@ -203,7 +203,7 @@ export function Review() {
   const { t } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { meetings, setTasks, sendMeeting, resolvePerson, correctToken, removeToken, editLine, removeLine, updateMeeting } = useStore();
+  const { account, meetings, setTasks, sendMeeting, resolvePerson, correctToken, removeToken, editLine, removeLine, updateMeeting } = useStore();
   // Last removal, so a slip can be undone.
   const [removed, setRemoved] = useState<{ label: string; transcript: Meeting['transcript'] } | null>(null);
   const meeting = meetings.find((m) => m.id === id);
@@ -230,10 +230,21 @@ export function Review() {
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
   const dueOptions = Array.from({ length: 8 }, (_, i) => addDays(meeting.date, i));
 
+  const isNew = !!row && !meeting.tasks.some((x) => x.id === row.id);
+  // A new task shows as an editing row on top; it's only added once saved.
+  const rows = isNew && row ? [row, ...tasks] : tasks;
+  const addTask = () => {
+    const task: Task = { id: uid('task'), ownerId: account?.personId && meeting.participants.some((p) => p.personId === account.personId) ? account.personId : meeting.participants[0]?.personId ?? '', patient: '', title: '', due: addDays(meeting.date, 1) };
+    setEditingId(task.id);
+    setRow(task);
+  };
   const startRow = (task: Task) => (setEditingId(task.id), setRow(task));
   const cancelRow = () => (setEditingId(null), setRow(null));
   const saveRow = () => {
-    if (row && row.title.trim()) setTasks(meeting.id, meeting.tasks.map((x) => (x.id === row.id ? { ...row, title: row.title.trim() } : x)));
+    if (row && row.title.trim()) {
+      const clean = { ...row, title: row.title.trim(), patient: row.patient.trim() };
+      setTasks(meeting.id, isNew ? [...meeting.tasks, clean] : meeting.tasks.map((x) => (x.id === row.id ? clean : x)));
+    }
     cancelRow();
   };
 
@@ -253,10 +264,7 @@ export function Review() {
             <h2 id="rv-transcript" className="section-title">
               {t('review.transcript')}
             </h2>
-            <p className="note hint">
-              <PencilSimpleIcon size={14} aria-hidden />
-              <span>{t('review.word.hint')}</span>
-            </p>
+            <p className="note">{t('review.word.hint')}</p>
           </div>
           {removed && (
             <p className="undo-bar" role="status">
@@ -285,9 +293,15 @@ export function Review() {
         </section>
 
         <section className="card review__pane review__pane--tasks" aria-labelledby="rv-tasks" tabIndex={0}>
-          <h2 id="rv-tasks" className="section-title">
-            {t('review.tasks')}
-          </h2>
+          <div className="summary-head">
+            <h2 id="rv-tasks" className="section-title">
+              {t('review.tasks')}
+            </h2>
+            <button type="button" className="btn btn--ghost summary-head__add" onClick={addTask} disabled={isNew}>
+              <PlusIcon size={16} aria-hidden />
+              {t('review.addTask')}
+            </button>
+          </div>
           <table className="summary-table">
             <thead>
               <tr>
@@ -300,12 +314,12 @@ export function Review() {
               </tr>
             </thead>
             <tbody>
-              {tasks.map((task) =>
+              {rows.map((task) =>
                 editingId === task.id && row ? (
-                  <tr key={task.id} className="is-editing">
+                  <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
                     <td>
-                      <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>
-                      <input className="input input--inline" aria-label={t('review.task')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? saveRow() : e.key === 'Escape' ? cancelRow() : undefined)} />
+                      <input className="input input--inline summary-table__patient-input" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
+                      <input className="input input--inline" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? saveRow() : e.key === 'Escape' ? cancelRow() : undefined)} />
                     </td>
                     <td>
                       <Dropdown variant="field" label={t('review.owner')} value={row.ownerId} options={meeting.participants.map((x) => ({ value: x.personId, label: x.name }))} onChange={(v) => setRow({ ...row, ownerId: v })} />
@@ -315,7 +329,7 @@ export function Review() {
                     </td>
                     <td>
                       <span className="row" style={{ gap: 4 }}>
-                        {row.title.trim() && !(row.title === task.title && row.ownerId === task.ownerId && row.due === task.due) && (
+                        {row.title.trim() && (isNew || !(row.title === task.title && row.patient === task.patient && row.ownerId === task.ownerId && row.due === task.due)) && (
                           <button type="button" className="icon-btn icon-btn--confirm" aria-label={t('review.save')} title={t('review.save')} onClick={saveRow}>
                             <CheckIcon size={16} aria-hidden />
                           </button>
@@ -329,7 +343,7 @@ export function Review() {
                 ) : (
                   <tr key={task.id}>
                     <td>
-                      <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>
+                      {task.patient && <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>}
                       <span className="t-body-md">{task.title}</span>
                     </td>
                     <td>
