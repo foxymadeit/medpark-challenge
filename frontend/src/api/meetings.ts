@@ -324,7 +324,9 @@ export async function getTranscript(id: string) {
   return request<NonNullable<Meeting["transcript"]>>(`${path(id)}/transcript`);
 }
 export async function getPeople(): Promise<Participant[]> {
-  return DEMO_MODE ? readStore().people : request("/people");
+  return DEMO_MODE
+    ? readStore().people.filter((person) => person.active !== false)
+    : request("/people");
 }
 export async function getTemplates(): Promise<MeetingTemplate[]> {
   return DEMO_MODE

@@ -6,20 +6,84 @@ import type {
   VoiceProfile,
   DetectedSpeakerCluster,
   MeetingTemplate,
+  UserAccount,
+  StaffProfile,
+  StaffRoleAssignment,
+  DistributionList,
 } from "../types/meeting";
 import { sampleMinutes, seedMeetings, seedPeople } from "./seed";
 import { AUTO_COUNTDOWN_SECONDS } from "../api/config";
 import { ApiError } from "../api/client";
 export interface DemoStore {
-  version: 2 | 3 | 4 | 5;
+  version: 2 | 3 | 4 | 5 | 6;
   meetings: Meeting[];
   people: Participant[];
   feedback: CorrectionFeedback[];
   voiceProfiles: VoiceProfile[];
   speakerClusters: DetectedSpeakerCluster[];
   templates: MeetingTemplate[];
+  accounts: UserAccount[];
+  staffProfiles: StaffProfile[];
+  staffRoles: StaffRoleAssignment[];
+  distributionLists: DistributionList[];
 }
 export const STORE_KEY = "secure-mom-v2";
+function seedGovernance() {
+  const createdAt = new Date().toISOString();
+  return {
+    staffProfiles: seedPeople.map((person) => ({
+      id: person.id,
+      name: person.name,
+      email: person.email ?? "",
+      active: person.active !== false,
+      createdAt,
+      createdBy: "demo-admin",
+    })),
+    staffRoles: seedPeople.map((person) => ({
+      id: `role-${person.id}-current`,
+      staffId: person.id,
+      title: person.role ?? "Staff",
+      department: person.department ?? "administrative",
+      validFrom: "2026-01-01",
+      validTo: null,
+      createdBy: "demo-admin",
+    })),
+    accounts: [
+      {
+        id: "demo-admin",
+        username: "admin@medpark.local",
+        email: "admin@medpark.local",
+        role: "admin" as const,
+        active: true,
+        createdAt,
+        createdBy: "system",
+      },
+    ],
+    distributionLists: [
+      {
+        id: "medical-board",
+        name: "Medical board",
+        email: "medical-board@medpark.local",
+        active: true,
+      },
+      {
+        id: "executive-team",
+        name: "Executive team",
+        email: "executive-team@medpark.local",
+        active: true,
+      },
+      {
+        id: "admin-office",
+        name: "Administrative office",
+        email: "admin-office@medpark.local",
+        active: true,
+      },
+    ],
+  } satisfies Pick<
+    DemoStore,
+    "accounts" | "staffProfiles" | "staffRoles" | "distributionLists"
+  >;
+}
 function seedTemplates(): MeetingTemplate[] {
   const now = new Date().toISOString();
   const make = (
@@ -168,14 +232,14 @@ export function readStore(): DemoStore {
       throw new ApiError("storage");
     }
     if (
-      ![2, 3, 4, 5].includes(store.version) ||
+      ![2, 3, 4, 5, 6].includes(store.version) ||
       !Array.isArray(store.meetings) ||
       !Array.isArray(store.people)
     )
       throw new ApiError("storage");
   } else {
     store = {
-      version: 5,
+      version: 6,
       meetings: seedMeetings(),
       people: structuredClone(seedPeople),
       feedback: [],
@@ -201,6 +265,7 @@ export function readStore(): DemoStore {
         },
       ],
       templates: seedTemplates(),
+      ...seedGovernance(),
     };
     writeStore(store);
   }
@@ -239,10 +304,20 @@ export function readStore(): DemoStore {
     store.templates = seedTemplates();
     migrated = true;
   }
+  if (store.version === 5) {
+    store.version = 6;
+    Object.assign(store, seedGovernance());
+    migrated = true;
+  }
   store.voiceProfiles ??= [];
   store.speakerClusters ??= [];
   store.templates ??= seedTemplates();
   store.feedback ??= [];
+  const governance = seedGovernance();
+  store.accounts ??= governance.accounts;
+  store.staffProfiles ??= governance.staffProfiles;
+  store.staffRoles ??= governance.staffRoles;
+  store.distributionLists ??= governance.distributionLists;
   for (const meeting of store.meetings) {
     for (const participant of meeting.participants) {
       participant.staffId ??= participant.id;

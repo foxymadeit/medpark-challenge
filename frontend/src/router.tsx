@@ -26,6 +26,7 @@ import UploadPage from "./pages/UploadPage";
 import TemplatesPage from "./pages/TemplatesPage";
 import TemplateEditorPage from "./pages/TemplateEditorPage";
 import EmailPreviewPage from "./pages/EmailPreviewPage";
+import AdminPage from "./pages/AdminPage";
 
 export const routes: RouteObject[] = [
   {
@@ -60,7 +61,26 @@ export const routes: RouteObject[] = [
               { path: "templates/:id/edit", Component: TemplateEditorPage },
               {
                 Component: AdminRoute,
-                children: [{ path: "system", Component: SystemPage }],
+                children: [
+                  { path: "system", Component: SystemPage },
+                  { path: "admin", element: <AdminPage /> },
+                  {
+                    path: "admin/users",
+                    element: <AdminPage section="users" />,
+                  },
+                  {
+                    path: "admin/people",
+                    element: <AdminPage section="people" />,
+                  },
+                  {
+                    path: "admin/roles",
+                    element: <AdminPage section="roles" />,
+                  },
+                  {
+                    path: "admin/lists",
+                    element: <AdminPage section="lists" />,
+                  },
+                ],
               },
               {
                 path: "new-meeting",

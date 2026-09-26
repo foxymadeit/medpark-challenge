@@ -31,6 +31,12 @@ import {
   MAX_AUDIO_BYTES,
 } from "../src/api/audio";
 import { speakerColor } from "../src/utils";
+import {
+  assignStaffRole,
+  getAdminData,
+  saveAccount,
+  saveStaffProfile,
+} from "../src/api/admin";
 const now = new Date("2026-09-25T12:00:00Z");
 async function create() {
   const people = await getPeople();
@@ -42,6 +48,43 @@ async function create() {
   });
 }
 describe("demo workflow with no network", () => {
+  it("enforces admin governance in the API adapter and preserves role history", async () => {
+    await expect(
+      saveStaffProfile(
+        { name: "Blocked", email: "blocked@medpark.local" },
+        "staff",
+      ),
+    ).rejects.toThrow("permissionDenied");
+    await expect(
+      saveAccount({ username: "blocked", role: "staff" }, "staff"),
+    ).rejects.toThrow("permissionDenied");
+    const person = await saveStaffProfile(
+      { name: "Dr. Maria Lungu", email: "maria.lungu@medpark.local" },
+      "admin",
+    );
+    const first = await assignStaffRole(
+      {
+        staffId: person.id,
+        title: "Resident",
+        department: "Cardiology",
+        validFrom: "2026-01-01",
+      },
+      "admin",
+    );
+    await assignStaffRole(
+      {
+        staffId: person.id,
+        title: "Cardiologist",
+        department: "Cardiology",
+        validFrom: "2026-09-01",
+      },
+      "admin",
+    );
+    const data = await getAdminData();
+    expect(data.staffRoles.find((role) => role.id === first.id)?.validTo).toBe(
+      "2026-09-01",
+    );
+  });
   it("keeps participant identity and role snapshots immutable", async () => {
     const meeting = await create();
     const original = meeting.participantSnapshots?.find(

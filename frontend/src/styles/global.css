@@ -3,6 +3,96 @@
   box-sizing: border-box;
 }
 
+.admin-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+.admin-nav a {
+  padding: 9px 13px;
+  border-radius: 9px;
+  color: #596361;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.admin-nav a.active {
+  background: #e7f3f2;
+  color: #087b79;
+  font-weight: 650;
+}
+.admin-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.admin-summary {
+  display: grid;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+.admin-summary strong {
+  font-size: 30px;
+}
+.admin-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.admin-form {
+  display: grid;
+  gap: 16px;
+}
+.admin-form label {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #596361;
+}
+.admin-form input,
+.admin-form select {
+  min-height: 44px;
+  border: 1px solid #d9dfdd;
+  border-radius: 9px;
+  padding: 0 12px;
+  background: #fff;
+}
+.admin-table-list {
+  display: grid;
+  padding-block: 4px;
+}
+.admin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 4px;
+  border-bottom: 1px solid #e7eae9;
+}
+.admin-row:last-child {
+  border-bottom: 0;
+}
+.admin-row p {
+  margin: 4px 0 0;
+  color: #68716f;
+}
+@media (max-width: 760px) {
+  .admin-summary-grid,
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .admin-row .button {
+    width: 100%;
+  }
+}
+
 .email-preview-card {
   max-width: 880px;
   margin: 0 auto;

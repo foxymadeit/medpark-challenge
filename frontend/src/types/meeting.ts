@@ -37,6 +37,40 @@ export interface Participant {
   enrollmentKind?: "prototype" | "verified";
   active?: boolean;
 }
+export type AccountRole = "admin" | "staff";
+export interface UserAccount {
+  id: string;
+  username: string;
+  email?: string;
+  role: AccountRole;
+  staffProfileId?: string;
+  active: boolean;
+  createdAt: string;
+  createdBy: string;
+}
+export interface StaffProfile {
+  id: string;
+  name: string;
+  email: string;
+  active: boolean;
+  createdAt: string;
+  createdBy: string;
+}
+export interface StaffRoleAssignment {
+  id: string;
+  staffId: string;
+  title: string;
+  department: string;
+  validFrom: string;
+  validTo: string | null;
+  createdBy: string;
+}
+export interface DistributionList {
+  id: string;
+  name: string;
+  email: string;
+  active: boolean;
+}
 export interface MeetingParticipantSnapshot {
   staffId: string;
   nameAtMeeting: string;

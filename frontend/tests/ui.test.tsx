@@ -128,11 +128,12 @@ describe("application flows", () => {
   it("requires manual review and supports explicit send with a simulated receipt", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () =>
-        new Response("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>", {
-          status: 200,
-          headers: { "Content-Type": "image/svg+xml" },
-        }),
+      vi.fn(
+        async () =>
+          new Response('<svg xmlns="http://www.w3.org/2000/svg"></svg>', {
+            status: 200,
+            headers: { "Content-Type": "image/svg+xml" },
+          }),
       ),
     );
     await updateMeeting("meeting-001", {
@@ -215,6 +216,18 @@ describe("application flows", () => {
     expect(screen.getByText(/Dr. Ana Popescu/)).toBeTruthy();
     expect(screen.getByText(/New oncology cases/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Pause" })).toBeNull();
+  });
+  it("provides admin-only governance routes and working account creation", async () => {
+    mount("/admin/users");
+    await screen.findByRole("heading", { name: "Users" });
+    fireEvent.change(screen.getByLabelText("Username"), {
+      target: { value: "staff.user" },
+    });
+    fireEvent.change(screen.getByLabelText("Email (optional)"), {
+      target: { value: "staff.user@medpark.local" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Create" }));
+    await screen.findByText("staff.user");
   });
   it("shows background processing completion when returning to meetings", async () => {
     mount();

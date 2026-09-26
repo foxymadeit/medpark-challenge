@@ -61,9 +61,14 @@ export default function TopBar({
                   </p>
                 )}
                 {user?.role === "admin" && (
-                  <Link to="/system" onClick={() => setOpen(false)}>
-                    {t("system")}
-                  </Link>
+                  <>
+                    <Link to="/admin" onClick={() => setOpen(false)}>
+                      {t("administration")}
+                    </Link>
+                    <Link to="/system" onClick={() => setOpen(false)}>
+                      {t("system")}
+                    </Link>
+                  </>
                 )}
                 <Button
                   onClick={() => {
