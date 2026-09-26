@@ -53,7 +53,7 @@ export const en = {
     continueAs: 'Continue as {name}',
   },
   signup: {
-    title: 'Set up Liminal',
+    title: 'Sign up',
     lead: 'You are the first user, so you become the Admin. You add colleagues next.',
     fullName: 'Full official name',
     fullNamePh: 'Dr. Ana Popescu',
