@@ -176,7 +176,7 @@ export function Templates() {
           <h1 className="t-h1">{t('templates.title')}</h1>
           <p className="lead">{t('templates.lead')}</p>
         </div>
-        <Button variant="primary" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setEditing('new')}>
+        <Button variant="ink" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setEditing('new')}>
           {t('templates.new')}
         </Button>
       </div>
