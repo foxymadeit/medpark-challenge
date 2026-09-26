@@ -642,6 +642,12 @@ Guides: [speaker labels](diarization/README.md) ·
 
 ## Team
 
-Cagan (speaker labels, minutes, integration), Volodymyr (transcription),
-Stanislav (web app) and Roman (email delivery), for Medpark International
-Hospital at DeepTech GigaHack 2026.
+| Name | Specialisation |
+|---|---|
+| Volodymyr Samoilov (team leader) | AI / ML, backend |
+| Cagan Oflazoglu | AI / ML, backend |
+| Stanislav Gulica | Cybersecurity |
+| Roman Roman | Backend |
+| Cristina Iftodi | UI/UX, frontend |
+
+Built for Medpark International Hospital at DeepTech GigaHack 2026.
