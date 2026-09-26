@@ -93,8 +93,12 @@ export default function UploadPage() {
               <strong>{candidateName}</strong>
               <p>{t(failure, { defaultValue: t("audioUnreadable") })}</p>
             </div>
-            <Button variant="quiet" onClick={() => void choose()}>
-              {t("remove")}
+            <Button
+              variant="quiet"
+              aria-label={t("remove")}
+              onClick={() => void choose()}
+            >
+              <X size={20} />
             </Button>
           </div>
         )}

@@ -221,7 +221,7 @@ function Recorder({ initial: m }: { initial: Meeting }) {
               <p>
                 {t(error || rec.error, { defaultValue: t("requestFailed") })}
               </p>
-              <Link to={`/meetings/${m.id}/upload`}>
+              <Link className="text-link" to={`/meetings/${m.id}/upload`}>
                 {t("uploadRecording")}
               </Link>
             </div>

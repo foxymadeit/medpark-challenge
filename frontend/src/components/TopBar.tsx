@@ -78,8 +78,10 @@ export default function TopBar({
                 className="account-menu"
                 data-closing={menu.closing || undefined}
               >
-                <p>{user?.name}</p>
-                <small>{user?.email}</small>
+                <div className="account-who">
+                  <p>{user?.name}</p>
+                  <small>{user?.email}</small>
+                </div>
                 {error && (
                   <p className="error" role="alert">
                     {t(error)}

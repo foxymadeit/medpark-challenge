@@ -953,6 +953,17 @@ svg {
   display: grid;
   gap: 12px;
 }
+.account-who {
+  display: grid;
+  gap: 2px;
+}
+.account-who p,
+.account-who small {
+  margin: 0;
+}
+.account-who small {
+  color: var(--sm-ink-secondary);
+}
 .mobile-tabs,
 .mobile-dashboard {
   display: none;
@@ -2173,6 +2184,11 @@ blockquote {
 .edit-dialog .form-field {
   font-weight: 600;
   font-size: 13px;
+}
+/* the label is bold, what the person types is not */
+.edit-dialog .form-field :is(input, select, textarea) {
+  font-weight: 400;
+  font-size: 15px;
 }
 .door-stack {
   display: grid;
