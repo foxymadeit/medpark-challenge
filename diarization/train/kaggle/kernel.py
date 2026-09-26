@@ -625,7 +625,7 @@ def run():
         rir, noise = room_echo()
         aug = f"--rir-manifest {rir} --noise-manifest {noise}"
     phase("smoke", "smoke test: one batch, export, load")
-    smoke(aug)
+    smoke(aug + (" --freeze-keep 2 --grad-clip 0.5 --export-every-epoch" if GENTLE else ""))
     items = []
     sources = [("AMI", ami), ("VoxPopuli RO", voxpopuli_ro), ("VoxConverse", voxconverse), ("AliMeeting", alimeeting)]
     if GENTLE:  # per-file-labelled sets (VoxConverse, Simsamu, AliMeeting) left out: one person can be two labels
@@ -649,13 +649,13 @@ def run():
     phase("check", "check pieces")
     items = check_pieces(items)
     write_manifests(items)
-    phase("preflight", "preflight: one real batch on the real data")
+    if GENTLE:
+        aug += " --lr 1e-5 --freeze-keep 2 --grad-clip 0.5 --export-every-epoch"
+    phase("preflight", "preflight: two tiny epochs on the real data, same flags as training")
     sh(f"cd {REPO}/diarization && python train/finetune_titanet.py --train {DATA}/train.jsonl "
        f"--val {DATA}/val.jsonl --epochs 1 --smoke --out /tmp/preflight.onnx {aug}")
     phase("train", watch=False)
     epochs = os.environ.get("EPOCHS", "3" if GENTLE else "6" if MULTI else "8")
-    if GENTLE:
-        aug += " --lr 1e-5 --freeze-keep 2 --grad-clip 0.5 --export-every-epoch"
     sh(f"cd {REPO}/diarization && python train/finetune_titanet.py --train {DATA}/train.jsonl "
        f"--val {DATA}/val.jsonl --epochs {epochs} --out {WORK}/{OUT_NAME} "
        f"--progress {TRAIN_PROGRESS} {aug}")
@@ -716,9 +716,9 @@ def synth(items, rir_manifest, noise_manifest, n_train=300, n_dev=12):
     voices = voices_from_items(items, load, min_clips=8, max_speakers=800, rng=rng)
     names = sorted(voices)
     rng.shuffle(names)
-    n_dev = min(60, len(names) // 5)  # development voices never appear in training meetings
-    dev = {k: voices[k] for k in names[:n_dev]}
-    train = {k: voices[k] for k in names[n_dev:]}
+    n_voices = min(60, len(names) // 5)  # development voices never appear in training meetings
+    dev = {k: voices[k] for k in names[:n_voices]}
+    train = {k: voices[k] for k in names[n_voices:]}
     pick = lambda m, n: [load(json.loads(x)["audio_filepath"]) for x in rng.choice(Path(m).read_text().split("\n")[:-1], n)]  # noqa: E731
     rirs, noises = pick(rir_manifest, 400), pick(noise_manifest, 150)
     log(f"synth: {len(train)} training voices, {len(dev)} development voices, {len(rirs)} rooms, {len(noises)} noises")

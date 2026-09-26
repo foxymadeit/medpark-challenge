@@ -123,9 +123,12 @@ class EpochExport(pl.Callback):
 
     def on_train_epoch_end(self, trainer, pl_module):
         path = self.out.with_suffix(f".e{trainer.current_epoch + 1}.onnx")
+        grads = {n: p.requires_grad for n, p in pl_module.named_parameters()}
         pl_module.eval()
-        pl_module.export(str(path))
+        pl_module.export(str(path))  # NeMo's export turns every requires_grad off
         add_meta(str(path), self.meta)
+        for n, p in pl_module.named_parameters():
+            p.requires_grad = grads[n]
         pl_module.train()
         for m in self.frozen:
             m.eval()
@@ -203,8 +206,10 @@ def main():
         cfg.decoder.num_classes = len(labels)
         cfg.optim.lr = a.lr
 
-    trainer = pl.Trainer(max_epochs=a.epochs, accelerator="gpu", devices=1, precision="16-mixed", gradient_clip_val=a.grad_clip,
-                         log_every_n_steps=20, fast_dev_run=a.smoke, enable_progress_bar=False,
+    # smoke: two tiny epochs, so anything that breaks at an epoch boundary shows up in minutes
+    short = dict(max_epochs=2, limit_train_batches=2, limit_val_batches=1, num_sanity_val_steps=0) if a.smoke else {}
+    trainer = pl.Trainer(**{"max_epochs": a.epochs, **short}, accelerator="gpu", devices=1, precision="16-mixed",
+                         gradient_clip_val=a.grad_clip, log_every_n_steps=1, enable_progress_bar=False,
                          callbacks=[])
     model = nemo_asr.models.EncDecSpeakerLabelModel(cfg=cfg, trainer=trainer)
     model.maybe_init_from_pretrained_checkpoint(OmegaConf.create({
@@ -213,7 +218,7 @@ def main():
     callbacks = [Progress(Path(a.out).with_suffix(".last.nemo"), a.progress)]
     if frozen:
         callbacks.append(KeepFrozen(frozen))
-    if a.export_every_epoch and not a.smoke:
+    if a.export_every_epoch:
         callbacks.append(EpochExport(a.out, meta(cfg, labels), frozen))
     trainer.callbacks.extend(callbacks)
     trainer.fit(model)
