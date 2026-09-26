@@ -1,9 +1,10 @@
-import { MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { MicrophoneIcon, PencilSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DatePicker } from '../components/DatePicker';
 import { EmailsField } from '../components/EmailsField';
 import { MicCheck } from '../components/MicCheck';
+import { UploadCard } from '../components/UploadCard';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { Segmented } from '../components/Segmented';
 import { TemplateBadge } from '../components/TemplateBadge';
@@ -108,12 +109,7 @@ export function NewMeeting() {
             </button>
             <MicCheck />
           </div>
-          <button type="button" className="start-tile start-tile--upload" onClick={() => navigate('/upload')}>
-            <UploadSimpleIcon size={32} aria-hidden />
-            <span className="start-tile__spacer" />
-            <span className="t-h2">{t('newMeeting.upload')}</span>
-            <span className="note">{t('newMeeting.uploadHint')}</span>
-          </button>
+          <UploadCard />
         </div>
       </div>
 

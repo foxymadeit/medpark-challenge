@@ -111,6 +111,15 @@
 .start-tile--record { flex: 1 1 0; border: 1px solid var(--sm-tint-record-line); background: var(--sm-tint-record); }
 .start-tile--record:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-record-line); }
 .start-tile--upload { border: 1px solid var(--sm-tint-upload-line); background: var(--sm-tint-upload); }
+.start-tile--upload.is-over { box-shadow: var(--sm-elevation-card), 0 0 0 2px var(--sm-action); }
+.start-tile--upload.is-file { cursor: default; }
+.start-tile--upload.is-file:hover { box-shadow: var(--sm-elevation-card); }
+.start-tile__top { display: flex; align-self: stretch; align-items: flex-start; justify-content: space-between; gap: var(--sm-space-2); }
+.start-tile__progress { align-self: stretch; margin: 4px 0 2px; }
+.start-tile__file { display: flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0; color: var(--sm-ink-secondary); font: 400 13px/18px var(--sm-font-body); }
+.start-tile__meta { flex: none; }
+.start-tile__remove { display: inline-flex; flex: none; padding: 2px; border: 0; border-radius: 4px; background: none; color: inherit; cursor: pointer; }
+.start-tile__remove:hover { color: var(--sm-ink-primary); background: rgba(16, 16, 16, 0.06); }
 .start-tile--upload:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-upload-line); }
 /* Record card: the title button's ::after covers the card (whole card starts recording);
    the mic picker/test sit above it so they stay clickable. */
@@ -215,7 +224,7 @@
 .step { display: flex; align-items: center; gap: var(--sm-space-3); color: var(--sm-ink-tertiary); font: 400 15px/22px var(--sm-font-body); }
 .step.is-done { color: var(--sm-success); font-weight: 500; }
 /* Processing progress matches the green completed steps. */
-.processing .progress__fill, .sent .progress__fill { background: var(--sm-success); }
+.processing .progress__fill, .sent .progress__fill, .start-tile__progress .progress__fill { background: var(--sm-success); }
 .sent__progress { width: 100%; }
 .step__check { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--sm-success); color: var(--sm-surface-panel); }
 .step.is-active { color: var(--sm-ink-primary); font-weight: 600; }

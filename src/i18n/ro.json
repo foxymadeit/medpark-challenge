@@ -251,7 +251,10 @@
     "hint": "WAV, MP3 sau M4A, până la 3 ore",
     "remove": "Elimină {name}",
     "submit": "Scrie procesul-verbal",
-    "wrongType": "Folosiți un fișier WAV, MP3 sau M4A."
+    "wrongType": "Folosiți un fișier WAV, MP3 sau M4A.",
+    "uploading": "Se încarcă…",
+    "uploaded": "Audio încărcat",
+    "cancel": "Anulează încărcarea"
   },
   "processing": {
     "title": "Se scrie procesul-verbal",

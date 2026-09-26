@@ -254,7 +254,10 @@
     "hint": "WAV, MP3 или M4A, до 3 часов",
     "remove": "Удалить {name}",
     "submit": "Составить протокол",
-    "wrongType": "Используйте файл WAV, MP3 или M4A."
+    "wrongType": "Используйте файл WAV, MP3 или M4A.",
+    "uploading": "Загрузка…",
+    "uploaded": "Аудио загружено",
+    "cancel": "Отменить загрузку"
   },
   "processing": {
     "title": "Составляем протокол",

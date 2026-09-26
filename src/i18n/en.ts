@@ -254,6 +254,9 @@ export const en = {
     remove: 'Remove {name}',
     submit: 'Write minutes',
     wrongType: 'Use a WAV, MP3 or M4A file.',
+    uploading: 'Uploading…',
+    uploaded: 'Audio uploaded',
+    cancel: 'Cancel upload',
   },
   processing: {
     title: 'Writing the minutes',
