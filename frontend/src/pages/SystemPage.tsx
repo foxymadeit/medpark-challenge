@@ -5,7 +5,7 @@ import { DEMO_MODE, departments, distribution } from "../api/config";
 import { useData } from "../hooks/useData";
 import StatePanel from "../components/StatePanel";
 export default function SystemPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data, error, refresh } = useData(getSystem, 10000);
   if (!data) return <StatePanel error={error} retry={refresh} />;
   return (
@@ -14,21 +14,42 @@ export default function SystemPage() {
       <section className="panel delivery-banner">
         <ShieldCheck size={40} weight="bold" className="success" />
         <div>
-          <h2>{t(data.local ? "noOutside" : "network")}</h2>
+          <h2>
+            {t(
+              DEMO_MODE
+                ? "demoSystemStatus"
+                : data.local
+                  ? "noOutside"
+                  : "network",
+            )}
+          </h2>
           <p>
-            {t("localProcessing")}
-            {DEMO_MODE ? ` · ${t("simulated")}` : ""}
+            {t("lastChecked", {
+              time: data.lastCheckedAt
+                ? new Date(data.lastCheckedAt).toLocaleTimeString(
+                    i18n.language,
+                    { hour: "2-digit", minute: "2-digit" },
+                  )
+                : "—",
+              host: data.host ?? "—",
+            })}
+            {DEMO_MODE ? ` · ${t("demoStatusNotice")}` : ""}
           </p>
         </div>
       </section>
       <div className="panel system-services">
         {data.services.map((s) => (
           <div key={s.id} className="service-row">
-            <strong>{t(s.id)}</strong>
+            <div>
+              <strong>{t(s.id)}</strong>
+              <small>{s.description ?? t("descriptionUnavailable")}</small>
+            </div>
             <span className={s.available ? "success" : "error"}>
               {t(
                 DEMO_MODE
-                  ? "simulated"
+                  ? s.available
+                    ? "simulatedRunning"
+                    : "simulatedUnavailable"
                   : s.available
                     ? "available"
                     : "unavailable",

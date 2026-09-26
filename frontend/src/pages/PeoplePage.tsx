@@ -8,6 +8,7 @@ export default function PeoplePage() {
   const { t } = useTranslation();
   const { data, error, refresh } = useData(getPeople);
   if (!data) return <StatePanel error={error} retry={refresh} />;
+  const unnamedCandidate = data.find((person) => !person.enrolled);
   return (
     <>
       <div className="section-heading spread">
@@ -51,6 +52,22 @@ export default function PeoplePage() {
           </Link>
         ))}
       </div>
+      {unnamedCandidate && (
+        <section className="panel unnamed-voices">
+          <h2>{t("unnamedVoices")}</h2>
+          <div className="unnamed-voice-row">
+            <span className="voice-dot" aria-hidden="true" />
+            <strong>{t("speaker", { number: 4 })}</strong>
+            <small>{t("unnamedVoiceSource")}</small>
+            <Link
+              className="button secondary"
+              to={`/people/${unnamedCandidate.id}/enroll`}
+            >
+              {t("nameVoice")}
+            </Link>
+          </div>
+        </section>
+      )}
     </>
   );
 }

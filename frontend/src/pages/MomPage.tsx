@@ -1,5 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
-import { Warning } from "@phosphor-icons/react";
+import { DownloadSimple, EnvelopeSimple } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
 import MeetingHeader from "../components/MeetingHeader";
@@ -10,6 +10,7 @@ import ActionItemRow from "../components/ActionItemRow";
 import SpeakerLabel from "../components/SpeakerLabel";
 import { formatTime } from "../utils";
 import { sendNow } from "../api/meetings";
+import { downloadMinutesPdf } from "../api/pdf";
 export default function MomPage() {
   const { t } = useTranslation();
   const { data: m, error, refresh } = useMeeting();
@@ -31,7 +32,9 @@ export default function MomPage() {
         <div className="minutes-main">
           {m.deliveryState === "failed" ? (
             <section className="panel delivery-failed">
-              <Warning size={28} className="warning" />
+              <span className="delivery-failed-badge">
+                <EnvelopeSimple size={22} />
+              </span>
               <div>
                 <h2>{t("deliveryFailed")}</h2>
                 <p>
@@ -50,9 +53,10 @@ export default function MomPage() {
               <button
                 className="button secondary"
                 type="button"
-                onClick={() => window.print()}
+                onClick={() => downloadMinutesPdf(m)}
               >
-                {t("printMinutes")}
+                <DownloadSimple size={20} />
+                {t("downloadPdf")}
               </button>
             </section>
           ) : m.status === "sent" ? (

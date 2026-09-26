@@ -154,6 +154,14 @@ describe("application flows", () => {
     mount("/people");
     await screen.findByRole("heading", { name: "People" });
     expect(
+      screen.getByText("Unnamed voices from recent meetings"),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByRole("link", { name: "Name this voice" })
+        .getAttribute("href"),
+    ).toBe("/people/victor/enroll");
+    expect(
       screen.getAllByText("Enrolled for prototype").length,
     ).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("link", { name: "Enroll a voice" }));
@@ -339,6 +347,7 @@ describe("final Figma states", () => {
     await screen.findByRole("heading", {
       name: "Minutes are ready but weren't sent",
     });
+    expect(screen.getByRole("button", { name: "Download PDF" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Send now" }));
     await waitFor(async () =>
       expect((await getMeeting("meeting-001")).deliveryState).toBe("sending"),

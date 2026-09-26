@@ -12,6 +12,36 @@ export default function StatePanel({
   retry?: () => void;
 }) {
   const { t } = useTranslation();
+  if (!error && !empty)
+    return (
+      <section
+        className="loading-skeleton"
+        role="status"
+        aria-label={t("loading")}
+      >
+        <div className="skeleton-heading">
+          <i />
+          <i />
+        </div>
+        <div className="skeleton-doors">
+          {[0, 1, 2].map((item) => (
+            <div className="skeleton-door" key={item}>
+              <b />
+              <i />
+              <i />
+            </div>
+          ))}
+        </div>
+        <div className="panel skeleton-list">
+          {[520, 460, 560, 400, 500].map((width) => (
+            <div key={width}>
+              <b />
+              <i style={{ width }} />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
   return (
     <section className="panel state-panel" role={error ? "alert" : "status"}>
       {error &&

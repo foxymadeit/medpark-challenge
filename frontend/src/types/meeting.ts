@@ -90,5 +90,7 @@ export interface CreateMeetingInput {
 }
 export interface SystemState {
   local: boolean;
-  services: { id: string; available: boolean }[];
+  lastCheckedAt?: string;
+  host?: string;
+  services: { id: string; available: boolean; description?: string }[];
 }

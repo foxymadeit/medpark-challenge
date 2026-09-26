@@ -39,10 +39,11 @@ export default function ProcessingPage() {
     return (
       <>
         <MeetingHeader meeting={m} stage="transcribe" />
-        <section className="state-page panel">
-          <Warning size={40} className="warning" />
-          <span className="state-badge">{t("processingFailed")}</span>
-          <h1>{t("couldNotProcess")}</h1>
+        <section className="state-page panel processing-failed-card">
+          <span className="processing-failed-badge">
+            <Warning size={22} />
+          </span>
+          <h2>{t("transcriptionStopped")}</h2>
           <p>{t("recordingSafe")}</p>
           <p className="mono">
             {t("reference")}:{" "}

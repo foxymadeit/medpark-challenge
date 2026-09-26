@@ -18,66 +18,78 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   if (user) return <Navigate to="/meetings" replace />;
+  const form = (
+    <form
+      className="panel login-panel"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        setError(false);
+        try {
+          await login(email.trim(), password);
+        } catch {
+          setError(true);
+          setPassword("");
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <h2>{t("signIn")}</h2>
+      {timedOut && (
+        <div className="login-timeout" role="status">
+          <Clock size={18} />
+          {t("sessionTimedOut")}
+        </div>
+      )}
+      <InputField
+        label={t("username")}
+        autoComplete="username"
+        autoCapitalize="none"
+        spellCheck={false}
+        value={email}
+        maxLength={254}
+        required
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <InputField
+        label={t("password")}
+        type="password"
+        autoComplete="current-password"
+        value={password}
+        maxLength={128}
+        required
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      {error && (
+        <p className="error" role="alert">
+          {t("invalidCredentials")}
+        </p>
+      )}
+      <Button type="submit" variant="primary" disabled={busy}>
+        {t(busy ? "signingIn" : "signIn")}
+      </Button>
+      {!timedOut && (
+        <p className="login-note">
+          <ShieldCheck size={18} weight="bold" />
+          {t("network")}
+        </p>
+      )}
+    </form>
+  );
+  if (timedOut)
+    return (
+      <main className="timeout-login">
+        <strong className="timeout-brand">Secure MOM</strong>
+        {form}
+      </main>
+    );
   return (
     <>
       <TopBar publicOnly />
       <main className="login-layout">
         <h1>{t("loginMessage")}</h1>
-        <form
-          className="panel login-panel"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setBusy(true);
-            setError(false);
-            try {
-              await login(email.trim(), password);
-            } catch {
-              setError(true);
-              setPassword("");
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <h2>{t("signIn")}</h2>
-          {timedOut && (
-            <div className="login-timeout" role="status">
-              <Clock size={18} />
-              {t("sessionTimedOut")}
-            </div>
-          )}
-          <InputField
-            label={t("username")}
-            autoComplete="username"
-            autoCapitalize="none"
-            spellCheck={false}
-            value={email}
-            maxLength={254}
-            required
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <InputField
-            label={t("password")}
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            maxLength={128}
-            required
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {error && (
-            <p className="error" role="alert">
-              {t("invalidCredentials")}
-            </p>
-          )}
-          <Button type="submit" variant="primary" disabled={busy}>
-            {t(busy ? "signingIn" : "signIn")}
-          </Button>
-          <p className="login-note">
-            <ShieldCheck size={18} weight="bold" />
-            {t("network")}
-          </p>
-        </form>
+        {form}
       </main>
     </>
   );

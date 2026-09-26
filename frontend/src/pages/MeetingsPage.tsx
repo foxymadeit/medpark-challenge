@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Microphone, UploadSimple } from "@phosphor-icons/react";
+import { CalendarBlank, Microphone, UploadSimple } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { getMeetings } from "../api/meetings";
 import { departments } from "../api/config";
@@ -31,6 +31,9 @@ export default function MeetingsPage() {
     <>
       <div className="desktop-dashboard">
         <h1>{data.length ? t("startMeeting") : t("meetings")}</h1>
+        {data.length === 0 && (
+          <p className="first-day-kicker">{t("startMeeting")}</p>
+        )}
         <div className="department-doors">
           {departments.map((type) => (
             <DepartmentDoor key={type} type={type} />
@@ -38,6 +41,7 @@ export default function MeetingsPage() {
         </div>
         {data.length === 0 ? (
           <section className="first-day panel">
+            <CalendarBlank size={28} />
             <h2>{t("emptyMeetings")}</h2>
             <p>{t("firstDayDescription")}</p>
             <Button onClick={() => setChoose("upload")}>

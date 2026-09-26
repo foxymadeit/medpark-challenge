@@ -248,9 +248,35 @@ export async function getSystem(): Promise<SystemState> {
   return DEMO_MODE
     ? {
         local: true,
-        services: ["asr", "speakers", "automation", "mail", "storage"].map(
-          (id) => ({ id, available: true }),
-        ),
+        lastCheckedAt: new Date().toISOString(),
+        host: "demo-local",
+        services: [
+          {
+            id: "asr",
+            available: true,
+            description: "Whisper Large-v3 turbo, local",
+          },
+          {
+            id: "speakers",
+            available: true,
+            description: "Segmentation 3.0 + TitaNet, local",
+          },
+          {
+            id: "automation",
+            available: true,
+            description: "Local language model, 8 B",
+          },
+          {
+            id: "mail",
+            available: true,
+            description: "Hospital mail server, internal only",
+          },
+          {
+            id: "storage",
+            available: true,
+            description: "Demo browser storage; no hospital capacity claim",
+          },
+        ],
       }
     : request("/system");
 }
