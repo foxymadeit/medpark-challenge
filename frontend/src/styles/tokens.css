@@ -1,0 +1,26 @@
+:root {
+  --sm-surface-ground: #f7f6f3;
+  --sm-surface-panel: #fff;
+  --sm-surface-hairline: #eae6df;
+  --sm-ink-primary: #101010;
+  --sm-ink-secondary: #5b544b;
+  --sm-ink-tertiary: #6f685f;
+  --sm-dept-medical: #2d765c;
+  --sm-dept-medical-tint: #daf4e5;
+  --sm-dept-executive: #42617e;
+  --sm-dept-executive-tint: #e2f2ff;
+  --sm-dept-administrative: #9147a6;
+  --sm-dept-administrative-tint: #f0daf7;
+  --sm-signal-danger: #b3261e;
+  --sm-signal-danger-tint: #fbeae8;
+  --sm-radius-card: 12px;
+  --sm-radius-control: 8px;
+  /* card: resting panels; the 1 px hairline does the work */
+  --sm-shadow: 0 1px 2px rgba(16, 16, 16, 0.04);
+  /* lift: only what floats (menus, dialogs, the send countdown) */
+  --sm-lift:
+    0 2px 8px rgba(16, 16, 16, 0.08), 0 8px 16px rgba(16, 16, 16, 0.06);
+  --sm-heading: "Onest Variable", "Onest", system-ui, sans-serif;
+  --sm-body: "Golos Text Variable", "Golos Text", system-ui, sans-serif;
+  --sm-mono: "Geist Mono Variable", "Geist Mono", monospace;
+}
