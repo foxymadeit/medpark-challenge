@@ -232,9 +232,11 @@ export function Review() {
                     </td>
                     <td>
                       <span className="row" style={{ gap: 4 }}>
-                        <button type="button" className="icon-btn icon-btn--confirm" aria-label={t('review.save')} title={t('review.save')} onClick={saveRow} disabled={!row.title.trim() || (row.title === task.title && row.ownerId === task.ownerId && row.due === task.due)}>
-                          <CheckIcon size={16} aria-hidden />
-                        </button>
+                        {row.title.trim() && !(row.title === task.title && row.ownerId === task.ownerId && row.due === task.due) && (
+                          <button type="button" className="icon-btn icon-btn--confirm" aria-label={t('review.save')} title={t('review.save')} onClick={saveRow}>
+                            <CheckIcon size={16} aria-hidden />
+                          </button>
+                        )}
                         <button type="button" className="icon-btn" aria-label={t('review.cancel')} title={t('review.cancel')} onClick={cancelRow}>
                           <XIcon size={16} aria-hidden />
                         </button>

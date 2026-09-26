@@ -17,6 +17,7 @@ function EditableFact({ label, value, display, type = 'text', placeholder, valid
   const cancel = () => (setDraft(value), setError(undefined), setEditing(false));
   const save = () => {
     const v = draft.trim();
+    if (v === value) return cancel();
     const err = validate?.(v);
     if (err) return setError(err);
     onSave(v);
@@ -43,9 +44,12 @@ function EditableFact({ label, value, display, type = 'text', placeholder, valid
                   if (e.key === 'Escape') (e.stopPropagation(), cancel());
                 }}
               />
-              <button type="button" className="icon-btn icon-btn--confirm" aria-label={t('common.save')} disabled={draft.trim() === value} onClick={save}>
-                <CheckIcon size={16} aria-hidden />
-              </button>
+              {/* ✓ appears only once the value actually changed. */}
+              {draft.trim() !== value && (
+                <button type="button" className="icon-btn icon-btn--confirm" aria-label={t('common.save')} onClick={save}>
+                  <CheckIcon size={16} aria-hidden />
+                </button>
+              )}
               <button type="button" className="icon-btn" aria-label={t('common.cancel')} onClick={cancel}>
                 <XIcon size={16} aria-hidden />
               </button>
