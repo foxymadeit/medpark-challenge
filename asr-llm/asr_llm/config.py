@@ -52,6 +52,8 @@ class Settings(BaseSettings):
     # 12 min of mixed RO/RU/EN plus the glossary does not fit in 4096.
     llm_ctx: int = 8192
     glossary_k: int = 24
+    classify_chars: int = 6000  # transcript sample the type detector sees
+    default_meeting_type: str = "administrative"  # only if the user chose none and detection failed
     # One LLM pass per window; 10 min of RO/RU text + glossary fits llm_ctx.
     llm_window_s: float = 600.0
 

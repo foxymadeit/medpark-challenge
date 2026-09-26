@@ -25,7 +25,7 @@ def health() -> dict:
 @app.post("/minutes")
 def minutes(
     audio: UploadFile = File(...),
-    meeting_type: MeetingType = Form("administrative"),
+    meeting_type: MeetingType | None = Form(None),  # None: detected from the transcript
     skip_llm: bool = Form(False),
     diarization: UploadFile | None = File(None),
 ):

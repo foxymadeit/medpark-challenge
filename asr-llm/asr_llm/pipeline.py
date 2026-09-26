@@ -84,7 +84,7 @@ def fuse_transcript(transcript: Transcript) -> tuple[Transcript, float]:
 
 def write_minutes(
     transcript: Transcript,
-    meeting_type: str,
+    meeting_type: str | None,
     language: str | None = None,
 ) -> tuple[Minutes, float]:
     t0 = time.perf_counter()
@@ -129,7 +129,7 @@ def load_transcript(path: Path) -> Transcript:
 
 def minutes_from_transcript(
     transcript_path: Path,
-    meeting_type: str = "medical",
+    meeting_type: str | None = None,
     language: str | None = None,
 ) -> PipelineResult:
     transcript, fuse_s = fuse_transcript(load_transcript(transcript_path))
@@ -143,13 +143,14 @@ def minutes_from_transcript(
 
 def run_pipeline(
     audio_path: Path,
-    meeting_type: str = "administrative",
+    meeting_type: str | None = None,
     skip_llm: bool = False,
     diarization: Path | None = None,
 ) -> PipelineResult:
     transcript, timings = transcribe_audio(audio_path, diarization)
     if skip_llm:
-        minutes = Minutes(title=audio_path.stem, meeting_type=meeting_type, summary="")  # type: ignore[arg-type]
+        kind = meeting_type or settings.default_meeting_type  # no LLM, so nothing to detect with
+        minutes = Minutes(title=audio_path.stem, meeting_type=kind, summary="")  # type: ignore[arg-type]
         timings["llm"] = 0.0
         return PipelineResult(transcript=transcript, minutes=minutes, elapsed_s=timings)
 

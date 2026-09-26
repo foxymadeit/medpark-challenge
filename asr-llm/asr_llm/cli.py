@@ -17,7 +17,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Local ASR + minutes extraction")
     parser.add_argument("audio", type=Path, nargs="?", default=None)
     parser.add_argument("--from-transcript", type=Path, default=None)
-    parser.add_argument("--meeting-type", default="medical")
+    parser.add_argument(
+        "--meeting-type",
+        choices=["medical", "executive", "administrative"],
+        default=None,
+        help="Omit to let the LLM detect it (the detected type is reported either way).",
+    )
     parser.add_argument("--language", default=None, help="Language of the extracted minutes. Default is MOM_LLM_LANGUAGE (ro).")
     parser.add_argument("--skip-llm", action="store_true")
     parser.add_argument("--fusion", choices=["off", "single", "debate"], default=None, help="Override MOM_FUSION.")
@@ -80,7 +85,7 @@ def main() -> None:
 
 def _extract_then_translate(
     transcript_path: Path,
-    meeting_type: str,
+    meeting_type: str | None,
     language: str,
     languages: str,
     out: Path | None,

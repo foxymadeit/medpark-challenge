@@ -9,12 +9,14 @@ from urllib.request import Request, urlopen
 from .clean import _fold, ground_minutes
 from .config import settings
 from .local import pick_device, require_local_path
+from .meeting_types import MEETING_TYPES, definitions_block, focus_for
 from .retrieve import llm_glossary_for
 from .schemas import Minutes, SpeechSegment, Transcript, format_segments
 
 SYSTEM_PROMPT = """You are an on-premise hospital meeting secretary.
 Read a mixed Romanian / Russian / English transcript. It may be one meeting or a ward round with several patients.
 Write the Minutes of Meeting in {language}.
+{type_focus}
 Separate patients when the transcript itself distinguishes them. Do not invent a bed, a name, or a diagnosis.
 attendees: only personal names that appear in the transcript. If none do, use [].
 decisions: only what the speakers agree to do. If none are clear, use [].
@@ -37,6 +39,14 @@ Return ONLY valid JSON with this shape:
     {{"text": string, "owner": string|null, "deadline": string|null, "source_quote": string|null}}
   ]
 }}
+"""
+
+CLASSIFY_PROMPT = """You sort hospital meetings in Moldova into one of three types. The transcript mixes Romanian, Russian and English.
+
+{definitions}
+
+Return ONLY JSON: {{"meeting_type": "medical" | "executive" | "administrative", "reason": string}}
+The reason is one short sentence in English naming the evidence.
 """
 
 MERGE_PROMPT = """These are summaries of consecutive parts of one hospital meeting.
@@ -85,9 +95,33 @@ class LocalLlm:
             verbose=False,
         )
 
-    def extract_minutes(self, transcript: Transcript, meeting_type: str, language: str | None = None) -> Minutes:
-        """Long meetings go window by window, then merge without asking the LLM for new facts."""
+    def classify_meeting(self, transcript: Transcript) -> tuple[str | None, str | None]:
+        """(type, reason) from a sample spread over the whole meeting; (None, None) if the answer is unusable."""
+        data = self.chat_json(
+            CLASSIFY_PROMPT.format(definitions=definitions_block()),
+            f"Transcript sample:\n{sample_lines(transcript.text, settings.classify_chars)}",
+            max_tokens=200,
+        )
+        kind = data.get("meeting_type")
+        if kind not in MEETING_TYPES:
+            return None, None
+        return kind, data.get("reason")
+
+    def extract_minutes(
+        self, transcript: Transcript, meeting_type: str | None = None, language: str | None = None
+    ) -> Minutes:
+        """Long meetings go window by window, then merge without asking the LLM for new facts.
+
+        The type is always detected. The user's choice wins when given; the detected type
+        and its reason are kept either way, so routing can flag a mismatch.
+        """
         language = language or settings.llm_language
+        detected, reason = self.classify_meeting(transcript)
+        meeting_type = meeting_type or detected or settings.default_meeting_type
+        minutes = self._extract_all(transcript, meeting_type, language)
+        return minutes.model_copy(update={"meeting_type_detected": detected, "meeting_type_reason": reason})
+
+    def _extract_all(self, transcript: Transcript, meeting_type: str, language: str) -> Minutes:
         texts = [format_segments(w) for w in split_windows(transcript.segments, settings.llm_window_s)]
         parts = [self._extract(text, meeting_type, language) for text in texts or [transcript.text]]
         if len(parts) == 1:
@@ -121,8 +155,12 @@ class LocalLlm:
 
     def _extract(self, text: str, meeting_type: str, language: str) -> Minutes:
         data = self.chat_json(
-            SYSTEM_PROMPT.format(language=language, glossary=llm_glossary_for(text, k=settings.glossary_k)),
-            f"Meeting type selected by user: {meeting_type}\n\nTranscript:\n{text}",
+            SYSTEM_PROMPT.format(
+                language=language,
+                type_focus=focus_for(meeting_type),
+                glossary=llm_glossary_for(text, k=settings.glossary_k),
+            ),
+            f"Transcript:\n{text}",
             max_tokens=1200,
         )
         data["meeting_type"] = meeting_type
@@ -187,6 +225,21 @@ def make_llm(spec: str | None = None) -> LocalLlm:
     return LocalLlm(Path(spec) if spec else None)
 
 
+def sample_lines(text: str, budget: int) -> str:
+    """Whole text if it fits, else evenly spaced lines from start to end: the type must reflect the whole meeting."""
+    if len(text) <= budget:
+        return text
+    lines = text.splitlines()
+    step = max(1, round(len(text) / budget))
+    picked, used = [], 0
+    for line in lines[::step]:
+        if used + len(line) > budget:
+            break
+        picked.append(line)
+        used += len(line) + 1
+    return "\n".join(picked)
+
+
 def split_windows(segments: list[SpeechSegment], window_s: float) -> list[list[SpeechSegment]]:
     windows: list[list[SpeechSegment]] = []
     for seg in segments:
@@ -233,6 +286,8 @@ def lock_translation(source: Minutes, translated: Minutes, language: str) -> Min
     return translated.model_copy(
         update={
             "meeting_type": source.meeting_type,
+            "meeting_type_detected": source.meeting_type_detected,
+            "meeting_type_reason": source.meeting_type_reason,
             "language": language,
             "attendees": list(source.attendees),
             "decisions": decisions,

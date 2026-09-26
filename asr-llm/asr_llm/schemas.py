@@ -43,7 +43,9 @@ class ActionItem(BaseModel):
 
 class Minutes(BaseModel):
     title: str
-    meeting_type: MeetingType
+    meeting_type: MeetingType  # the one used: the user's choice, else the detected one
+    meeting_type_detected: MeetingType | None = None
+    meeting_type_reason: str | None = None
     language: str = "ro"
     summary: str
     attendees: list[str] = Field(default_factory=list)
