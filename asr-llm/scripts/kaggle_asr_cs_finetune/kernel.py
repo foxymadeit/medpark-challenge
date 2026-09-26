@@ -108,9 +108,14 @@ def score() -> None:
     nemo = sorted((WORK / "ft").rglob("*.nemo"), key=lambda p: p.stat().st_mtime)
     if not nemo:
         raise FileNotFoundError("no .nemo written by the fine-tune")
+    team = ""
+    for name, stem in (("team1", "team_rec1_cristina_all"), ("team2", "team_rec2_no_cristina")):
+        audio, ref = (next(Path("/kaggle/input").rglob(f"{stem}{ext}"), None) for ext in (".m4a", ".ref.txt"))
+        if audio and ref:
+            team += f" --clip {name}={audio},{ref}"
     sh(f"{sys.executable} -m asr_train.zeroshot --work {WORK}/bench --audio data/Medpark_audio.m4a "
        "--sets gold,rompar_md,fleurs_ro,fleurs_ru,fleurs_en,cs_ru_en,cs_ro_en --n 60 --models parakeet "
-       f"--model-path parakeet={nemo[-1]} --clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md")
+       f"--model-path parakeet={nemo[-1]} --clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md{team}")
 
 
 def main() -> None:
