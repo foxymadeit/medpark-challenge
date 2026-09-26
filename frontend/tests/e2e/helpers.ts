@@ -40,7 +40,7 @@ export async function uploadMeeting(
     page.getByRole("checkbox", { name: /Send automatically/ }),
   ).toBeChecked();
   if (type === "medical") await shot(page, "01-new-meeting");
-  await page.getByRole("button", { name: "Continue" }).click();
+  // the Upload card's own file picker; picking a file opens the upload page
   await page.locator('input[type="file"]').setInputFiles({
     name: "meeting.wav",
     mimeType: "audio/wav",

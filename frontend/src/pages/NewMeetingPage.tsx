@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Link,
   useNavigate,
@@ -26,6 +26,7 @@ import RouteProgress from "../components/RouteProgress";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import { formatDay } from "../utils";
+import { AUDIO_ACCEPT } from "../api/audio";
 export default function NewMeetingPage() {
   const { t, i18n } = useTranslation();
   const [search] = useSearchParams();
@@ -46,6 +47,9 @@ export default function NewMeetingPage() {
   const [failure, setFailure] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [agendaTopics, setAgendaTopics] = useState<AgendaTopic[]>([]);
+  // Upload opens the file picker straight from the card: pick a board, pick
+  // a file, write the minutes. The file travels to the upload page.
+  const picker = useRef<HTMLInputElement>(null);
   const [templateLoading, setTemplateLoading] = useState(Boolean(templateId));
   // Automatic delivery is the default whenever the server offers it: the
   // challenge asks for upload, pick a type, and wait for the email.
@@ -86,6 +90,31 @@ export default function NewMeetingPage() {
       active = false;
     };
   }, [templateId]);
+  async function start(inputMode: "record" | "upload", file?: File) {
+    if (!type) return;
+    setBusy(true);
+    try {
+      const m = await createMeeting({
+        title:
+          title.trim() ||
+          t("meetingTitle", {
+            department: t(type),
+            date: formatDay(new Date(), i18n.language),
+          }),
+        type,
+        inputMode,
+        participants,
+        templateId,
+        agendaTopics,
+        sendMode: autoAvailable && autoSend ? "auto" : "manual",
+      });
+      navigate(`/meetings/${m.id}/${inputMode}`, { state: { file } });
+    } catch (e) {
+      setFailure(e instanceof Error ? e.message : "requestFailed");
+    } finally {
+      setBusy(false);
+    }
+  }
   if (templateLoading) return <p>{t("loading")}</p>;
   if (!type)
     return (
@@ -124,7 +153,10 @@ export default function NewMeetingPage() {
             key={m}
             className={`panel input-choice ${mode === m ? "selected" : ""}`}
             aria-pressed={mode === m}
-            onClick={() => setMode(m)}
+            onClick={() => {
+              setMode(m);
+              if (m === "upload") picker.current?.click();
+            }}
           >
             {m === "record" ? (
               <Microphone size={32} strokeWidth={2.5} />
@@ -183,42 +215,30 @@ export default function NewMeetingPage() {
             {t(failure, { defaultValue: t("requestFailed") })}
           </p>
         )}
+        <input
+          ref={picker}
+          hidden
+          type="file"
+          accept={AUDIO_ACCEPT}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (file) void start("upload", file);
+          }}
+        />
         <Button
           variant="primary"
           disabled={busy}
-          onClick={async () => {
-            setBusy(true);
-            try {
-              const m = await createMeeting({
-                title:
-                  title.trim() ||
-                  t("meetingTitle", {
-                    department: t(type),
-                    date: formatDay(new Date(), i18n.language),
-                  }),
-                type,
-                inputMode: mode,
-                participants,
-                templateId,
-                agendaTopics,
-                sendMode: autoAvailable && autoSend ? "auto" : "manual",
-              });
-              navigate(
-                `/meetings/${m.id}/${mode === "record" ? "record" : "upload"}`,
-              );
-            } catch (e) {
-              setFailure(e instanceof Error ? e.message : "requestFailed");
-            } finally {
-              setBusy(false);
-            }
-          }}
+          onClick={() =>
+            mode === "upload" ? picker.current?.click() : void start("record")
+          }
         >
           {mode === "record" ? (
             <Microphone size={20} />
           ) : (
             <UploadSimple size={20} />
           )}{" "}
-          {t(mode === "record" ? "startRecording" : "continue")}
+          {t(mode === "record" ? "startRecording" : "chooseFile")}
         </Button>
       </div>
     </>

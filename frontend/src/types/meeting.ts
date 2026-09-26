@@ -223,6 +223,8 @@ export interface Meeting {
   sendingStartedAt?: string;
   deliveryFailedAt?: string;
   processingState?: ProcessingState;
+  /** Meetings ahead of this one; the server sets it only when it knows. */
+  queuePosition?: number;
   deliveryState?: DeliveryState;
   failureReference?: string;
   processingStartedAt?: string;

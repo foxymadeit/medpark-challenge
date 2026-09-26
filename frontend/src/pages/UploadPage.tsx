@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   FiCheck as Check,
   FiFile as FileAudio,
@@ -9,7 +9,7 @@ import {
 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
-import { inspectAudio } from "../api/audio";
+import { AUDIO_ACCEPT, inspectAudio } from "../api/audio";
 import { startProcessing, uploadRecording } from "../api/meetings";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
@@ -28,6 +28,14 @@ export default function UploadPage() {
   const input = useRef<HTMLInputElement>(null);
   const sequence = useRef(0);
   const navigate = useNavigate();
+  // The file picked from the new-meeting page's Upload card.
+  const handedOver = (useLocation().state as { file?: File } | null)?.file;
+  const tookHandover = useRef(false);
+  useEffect(() => {
+    if (!handedOver || tookHandover.current) return;
+    tookHandover.current = true;
+    void choose(handedOver);
+  });
   async function choose(f?: File) {
     const n = ++sequence.current;
     setFile(undefined);
@@ -75,7 +83,7 @@ export default function UploadPage() {
             ref={input}
             hidden
             type="file"
-            accept=".wav,.mp3,.m4a,.flac,audio/wav,audio/mpeg,audio/mp4,audio/flac,audio/x-flac"
+            accept={AUDIO_ACCEPT}
             onChange={(e) => void choose(e.target.files?.[0])}
           />
           <Button
