@@ -71,14 +71,17 @@ test("medical: flagged item, then confirm, then sent with the PDFs", async ({
   await shot(page, "03-needs-confirmation");
   const next = page.getByRole("button", { name: "Continue to sending" });
   await expect(next).toBeDisabled();
-  await page.getByRole("button", { name: "Take out: Order new leads." }).click();
+  await page
+    .getByRole("button", { name: "Take out: Order new leads." })
+    .click();
   await expect(page.getByText("Taken out")).toBeVisible();
   await expect(next).toBeEnabled();
 
   const docs = page.getByRole("region", { name: "Documents" });
-  await expect(
-    docs.getByRole("link", { name: "PDF, Română" }),
-  ).toHaveAttribute("href", /documents\/ro\.pdf$/);
+  await expect(docs.getByRole("link", { name: "PDF, Română" })).toHaveAttribute(
+    "href",
+    /documents\/ro\.pdf$/,
+  );
   const href = await docs
     .getByRole("link", { name: "PDF, English" })
     .getAttribute("href");
@@ -118,18 +121,16 @@ test("executive: nothing flagged, the send window opens, stop returns it to revi
   await shot(page, "04-countdown");
   await stop.click();
   await expect(stop).toHaveCount(0);
-  await expect(
-    page.getByText("Sending stopped. Nothing went out.").first(),
-  ).toBeVisible();
+  await expect(page.getByText("Review before sending")).toBeVisible();
 });
 
 test("executive: the window runs out and the minutes go by themselves", async ({
   page,
 }) => {
   await uploadMeeting(page, "executive");
-  await expect(page.getByRole("button", { name: "Stop sending" })).toBeVisible(
-    { timeout: 30_000 },
-  );
+  await expect(page.getByRole("button", { name: "Stop sending" })).toBeVisible({
+    timeout: 30_000,
+  });
   await expect(
     page.getByRole("link", { name: "Delivery confirmed" }),
   ).toBeVisible({ timeout: 30_000 });

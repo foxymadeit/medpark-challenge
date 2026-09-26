@@ -30,6 +30,11 @@ export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
   return (
     <section className="panel manual-review-bar">
       <div>
+        {meeting.deliveryState === "stopped" && !reviewed && (
+          <p className="stopped-note" role="status">
+            {t("sendingStopped")}
+          </p>
+        )}
         <strong>
           {t(reviewed ? "reviewComplete" : "reviewBeforeSending")}
         </strong>

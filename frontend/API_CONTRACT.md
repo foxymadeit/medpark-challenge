@@ -90,7 +90,9 @@ Types are defined in `src/types/meeting.ts`:
 | POST `/api/admin/people/{id}/roles`           | `{title,department,validFrom}`                              | ADMIN-only temporal role assignment; closes current role                               |
 | PATCH `/api/admin/lists/{id}`                 | Distribution-list fields                                    | ADMIN-only list management                                                             |
 | GET `/api/system`                             | —                                                           | `{local:boolean,services:[{id,available}]}` for `asr,speakers,automation,mail,storage` |
-| GET `/api/capabilities`                       | —                                                           | `{autoModeAvailable:false}` until Auto is released                                     |
+| GET `/api/capabilities`                       | —                                                           | `{autoModeAvailable}`; the Liminal backend reports `true`                              |
+| POST `/api/meetings/{id}/confirmations/{factId}` | `{action: "keep" \| "remove"}`                           | Updated `Meeting`; settles one item the checks could not confirm                       |
+| GET `/api/meetings/{id}/documents/{lang}.{ext}` | `lang` ro/ru/en, `ext` pdf/docx                            | The Medpark-template minutes file for that language                                    |
 
 The full meeting endpoint supports the current polling UI. Backend teams can implement focused processing/minutes endpoints without changing page data models. No model/runtime names need to appear in the user-facing payload.
 
@@ -98,7 +100,16 @@ The full meeting endpoint supports the current polling UI. Backend teams can imp
 
 Processing completion in Manual mode creates minutes, sets `ready` plus `reviewState: needs_review`, and does not schedule delivery. The user reviews content and participants, marks review complete, then explicitly sends. Sending validates the latest stored minutes, participants and recipients in the same transaction as the status transition.
 
-Auto mode is future/locked and must activate only when both `sendMode === "auto"` and the server capability is true. Its prepared countdown is 30 seconds. Stop converts the meeting to Manual review and cancels the deadline atomically. The backend scheduler must own expiry when Auto is eventually enabled.
+Auto mode is the default for new meetings whenever `/api/capabilities` reports it available (the Liminal backend does). When processing ends with nothing to confirm, the server holds the meeting as `sending_soon` for `sendWindowSeconds` (60 s) and sends at expiry; the frontend shows the countdown with Stop sending and Send now. Stop converts the meeting to Manual review and cancels the deadline atomically. When items need confirmation (`needsConfirmation`), the meeting waits as `ready`/`needs_review`; the person keeps or takes out each item, then Continue to sending marks the review and, in auto mode, sends.
+
+Fields the Liminal backend adds to `Meeting`, mapped in `src/api/meetings.ts` (`fromServer`):
+
+- `processingStages`: `{asr|diarize|minutes: {state: running|done|failed, startedAt, endedAt}}`, shown as the stage list on the Processing screen.
+- `needsConfirmation`: `[{id, kind, text, problems[]}]`; an item disappears once settled.
+- `documents`: `{ro|ru|en: {pdf, docx}}`, the languages offered in the Documents card.
+- `sendWindowSeconds`: the length of the send countdown.
+
+Writes carry `X-Requested-With: Liminal`; the server also checks Origin/Referer.
 
 Missing task text, unknown/missing owners, missing required deadlines, missing participants or incomplete review block Manual sending. In the future Auto path, the same validation cancels automatic delivery into review. `sent` is terminal for delivery; completion checkboxes may still update, but sent content is not silently changed or resent. Duplicate send requests return the existing result.
 
@@ -116,7 +127,7 @@ Authenticated sessions expire after 30 minutes without pointer, keyboard or touc
 - Never return passwords, store frontend JWTs, execute uploaded data, or log audio/transcripts.
 - Keep raw multilingual ASR separate from normalized structured minutes. Preserve overlap, acronyms, regional speech, unfinished statements and speaker uncertainty.
 - Use measured diarization durations for percentages; deterministic unique speaker slots within each meeting. The frontend must not fabricate real-mode speaker identities or measurements.
-- Local processing only: FastAPI → local pipeline → local n8n → department routing → local Mailpit/MailHog/SMTP. No Gmail, Outlook, SendGrid, external SMTP or external AI APIs during the demo.
+- Local processing only: FastAPI → local pipeline → department routing by meeting type → local Mailpit/MailHog/SMTP. No Gmail, Outlook, SendGrid, external SMTP or external AI APIs during the demo.
 - Recognize prototype enrollment separately from verified voice identity. Participants are staff, not patients.
 
 ## Verification
@@ -127,7 +138,7 @@ npm run lint
 npm run build
 ```
 
-Tests cover authenticated routing, demo credentials, language persistence, original transcript preservation, department setup, manual review, data editing/completion, metadata/audio persistence, processing across navigation, dormant 30-second Auto logic, explicit send/idempotency, unresolved-data blocking, file constraints and the mocked MediaRecorder lifecycle. A physical microphone and actual local mail/backend delivery still need integration testing on the deployment machine.
+Tests cover authenticated routing, demo credentials, language persistence, original transcript preservation, department setup, manual review, data editing/completion, metadata/audio persistence, processing across navigation, the demo store's 30-second Auto logic, explicit send/idempotency, unresolved-data blocking, file constraints and the mocked MediaRecorder lifecycle. A physical microphone and actual local mail/backend delivery still need integration testing on the deployment machine.
 
 ## Account and participant boundary
 

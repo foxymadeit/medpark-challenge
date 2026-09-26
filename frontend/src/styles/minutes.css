@@ -106,3 +106,8 @@
     align-items: stretch;
   }
 }
+.manual-review-bar .stopped-note {
+  margin: 0 0 6px;
+  font-weight: 600;
+  color: var(--sm-ink-primary);
+}

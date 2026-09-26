@@ -16,7 +16,9 @@ The demo account is **Administrator / AD**, separate from staff participants. Ad
 
 Open the local URL printed by Vite. Demo credentials: `admin@medpark.local` / `<VITE_DEMO_PASSWORD from .env.local>`.
 
-Manual mode is the current default: process → review the transcript, minutes and tasks → correct content → confirm participants → mark the review complete → preview the generated email and Word attachment → Send. Processing never starts a countdown or sends automatically. Auto mode is a future, locked capability. Its prepared flow uses a 30-second countdown and can be stopped into manual review, but it is unavailable by default.
+Automatic delivery is the default when the server offers it (the Liminal backend does): upload or record, pick the meeting type, and the minutes go out after a 60-second window that anyone can stop. Items the checks could not confirm always wait for a person first. Manual mode stays one checkbox away: process → review the transcript, minutes and tasks → correct content → confirm participants → mark the review complete → preview the generated email → Send. The demo store (`VITE_DEMO_MODE=true`) keeps Manual mode only.
+
+End-to-end: `npm run build && npm run e2e` runs Playwright against a mock of the contract; with `E2E_BACKEND=<backend folder> E2E_PYTHON=<its venv python>` it runs against the real backend with its fake pipeline stages and a local SMTP catcher.
 
 Demo mode uses localStorage for metadata and IndexedDB for audio. WAV, MP3, M4A and FLAC uploads are validated in the browser, while a real backend must validate decoded content again. Processing, queue/failure states, speaker activity and email delivery are simulated deterministically; sample transcripts are explicitly labeled. Interface language supports EN/RO/RU without translating spoken content. Sessions sign out after 30 minutes without pointer, keyboard or touch activity while preserving meeting data. All runtime assets are served locally.
 

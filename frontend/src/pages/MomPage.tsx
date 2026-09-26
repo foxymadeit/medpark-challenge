@@ -100,8 +100,7 @@ export default function MomPage() {
               meeting={m}
               onDone={() => setConfirmOpen(false)}
             />
-          ) : (m.sendMode === "auto" && m.status === "sending_soon") ||
-            (m.status === "ready" && m.deliveryState === "stopped") ? (
+          ) : m.sendMode === "auto" && m.status === "sending_soon" ? (
             <SendCountdown meeting={m} />
           ) : (
             <ManualReviewBar meeting={m} />
