@@ -46,23 +46,28 @@ def save(name: str, payload: dict) -> None:
 def setup() -> Path:
     sh(f"git clone -q --depth 1 -b samoilov-asr-llm https://github.com/foxymadeit/medpark-challenge {REPO}")
     sh(f"pip install -q -e {REPO}/asr-llm[asr] huggingface_hub soundfile")
-    sh(f"cd {REPO}/asr-llm && python scripts/fetch_whisper.py large-v3")
-    sys.path.insert(0, str(REPO / "asr-llm"))
+    sh("pip install -q -U transformers accelerate bitsandbytes")  # Gemma 4 needs a recent transformers
+    sh(f"cd {REPO}/asr-llm && python scripts/fetch_whisper.py large-v3 turbo")
     return next(Path("/kaggle/input").rglob("*.m4a"))
 
 
-def whisper(audio_path: Path):
-    os.environ.update(
-        MOM_DEVICE="cuda",
-        MOM_ASR_COMPUTE_TYPE="int8_float16",
-        MOM_ASR_MODEL_DIR=str(REPO / "asr-llm/models/whisper"),
-    )
+def whisper_child(audio_path: Path, model_dir: str, name: str) -> None:
+    """Runs in its own process: importing asr_llm switches Hugging Face to offline
+    mode, which is right for the product and wrong for the Gemma downloads below."""
+    sys.path.insert(0, str(REPO / "asr-llm"))
+    os.environ.update(MOM_DEVICE="cuda", MOM_ASR_COMPUTE_TYPE="int8_float16", MOM_ASR_MODEL_DIR=model_dir)
     from asr_llm.pipeline import transcribe_audio
 
     t0 = time.perf_counter()
     transcript, timings = transcribe_audio(audio_path)
-    save("whisper_dual", {"wall_s": time.perf_counter() - t0, "timings": timings, "transcript": transcript.model_dump()})
-    return transcript
+    save(name, {"wall_s": time.perf_counter() - t0, "timings": timings, "transcript": transcript.model_dump()})
+    clips = [(s, e, str(p)) for s, e, p in utterances(audio_path)]
+    (WORK / "clips.json").write_text(json.dumps(clips))
+
+
+def whisper(audio_path: Path, model_dir: str, name: str) -> None:
+    script = globals().get("__file__") or sys.argv[0]
+    sh(f"{sys.executable} {script} whisper {audio_path} {model_dir} {name}")
 
 
 def utterances(audio_path: Path):
@@ -113,7 +118,7 @@ def gemma(model_id: str, clips, prompts: dict[str, str], four_bit: bool) -> None
 
 
 def omni(clips) -> None:
-    sh("pip install -q omnilingual-asr")
+    sh("pip install -q omnilingual-asr torch==2.8.0 torchaudio==2.8.0")  # fairseq2 pins torch 2.8
     from omnilingual_asr.models.inference.pipeline import ASRInferencePipeline
 
     t0 = time.perf_counter()
@@ -134,9 +139,14 @@ def run(name: str, fn, *args) -> None:
 
 
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["whisper"]:
+        whisper_child(Path(sys.argv[2]), sys.argv[3], sys.argv[4])
+        sys.exit(0)
     audio_path = setup()
-    run("whisper_dual", whisper, audio_path)
-    clips = utterances(audio_path)
+    models = REPO / "asr-llm/models"
+    run("whisper_dual", whisper, audio_path, str(models / "whisper"), "whisper_dual")
+    run("whisper_turbo_dual", whisper, audio_path, str(models / "whisper-turbo"), "whisper_turbo_dual")
+    clips = [(s, e, Path(p)) for s, e, p in json.loads((WORK / "clips.json").read_text())]
     prompts = {"plain": PLAIN_PROMPT, "mixed": MIXED_PROMPT}
     run("gemma4_e4b", gemma, "google/gemma-4-E4B-it", clips, prompts, False)
     run("gemma4_12b", gemma, "google/gemma-4-12B-it", clips, prompts, True)

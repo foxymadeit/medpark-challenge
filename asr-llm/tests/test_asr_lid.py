@@ -71,3 +71,13 @@ def test_subtitle_hallucination_is_dropped():
     fake = FakeWhisper([("ru", 1.0)], {"ro": -0.4, "ru": -0.3}, texts={"ro": "Să vă mulțumim!", "ru": "Продолжение следует..."})
     text, _, hyps = engine(fake).transcribe_batch(np.zeros(SR * 3))
     assert (text, hyps) == ("", [])
+
+
+def test_hallucination_variants_are_dropped_but_long_sentences_kept():
+    from asr_llm.asr import _is_hallucination
+
+    assert _is_hallucination("Să vă mulțumim pentru vizionare!")
+    assert _is_hallucination("Спасибо, что вы посетили.")
+    assert not _is_hallucination("Pacientul e stabil.")
+    long = "Am discutat cu familia și le-am spus că vă mulțumim pentru vizionare nu are sens aici în salon azi dimineață"
+    assert not _is_hallucination(long)

@@ -39,7 +39,15 @@ _HALLUCINATIONS = {
     "nu uitați să dați like să lăsați un comentariu și să distribuiți acest video",
     "thank you for watching",
     "thanks for watching",
+    "спасибо что вы посетили",
+    "спасибо за внимание",
 }
+_HALLUCINATION_MAX_WORDS = 12  # a long real sentence may quote one of these; a short line is the credit itself
+
+
+def _is_hallucination(text: str) -> bool:
+    folded = _fold(text)
+    return len(folded.split()) <= _HALLUCINATION_MAX_WORDS and any(p in folded for p in _HALLUCINATIONS)
 
 
 class WhisperAsr:
@@ -87,7 +95,7 @@ class WhisperAsr:
         kept = [
             s
             for s in segments
-            if not (s.no_speech_prob > 0.6 and s.avg_logprob < -1.0) and _fold(s.text) not in _HALLUCINATIONS
+            if not (s.no_speech_prob > 0.6 and s.avg_logprob < -1.0) and not _is_hallucination(s.text)
         ]
         if not kept:
             return "", language, float("-inf")
