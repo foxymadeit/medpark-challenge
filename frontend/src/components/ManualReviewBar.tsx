@@ -9,7 +9,7 @@ import type { Meeting } from "../types/meeting";
 import Button from "./Button";
 
 /** What the minutes still need before they can be sent, most basic first. */
-export function waitingFor(m: Meeting): string {
+function waitingFor(m: Meeting): string {
   if (!m.participants.length) return "waitingParticipants";
   if (m.reviewFlags?.length) return "waitingFlags";
   if (
