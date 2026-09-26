@@ -326,10 +326,15 @@ def cmd_attach(args) -> None:
     lines = [{**x, "start_clock": clock(t0 + x["start"]), "end_clock": clock(t0 + x["end"])}
              for x in attach(segments, session["turns"], max_gap=args.max_gap)]
     for x in lines:
-        print(f"{x['start_clock']}  {x['speaker'] or '?':<12}  {x['text']}")
+        print(f"{x['start_clock']}  {x['speaker'] or '?':<12}  {_printable(x['text'])}")
     out = Path(args.out) if args.out else Path(args.session).with_suffix(".transcript.json")
     out.write_text(json.dumps({"session_start": session["session_start"], "lines": lines}, indent=2, ensure_ascii=False))
     print(f"wrote {out}")
+
+
+def _printable(text: str) -> str:
+    """Transcript text without control characters, so a file cannot drive the terminal."""
+    return "".join(c for c in text if c == "\t" or (ord(c) >= 32 and ord(c) != 127))
 
 
 def cmd_models(args) -> None:

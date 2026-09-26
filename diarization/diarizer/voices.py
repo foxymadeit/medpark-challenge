@@ -34,9 +34,11 @@ def voice_embeddings(audio, segmenter, embedder) -> list:
 def save_voice(name: str, embedder_name: str, embs, add: bool = False) -> Path:
     """add=True keeps what is already saved, e.g. a second language."""
     VOICES_DIR.mkdir(parents=True, exist_ok=True)
+    os.chmod(VOICES_DIR, 0o700)  # voiceprints are biometric data: owner only
     path = VOICES_DIR / f"{_slug(name)}.{embedder_name}.npz"
     old = list(np.load(path)["embs"]) if add and path.exists() and "space" in np.load(path).files else []
     np.savez(path, name=name, embs=np.asarray(old + list(embs), dtype=np.float32), space="raw")
+    os.chmod(path, 0o600)
     return path
 
 

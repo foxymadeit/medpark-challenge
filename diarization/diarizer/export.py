@@ -7,6 +7,7 @@ clock (no network time needed); offsets are seconds from the session start.
 
 import csv
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -69,6 +70,7 @@ def summary(session: dict) -> str:
 def write_all(out_dir, session: dict, uri: str) -> list[Path]:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
+    os.chmod(out, 0o700)  # who spoke when in a hospital meeting: owner only
     paths = [out / f"{uri}.json", out / f"{uri}.rttm", out / f"{uri}.csv"]
     paths[0].write_text(json.dumps(session, indent=2, ensure_ascii=False))
     paths[1].write_text("".join(
@@ -80,4 +82,6 @@ def write_all(out_dir, session: dict, uri: str) -> list[Path]:
         for t in session["turns"]:
             w.writerow([t["speaker"], t["start_clock"], t["end_clock"],
                         t["start"], t["end"], round(t["end"] - t["start"], 3)])
+    for p in paths:
+        os.chmod(p, 0o600)
     return paths

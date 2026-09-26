@@ -92,8 +92,7 @@ class SpeakerTracker:
         """Label each local speaker of one window. Two local speakers never
         share a global id. Returns an id or None (not enough evidence yet)."""
         embs = [_unit(e) for e in embeddings]
-        sims = np.array([[self.similarity(e, s) for s in self._speakers] for e in embs])
-        sims = sims.reshape(len(embs), len(self._speakers))
+        sims = self._sims(embs)
         result: list = [None] * len(embs)
         taken: set = set()
         # Greedy best-pair-first. With at most 3 local speakers this matches
@@ -117,24 +116,36 @@ class SpeakerTracker:
         return result
 
     def merge_pass(self, threshold: float) -> dict:
-        """Fold speakers whose centroids converged into the older id."""
+        """Fold speakers whose centroids converged into the older id. One
+        matrix product per merge instead of a Python loop over every pair;
+        pairs are taken in the same order as before (older speaker first)."""
         remap: dict = {}
-        merged = True
-        while merged:
-            merged = False
-            for a in self._speakers:
-                for b in self._speakers:
-                    if b.id <= a.id or float(a.centroid @ b.centroid) < threshold:
-                        continue
-                    if a.name and b.name and a.name != b.name:
-                        continue
-                    self._absorb(a, b)
-                    remap[b.id] = a.id
-                    merged = True
+        while len(self._speakers) > 1:
+            C = np.array([s.centroid for s in self._speakers])
+            hit = None
+            for i, j in np.argwhere(np.triu(C @ C.T, k=1) >= threshold):  # list order is id order
+                a, b = self._speakers[i], self._speakers[j]
+                if not (a.name and b.name and a.name != b.name):
+                    hit = (a, b)
                     break
-                if merged:
-                    break
+            if hit is None:
+                break
+            self._absorb(*hit)
+            remap[hit[1].id] = hit[0].id
         return remap
+
+    def _sims(self, embs) -> np.ndarray:
+        """Best similarity of each unit embedding to each speaker (centroid or
+        any prototype), as one matrix product plus a per-speaker max."""
+        if not self._speakers:
+            return np.zeros((len(embs), 0))
+        rows, starts = [], []
+        for s in self._speakers:
+            starts.append(len(rows))
+            rows.append(s.centroid)
+            rows.extend(s.protos)
+        S = np.asarray(embs, dtype=np.float64).reshape(len(embs), -1) @ np.asarray(rows, dtype=np.float64).T
+        return np.maximum.reduceat(S, starts, axis=1)
 
     # internals
 

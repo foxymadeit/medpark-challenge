@@ -12,12 +12,30 @@ import numpy as np
 from .neural import SR
 
 
+# First bytes of the containers we accept. Anything else is refused before
+# ffmpeg sees it: playlists (m3u8) and concat lists would make ffmpeg open
+# other local files or network addresses, which breaks the offline promise.
+_MAGIC = (b"RIFF", b"FORM", b"fLaC", b"OggS", b"ID3", b"\x1a\x45\xdf\xa3", b"caff", b"#!AMR",
+          b"\x30\x26\xb2\x75")
+_MP4_BOXES = (b"ftyp", b"moov", b"mdat", b"wide", b"free")
+
+
+def check_audio_header(path) -> None:
+    with open(path, "rb") as f:
+        head = f.read(12)
+    ok = (head.startswith(_MAGIC) or head[4:8] in _MP4_BOXES
+          or (len(head) > 1 and head[0] == 0xFF and head[1] & 0xE0 == 0xE0))  # MPEG audio / ADTS AAC frame sync
+    if not ok:
+        raise ValueError(f"{path} is not a supported audio file (WAV, MP3, M4A, FLAC, OGG, WebM, AAC)")
+
+
 def load(path) -> np.ndarray:
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(path)
+    check_audio_header(path)
     if shutil.which("ffmpeg"):
-        cmd = ["ffmpeg", "-nostdin", "-v", "error", "-i", str(path.resolve()),
+        cmd = ["ffmpeg", "-nostdin", "-v", "error", "-protocol_whitelist", "file", "-i", str(path.resolve()),
                "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]
         out = subprocess.run(cmd, capture_output=True, check=False)
         if out.returncode != 0 and not out.stdout:

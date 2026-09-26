@@ -13,7 +13,7 @@ from pathlib import Path
 import numpy as np
 from scipy.signal import fftconvolve
 
-from eval.make_mix import SR, build_meeting, trim
+from eval.make_mix import build_meeting, trim
 
 
 def room(clip, rir):
