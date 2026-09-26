@@ -274,8 +274,7 @@
     "done": "готово",
     "liveTitle": "Уже расшифровано",
     "chunks": "{n} из {total} фрагментов",
-    "listening": "Расшифровывается следующая часть",
-    "skip": "Перейти к протоколу (демо)"
+    "listening": "Расшифровывается следующая часть"
   },
   "review": {
     "meta_one": "{type} · {n} мин · {count} участник",
@@ -347,7 +346,15 @@
     "removePoint": "Удалить пункт",
     "pointLabel": "Пункт резюме",
     "pointPh": "Ключевой момент, решение или результат",
-    "noSummary": "Резюме пока нет."
+    "noSummary": "Резюме пока нет.",
+    "transcriptMeta_one": "{count} реплика",
+    "transcriptMeta_few": "{count} реплики",
+    "transcriptMeta_many": "{count} реплик",
+    "transcriptMeta": "{count} реплики",
+    "voicesToName_one": "{count} голос нужно определить",
+    "voicesToName_few": "{count} голоса нужно определить",
+    "voicesToName_many": "{count} голосов нужно определить",
+    "voicesToName": "{count} голоса нужно определить"
   },
   "sent": {
     "sendingLead_one": "Отправка {count} участнику",

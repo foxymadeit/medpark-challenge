@@ -231,26 +231,25 @@
 .step.is-active { color: var(--sm-ink-primary); font-weight: 600; }
 .step__dot { width: 16px; height: 16px; border: 1.5px solid var(--sm-ink-tertiary); border-radius: 50%; }
 .step.is-active .step__dot { border: 2px solid var(--sm-ink-primary); }
-.processing__skip { align-self: center; font-size: 13px; opacity: 0.7; }
-.processing__skip:hover { opacity: 1; }
 .processing__note { display: inline-flex; align-items: center; gap: var(--sm-space-2); margin-top: auto; }
 
 /* ── Review ── */
 .review { padding: 32px 48px 0; }
 .review__header { display: flex; align-items: center; justify-content: space-between; height: 56px; }
-.review__panes { display: flex; gap: var(--sm-space-4); margin-top: 24px; padding-bottom: 120px; }
+.review__panes { display: flex; flex-direction: column; gap: var(--sm-space-4); margin-top: 24px; padding-bottom: 120px; }
 .review__pane {
   display: flex;
   flex-direction: column;
   gap: var(--sm-space-4);
-  height: 504px;
-  max-height: calc(100vh - 64px - 232px);
-  min-height: 320px;
-  overflow: auto;
   padding: var(--sm-space-6);
 }
-.review__pane--transcript { flex: 0 1 536px; min-width: 380px; }
-.review__pane--tasks { flex: 1 1 0; min-width: 440px; }
+/* Transcript: a disclosure under the minutes; closed it's a one-line bar. */
+.review__pane--transcript:not(.is-open) { padding-block: var(--sm-space-4); }
+.review__disclosure { display: flex; align-items: center; gap: var(--sm-space-3); width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.review__disclosure-meta { font-weight: 400; letter-spacing: 0; }
+.review__disclosure-caret { margin-left: auto; color: var(--sm-ink-secondary); transition: transform 150ms; }
+.review__pane--transcript.is-open .review__disclosure-caret { transform: rotate(180deg); }
+.review__transcript-body { display: flex; flex-direction: column; gap: var(--sm-space-4); }
 .transcript { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }
 .transcript__line { position: relative; display: flex; flex-direction: column; gap: var(--sm-space-1); }
 .transcript__line:has(.transcript__pen) .transcript__text { padding-right: 32px; }
