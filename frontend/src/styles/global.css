@@ -1597,7 +1597,7 @@ textarea {
 }
 .minutes-people {
   padding: 24px;
-  margin-top: 120px;
+  margin-top: 0;
 }
 .minutes-people .speaker-label {
   font-size: 12px;

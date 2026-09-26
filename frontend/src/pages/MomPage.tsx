@@ -18,7 +18,7 @@ import NeedsConfirmation from "../components/NeedsConfirmation";
 import DocumentsCard from "../components/DocumentsCard";
 import type { MinutesLanguage } from "../types/meeting";
 import { listName } from "../api/routing";
-import { formatTime } from "../utils";
+import { formatTime, LANGUAGE_NAMES } from "../utils";
 import { sendNow } from "../api/meetings";
 import { downloadMinutesPdf } from "../api/pdf";
 export default function MomPage() {
@@ -109,10 +109,11 @@ export default function MomPage() {
           <ReviewParticipants meeting={m} />
           {langs.length > 1 && (
             <div
-              className="language-switcher minutes-language"
+              className="minutes-language"
               role="group"
-              aria-label={t("minutesLanguage")}
+              aria-labelledby="minutes-in"
             >
+              <span id="minutes-in">{t("minutesIn")}</span>
               {langs.map((code) => (
                 <button
                   key={code}
@@ -121,7 +122,7 @@ export default function MomPage() {
                   aria-pressed={code === lang}
                   onClick={() => setChosen(code)}
                 >
-                  {code.toUpperCase()}
+                  {LANGUAGE_NAMES[code]}
                 </button>
               ))}
             </div>

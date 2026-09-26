@@ -89,9 +89,9 @@ test("medical: flagged item, then confirm, then sent with the PDFs", async ({
   expect(pdf.ok()).toBe(true);
   expect((await pdf.body()).subarray(0, 4).toString()).toBe("%PDF");
 
-  const minutesLanguage = page.getByRole("group", { name: "Minutes language" });
+  const minutesLanguage = page.getByRole("group", { name: "Minutes in:" });
   if (await minutesLanguage.count()) {
-    await minutesLanguage.getByRole("button", { name: "RO" }).click();
+    await minutesLanguage.getByRole("button", { name: "Română" }).click();
     await expect(page.getByText(/Consiliul a aprobat/)).toBeVisible();
   }
 

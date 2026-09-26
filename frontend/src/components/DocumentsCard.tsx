@@ -1,12 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { documentUrl } from "../api/meetings";
-import type { Meeting, MinutesLanguage } from "../types/meeting";
-
-const NAMES: Record<MinutesLanguage, string> = {
-  ro: "Română",
-  ru: "Русский",
-  en: "English",
-};
+import type { Meeting } from "../types/meeting";
+import { LANGUAGE_NAMES as NAMES } from "../utils";
 
 /** Figma M02: the server-rendered minutes, one PDF and one DOCX per
  * language, with how many items were checked against the transcript. */

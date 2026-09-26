@@ -17,6 +17,12 @@ export function formatClock(date: Date | string, language: string): string {
     minute: "2-digit",
   });
 }
+/** Each minutes language in its own name, as a reader would look for it. */
+export const LANGUAGE_NAMES = {
+  ro: "Română",
+  ru: "Русский",
+  en: "English",
+} as const;
 export function formatTime(seconds: number) {
   const s = Math.max(0, Math.floor(seconds));
   return `${Math.floor(s / 60)

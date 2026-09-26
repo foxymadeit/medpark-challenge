@@ -80,8 +80,30 @@
 .confirm-footer p {
   margin: 0;
 }
+/* Minutes language: part of the minutes, not the interface. Text tabs with
+   an underline, so it never looks like the EN/RO/RU switch in the top bar. */
 .minutes-language {
-  justify-self: start;
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 0 4px;
+  font-size: 14px;
+}
+.minutes-language > span {
+  color: var(--sm-ink-secondary);
+}
+.minutes-language button {
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--sm-ink-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+.minutes-language button[aria-pressed="true"] {
+  color: var(--sm-ink-primary);
+  border-bottom-color: var(--sm-ink-primary);
 }
 .auto-send-option {
   display: flex;

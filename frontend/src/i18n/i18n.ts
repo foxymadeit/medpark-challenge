@@ -380,6 +380,7 @@ const resources = {
       keep: "Keep",
       takeOut: "Take out",
       kept: "Kept",
+      minutesIn: "Minutes in:",
       list_medical: "Medical board",
       list_executive: "Executive board",
       list_administrative: "Administrative board",
@@ -403,7 +404,6 @@ const resources = {
       checkedCount: "{{verified}} of {{total}} items",
       aiDrafted:
         "Drafted by AI on this server. The chair reviews before sending.",
-      minutesLanguage: "Minutes language",
       downloadDocx: "Download DOCX",
       sendingStatus: "Sending status",
       sendAutomatically: "Send automatically when ready",
@@ -799,6 +799,7 @@ const resources = {
       keep: "Păstrează",
       takeOut: "Scoate",
       kept: "Păstrat",
+      minutesIn: "Proces-verbal în:",
       list_medical: "Consiliul medical",
       list_executive: "Consiliul executiv",
       list_administrative: "Consiliul administrativ",
@@ -825,7 +826,6 @@ const resources = {
       checkedCount: "{{verified}} din {{total}} elemente",
       aiDrafted:
         "Redactat de AI pe acest server. Președintele verifică înainte de trimitere.",
-      minutesLanguage: "Limba procesului-verbal",
       downloadDocx: "Descarcă DOCX",
       sendingStatus: "Starea trimiterii",
       sendAutomatically: "Trimite automat când este gata",
@@ -1219,6 +1219,7 @@ const resources = {
       keep: "Оставить",
       takeOut: "Убрать",
       kept: "Оставлено",
+      minutesIn: "Протокол на языке:",
       list_medical: "Медицинский совет",
       list_executive: "Исполнительный совет",
       list_administrative: "Административный совет",
@@ -1245,7 +1246,6 @@ const resources = {
       checkedCount: "{{verified}} из {{total}} пунктов",
       aiDrafted:
         "Составлено ИИ на этом сервере. Председатель проверяет перед отправкой.",
-      minutesLanguage: "Язык протокола",
       downloadDocx: "Скачать DOCX",
       sendingStatus: "Статус отправки",
       sendAutomatically: "Отправить автоматически, когда будет готово",
