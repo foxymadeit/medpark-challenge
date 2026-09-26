@@ -220,7 +220,10 @@ export function HistoryRecord() {
           <table className="summary-table">
             <thead>
               <tr>
-                <th scope="col">{t('review.task')}</th>
+                <th scope="col">
+                  {/* "Tasks" is already the heading above; keep the column name for screen readers only. */}
+                  <span className="sr-only">{t('review.task')}</span>
+                </th>
                 <th scope="col">{t('review.owner')}</th>
                 <th scope="col">{t('review.due')}</th>
               </tr>
