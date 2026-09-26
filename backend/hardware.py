@@ -8,12 +8,14 @@ import shutil
 import subprocess
 
 PROFILES = {
+    # MOM_PARALLEL: minutes model requests at once; Ollama needs OLLAMA_NUM_PARALLEL at least this.
     "gpu": {"MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16", "MOM_ASR_MODEL_DIR": "models/whisper",
-            "MOM_LLM_MODEL": "qwen3:8b"},
+            "MOM_LLM_MODEL": "qwen3:8b", "MOM_ASR_BATCH_SIZE": "8", "MOM_PARALLEL": "3"},
+    # Batched decoding pays off on a GPU; on a CPU one utterance at a time is as fast.
     "cpu": {"MOM_DEVICE": "cpu", "MOM_ASR_COMPUTE_TYPE": "int8", "MOM_ASR_MODEL_DIR": "models/whisper-turbo",
-            "MOM_LLM_MODEL": "qwen3:8b"},
+            "MOM_LLM_MODEL": "qwen3:8b", "MOM_ASR_BATCH_SIZE": "1"},
     "laptop": {"MOM_DEVICE": "cpu", "MOM_ASR_COMPUTE_TYPE": "int8", "MOM_ASR_MODEL_DIR": "models/whisper-turbo",
-               "MOM_LLM_MODEL": "qwen3:4b"},
+               "MOM_LLM_MODEL": "qwen3:4b", "MOM_ASR_BATCH_SIZE": "1"},
 }
 GPU_GB, CPU_RAM_GB = 15, 30   # a "16 GB" card reports a little under 16
 

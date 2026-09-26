@@ -9,6 +9,7 @@ Output is constrained to a JSON schema and decoded at temperature 0.
 import ipaddress
 import json
 import os
+import threading
 import time
 import urllib.request
 from urllib.parse import urlparse
@@ -46,6 +47,7 @@ class LocalLLM:
         self.backend = backend or ("ollama" if url.rstrip("/").endswith(":11434") else "openai")
         self.ctx = ctx
         self.stats = {"calls": 0, "prompt_tokens": 0, "output_tokens": 0, "seconds": 0.0}
+        self._lock = threading.Lock()   # calls may run in parallel (MOM_PARALLEL)
         self.cpu_only = False   # bake-off: measure CPU-only speed on a GPU machine
 
     def _post(self, path: str, body: dict) -> dict:
@@ -84,8 +86,7 @@ class LocalLLM:
                 body["options"]["num_gpu"] = 0
             out = self._post("/api/chat", body)
             text = out["message"]["content"]
-            self.stats["prompt_tokens"] += out.get("prompt_eval_count", 0)
-            self.stats["output_tokens"] += out.get("eval_count", 0)
+            used = (out.get("prompt_eval_count", 0), out.get("eval_count", 0))
         else:
             body = {"model": self.model, "temperature": 0, "max_tokens": max_tokens, "seed": 7,
                     "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}]}
@@ -94,10 +95,12 @@ class LocalLLM:
             out = self._post("/v1/chat/completions", body)
             text = out["choices"][0]["message"]["content"]
             usage = out.get("usage") or {}
-            self.stats["prompt_tokens"] += usage.get("prompt_tokens", 0)
-            self.stats["output_tokens"] += usage.get("completion_tokens", 0)
-        self.stats["calls"] += 1
-        self.stats["seconds"] += time.perf_counter() - t0
+            used = (usage.get("prompt_tokens", 0), usage.get("completion_tokens", 0))
+        with self._lock:
+            self.stats["prompt_tokens"] += used[0]
+            self.stats["output_tokens"] += used[1]
+            self.stats["calls"] += 1
+            self.stats["seconds"] += time.perf_counter() - t0
         return text
 
     def chat_json(self, system: str, user: str, schema: dict, max_tokens: int = 2048, think=None) -> dict:

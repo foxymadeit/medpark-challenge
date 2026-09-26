@@ -89,3 +89,16 @@ def test_purge_deletes_only_old_minutes_files(tmp_path):
     os.utime(other, (stale, stale))
     assert purge(tmp_path, 30) == 1
     assert not old.exists() and new.exists() and other.exists()
+
+
+@pytest.mark.skipif(not shutil.which("latexmk"), reason="needs TeX Live")
+def test_parallel_model_calls_keep_each_language_its_own_minutes(tmp_path, no_network, monkeypatch):
+    import mom.pipeline
+    monkeypatch.setattr(mom.pipeline, "PARALLEL", 3)
+    t = tmp_path / "meeting.txt"
+    t.write_text(TRANSCRIPT, encoding="utf-8")
+    result = run(t, tmp_path / "out", FakeLLM(), Meeting(type="administrative", date="2026-09-24", start="14:00"))
+    assert result["checks"]["ok"] == 4 and result["checks"]["confirm"] == 1
+    bodies = json.loads(open(result["render"], encoding="utf-8").read())["bodies"]
+    cyrillic = {lang: any("Ѐ" <= c <= "ӿ" for c in body) for lang, body in bodies.items()}
+    assert cyrillic == {"ro": False, "ru": True, "en": False}

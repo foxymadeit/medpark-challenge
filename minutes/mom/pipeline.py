@@ -12,7 +12,7 @@ from pathlib import Path
 from . import latexcheck, render_docx, render_pdf
 from .export import meeting_json
 from .anonymize import anonymize_text
-from .extract import extract
+from .extract import PARALLEL, extract
 from .meeting_type import detect as detect_type
 from .normalize import load_transcript
 from .schemas import LANGS, MEETING_TYPES, Meeting, fresh, to_dict
@@ -59,12 +59,15 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
         end = dt.datetime(2000, 1, 1, h, m) + dt.timedelta(seconds=lines[-1].end)
         meeting = replace(meeting, end=end.strftime("%H:%M"))
 
+    # The type check and the extraction are independent: on a GPU with room for
+    # parallel requests (MOM_PARALLEL) the server runs them side by side.
     t = time.perf_counter()
-    detected = detect_type(llm, lines)
-    timings["type"] = time.perf_counter() - t
-
-    t = time.perf_counter()
-    proposed, patients = extract(llm, lines, meeting.type, think=think)
+    with ThreadPoolExecutor(2 if PARALLEL > 1 else 1) as pool:
+        typed = pool.submit(detect_type, llm, lines)
+        found = pool.submit(extract, llm, lines, meeting.type, think=think)
+        detected = typed.result()
+        timings["type"] = time.perf_counter() - t
+        proposed, patients = found.result()
     timings["extract"] = time.perf_counter() - t
 
     t = time.perf_counter()
@@ -79,8 +82,10 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
 
     bodies, write_reports = {}, {}
     t = time.perf_counter()
-    for lang in langs:
-        bodies[lang], write_reports[lang] = write_body(llm, facts, lang, evidence, patients, names)
+    with ThreadPoolExecutor(min(PARALLEL, len(langs))) as pool:
+        written = list(pool.map(lambda lang: write_body(llm, facts, lang, evidence, patients, names), langs))
+    for lang, (body, report) in zip(langs, written):
+        bodies[lang], write_reports[lang] = body, report
     timings["write"] = time.perf_counter() - t
 
     t = time.perf_counter()

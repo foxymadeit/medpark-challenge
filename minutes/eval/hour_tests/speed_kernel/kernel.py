@@ -37,7 +37,9 @@ from pathlib import Path
 # ---------------------------------------------------------------- what to test (edit after the bake-offs)
 ASR_FETCH = "large-v3"                     # scripts/fetch_whisper.py argument: large-v3 | turbo
 ASR_ENV = {"MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16", "MOM_ASR_MODEL_DIR": "models/whisper",
-           "MOM_CS_MERGE": "false", "MOM_CORRECT_TERMS": "true"}
+           "MOM_CS_MERGE": "false", "MOM_CORRECT_TERMS": "true", "MOM_ASR_BATCH_SIZE": "8"}
+PARALLEL = "3"                             # minutes requests at once (MOM_PARALLEL, OLLAMA_NUM_PARALLEL), as backend/hardware.py's gpu profile
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"   # Kaggle gives two T4s; the reference server has one 16 GB GPU
 MINUTES_MODEL = "qwen3:8b"                 # Ollama tag the minutes use (MOM_LLM_MODEL)
 HOURS = ["icsi_60", "kremlin_60", "md_parl_60", "rompar_60"]
 MEETING_TYPE = {"icsi_60": "administrative", "kremlin_60": "executive", "md_parl_60": "administrative",
@@ -156,7 +158,8 @@ def install_ollama():
         base = "https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64"
         if sh(f"curl -fsSL {base}.tar.zst | zstd -d | tar -x -C /usr", check=False).returncode != 0:
             sh(f"curl -fsSL {base}.tgz | tar -xz -C /usr")
-    env = {**os.environ, "OLLAMA_MODELS": "/tmp/ollama", "OLLAMA_KEEP_ALIVE": "10m", "OLLAMA_HOST": "127.0.0.1:11434"}
+    env = {**os.environ, "OLLAMA_MODELS": "/tmp/ollama", "OLLAMA_KEEP_ALIVE": "10m", "OLLAMA_HOST": "127.0.0.1:11434",
+           "OLLAMA_NUM_PARALLEL": PARALLEL}
     subprocess.Popen("ollama serve > /tmp/ollama.log 2>&1", shell=True, env=env)
     for _ in range(60):
         if subprocess.run("curl -s 127.0.0.1:11434/api/version", shell=True, capture_output=True).returncode == 0:
@@ -180,7 +183,7 @@ def stage(name, values, work):
     if name == "minutes" and not values["session"]:   # drop the flag and its empty value together
         i = args.index("--session")
         del args[i:i + 2]
-    env = {**os.environ, **OFFLINE_ENV, "MOM_LLM_MODEL": MINUTES_MODEL,
+    env = {**os.environ, **OFFLINE_ENV, "MOM_LLM_MODEL": MINUTES_MODEL, "MOM_PARALLEL": PARALLEL,
            **({k: str(ASR / "asr-llm" / v) if k == "MOM_ASR_MODEL_DIR" else v for k, v in ASR_ENV.items()}
               if name == "asr" else {})}
     (work / "logs").mkdir(parents=True, exist_ok=True)
