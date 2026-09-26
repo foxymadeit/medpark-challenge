@@ -9,12 +9,13 @@ from .audio import decode_audio, duration_s
 from .batching import pack_batches
 from .clean import collapse_repeat_segments
 from .config import settings
+from .diarization import load_turns, speaker_for, split_at_turns
 from .llm import LocalLlm
-from .schemas import Minutes, PipelineResult, SpeechSegment, Transcript
+from .schemas import Minutes, PipelineResult, SpeechSegment, Transcript, format_segments
 from .vad import speech_spans
 
 
-def transcribe_audio(audio_path: Path) -> tuple[Transcript, dict[str, float]]:
+def transcribe_audio(audio_path: Path, diarization: Path | None = None) -> tuple[Transcript, dict[str, float]]:
     timings: dict[str, float] = {}
     t0 = time.perf_counter()
     audio = decode_audio(audio_path)
@@ -24,6 +25,9 @@ def transcribe_audio(audio_path: Path) -> tuple[Transcript, dict[str, float]]:
     spans = speech_spans(audio)
     if not spans:
         spans = [(0.0, duration_s(audio))]
+    turns = load_turns(diarization) if diarization else []
+    if turns:
+        spans = split_at_turns(spans, turns)
     batches = pack_batches(audio, spans)
     timings["vad_batch"] = time.perf_counter() - t0
 
@@ -35,7 +39,13 @@ def transcribe_audio(audio_path: Path) -> tuple[Transcript, dict[str, float]]:
 
     segments = collapse_repeat_segments(
         [
-            SpeechSegment(start=c.start, end=c.end, text=c.text, language=c.language)
+            SpeechSegment(
+                start=c.start,
+                end=c.end,
+                text=c.text,
+                language=c.language,
+                speaker=speaker_for(c.start, c.end, turns),
+            )
             for c in chunks
             if c.text
         ]
@@ -46,7 +56,7 @@ def transcribe_audio(audio_path: Path) -> tuple[Transcript, dict[str, float]]:
         asr_device=engine.device,
         asr_model=engine.model_id,
         segments=segments,
-        text=_format_transcript(segments),
+        text=format_segments(segments),
     )
     return transcript, timings
 
@@ -79,11 +89,12 @@ def load_transcript(path: Path) -> Transcript:
                 end=float(row.get("end") or 0),
                 text=str(row["text"]),
                 language=row.get("language"),
+                speaker=row.get("speaker"),
             )
         )
     segments = collapse_repeat_segments(segments)
     if segments:
-        text = _format_transcript(segments)
+        text = format_segments(segments)
     return Transcript(
         source=str(raw.get("file") or path),
         duration_s=float(raw.get("audio_s") or 0),
@@ -112,8 +123,9 @@ def run_pipeline(
     audio_path: Path,
     meeting_type: str = "administrative",
     skip_llm: bool = False,
+    diarization: Path | None = None,
 ) -> PipelineResult:
-    transcript, timings = transcribe_audio(audio_path)
+    transcript, timings = transcribe_audio(audio_path, diarization)
     if skip_llm:
         minutes = Minutes(title=audio_path.stem, meeting_type=meeting_type, summary="")  # type: ignore[arg-type]
         timings["llm"] = 0.0
@@ -122,11 +134,3 @@ def run_pipeline(
     minutes, llm_s = write_minutes(transcript, meeting_type)
     timings["llm"] = llm_s
     return PipelineResult(transcript=transcript, minutes=minutes, elapsed_s=timings)
-
-
-def _format_transcript(segments: list[SpeechSegment]) -> str:
-    lines = []
-    for seg in segments:
-        lang = f" ({seg.language})" if seg.language else ""
-        lines.append(f"[{seg.start:.1f}-{seg.end:.1f}]{lang} {seg.text}")
-    return "\n".join(lines)

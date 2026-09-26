@@ -19,6 +19,7 @@ def main() -> None:
     parser.add_argument("--meeting-type", default="medical")
     parser.add_argument("--language", default=None, help="Language of the extracted minutes. Default is MOM_LLM_LANGUAGE (ro).")
     parser.add_argument("--skip-llm", action="store_true")
+    parser.add_argument("--diarization", type=Path, default=None, help="Diarizer session JSON with speaker turns.")
     parser.add_argument("--preview-glossary", action="store_true")
     parser.add_argument("--from-minutes", type=Path, default=None)
     parser.add_argument("--to-languages", default="")
@@ -57,6 +58,7 @@ def main() -> None:
             args.audio,
             meeting_type=args.meeting_type,
             skip_llm=args.skip_llm,
+            diarization=args.diarization,
         )
 
     text = json.dumps(result.model_dump(), indent=2, ensure_ascii=False)

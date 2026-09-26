@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import json
 
-from .clean import ground_minutes
+from .clean import _fold, ground_minutes
 from .config import settings
 from .local import pick_device, require_local_path
 from .retrieve import llm_glossary_for
-from .schemas import Minutes, Transcript
+from .schemas import Minutes, SpeechSegment, Transcript, format_segments
 
 SYSTEM_PROMPT = """You are an on-premise hospital meeting secretary.
 Read a mixed Romanian / Russian / English transcript. It may be one meeting or a ward round with several patients.
@@ -15,6 +15,7 @@ Separate patients when the transcript itself distinguishes them. Do not invent a
 attendees: only personal names that appear in the transcript. If none do, use [].
 decisions: only what the speakers agree to do. If none are clear, use [].
 action_items.source_quote: a contiguous verbatim span copied from the transcript, or null.
+Lines may carry a speaker label (e.g. "Speaker 2") from diarization. An owner is a name from the transcript, or the speaker label of the person who takes the task.
 Do not invent owners or deadlines. If a field is unknown, use null.
 Normalize medical terms using this retrieved glossary subset (ro | ru | en).
 Do not mention a glossary term unless the transcript supports it.
@@ -32,6 +33,12 @@ Return ONLY valid JSON with this shape:
     {{"text": string, "owner": string|null, "deadline": string|null, "source_quote": string|null}}
   ]
 }}
+"""
+
+MERGE_PROMPT = """These are summaries of consecutive parts of one hospital meeting.
+Write one title and one summary (under 120 words) in {language} covering all parts.
+Do not add facts that are not in the parts.
+Return ONLY valid JSON: {{"title": string, "summary": string}}
 """
 
 TRANSLATE_PROMPT = """Translate this hospital minutes JSON into {language}.
@@ -75,36 +82,44 @@ class LocalLlm:
         )
 
     def extract_minutes(self, transcript: Transcript, meeting_type: str, language: str | None = None) -> Minutes:
+        """Long meetings go window by window, then merge without asking the LLM for new facts."""
         language = language or settings.llm_language
+        texts = [format_segments(w) for w in split_windows(transcript.segments, settings.llm_window_s)]
+        parts = [self._extract(text, meeting_type, language) for text in texts or [transcript.text]]
+        if len(parts) == 1:
+            return parts[0]
+        merged = merge_minutes(parts)
+        header = self._chat_json(
+            MERGE_PROMPT.format(language=language),
+            "\n\n".join(f"Part {i + 1}: {p.summary}" for i, p in enumerate(parts)),
+            max_tokens=400,
+        )
+        return merged.model_copy(
+            update={"title": header.get("title") or merged.title, "summary": header.get("summary") or merged.summary}
+        )
+
+    def _chat_json(self, system: str, user: str, max_tokens: int) -> dict:
         result = self._llm.create_chat_completion(
-            messages=[
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT.format(
-                        language=language,
-                        glossary=llm_glossary_for(transcript.text, k=settings.glossary_k),
-                    ),
-                },
-                {
-                    "role": "user",
-                    "content": (
-                        f"Meeting type selected by user: {meeting_type}\n\n"
-                        f"Transcript:\n{transcript.text}"
-                    ),
-                },
-            ],
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
             response_format={"type": "json_object"},
             temperature=0.1,
-            max_tokens=1200,
+            max_tokens=max_tokens,
         )
         content = result["choices"][0]["message"]["content"]
         try:
-            data = json.loads(content)
+            return json.loads(content)
         except json.JSONDecodeError as exc:
             raise ValueError(f"LLM returned invalid JSON ({exc})") from exc
+
+    def _extract(self, text: str, meeting_type: str, language: str) -> Minutes:
+        data = self._chat_json(
+            SYSTEM_PROMPT.format(language=language, glossary=llm_glossary_for(text, k=settings.glossary_k)),
+            f"Meeting type selected by user: {meeting_type}\n\nTranscript:\n{text}",
+            max_tokens=1200,
+        )
         data["meeting_type"] = meeting_type
         data["language"] = language
-        return ground_minutes(Minutes.model_validate(data), transcript.text)
+        return ground_minutes(Minutes.model_validate(data), text)
 
     def translate_minutes(self, minutes: Minutes, language: str) -> Minutes:
         result = self._llm.create_chat_completion(
@@ -118,6 +133,38 @@ class LocalLlm:
         content = result["choices"][0]["message"]["content"]
         translated = Minutes.model_validate(json.loads(content))
         return lock_translation(minutes, translated, language)
+
+
+def split_windows(segments: list[SpeechSegment], window_s: float) -> list[list[SpeechSegment]]:
+    windows: list[list[SpeechSegment]] = []
+    for seg in segments:
+        if not windows or seg.start - windows[-1][0].start >= window_s:
+            windows.append([])
+        windows[-1].append(seg)
+    return windows
+
+
+def merge_minutes(parts: list[Minutes]) -> Minutes:
+    """Union of per-window lists, deduped by folded text. Title/summary are replaced by the caller."""
+
+    def uniq(items, key):
+        seen: set[str] = set()
+        out = []
+        for item in items:
+            k = _fold(key(item))
+            if k and k not in seen:
+                seen.add(k)
+                out.append(item)
+        return out
+
+    return parts[0].model_copy(
+        update={
+            "summary": " ".join(p.summary for p in parts),
+            "attendees": uniq([a for p in parts for a in p.attendees], str),
+            "decisions": uniq([d for p in parts for d in p.decisions], str),
+            "action_items": uniq([a for p in parts for a in p.action_items], lambda a: a.text),
+        }
+    )
 
 
 def lock_translation(source: Minutes, translated: Minutes, language: str) -> Minutes:

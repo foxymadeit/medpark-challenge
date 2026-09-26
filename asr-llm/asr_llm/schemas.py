@@ -12,6 +12,7 @@ class SpeechSegment(BaseModel):
     end: float
     text: str
     language: str | None = None
+    speaker: str | None = None
 
 
 class Transcript(BaseModel):
@@ -44,3 +45,12 @@ class PipelineResult(BaseModel):
     transcript: Transcript
     minutes: Minutes
     elapsed_s: dict[str, float]
+
+
+def format_segments(segments: list[SpeechSegment]) -> str:
+    lines = []
+    for seg in segments:
+        who = f" {seg.speaker}" if seg.speaker else ""
+        lang = f" ({seg.language})" if seg.language else ""
+        lines.append(f"[{seg.start:.1f}-{seg.end:.1f}]{who}{lang} {seg.text}")
+    return "\n".join(lines)

@@ -66,3 +66,20 @@ def test_translation_keeps_quotes_and_names():
     assert locked.action_items[0].text == "Continue noradrenaline."
     assert locked.action_items[0].source_quote == "noradrenalina 0,07"
     assert locked.action_items[0].owner is None
+
+
+def test_windows_and_merge_dedupe():
+    from asr_llm.llm import merge_minutes, split_windows
+    from asr_llm.schemas import ActionItem, Minutes, SpeechSegment
+
+    segs = [SpeechSegment(start=t, end=t + 1, text="x") for t in (0, 300, 650, 1300)]
+    assert [len(w) for w in split_windows(segs, 600)] == [2, 1, 1]
+
+    a = Minutes(title="A", meeting_type="medical", summary="s1", decisions=["CT mâine"],
+                action_items=[ActionItem(text="Facem CT", owner="Speaker 1")])
+    b = Minutes(title="B", meeting_type="medical", summary="s2", decisions=["CT  mâine!", "Transfer"],
+                action_items=[ActionItem(text="facem ct"), ActionItem(text="Sunăm familia")])
+    merged = merge_minutes([a, b])
+    assert merged.decisions == ["CT mâine", "Transfer"]
+    assert [i.text for i in merged.action_items] == ["Facem CT", "Sunăm familia"]
+    assert merged.action_items[0].owner == "Speaker 1"

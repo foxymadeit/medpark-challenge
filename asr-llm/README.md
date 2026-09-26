@@ -11,9 +11,12 @@ audio (or a ready transcript JSON)
         │
         ▼
  1. ffmpeg → 16 kHz mono
- 2. energy VAD → speech spans
- 3. pack into ≤15 s batches          ← language-agnostic, no 3-model router
- 4. faster-whisper large-v3           ← NO glossary, NO hotwords (v2 settings)
+ 2. Silero VAD → utterances           ← cut at every ≥300 ms pause, ≤15 s
+    (+ diarizer turns: cut again where the speaker changes)
+ 3. language ID limited to ro/ru/en   ← Whisper alone picks ru/lt for Moldovan RO
+    close call → decode in both, keep the higher avg_logprob
+    clip < 1.5 s → reuse previous language
+ 4. faster-whisper large-v3           ← NO glossary, NO hotwords
  5. unload Whisper
         │
         ▼
@@ -21,7 +24,8 @@ audio (or a ready transcript JSON)
     that look like this transcript
         │
         ▼
- 7. local LLM (GGUF)                  ← summary + action items + term normalize
+ 7. local LLM (GGUF), per 10-min window ← summary + action items + term normalize
+    windows merged in Python (dedupe), one short call for title/summary
  8. JSON minutes
 ```
 
@@ -70,6 +74,47 @@ python -m asr_llm.cli --from-transcript ~/Downloads/transcript_v2.json \
 # Full local audio path (slow on M4 CPU, fine on NVIDIA 16 GB)
 python -m asr_llm.cli ../data/Medpark_audio.m4a --meeting-type medical --out /tmp/mom.json
 ```
+
+## Why the ASR works this way
+
+Measured on `data/Medpark_audio.m4a` (11:42):
+
+| Run | What went wrong |
+|---|---|
+| Whisper large-v3, auto language per 15 s chunk | 59 % of letters Cyrillic in a mostly Romanian meeting: `Ело фост … ку инфаркт миокарди` (RO written as RU), plus RO/RU decoded as Lithuanian |
+| Canary-1B-v2 forced to `ro` | Romanian fine, Russian mangled, loops "Eu cum." on the last 30 s |
+| old energy VAD | kept 198 s of 702 s: its threshold was the median loudness, which in a busy meeting *is* speech |
+
+Tuning knobs (env `MOM_*`): `LID_MARGIN` (1.0 = always decode twice), `MIN_LID_S`,
+`VAD_MIN_SILENCE_MS`, `ASR_MODEL_DIR` (turbo for CPU-only / speed), `LLM_WINDOW_S`.
+
+## Measuring ASR
+
+```bash
+python -m asr_llm.score transcript.json                        # LID / script checks, no gold needed
+python -m asr_llm.score transcript.json --gold data/gold_0-180s.txt --window 180   # + CER/WER, term hits
+```
+
+`script_mismatch` counts `ro` lines written in Cyrillic (and `ru` in Latin). The gold file is
+the first 3 min corrected by hand by someone who speaks RO and RU. Judge every ASR change by it.
+
+GPU check on Kaggle (T4, Internet ON only for the fetch):
+
+```bash
+git clone -b samoilov-asr-llm https://github.com/foxymadeit/medpark-challenge && cd medpark-challenge/asr-llm
+pip install -e ".[asr]" && python scripts/fetch_whisper.py large-v3
+MOM_ASR_COMPUTE_TYPE=int8_float16 python -m asr_llm.cli ../data/Medpark_audio.m4a --skip-llm --out transcript.json
+python -m asr_llm.score transcript.json
+```
+
+## With diarization
+
+```bash
+diarizer file meeting.m4a --out sessions/x          # Coflazo-Branch
+python -m asr_llm.cli meeting.m4a --diarization sessions/x/meeting.json --out mom.json
+```
+
+`POST /minutes` takes the same file as an optional `diarization` form field.
 
 ## Tests
 
