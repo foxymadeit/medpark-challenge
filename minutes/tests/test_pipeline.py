@@ -68,3 +68,17 @@ def test_transcript_to_six_documents_offline(tmp_path, no_network):
     assert a1["deadline"] == "2026-09-30" and a1["status"] == "ok"
     a2 = next(f for f in facts["facts"] if f["id"] == "A2")
     assert a2["status"] == "confirm"
+
+
+def test_purge_deletes_only_old_minutes_files(tmp_path):
+    import os
+    import time
+    from mom.cli import purge
+    old, new, other = tmp_path / "MoM_2026-01-01_medical_ro.pdf", tmp_path / "MoM_2026-09-26_medical_ro.pdf", tmp_path / "notes.txt"
+    for f in (old, new, other):
+        f.write_text("x")
+    stale = time.time() - 40 * 86400
+    os.utime(old, (stale, stale))
+    os.utime(other, (stale, stale))
+    assert purge(tmp_path, 30) == 1
+    assert not old.exists() and new.exists() and other.exists()

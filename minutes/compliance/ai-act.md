@@ -39,9 +39,10 @@ not apply, because turning a meeting into minutes substantially alters the input
 
 How we meet it:
 
-- **Machine-readable:** the PDF's XMP metadata and the DOCX's document properties
-  carry `AI-generated: yes`, the generator (Secure MOM), the model and its version,
-  and the date.
+- **Machine-readable:** the PDF's XMP metadata and the DOCX's core properties
+  state that the text is AI-generated in the Author, Subject and Keywords fields,
+  together with the generator (Secure MOM), the model and the date. Each
+  `report.json` also records the digest of the model file.
 - **Human-readable:** every page footer says the minutes were generated locally by
   AI and reviewed by the chair before sending.
 
@@ -49,6 +50,6 @@ How we meet it:
 
 - Every fact the checks could not confirm is shown to a person under
   *Needs confirmation* before sending.
-- The minutes send only after a 60-second window in which anyone can stop them.
+- In the product flow (Figma S07 and M03), the minutes send only after a 60-second window in which anyone can stop them. The email step belongs to the product shell; this package writes the documents and does not send anything.
 - Every decision and action in `facts.json` links to the transcript lines it came
   from, so a reader can verify any line of the minutes.

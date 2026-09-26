@@ -60,6 +60,9 @@ mom report TRANSCRIPT [options]
 | `--model gemma3:12b`, `--url` | the local model and its loopback address |
 | `--think off\|low\|medium\|high` | reasoning effort for models that have it, extraction only |
 
+`mom purge out/ --days 30` deletes minutes files older than the retention
+period the hospital sets; run it daily from cron or a systemd timer.
+
 The transcript can be plain text (with or without `[00:12:03]` stamps and
 `Speaker 2:` labels), SRT, VTT, or JSON from whisper, whisper.cpp,
 faster-whisper or our own ASR. Files over 20 MB are refused.
@@ -114,8 +117,8 @@ transcript") and that the text was drafted locally by AI.
 **What the body check does** (`mom/latexcheck.py`, `mom/write.py`): the model
 can use eight macros (`\agendaitem`, `\topic`, `\presented`, `\noted`, `\decision`,
 `\action`, `\needsconfirmation`, `\nextmeeting`) and the `agenda` environment,
-each fact tagged with its ID, and nothing else. No
-`\input`, no `\write`, no catcodes, no text outside a macro, no unknown IDs.
+each fact tagged with its ID, and nothing else: no `\input`, no `\write`, no
+catcodes, no text outside a macro, no unknown IDs.
 Every verified fact has to appear; owners and deadlines are overwritten with
 the verified values; numbers and names not in the evidence fail the check.
 One repair round, then a plain body built directly from the verified facts,
@@ -158,7 +161,7 @@ mixture-of-experts models with 3 to 4B active parameters (gpt-oss-20b,
 Qwen3-30B-A3B, Gemma 4 26B).
 
 Results are added here when the run finishes. Until then the default is
-`gemma3:12b` (8.1 GB on disk, 4.4% hallucination on Vectara's grounded
+`gemma3:12b` (8.1 GB on disk as listed by Ollama, 4.4% hallucination on Vectara's grounded
 summary leaderboard).
 
 ## Measured
@@ -178,17 +181,17 @@ summary leaderboard).
 
 ## Security
 
-- **No network.** The model client refuses any address that is not loopback,
+- **No network:** the model client refuses any address that is not loopback,
   ignores `HTTP_PROXY` and similar settings, and refuses redirects, so a
   transcript cannot leave the machine even through a misconfigured proxy.
   The end-to-end test blocks sockets and passes.
-- **LaTeX.** Header values are escaped by code. The model's body goes through
+- **LaTeX:** header values are escaped by code. The model's body goes through
   the macro whitelist. XeLaTeX runs with shell escape off, `openin_any` and
   `openout_any` set to paranoid, in a private temporary folder.
-- **Files.** The output folder is 0700, every file in it 0600.
-- **Patients.** Names become initials before the writing step, and the body
+- **Files:** the output folder is 0700, every file in it 0600.
+- **Patients:** names become initials before the writing step, and the body
   check fails on any name pair that is not in the evidence.
-- **Supply chain.** `compliance/sbom.json` (CycloneDX 1.5) lists the Python
+- **Supply chain:** `compliance/sbom.json` (CycloneDX 1.5) lists the Python
   packages, the fonts and logo with SHA-256 hashes, and the local tools;
   `python compliance/make_sbom.py` rebuilds it.
 
@@ -201,7 +204,7 @@ summary leaderboard).
 | Personal data per step, retention, legal basis (GDPR Art. 6, 9(2)(h)) | `compliance/data-inventory.md` |
 | Draft DPIA (GDPR Art. 35) | `compliance/dpia.md` |
 | ALTAI self-check | `compliance/altai.md` |
-| Moldova Law 195/2024 | covered in the DPIA and data inventory |
+| Moldova Law 195/2024 | covered in the data inventory |
 
 ## Evaluate
 

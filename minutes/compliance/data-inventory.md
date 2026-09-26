@@ -5,7 +5,7 @@ protection, which follows the GDPR and has applied since 23 August 2026.
 
 | Data | Whose | Where it comes from | Kept where, for how long | Special category |
 |---|---|---|---|---|
-| Transcript text | attendees, anyone mentioned | the transcription step | `sessions/`, owner-only files; deleted after the retention period (default 30 days, set by the hospital) | may contain health data |
+| Transcript text | attendees, anyone mentioned | the transcription step | `sessions/`, owner-only files; deleted after a retention period the hospital sets (default 30 days) by the transcription step's own clean-up | may contain health data |
 | Speaker labels and names | attendees | the diarizer; names typed by the chair or enrolled with consent | inside the session files | no (names); voiceprints stay in the diarizer, never in the minutes |
 | Facts with evidence lines (`facts.json`) | attendees, patients mentioned | the model, checked by code | next to the minutes; same retention | may contain health data |
 | The minutes (PDF, DOCX) | attendees, patients mentioned | rendered from the facts | emailed to the distribution list; archived as the hospital's record | patients as initials, age and bed only |
@@ -17,7 +17,7 @@ protection, which follows the GDPR and has applied since 23 August 2026.
 - The emailed minutes contain no verbatim quotes; quotes stay in the local
   `facts.json` for checking.
 - No audio is kept by the minutes step.
-- Intermediate files are deleted after the retention period.
+- Minutes outputs (PDF, DOCX, facts.json, report.json) are deleted after the retention period by `mom purge DIR --days 30`, run daily by the server's scheduler.
 
 ## Lawful basis
 

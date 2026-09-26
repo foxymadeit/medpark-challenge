@@ -36,8 +36,9 @@ accurate record of decisions and actions, with owners and deadlines. See
 - Every fact is checked by code against the transcript lines; unconfirmed facts
   go to a person under *Needs confirmation*.
 - Patient names are replaced by initials before the text reaches the writing step.
-- Distribution lists are fixed per meeting type; the minutes wait 60 seconds
-  before sending, and anyone can stop them.
+- Planned for the email step of the product (not in this package): distribution
+  lists fixed per meeting type, and a 60-second window before sending in which
+  anyone can stop it.
 - Owner-only files, no network, and a language model reachable only on the
   machine itself (tested).
 - The intended purpose forbids using the output to evaluate staff.
