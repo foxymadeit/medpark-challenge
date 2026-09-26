@@ -12,6 +12,7 @@ import Button from "../components/Button";
 import { DEMO_MODE } from "../api/config";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
+import ProcessingStages from "../components/ProcessingStages";
 import { formatTime } from "../utils";
 export default function ProcessingPage() {
   const { t, i18n } = useTranslation();
@@ -89,42 +90,81 @@ export default function ProcessingPage() {
     "writingMinutes",
     "preparingDelivery",
   ];
+  const running = m.stages?.find((s) => s.state === "running")?.id;
+  // Server progress when given; otherwise finished stages, counting a running
+  // stage's own done/total so the bar keeps moving inside long steps.
+  const overall =
+    m.progress ??
+    (m.stages?.length
+      ? (100 *
+          m.stages.reduce(
+            (sum, s) =>
+              sum +
+              (s.state === "done"
+                ? 1
+                : s.state === "running" && s.total
+                  ? (s.done ?? 0) / s.total
+                  : 0),
+            0,
+          )) /
+        m.stages.length
+      : 0);
+  const headerStage = m.stages?.length
+    ? running === "transcribe" || running === "speakers"
+      ? running
+      : "minutes"
+    : at < 2
+      ? "transcribe"
+      : at === 2
+        ? "speakers"
+        : "minutes";
   return (
     <>
-      <MeetingHeader
-        meeting={m}
-        stage={at < 2 ? "transcribe" : at === 2 ? "speakers" : "minutes"}
-      />
+      <MeetingHeader meeting={m} stage={headerStage} />
       <div className="processing-grid">
-        <section className="panel process-timeline">
-          {steps.map((s, i) => (
-            <div
-              key={s}
-              className={`process-step ${i < at ? "complete" : i === at ? "current" : ""}`}
-            >
-              <span className="process-marker">
-                {i < at && <Check size={14} />}
-              </span>
-              <div>
-                <strong>{t(s)}</strong>
-                <p>
-                  {i === 0
-                    ? formatTime(m.durationSeconds ?? 0)
-                    : i === 1 && DEMO_MODE
-                      ? t("languagesDemo")
-                      : i === 2
-                        ? t("voices", { count: m.participants.length })
-                        : i === 3
-                          ? t("decisionsOwners")
-                          : i === 4
-                            ? m.distributionList.join(", ")
-                            : ""}
-                </p>
+        {m.stages?.length ? (
+          <ProcessingStages stages={m.stages} />
+        ) : (
+          <section className="panel process-timeline">
+            {steps.map((s, i) => (
+              <div
+                key={s}
+                className={`process-step ${i < at ? "complete" : i === at ? "current" : ""}`}
+              >
+                <span className="process-marker">
+                  {i < at && <Check size={14} />}
+                </span>
+                <div>
+                  <strong>{t(s)}</strong>
+                  <p>
+                    {i === 0
+                      ? formatTime(m.durationSeconds ?? 0)
+                      : i === 1 && DEMO_MODE
+                        ? t("languagesDemo")
+                        : i === 2
+                          ? t("voices", { count: m.participants.length })
+                          : i === 3
+                            ? t("decisionsOwners")
+                            : i === 4
+                              ? m.distributionList.join(", ")
+                              : ""}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </section>
+            ))}
+          </section>
+        )}
         <aside className="panel estimate">
+          <div
+            className="processing-bar"
+            role="progressbar"
+            aria-label={t("processing")}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(overall)}
+          >
+            <span style={{ transform: `scaleX(${overall / 100})` }} />
+          </div>
           <p>{t("minutesAbout")}</p>
           <div className="mono">
             {new Date(

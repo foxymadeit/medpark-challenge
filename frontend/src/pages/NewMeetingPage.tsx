@@ -11,7 +11,12 @@ import {
   FiUpload as UploadSimple,
 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import { createMeeting, getPeople, getTemplate } from "../api/meetings";
+import {
+  createMeeting,
+  getCapabilities,
+  getPeople,
+  getTemplate,
+} from "../api/meetings";
 import { departments, distribution } from "../api/config";
 import type { AgendaTopic, MeetingType, Participant } from "../types/meeting";
 import DepartmentDoor from "../components/DepartmentDoor";
@@ -38,6 +43,19 @@ export default function NewMeetingPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [agendaTopics, setAgendaTopics] = useState<AgendaTopic[]>([]);
   const [templateLoading, setTemplateLoading] = useState(Boolean(templateId));
+  // Automatic delivery is the default whenever the server offers it: the
+  // challenge asks for upload, pick a type, and wait for the email.
+  const [autoAvailable, setAutoAvailable] = useState(false);
+  const [autoSend, setAutoSend] = useState(true);
+  useEffect(() => {
+    let active = true;
+    void getCapabilities()
+      .then((c) => active && setAutoAvailable(c.autoModeAvailable))
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
   useEffect(() => {
     if (!templateId) return;
     let active = true;
@@ -138,6 +156,19 @@ export default function NewMeetingPage() {
             </span>
           </section>
         )}
+        {autoAvailable && (
+          <label className="auto-send-option">
+            <input
+              type="checkbox"
+              checked={autoSend}
+              onChange={(e) => setAutoSend(e.target.checked)}
+            />
+            <span>
+              <strong>{t("sendAutomatically")}</strong>
+              <small>{t("sendAutomaticallyHint")}</small>
+            </span>
+          </label>
+        )}
       </div>
       <div className="page-footer">
         {failure && (
@@ -160,6 +191,7 @@ export default function NewMeetingPage() {
                 participants,
                 templateId,
                 agendaTopics,
+                sendMode: autoAvailable && autoSend ? "auto" : "manual",
               });
               navigate(
                 `/meetings/${m.id}/${mode === "record" ? "record" : "upload"}`,

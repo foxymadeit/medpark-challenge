@@ -18,10 +18,13 @@ export default function ActionItemRow({
   meeting,
   item,
   compact = false,
+  displayTask,
 }: {
   meeting: Meeting;
   item: ActionItem;
   compact?: boolean;
+  /** The task in the minutes language the reader chose. */
+  displayTask?: string;
 }) {
   const { t, i18n } = useTranslation();
   const [edit, setEdit] = useState(false);
@@ -58,7 +61,7 @@ export default function ActionItemRow({
           onChange={() => void run(() => toggleActionItem(meeting.id, item.id))}
         />
         <div className="action-task">
-          <span>{item.task}</span>
+          <span>{displayTask ?? item.task}</span>
           <small>
             {compact ? (
               <Link to={`/meetings/${meeting.id}/minutes`}>

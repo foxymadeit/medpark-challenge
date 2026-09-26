@@ -1,13 +1,49 @@
 import { useEffect, useRef, useState } from "react";
 import { FiMail as EnvelopeSimple, FiPause as Pause } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import { sendNow, stopScheduledSend } from "../api/meetings";
-import { distribution } from "../api/config";
+import { markReviewed, sendNow, stopScheduledSend } from "../api/meetings";
 import { invalidMinutes } from "../api/validation";
 import type { Meeting } from "../types/meeting";
 import { notifyUpdate } from "../hooks/useData";
 import Button from "./Button";
 import { formatTime } from "../utils";
+/** Empties linearly over the real send window. The timing is fixed once per
+ * window (keyed by deadline) so re-renders never make the bar jump. */
+function CountdownBar({
+  deadline,
+  windowSeconds,
+  label,
+  seconds,
+}: {
+  deadline: string;
+  windowSeconds: number;
+  label: string;
+  seconds: number;
+}) {
+  const [elapsed] = useState(() =>
+    Math.min(
+      windowSeconds,
+      Math.max(0, windowSeconds - (Date.parse(deadline) - Date.now()) / 1000),
+    ),
+  );
+  return (
+    <div
+      className="countdown-bar"
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={windowSeconds}
+      aria-valuenow={seconds}
+    >
+      <span
+        style={{
+          animationDuration: `${windowSeconds}s`,
+          animationDelay: `-${elapsed}s`,
+        }}
+      />
+    </div>
+  );
+}
 export default function SendCountdown({ meeting }: { meeting: Meeting }) {
   const { t } = useTranslation();
   const [now, setNow] = useState(() => Date.now());
@@ -43,7 +79,14 @@ export default function SendCountdown({ meeting }: { meeting: Meeting }) {
   async function act(stop: boolean) {
     setBusy(true);
     try {
-      await (stop ? stopScheduledSend(meeting.id) : sendNow(meeting.id));
+      if (stop) await stopScheduledSend(meeting.id);
+      else {
+        // After a stop the server wants a review before a manual send; the
+        // person pressing Send now after stopping has just done that.
+        if (meeting.status === "ready" && meeting.reviewState !== "reviewed")
+          await markReviewed(meeting.id);
+        await sendNow(meeting.id);
+      }
       notifyUpdate();
     } catch (e) {
       setError(e instanceof Error ? e.message : "requestFailed");
@@ -71,7 +114,7 @@ export default function SendCountdown({ meeting }: { meeting: Meeting }) {
           <p>
             {stopped
               ? t("sendingStoppedDetail")
-              : t("reviewWindow", { count: distribution[meeting.type].count })}
+              : t("reviewWindow", { count: meeting.distributionList.length })}
           </p>
         </div>
         <div className="button-row">
@@ -103,9 +146,22 @@ export default function SendCountdown({ meeting }: { meeting: Meeting }) {
           {t(error, { defaultValue: t("requestFailed") })}
         </p>
       )}
-      {meeting.status === "sending_soon" && (
-        <progress max={meeting.sendWindowSeconds ?? 30} value={seconds} />
+      {meeting.status === "sending_soon" && meeting.sendScheduledAt && (
+        <CountdownBar
+          key={meeting.sendScheduledAt}
+          deadline={meeting.sendScheduledAt}
+          windowSeconds={meeting.sendWindowSeconds ?? 30}
+          label={t("sendingStatus")}
+          seconds={seconds}
+        />
       )}
+      <p className="visually-hidden" aria-live="polite">
+        {stopped
+          ? t("sendingStopped")
+          : meeting.status === "sending"
+            ? t("sending")
+            : ""}
+      </p>
     </section>
   );
 }

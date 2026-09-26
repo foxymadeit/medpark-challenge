@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import {
   FiDownload as DownloadSimple,
@@ -13,13 +14,35 @@ import ReviewParticipants from "../components/ReviewParticipants";
 import EditableMinutes from "../components/EditableMinutes";
 import ActionItemRow from "../components/ActionItemRow";
 import SpeakerLabel from "../components/SpeakerLabel";
+import NeedsConfirmation from "../components/NeedsConfirmation";
+import DocumentsCard from "../components/DocumentsCard";
+import type { MinutesLanguage } from "../types/meeting";
 import { formatTime } from "../utils";
 import { sendNow } from "../api/meetings";
 import { downloadMinutesPdf } from "../api/pdf";
 export default function MomPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: m, error, refresh } = useMeeting();
+  const [chosen, setChosen] = useState<MinutesLanguage>();
+  // Opens when flagged items arrive and stays open until the person
+  // continues, even after the server has settled every item.
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const flagged = !!m?.confirmItems?.length && m.status === "ready";
+  const [wasFlagged, setWasFlagged] = useState(false);
+  if (flagged !== wasFlagged) {
+    setWasFlagged(flagged);
+    if (flagged) setConfirmOpen(true);
+  }
   if (!m) return <StatePanel error={error} retry={refresh} />;
+  const langs = Object.keys(m.minutesByLanguage ?? {}) as MinutesLanguage[];
+  const lang =
+    chosen ??
+    (langs.includes(i18n.language as MinutesLanguage)
+      ? (i18n.language as MinutesLanguage)
+      : langs[0]);
+  const localized = lang ? m.minutesByLanguage?.[lang] : undefined;
+  const tasks = new Map(localized?.actionItems.map((a) => [a.id, a.task]));
+  const confirming = confirmOpen && m.status === "ready";
   if (m.status === "processing")
     return <Navigate to={`/meetings/${m.id}/processing`} replace />;
   const total = m.participants.reduce(
@@ -59,7 +82,7 @@ export default function MomPage() {
               <button
                 className="button secondary"
                 type="button"
-                onClick={() => downloadMinutesPdf(m)}
+                onClick={() => downloadMinutesPdf(m, lang)}
               >
                 <DownloadSimple size={20} />
                 {t("downloadPdf")}
@@ -72,47 +95,84 @@ export default function MomPage() {
             >
               {t("deliveryConfirmed")}
             </Link>
-          ) : m.sendMode === "auto" && m.status === "sending_soon" ? (
+          ) : confirming ? (
+            <NeedsConfirmation
+              meeting={m}
+              onDone={() => setConfirmOpen(false)}
+            />
+          ) : (m.sendMode === "auto" && m.status === "sending_soon") ||
+            (m.status === "ready" && m.deliveryState === "stopped") ? (
             <SendCountdown meeting={m} />
           ) : (
             <ManualReviewBar meeting={m} />
           )}
           <ReviewParticipants meeting={m} />
-          <EditableMinutes meeting={m} field="summary" />
-          <EditableMinutes meeting={m} field="decisions" />
+          {langs.length > 1 && (
+            <div
+              className="language-switcher minutes-language"
+              role="group"
+              aria-label={t("minutesLanguage")}
+            >
+              {langs.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  lang={code}
+                  aria-pressed={code === lang}
+                  onClick={() => setChosen(code)}
+                >
+                  {code.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          )}
+          <EditableMinutes meeting={m} field="summary" localized={localized} />
+          <EditableMinutes
+            meeting={m}
+            field="decisions"
+            localized={localized}
+          />
           <section className="panel action-card">
             <h2>{t("actions")}</h2>
             {m.actionItems?.length ? (
               m.actionItems.map((item) => (
-                <ActionItemRow key={item.id} meeting={m} item={item} />
+                <ActionItemRow
+                  key={item.id}
+                  meeting={m}
+                  item={item}
+                  displayTask={tasks.get(item.id)}
+                />
               ))
             ) : (
               <p className="empty-inline">{t("noActions")}</p>
             )}
           </section>
         </div>
-        <aside className="panel minutes-people">
-          <h2>{t("people")}</h2>
-          {m.participants.map((p, i) => (
-            <div key={p.id} className="speaker-row">
-              <SpeakerLabel person={p} slot={i} />
-              <span className="mono">
-                {total > 0 && p.speakingSeconds !== undefined
-                  ? `${Math.round((p.speakingSeconds / total) * 100)}%`
-                  : "—"}
-              </span>
-            </div>
-          ))}
-          <hr />
-          <p className="muted">{t("recording")}</p>
-          <p className="mono">{formatTime(m.durationSeconds ?? 0)}</p>
-          <Link
-            className="button secondary"
-            to={`/meetings/${m.id}/transcript`}
-          >
-            {t("transcript")}
-          </Link>
-        </aside>
+        <div className="minutes-side">
+          <aside className="panel minutes-people">
+            <h2>{t("people")}</h2>
+            {m.participants.map((p, i) => (
+              <div key={p.id} className="speaker-row">
+                <SpeakerLabel person={p} slot={i} />
+                <span className="mono">
+                  {total > 0 && p.speakingSeconds !== undefined
+                    ? `${Math.round((p.speakingSeconds / total) * 100)}%`
+                    : "—"}
+                </span>
+              </div>
+            ))}
+            <hr />
+            <p className="muted">{t("recording")}</p>
+            <p className="mono">{formatTime(m.durationSeconds ?? 0)}</p>
+            <Link
+              className="button secondary"
+              to={`/meetings/${m.id}/transcript`}
+            >
+              {t("transcript")}
+            </Link>
+          </aside>
+          <DocumentsCard meeting={m} />
+        </div>
       </div>
       {error && <p className="error">{t(error)}</p>}
     </>

@@ -1,0 +1,108 @@
+/* Real pipeline stages, needs-confirmation and documents (Figma M01-M03) */
+.process-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.process-text {
+  flex: 1;
+  min-width: 0;
+}
+.process-time {
+  flex-shrink: 0;
+  padding-top: 2px;
+  font-size: 13px;
+  color: var(--sm-ink-secondary);
+  white-space: nowrap;
+}
+.process-step.failed .process-marker {
+  border-color: var(--sm-signal-danger);
+  color: var(--sm-signal-danger);
+}
+.minutes-side {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+.documents-card,
+.needs-confirmation {
+  padding: 24px 28px;
+}
+.documents-card h2,
+.needs-confirmation h2 {
+  margin: 0;
+  font-family: var(--sm-body);
+  font-size: 15px;
+  line-height: 22px;
+}
+.documents-list,
+.confirm-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+.documents-list {
+  display: grid;
+  gap: 14px;
+}
+.documents-list li {
+  display: grid;
+  gap: 6px;
+}
+.documents-list span,
+.confirm-state {
+  font-size: 13px;
+  color: var(--sm-ink-secondary);
+}
+.button.compact {
+  min-height: 40px;
+  padding: 8px 14px;
+}
+.confirm-row,
+.confirm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--sm-surface-hairline);
+}
+.confirm-row {
+  padding: 16px 0;
+}
+.confirm-row p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--sm-ink-tertiary);
+}
+.confirm-footer {
+  padding-top: 16px;
+}
+.confirm-footer p {
+  margin: 0;
+}
+.minutes-language {
+  justify-self: start;
+}
+.auto-send-option {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+.auto-send-option input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+}
+.auto-send-option small {
+  display: block;
+  margin-top: 2px;
+  color: var(--sm-ink-secondary);
+}
+@media (max-width: 700px) {
+  .confirm-row,
+  .confirm-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

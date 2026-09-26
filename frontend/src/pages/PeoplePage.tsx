@@ -11,6 +11,7 @@ import {
 } from "../api/meetings";
 import { notifyUpdate, useData } from "../hooks/useData";
 import StatePanel from "../components/StatePanel";
+import { DEMO_MODE } from "../api/config";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
 
@@ -69,7 +70,7 @@ export default function PeoplePage() {
   return (
     <>
       <h1>{t("people")}</h1>
-      <p className="muted">{t("voiceIdentityDemoNotice")}</p>
+      {DEMO_MODE && <p className="muted">{t("voiceIdentityDemoNotice")}</p>}
       <section className="panel voice-profiles-card">
         <h2>{t("voiceProfiles")}</h2>
         <div className="voice-profile-list">
@@ -108,7 +109,11 @@ export default function PeoplePage() {
               <div>
                 <strong>{person?.name ?? cluster.label}</strong>
                 <small>
-                  {person ? t("identifiedManually") : t("unnamedVoiceSource")}
+                  {person
+                    ? t("identifiedManually")
+                    : DEMO_MODE
+                      ? t("unnamedVoiceSource")
+                      : ""}
                 </small>
                 {person && <small>{t("voiceProfileNotEnrolled")}</small>}
               </div>

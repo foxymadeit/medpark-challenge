@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { FiEdit2 as PencilSimple } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import type { Meeting } from "../types/meeting";
+import type { LocalizedMinutes, Meeting } from "../types/meeting";
 import { saveCorrectionFeedback, updateMinutes } from "../api/meetings";
 import { notifyUpdate } from "../hooks/useData";
 import Button from "./Button";
 export default function EditableMinutes({
   meeting,
   field,
+  localized,
 }: {
   meeting: Meeting;
   field: "summary" | "decisions";
+  /** Read-only view in the chosen minutes language; edits apply to the base. */
+  localized?: LocalizedMinutes;
 }) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
@@ -100,10 +103,10 @@ export default function EditableMinutes({
           </div>
         </>
       ) : field === "summary" ? (
-        <p>{meeting.summary || "—"}</p>
+        <p>{localized?.summary || meeting.summary || "—"}</p>
       ) : (
         <ul className="decisions">
-          {meeting.decisions?.map((d) => (
+          {(localized?.decisions ?? meeting.decisions)?.map((d) => (
             <li key={d.id}>{d.text}</li>
           ))}
         </ul>
