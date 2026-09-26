@@ -8,6 +8,8 @@ import "@fontsource-variable/onest";
 import "@fontsource-variable/golos-text";
 import "@fontsource-variable/geist-mono";
 import "./styles/global.css";
+import "./styles/minutes.css";
+import "./styles/motion.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

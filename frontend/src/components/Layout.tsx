@@ -25,7 +25,9 @@ export default function Layout() {
     <>
       <TopBar />
       <main className={`page-container ${tabs ? "with-tabs" : ""}`}>
-        <Outlet />
+        <div key={pathname} className="page-enter">
+          <Outlet />
+        </div>
       </main>
       {tabs && <MobileTabBar />}
     </>

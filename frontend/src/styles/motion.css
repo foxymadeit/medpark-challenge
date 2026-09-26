@@ -1,0 +1,211 @@
+/* Motion, from DESIGN.md's table. Strong ease-out for things that arrive,
+   linear only where time itself is shown (the send countdown). */
+:root {
+  --sm-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --sm-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Button press: 120 ms, scale 0.97. Hover tint only with a real pointer. */
+.button {
+  transition:
+    transform 120ms var(--sm-ease-out),
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+@media (hover: none) {
+  .button.primary:hover {
+    background: var(--sm-ink-primary);
+  }
+  .button.secondary:hover {
+    background: white;
+  }
+}
+
+/* Screen change: the top bar stays; the page fades and rises 8 px. */
+@keyframes sm-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.page-enter {
+  animation: sm-page-in 280ms var(--sm-ease-out) both;
+}
+
+/* Route marker */
+.route-dot {
+  transition:
+    background-color 280ms var(--sm-ease-in-out),
+    box-shadow 280ms var(--sm-ease-in-out),
+    transform 280ms var(--sm-ease-in-out);
+}
+
+/* The countdown arrives: rises 12 px with the lift shadow. */
+@keyframes sm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+.send-countdown,
+.needs-confirmation {
+  animation: sm-rise 240ms var(--sm-ease-out) both;
+}
+
+/* Send countdown bar: empties linearly over the real window. CSS drives it,
+   so it stays smooth between React renders and survives a busy main thread. */
+.countdown-bar {
+  height: 3px;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--sm-surface-hairline);
+}
+.countdown-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--sm-ink-primary);
+  transform-origin: left center;
+  animation-name: sm-empty;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+@keyframes sm-empty {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Processing: the overall bar glides between server updates (the poll is
+   1.5 s, so a 1.5 s linear transition interpolates the gap). */
+.processing-bar {
+  height: 4px;
+  margin: 0 0 24px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--sm-surface-hairline);
+}
+.processing-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--sm-ink-primary);
+  transform-origin: left center;
+  transition: transform 1500ms linear;
+}
+.process-step {
+  transition: color 280ms ease;
+}
+.process-marker {
+  transition:
+    background-color 240ms var(--sm-ease-out),
+    border-color 240ms var(--sm-ease-out),
+    box-shadow 240ms var(--sm-ease-out);
+}
+
+/* Success check: grows from 90 % once. */
+@keyframes sm-check {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+.process-step.complete .process-marker svg,
+.success-check {
+  animation: sm-check 240ms var(--sm-ease-out) both;
+}
+
+/* Loader dots, 0.35 s per step. */
+@keyframes sm-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  33% {
+    opacity: 1;
+  }
+}
+.loader-dots i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: sm-dot 1.05s steps(1, end) infinite;
+}
+.loader-dots i:nth-child(2) {
+  animation-delay: 0.35s;
+}
+.loader-dots i:nth-child(3) {
+  animation-delay: 0.7s;
+}
+
+/* Skeleton sheen crosses in 1.2 s. */
+@keyframes sm-sheen {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+.skeleton-heading i,
+.skeleton-door i,
+.skeleton-door b,
+.skeleton-list i,
+.skeleton-list b {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #ffffff99 50%,
+    transparent 100%
+  );
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: sm-sheen 1.2s linear infinite;
+}
+
+/* Toasts: 200 ms from the bottom. */
+.offline-toast,
+.toast {
+  animation: sm-rise 200ms var(--sm-ease-out) both;
+}
+
+/* Reduced motion: movement becomes a 150 ms fade. The countdown bar keeps
+   emptying because it carries meaning. */
+@keyframes sm-fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .send-countdown,
+  .needs-confirmation,
+  .offline-toast,
+  .toast,
+  .process-step.complete .process-marker svg,
+  .success-check {
+    animation: sm-fade 150ms ease both;
+  }
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+  .skeleton-heading i,
+  .skeleton-door i,
+  .skeleton-door b,
+  .skeleton-list i,
+  .skeleton-list b,
+  .loader-dots i {
+    animation: none;
+  }
+  .processing-bar > span {
+    transition: none;
+  }
+}

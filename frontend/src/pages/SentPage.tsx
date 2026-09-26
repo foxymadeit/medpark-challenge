@@ -34,7 +34,7 @@ export default function SentPage() {
     <>
       <MeetingHeader meeting={m} stage="sent" />
       <section className="panel delivery-banner">
-        <Check size={28} className="success" />
+        <Check size={28} className="success success-check" />
         <div>
           <h2>{t("deliveryConfirmed")}</h2>
           <p>
