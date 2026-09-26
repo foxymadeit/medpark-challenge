@@ -83,13 +83,24 @@ class WhisperAsr:
 
     def _languages(self, samples: np.ndarray) -> list[str]:
         """Always the home languages; plus the detector's top pick among the meeting's languages."""
-        languages = list(settings.asr_always_decode)
-        if samples.size >= settings.min_lid_s * settings.sample_rate:
-            _, _, probs = self._model.detect_language(samples)
-            ranked = rank_languages(probs, settings.asr_languages)
-            if ranked and ranked[0][0] not in languages:
-                languages.append(ranked[0][0])
-        return languages
+        if samples.size < settings.min_lid_s * settings.sample_rate:
+            return list(settings.asr_always_decode)
+        return _with_detected(self._model.detect_language(samples)[2])
+
+    def _languages_batched(self, samples: list[np.ndarray]) -> list[list[str]]:
+        """_languages for many clips: the encoder and language detector run on up to asr_batch_size
+        clips per GPU call instead of one."""
+        from faster_whisper.audio import pad_or_trim
+
+        fe = self._model.feature_extractor
+        out = [list(settings.asr_always_decode) for _ in samples]
+        todo = [i for i, x in enumerate(samples) if x.size >= settings.min_lid_s * settings.sample_rate]
+        for k in range(0, len(todo), settings.asr_batch_size):
+            idx = todo[k : k + settings.asr_batch_size]
+            feats = np.stack([pad_or_trim(fe(samples[i][: fe.n_samples])) for i in idx])
+            for i, res in zip(idx, self._model.model.detect_language(self._model.encode(feats))):
+                out[i] = _with_detected([(token[2:-2], prob) for token, prob in res])
+        return out
 
     def transcribe_all(self, batches) -> list[AsrChunk]:
         """Every utterance at once: one batched GPU pass per language instead of one call per
@@ -99,7 +110,7 @@ class WhisperAsr:
 
         batches = list(batches)
         samples = [b.samples.astype(np.float32) for b in batches]
-        wanted = [self._languages(x) for x in samples]
+        wanted = self._languages_batched(samples)
         gap = np.zeros(settings.sample_rate, np.float32)  # 1 s between clips: a segment maps to one clip unambiguously
         audio = np.concatenate([part for x in samples for part in (x, gap)]) if samples else gap
         starts = np.cumsum([0] + [x.size + gap.size for x in samples[:-1]]) / settings.sample_rate
@@ -112,7 +123,7 @@ class WhisperAsr:
                 audio,
                 language=lang,
                 task="transcribe",
-                beam_size=5,
+                beam_size=settings.asr_beam_size,
                 condition_on_previous_text=False,
                 clip_timestamps=clips,
                 batch_size=settings.asr_batch_size,
@@ -136,7 +147,7 @@ class WhisperAsr:
             samples,
             language=language,
             task="transcribe",
-            beam_size=5,
+            beam_size=settings.asr_beam_size,
             condition_on_previous_text=False,
             vad_filter=False,
             word_timestamps=settings.cs_merge,
@@ -146,6 +157,14 @@ class WhisperAsr:
     def close(self) -> None:
         self._model = None
         gc.collect()
+
+
+def _with_detected(probs: list[tuple[str, float]]) -> list[str]:
+    languages = list(settings.asr_always_decode)
+    ranked = rank_languages(probs, settings.asr_languages)
+    if ranked and ranked[0][0] not in languages:
+        languages.append(ranked[0][0])
+    return languages
 
 
 def _score(segments, language: str, offset: float = 0.0) -> tuple[str, str, float, list]:

@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     # Utterances per GPU call (faster-whisper BatchedInferencePipeline). 1 = one utterance at a
     # time, as on CPU, where batching is not used.
     asr_batch_size: int = 16
+    asr_beam_size: int = 5
     # faster-whisper defaults to 4 threads; the CPU-only profile needs all cores.
     cpu_threads: int = os.cpu_count() or 4
     asr_model_dir: Path = ASR_ROOT / "models" / "whisper"

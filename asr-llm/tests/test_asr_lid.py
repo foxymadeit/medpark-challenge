@@ -102,6 +102,20 @@ def test_batched_decode_matches_per_utterance(monkeypatch):
     monkeypatch.setattr(faster_whisper, "BatchedInferencePipeline", FakePipeline)
     batches = [SimpleNamespace(samples=np.zeros(SR * 3), start=0.0, end=3.0),
                SimpleNamespace(samples=np.zeros(SR * 2), start=5.0, end=7.0)]
-    chunks = engine(FakeWhisper([("ru", 0.9)], {})).transcribe_all(batches)
+    fake = FakeWhisper([("ru", 0.9)], {})
+
+    class Features:
+        n_samples = SR * 30
+
+        def __call__(self, audio):
+            return np.zeros((128, 100), np.float32)
+
+    fake.feature_extractor = Features()
+    fake.encode = lambda feats: feats
+    # Batched LID: English ranked first on the first clip adds an English decode there only.
+    fake.model = SimpleNamespace(detect_language=lambda enc: [[("<|en|>", 0.8), ("<|ro|>", 0.2)], [("<|ru|>", 0.9)]][: len(enc)])
+    table["en"] = [(-2.0, "one")]
+    chunks = engine(fake).transcribe_all(batches)
     assert [(c.start, c.text, c.language) for c in chunks] == [(0.0, "unu", "ro"), (5.0, "два", "ru")]
     assert [h.text for h in chunks[1].hypotheses] == ["doi", "два"]
+    assert [h.language for h in chunks[0].hypotheses] == ["ro", "ru", "en"]

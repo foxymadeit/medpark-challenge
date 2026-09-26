@@ -25,7 +25,9 @@ def sh(cmd: str, **kwargs) -> None:
 # the NeMo numbers from the full run of 2026-09-26 stand.
 NEMO = ""
 SETS = "gold"
-WHISPER = "turbo"  # large-v3 (the product's GPU default) | turbo
+WHISPER = "large-v3"  # large-v3 (the product's GPU default) | turbo (measured 2026-09-26: 1.4x faster, gold CER 0.54 vs 0.44)
+# Whisper settings to time, one bench each (own work dir). {} = the product defaults.
+VARIANTS = {"beam5": {}, "beam1": {"MOM_ASR_BEAM_SIZE": "1"}}
 
 sh(f"git clone -q --depth 1 -b {BRANCH} https://github.com/foxymadeit/medpark-challenge {REPO}")
 # faster-whisper + pydantic-settings: the cut child uses asr_llm's Silero VAD to split long recordings.
@@ -34,11 +36,13 @@ sh(f"pip install -q {nemo}huggingface_hub soundfile pyarrow faster-whisper pydan
 audio = next(Path("/kaggle/input").rglob("*.m4a"))
 # The synthetic medical round ships in the repo; its recording script is the reference until someone corrects it by ear.
 clip = "--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md"
-bench = f"{sys.executable} -m asr_train.zeroshot --work /kaggle/working --sets {SETS} {clip} --audio '{audio}'"
+bench = f"{sys.executable} -m asr_train.zeroshot --sets {SETS} {clip} --audio '{audio}'"
 if NEMO:
-    sh(f"{bench} --models {NEMO}", cwd=ASR)
+    sh(f"{bench} --work /kaggle/working --models {NEMO}", cwd=ASR)
 # Whisper runs the asr_llm pipeline: its deps and weights come after the NeMo runs. The test sets are reused.
 sh(f"pip install -q -e '{ASR}[asr]' && python scripts/fetch_whisper.py {WHISPER}", cwd=ASR)
 env = {**os.environ, "MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16",
        "MOM_ASR_MODEL_DIR": "models/whisper" if WHISPER == "large-v3" else "models/whisper-turbo"}
-sh(f"{bench} --models whisper", cwd=ASR, env=env)
+for name, extra in VARIANTS.items():
+    work = "/kaggle/working" if name == "beam5" else f"/kaggle/working/{name}"
+    sh(f"{bench} --work {work} --models whisper", cwd=ASR, env={**env, **extra})
