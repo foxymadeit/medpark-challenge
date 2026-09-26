@@ -439,8 +439,11 @@
 .word-menu__item:hover, .word-menu__item:focus-visible { background: var(--sm-surface-ground); outline: none; }
 .word-menu__item[aria-current='true'] { font-weight: 600; }
 .word-menu__edit { display: flex; gap: var(--sm-space-2); padding: 4px 8px 4px; }
-.word-menu__edit .input { height: 36px; min-width: 0; flex: 1; }
+.word-menu__edit .input { height: 36px; min-width: 0; width: 100%; }
+.word-menu__field { flex: 1; min-width: 0; }
+.word-menu__field .input-wrap__pen { right: 12px; opacity: 1 !important; pointer-events: none; }
 .word-menu__save { height: 36px; padding: 0 12px; }
+.word-menu__actions { display: flex; justify-content: flex-end; padding: 0 12px 8px; }
 
 /* ── Settings ── */
 .settings__cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sm-space-4); align-items: start; max-width: 1104px; }

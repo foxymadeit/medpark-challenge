@@ -35,6 +35,16 @@ function WordMenu({ word, alternatives, anchor, onPick, onRemove, lang, onLang, 
   const box = useRef<HTMLDivElement>(null);
   const [editing, setEditing] = useState(alternatives.length === 0);
   const [value, setValue] = useState(word);
+  // The language flag is staged too: nothing is stored until Save.
+  const [pickedLang, setPickedLang] = useState(lang);
+  const wordChanged = editing && !!value.trim() && value.trim() !== word;
+  const langChanged = pickedLang !== lang;
+  const dirty = wordChanged || langChanged;
+  const save = () => {
+    if (langChanged) onLang?.(pickedLang);
+    if (wordChanged) onPick(value.trim());
+    else onClose();
+  };
   const [pos, setPos] = useState({ top: anchor.bottom + 6, left: anchor.left });
 
   // Keep inside the viewport; flip above the word if there's no room below.
@@ -97,14 +107,16 @@ function WordMenu({ word, alternatives, anchor, onPick, onRemove, lang, onLang, 
           className="word-menu__edit"
           onSubmit={(e) => {
             e.preventDefault();
-            const v = value.trim();
-            if (v && v !== word) onPick(v);
-            else onClose();
+            save();
           }}
         >
-          <input className="input input--inline" aria-label={t('review.word.fix')} value={value} onChange={(e) => setValue(e.target.value)} onFocus={(e) => e.target.select()} />
-          {/* Only once the word actually differs; Enter with no change just closes. */}
-          {value.trim() && value.trim() !== word && (
+          {/* The shared pen cue; kept visible here since the field opens already focused. */}
+          <span className="input-wrap word-menu__field">
+            <input className="input input--inline" aria-label={t('review.word.fix')} value={value} onChange={(e) => setValue(e.target.value)} onFocus={(e) => e.target.select()} />
+            <PencilSimpleIcon size={16} aria-hidden className="input-wrap__pen" />
+          </span>
+          {/* Only once the word or its language differs; Enter with no change just closes. */}
+          {dirty && (
             <button type="submit" className="btn btn--ink word-menu__save">
               {t('review.word.save')}
             </button>
@@ -118,11 +130,19 @@ function WordMenu({ word, alternatives, anchor, onPick, onRemove, lang, onLang, 
           {/* Same look as the interface-language switch in the top bar. */}
           <div className="segmented segmented--lang" role="radiogroup" aria-label={t('review.word.langLabel')}>
             {SPOKEN_LANGS.map((l) => (
-              <button key={l} type="button" role="radio" aria-checked={lang === l} className="segmented__item" title={t(`spoken.${l}`)} onClick={() => onLang(lang === l ? undefined : l)}>
+              <button key={l} type="button" role="radio" aria-checked={pickedLang === l} className="segmented__item" title={t(`spoken.${l}`)} onClick={() => setPickedLang(pickedLang === l ? undefined : l)}>
                 {l.toUpperCase()}
               </button>
             ))}
           </div>
+        </div>
+      )}
+      {/* Not typing a new word: the Save for a language change sits under the switch. */}
+      {!editing && langChanged && (
+        <div className="word-menu__actions">
+          <button type="button" className="btn btn--ink word-menu__save" onClick={save}>
+            {t('review.word.save')}
+          </button>
         </div>
       )}
       {/* Offered in both views: pick-a-reading and type-it-yourself. */}
