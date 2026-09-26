@@ -137,7 +137,8 @@ def fact_ids(blocks) -> set:
 def escape(text: str) -> str:
     """Plain text -> safe LaTeX argument text. Used for every value our own
     code puts in a document (names, titles, places), never trusted as is."""
-    text = str(text).replace("\\", " ").replace("{", "(").replace("}", ")")
+    text = " ".join(str(text).split())   # a blank line inside an argument would end the paragraph
+    text = text.replace("\\", " ").replace("{", "(").replace("}", ")")
     text = re.sub(r"([%&#$_])", r"\\\1", text)
     return text.replace("^", " ").replace("~", " ")
 

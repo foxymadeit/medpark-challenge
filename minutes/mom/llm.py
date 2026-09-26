@@ -18,6 +18,16 @@ DEFAULT_MODEL = os.environ.get("MOM_LLM_MODEL", "gemma3:12b")
 TIMEOUT = float(os.environ.get("MOM_LLM_TIMEOUT", "900"))
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs):
+        return None   # a redirect could point anywhere; the answer must come from the loopback server
+
+
+# No proxy: urllib otherwise honours HTTP_PROXY and could route the transcript
+# through a corporate proxy even though the address is 127.0.0.1.
+_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect)
+
+
 def check_local(url: str) -> str:
     host = urlparse(url).hostname or ""
     try:
@@ -41,7 +51,7 @@ class LocalLLM:
     def _post(self, path: str, body: dict) -> dict:
         req = urllib.request.Request(self.url + path, data=json.dumps(body).encode(),
                                      headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:   # noqa: S310 (loopback only, checked above)
+        with _OPENER.open(req, timeout=TIMEOUT) as r:   # noqa: S310 (loopback only, checked above)
             return json.loads(r.read())
 
     def chat(self, system: str, user: str, schema: dict = None, max_tokens: int = 2048, think=None) -> str:

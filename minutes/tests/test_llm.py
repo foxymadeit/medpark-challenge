@@ -12,3 +12,11 @@ def test_loopback_addresses_are_accepted(url):
 def test_anything_off_this_machine_is_refused(url):
     with pytest.raises(ValueError):
         LocalLLM(url=url)
+
+
+def test_proxy_settings_are_ignored():
+    # HTTP_PROXY must never carry a transcript off the machine: the opener has
+    # no proxy handler at all, so environment proxies are never consulted
+    from mom import llm
+    assert not any(getattr(h, "proxies", None) for h in llm._OPENER.handlers)
+    assert not any(type(h).__name__ == "HTTPRedirectHandler" for h in llm._OPENER.handlers)
