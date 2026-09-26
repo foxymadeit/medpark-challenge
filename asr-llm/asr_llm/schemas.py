@@ -7,12 +7,20 @@ from pydantic import BaseModel, Field
 MeetingType = Literal["medical", "executive", "administrative"]
 
 
+class Hypothesis(BaseModel):
+    language: str
+    text: str
+    score: float  # duration-weighted avg_logprob
+
+
 class SpeechSegment(BaseModel):
     start: float
     end: float
     text: str
     language: str | None = None
     speaker: str | None = None
+    # Every decode of this utterance, for the fusion step. `text` is the acoustic winner.
+    hypotheses: list[Hypothesis] = Field(default_factory=list)
 
 
 class Transcript(BaseModel):

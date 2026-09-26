@@ -41,9 +41,10 @@ def test_rank_drops_languages_outside_the_meeting():
 def test_confident_wrong_lid_does_not_decide():
     # Measured on the sample: LID says ru 0.9 on Romanian, the ro decode scores better.
     fake = FakeWhisper([("ru", 0.92), ("ro", 0.06)], {"ro": -0.52, "ru": -0.64})
-    text, lang = engine(fake).transcribe_batch(np.zeros(SR * 3))
+    text, lang, hyps = engine(fake).transcribe_batch(np.zeros(SR * 3))
     assert fake.decoded == ["ro", "ru"]
     assert (text, lang) == ("text-ro", "ro")
+    assert [(h.language, h.text, h.score) for h in hyps] == [("ro", "text-ro", -0.52), ("ru", "text-ru", -0.64)]
 
 
 def test_home_language_wins_close_calls_only():
@@ -61,11 +62,12 @@ def test_english_decoded_when_lid_says_english():
 
 def test_short_clip_reuses_previous_language():
     fake = FakeWhisper([("ru", 1.0)], {"ro": -0.2, "ru": -0.2})
-    _, lang = engine(fake).transcribe_batch(np.zeros(SR // 2), prev_lang="ro")
+    _, lang, _ = engine(fake).transcribe_batch(np.zeros(SR // 2), prev_lang="ro")
     assert fake.decoded == ["ro"]
     assert lang == "ro"
 
 
 def test_subtitle_hallucination_is_dropped():
     fake = FakeWhisper([("ru", 1.0)], {"ro": -0.4, "ru": -0.3}, texts={"ro": "Să vă mulțumim!", "ru": "Продолжение следует..."})
-    assert engine(fake).transcribe_batch(np.zeros(SR * 3))[0] == ""
+    text, _, hyps = engine(fake).transcribe_batch(np.zeros(SR * 3))
+    assert (text, hyps) == ("", [])

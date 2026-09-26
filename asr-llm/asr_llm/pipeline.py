@@ -45,6 +45,7 @@ def transcribe_audio(audio_path: Path, diarization: Path | None = None) -> tuple
                 text=c.text,
                 language=c.language,
                 speaker=speaker_for(c.start, c.end, turns),
+                hypotheses=c.hypotheses,
             )
             for c in chunks
             if c.text
@@ -90,6 +91,7 @@ def load_transcript(path: Path) -> Transcript:
                 text=str(row["text"]),
                 language=row.get("language"),
                 speaker=row.get("speaker"),
+                hypotheses=row.get("hypotheses") or [],
             )
         )
     segments = collapse_repeat_segments(segments)

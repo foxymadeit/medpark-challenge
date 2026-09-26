@@ -7,6 +7,7 @@ import numpy as np
 
 from .clean import _fold
 from .config import settings
+from .schemas import Hypothesis
 from .local import pick_device, require_local_path
 
 
@@ -16,6 +17,7 @@ class AsrChunk:
     end: float
     text: str
     language: str | None
+    hypotheses: list[Hypothesis]
 
 
 def rank_languages(probs: list[tuple[str, float]], allowed: tuple[str, ...]) -> list[tuple[str, float]]:
@@ -53,7 +55,9 @@ class WhisperAsr:
             cpu_threads=settings.cpu_threads,
         )
 
-    def transcribe_batch(self, samples: np.ndarray, prev_lang: str | None = None) -> tuple[str, str | None]:
+    def transcribe_batch(
+        self, samples: np.ndarray, prev_lang: str | None = None
+    ) -> tuple[str, str | None, list[Hypothesis]]:
         samples = samples.astype(np.float32)
         if prev_lang and samples.size < settings.min_lid_s * settings.sample_rate:
             languages = [prev_lang]
@@ -65,7 +69,8 @@ class WhisperAsr:
                 languages.append(ranked[0][0])
         results = [self._decode(samples, lang) for lang in languages]
         text, language, _ = max(results, key=_biased_score)
-        return text, language
+        hypotheses = [Hypothesis(language=lang, text=t, score=s) for t, lang, s in results if t]
+        return text, language, hypotheses
 
     def _decode(self, samples: np.ndarray, language: str) -> tuple[str, str, float]:
         """Text in one forced language, scored by duration-weighted avg_logprob."""
@@ -103,6 +108,6 @@ def transcribe_batches(engine: WhisperAsr, batches) -> list[AsrChunk]:
     chunks: list[AsrChunk] = []
     language: str | None = None
     for batch in batches:
-        text, language = engine.transcribe_batch(batch.samples, language)
-        chunks.append(AsrChunk(start=batch.start, end=batch.end, text=text, language=language))
+        text, language, hypotheses = engine.transcribe_batch(batch.samples, language)
+        chunks.append(AsrChunk(start=batch.start, end=batch.end, text=text, language=language, hypotheses=hypotheses))
     return chunks
