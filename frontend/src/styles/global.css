@@ -17,8 +17,8 @@
   white-space: nowrap;
 }
 .admin-nav a.active {
-  background: #e7f3f2;
-  color: #087b79;
+  background: var(--sm-surface-ground);
+  color: var(--sm-ink-primary);
   font-weight: 650;
 }
 /* The overview is one list, a row per area with its count, not a grid of
@@ -316,7 +316,7 @@ svg {
   border-radius: 0;
   padding: 0 64px;
   min-height: 22px;
-  background: var(--sm-signal-danger-tint, #fbeae8);
+  background: var(--sm-signal-danger-tint);
   color: var(--sm-signal-danger);
   align-items: center;
 }
@@ -341,7 +341,7 @@ svg {
   color: var(--sm-signal-danger);
 }
 .delivery-failed h2 {
-  font: 600 20px/26px var(--sm-sign);
+  font: 600 20px/26px var(--sm-heading);
   margin: 0;
 }
 .delivery-failed p {
@@ -552,7 +552,7 @@ svg {
   padding: 24px 32px;
 }
 .unnamed-voices h2 {
-  font: 600 16px/22px var(--sm-sign);
+  font: 600 16px/22px var(--sm-heading);
   margin: 0 0 16px;
 }
 .unnamed-voice-row {
@@ -585,7 +585,7 @@ svg {
   background: var(--sm-surface-ground);
 }
 .timeout-brand {
-  font: 600 18px var(--sm-sign);
+  font: 600 18px var(--sm-heading);
 }
 .timeout-login .login-panel {
   width: 440px;
@@ -667,7 +667,7 @@ svg {
   gap: 18px;
 }
 .processing-failed-card h2 {
-  font: 600 20px/26px var(--sm-sign);
+  font: 600 20px/26px var(--sm-heading);
   margin: 0;
 }
 .processing-failed-card p {
@@ -1478,22 +1478,22 @@ textarea {
   align-items: start;
 }
 .process-timeline {
-  padding: 32px 40px;
+  padding: 24px 32px;
 }
 .process-step {
   display: flex;
-  gap: 24px;
+  gap: 20px;
   position: relative;
-  padding: 12px 0 44px;
+  padding: 10px 0 18px;
   color: var(--sm-ink-secondary);
-  min-height: 106px;
+  min-height: 60px;
 }
 .process-step:not(:last-child):before {
   content: "";
   position: absolute;
   left: 10px;
-  top: 28px;
-  bottom: -18px;
+  top: 34px;
+  bottom: -8px;
   width: 2px;
   background: var(--sm-surface-hairline);
 }
@@ -1533,7 +1533,7 @@ textarea {
 .process-step p {
   font-size: 13px;
   line-height: 18px;
-  margin: 8px 0 0;
+  margin: 2px 0 0;
   color: var(--sm-ink-secondary);
 }
 .estimate {
@@ -1810,9 +1810,9 @@ textarea {
   border-radius: 0 8px 8px 0;
 }
 .language-choice button.selected {
-  border-color: var(--sm-accent);
-  background: #eef8f7;
-  color: var(--sm-accent);
+  border-color: var(--sm-ink-primary);
+  background: var(--sm-surface-ground);
+  color: var(--sm-ink-primary);
 }
 .enrollment-person {
   padding-bottom: 20px;
@@ -1838,11 +1838,11 @@ textarea {
   height: 8px;
   margin-right: 7px;
   border-radius: 50%;
-  background: var(--sm-signal-success);
+  background: var(--sm-ink-primary);
 }
 .enrollment-reading blockquote {
   padding: 28px;
-  border-left: 3px solid var(--sm-accent);
+  border: 1px solid var(--sm-surface-hairline);
   background: var(--sm-surface-ground);
   font-size: 20px;
   line-height: 1.7;
@@ -1861,7 +1861,7 @@ textarea {
 .speech-progress progress {
   width: 100%;
   height: 8px;
-  accent-color: var(--sm-accent);
+  accent-color: var(--sm-ink-primary);
 }
 .enrollment-message {
   text-align: center;
@@ -1882,7 +1882,7 @@ textarea {
   display: grid;
   place-items: center;
   background: var(--sm-surface-ground);
-  color: var(--sm-accent);
+  color: var(--sm-ink-primary);
 }
 .checking-steps {
   width: 100%;
@@ -1900,7 +1900,7 @@ textarea {
 }
 .voice-comparison > strong {
   font-size: 28px;
-  color: var(--sm-accent);
+  color: var(--sm-ink-primary);
   display: grid;
 }
 .voice-comparison > strong small {
@@ -2406,7 +2406,8 @@ blockquote {
     min-height: calc(100dvh - 96px);
   }
   .page-container.with-tabs {
-    padding-bottom: 110px;
+    /* room for the bottom bar, plus the home indicator on phones */
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
   }
   h1 {
     font-size: 28px;
@@ -2705,6 +2706,20 @@ blockquote {
   .action-task {
     grid-column: 2/-1;
     padding-right: 26px;
+  }
+  /* Phone: the task comes first, next to its checkbox, with the pencil at
+     the top right; owner and date on the second line; "Said at" last. */
+  .action-row:not(.compact) .action-task {
+    display: contents;
+  }
+  .action-row:not(.compact) .action-task > span {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .action-row:not(.compact) .action-task small {
+    grid-column: 2 / -1;
+    grid-row: 3;
+    margin-top: 0;
   }
   .action-row .speaker-label,
   .minutes-main .action-row .speaker-label {
