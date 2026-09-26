@@ -82,7 +82,15 @@ export default function ActionItemRow({
             {person ? (
               <SpeakerLabel person={person} />
             ) : (
-              <span className="muted">{t("unassigned")}</span>
+              <span
+                className={
+                  ["sent", "sending"].includes(meeting.status)
+                    ? "muted"
+                    : "owner-missing"
+                }
+              >
+                {t("unassigned")}
+              </span>
             )}
           </>
         )}

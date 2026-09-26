@@ -37,7 +37,9 @@ export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
       await action();
       notifyUpdate();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "requestFailed");
+      const code = reason instanceof Error ? reason.message : "requestFailed";
+      // name the one thing still missing rather than a general rule
+      setError(code === "unresolved" ? waitingFor(meeting) : code);
     } finally {
       setBusy(false);
     }

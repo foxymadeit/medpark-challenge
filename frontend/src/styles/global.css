@@ -379,8 +379,23 @@ svg {
   margin: 5px 0 0;
   color: var(--sm-ink-secondary);
 }
+.manual-review-bar {
+  flex-wrap: wrap;
+}
+.manual-review-bar > div:first-child {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.manual-review-bar .button {
+  white-space: nowrap;
+}
 .manual-review-bar > .error {
   flex-basis: 100%;
+  margin: 0;
+}
+.owner-missing {
+  color: var(--sm-signal-danger);
+  font-weight: 600;
 }
 .review-participants {
   padding: 24px;
