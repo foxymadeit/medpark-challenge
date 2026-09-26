@@ -246,7 +246,8 @@
     "speaking": "Vorbește",
     "notHeard": "Nu a vorbit încă",
     "speakerN": "Vorbitorul {n}",
-    "unmatched": "Voce neasociată unui participant"
+    "unmatched": "Voce neasociată unui participant",
+    "langsAfterCountdown": "Limbile apar după ce începe înregistrarea."
   },
   "upload": {
     "title": "Încarcă audio",

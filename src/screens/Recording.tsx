@@ -176,16 +176,23 @@ export function Recording() {
       <aside className="card live-details" aria-label={t('recording.voices')}>
         <div className="stack" style={{ gap: 12 }}>
           <h2 className="section-title">{t('recording.languages')}</h2>
-          <div className="chips">
-            {detectedLanguages.map((l, i) => (
-              <span key={l} className={`chip chip--lang${i === 0 ? ' is-active' : ''}`}>
-                {t(`lang.${l}Name`)}
-              </span>
-            ))}
-          </div>
-          <p className="note" aria-live="polite">
-            {paused ? t('recording.pausedNote') : t('recording.nowSpeaking', { lang: langName })}
-          </p>
+          {/* Nothing is heard during the 3‥2‥1, so no languages yet. */}
+          {countdown > 0 ? (
+            <p className="note">{t('recording.langsAfterCountdown')}</p>
+          ) : (
+            <>
+              <div className="chips">
+                {detectedLanguages.map((l, i) => (
+                  <span key={l} className={`chip chip--lang${i === 0 ? ' is-active' : ''}`}>
+                    {t(`lang.${l}Name`)}
+                  </span>
+                ))}
+              </div>
+              <p className="note" aria-live="polite">
+                {paused ? t('recording.pausedNote') : t('recording.nowSpeaking', { lang: langName })}
+              </p>
+            </>
+          )}
         </div>
         <div className="stack" style={{ gap: 16 }}>
           <div className="row" style={{ justifyContent: 'space-between' }}>

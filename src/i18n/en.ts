@@ -234,6 +234,7 @@ export const en = {
     resume: 'Resume',
     stop: 'Stop and write minutes',
     startingIn: 'Recording starts in',
+    langsAfterCountdown: 'Languages show up once recording starts.',
     startNow: 'Start now',
     noteLive: 'Recording stays on this computer until you stop.',
     notePaused: 'The recording so far is kept on this computer.',
