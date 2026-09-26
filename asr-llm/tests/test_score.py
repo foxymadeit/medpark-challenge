@@ -32,3 +32,11 @@ def test_changes_counts_direction():
     base = [SpeechSegment(start=0, end=1, text="a", language="ro"), SpeechSegment(start=1, end=2, text="b", language="ru")]
     other = [SpeechSegment(start=0, end=1, text="x", language="ru"), SpeechSegment(start=1, end=2, text="b", language="ru")]
     assert changes(base, other) == {"changed": 1, "by_direction": {"ro->ru": 1}}
+
+
+def test_window_start_excludes_earlier_segments():
+    segs = [
+        SpeechSegment(start=10, end=12, text="înainte", language="ro"),
+        SpeechSegment(start=95, end=97, text="uree 19", language="ro"),
+    ]
+    assert report(segs, gold="uree 19", window_s=181, start_s=94)["cer"] == 0.0

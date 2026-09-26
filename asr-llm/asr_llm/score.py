@@ -56,7 +56,9 @@ def glossary_terms() -> set[str]:
     return terms
 
 
-def report(segments: list[SpeechSegment], gold: str | None = None, window_s: float | None = None) -> dict:
+def report(
+    segments: list[SpeechSegment], gold: str | None = None, window_s: float | None = None, start_s: float = 0.0
+) -> dict:
     tagged = [s for s in segments if s.language]
     out = {
         "segments": len(segments),
@@ -67,7 +69,9 @@ def report(segments: list[SpeechSegment], gold: str | None = None, window_s: flo
         "cyrillic_share": round(cyrillic_share(" ".join(s.text for s in segments)), 3),
     }
     if gold is not None:
-        hyp_segments = [s for s in segments if window_s is None or s.start < window_s]
+        # Midpoint, not start: engines cut at different places, and a segment starting at 93.99 s is mostly inside 94–181.
+        mid = lambda s: (s.start + s.end) / 2  # noqa: E731
+        hyp_segments = [s for s in segments if mid(s) >= start_s and (window_s is None or mid(s) < window_s)]
         ref = _fold(gold)
         hyp = _fold(" ".join(s.text for s in hyp_segments))
         out["cer"] = round(error_rate(list(ref), list(hyp)), 3)
@@ -93,11 +97,15 @@ def main() -> None:
     parser.add_argument("transcript", type=Path)
     parser.add_argument("--gold", type=Path, default=None)
     parser.add_argument("--window", type=float, default=None, help="Score only segments starting before this second.")
+    parser.add_argument("--start", type=float, default=0.0, help="...and at or after this second.")
     parser.add_argument("--baseline", type=Path, default=None, help="Acoustic transcript to diff a fusion run against.")
     args = parser.parse_args()
     segments = load_transcript(args.transcript).segments
-    gold = args.gold.read_text(encoding="utf-8") if args.gold else None
-    out = report(segments, gold, args.window)
+    gold = None
+    if args.gold:  # "#" lines are notes and timestamps, not speech
+        lines = args.gold.read_text(encoding="utf-8").splitlines()
+        gold = "\n".join(line for line in lines if not line.lstrip().startswith("#"))
+    out = report(segments, gold, args.window, args.start)
     if args.baseline:
         out["vs_baseline"] = changes(load_transcript(args.baseline).segments, segments)
     print(json.dumps(out, ensure_ascii=False, indent=2))
