@@ -37,8 +37,7 @@ export function Settings() {
     email !== account.email ||
     uiLang !== lang ||
     type !== savedType ||
-    prefs.reviewMode !== preferences.reviewMode ||
-    prefs.notifyReady !== preferences.notifyReady;
+    prefs.reviewMode !== preferences.reviewMode;
 
   const save = () => {
     const nameErr = name.trim() ? undefined : t('common.required');
@@ -129,18 +128,6 @@ export function Settings() {
             </div>
           </section>
 
-          <section className="card card--pad settings__section" aria-labelledby="set-notif">
-            <h2 id="set-notif" className="section-title">
-              {t('settings.notifications')}
-            </h2>
-            <label className="settings__check">
-              <input type="checkbox" className="checkbox" checked={prefs.notifyReady} onChange={(e) => (setPrefs((p) => ({ ...p, notifyReady: e.target.checked })), touch())} />
-              <span className="who__text">
-                <span className="who__name">{t('settings.notifyReady')}</span>
-                <span className="who__sub">{t('settings.notifyReadyDesc')}</span>
-              </span>
-            </label>
-          </section>
 
         </div>
       </div>

@@ -27,7 +27,6 @@ export interface Account {
 export interface Preferences {
   /** auto = minutes are sent as soon as processing finishes, without review. */
   reviewMode: 'manual' | 'auto';
-  notifyReady: boolean;
 }
 
 export interface Template {

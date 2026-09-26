@@ -97,10 +97,10 @@ function useStoreValue() {
     });
   }, []);
 
-  const preferences: Preferences = { reviewMode: 'manual', notifyReady: true, ...state.account?.preferences };
+  const preferences: Preferences = { reviewMode: 'manual', ...state.account?.preferences };
 
   const updatePreferences = useCallback((patch: Partial<Preferences>) => {
-    setState((s) => (s.account ? { ...s, account: { ...s.account, preferences: { reviewMode: 'manual', notifyReady: true, ...s.account.preferences, ...patch } } } : s));
+    setState((s) => (s.account ? { ...s, account: { ...s.account, preferences: { reviewMode: 'manual', ...s.account.preferences, ...patch } } } : s));
   }, []);
 
   const logOut = useCallback(() => setState((s) => ({ ...s, signedIn: false })), []);

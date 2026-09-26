@@ -375,9 +375,6 @@
     "defaultTypeHint": "Preselectat la Ședință nouă.",
     "reviewMode": "Modul implicit de verificare",
     "reviewModeHint": "Automat trimite procesul-verbal imediat ce este scris, fără a întreba.",
-    "notifications": "Notificări",
-    "notifyReady": "Trimite-mi e-mail când procesul-verbal e gata",
-    "notifyReadyDesc": "Un link spre verificare sosește imediat ce procesarea se termină.",
     "save": "Salvează modificările",
     "saved": "Salvat"
   },
