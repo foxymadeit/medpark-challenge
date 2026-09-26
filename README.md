@@ -50,14 +50,25 @@ tries.
 
 ## The business case
 
-**Who it is for.** Medpark is Moldova's first and largest private
-multidisciplinary hospital: 200+ doctors, 160,000+ patients a year, and level 6
-of 7 on the HIMSS digital-maturity scale
-([Medpark via Bupa](https://www.bupaglobal.com/en/facilities/1001918/medpark-international),
-[NewsMaker](https://newsmaker.md/ro/comunitatea-tech-a-testat-aplica%C8%9Bia-medpark-%C3%AEn-cadrul-deeptech-gigahack-2026)).
-Its medical, executive and administrative boards meet regularly, and each
-meeting's decisions are only as good as the minutes that carry them to the
-people who must act.
+**Who it is for.** Medpark is Moldova's largest private multidisciplinary
+hospital: 908 staff, 280 of them doctors, and 165,000+ patients in 2025
+([Logos Press, 2026](https://logos-pres.md/en/news/medpark-increased-its-revenue-to-870-million-lei-due-to-growth-in-the-volume-of-medical-services/)).
+It is JCI-accredited, the first hospital in Moldova to be; its 2019
+re-accreditation ran through 13 internal committees and 1,112 internal
+documents ([Medpark, 2019](https://www.medpark.md/news/medpark-este-acreditat-de-jci-drept-unul-dintre-cele-mai-bune-si-sigure-spitale-din-lume/)).
+Medpark reports level 6 of 7 on the HIMSS digital-maturity scale
+([NewsMaker](https://newsmaker.md/ro/comunitatea-tech-a-testat-aplica%C8%9Bia-medpark-%C3%AEn-cadrul-deeptech-gigahack-2026)).
+Each board's and committee's decisions are only as good as the minutes that
+carry them to the people who must act.
+
+**What changes for Medpark.**
+
+| Change | Why it matters | Source |
+|---|---|---|
+| Audit-ready minutes for every JCI committee | JCI's 8th edition counts meeting minutes as required survey evidence, and "minutes reflect actions taken and any follow-up on those actions" (GHI.06.01); surveyors can look back to the previous full survey and expect 3 years of records | [JCI 8th ed. standards](https://digitalassets.jointcommission.org/api/public/content/ec2988b03014434aafe40d0398c0c75e?v=cee9f209), [JCI FAQ, 2025](https://digitalassets.jointcommission.org/api/public/content/SIG_FAQ-Hospitals_8th_Edition?v=2c8ce113) |
+| Every decision gets an owner and a date the same day | communication was a factor in 30% of 23,658 US malpractice cases, $1.7 billion in losses; in a 2026 review, 58.8% of unfollowed tumour-board recommendations were linked to missing documentation | [CRICO Strategies, 2015](https://www.rmf.harvard.edu/News-and-Blog/In-the-News-Home/In-the-News/2016/February/Communication-failures-linked-to-1744-deaths-in-five-years); the review is cited in our research notes |
+| Meeting audio never leaves Medpark | Moldova's Law 195/2024 (in force since 23 August 2026) transposes the GDPR, with fines up to 2% of annual turnover, a 17.4 million lei ceiling at Medpark's 871 million lei revenue | [Ministry of Justice](https://justice.gov.md/ro/content/noua-lege-privind-protectia-datelor-cu-caracter-personal-reprezinta-un-pas-esential), [Juridice Moldova](https://juridicemoldova.md/21009/douasprezece-zile-pana-la-noul-regim-al-datelor-personale-amenzile-urca-la-2-din-cifra-de-afaceri.html) |
+| Minutes in each reader's language | RO, RU and EN from the same checked facts | measured, this README |
 
 **Where the value comes from.**
 
@@ -579,15 +590,15 @@ Measured, then removed, so nobody has to try them again:
 About 31,000 lines of Python and TypeScript, tests included: web app 11,800,
 transcription 5,900, speaker labels 5,000, minutes 5,100, backend 3,100.
 
-## Tests: 392 passing, 2 skipped
+## Tests: 400 passing, 2 skipped
 
 | Part | Tests |
 |---|---|
-| Minutes | 117, including the full pipeline with sockets blocked and 14 LaTeX injection attempts |
+| Minutes | 118, including the full pipeline with sockets blocked and 14 LaTeX injection attempts |
 | Speaker labels | 79 |
-| Transcription | 81 passing; 2 training-data tests skip unless the training extras are installed |
-| Backend | 40: open access with no sign-in, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, hardware profiles, meeting-type check, audit trail |
-| Web app | 63 unit, 12 end-to-end in a real browser |
+| Transcription | 82 passing; 2 training-data tests skip unless the training extras are installed |
+| Backend | 45: open access with no sign-in, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, hardware profiles, meeting-type check, audit trail |
+| Web app | 64 unit, 12 end-to-end in a real browser |
 
 ```bash
 cd minutes && pytest
