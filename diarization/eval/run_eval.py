@@ -32,17 +32,19 @@ DATA = ROOT / "data" / "ami"
 CACHE = Path(__file__).resolve().parent / "cache"
 
 
-def cache_path(meeting, kind, embedder, latency):
-    return CACHE / f"{meeting}.{kind}.{embedder}.L{latency}.pkl"
+def cache_path(meeting, kind, embedder, latency, step=0.5):
+    seg = "" if models.SEGMENTATION == "segmentation-3.0.onnx" else f".{Path(models.SEGMENTATION).stem}"
+    st = "" if step == 0.5 else f".S{step}"
+    return CACHE / f"{meeting}.{kind}.{embedder}{seg}.L{latency}{st}.pkl"
 
 
-def observe(meeting, kind, embedder, latency, threads=2):
-    out = cache_path(meeting, kind, embedder, latency)
+def observe(meeting, kind, embedder, latency, threads=2, step=0.5):
+    out = cache_path(meeting, kind, embedder, latency, step)
     if out.exists():
         return pickle.loads(out.read_bytes())
     audio = load(audio_path(meeting, kind))
     obs = Observer(Segmenter(models.model_path(models.SEGMENTATION), threads),
-                   Embedder(models.embedder_path(embedder), threads), latency=latency)
+                   Embedder(models.embedder_path(embedder), threads), latency=latency, step=step)
     t = time.perf_counter()
     seen = []
     for i in range(0, len(audio), SR):
@@ -96,8 +98,9 @@ def report(rows, label=""):
     w = lambda k: sum(r[k] * r["dur"] for r in rows) / tot  # noqa: E731
     for r in rows:
         print(f"  {r['meeting']:8s} DER {r['der']:.3f}  miss {r['miss']:.3f}  FA {r['false_alarm']:.3f}  "
-              f"conf {r['confusion']:.3f}  spk {r['hyp_speakers']}/{r['ref_speakers']}  RTF {r['rtf']:.3f}")
-    print(f"  {label}weighted DER {w('der'):.3f}  (conf {w('confusion'):.3f})")
+              f"conf {r['confusion']:.3f}  spk {r['hyp_speakers']}/{r['ref_speakers']}  turns {r['turn_accuracy']:.3f}  "
+              f"RTF {r['rtf']:.3f}")
+    print(f"  {label}weighted DER {w('der'):.3f}  (conf {w('confusion'):.3f})  turn accuracy {w('turn_accuracy'):.3f}")
     return w("der")
 
 
@@ -108,6 +111,7 @@ def main():
     ap.add_argument("--kind", default="Array1-01", help="Array1-01 (far mic) or Mix-Headset")
     ap.add_argument("--embedder", default="campp", choices=list(models.EMBEDDERS))
     ap.add_argument("--latency", type=float, default=1.0)
+    ap.add_argument("--step", type=float, default=0.5, help="seconds between segmentation windows")
     for k, v in (("assign", 0.55), ("new", 0.45), ("merge", 0.75), ("min_gap", 0.5), ("min_dur", 0.3)):
         ap.add_argument(f"--{k.replace('_', '-')}", dest=k, type=float, default=v)
     ap.add_argument("--max-speakers", type=int, default=0)
@@ -121,7 +125,7 @@ def main():
         DATA = a.data.resolve()
 
     backend = Backend.load(a.backend) if a.backend else None
-    cached = {m: project(observe(m, a.kind, a.embedder, a.latency), backend) for m in a.meetings}
+    cached = {m: project(observe(m, a.kind, a.embedder, a.latency, step=a.step), backend) for m in a.meetings}
     if a.cmd == "observe":
         return
     base = dict(assign=a.assign, new=a.new, merge=a.merge, min_gap=a.min_gap,
@@ -131,7 +135,7 @@ def main():
         report(rows, f"{a.embedder} {a.kind} ")
         return
     best = None
-    for assign, gap, merge in itertools.product((0.4, 0.5, 0.6, 0.7), (0.1, 0.2, 0.3), (0.6, 0.7, 0.8)):
+    for assign, gap, merge in itertools.product((0.3, 0.4, 0.5, 0.6, 0.7), (0.1, 0.15, 0.2, 0.3), (0.7, 0.8, 0.9)):
         p = dict(base, assign=assign, new=assign - gap, merge=merge)
         rows = [{"meeting": m, "rtf": c["rtf"], "dur": c["dur"], **score(c, m, **p)} for m, c in cached.items()]
         tot = sum(r["dur"] for r in rows)

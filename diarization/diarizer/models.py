@@ -16,7 +16,7 @@ from pathlib import Path
 MODELS_DIR = Path(os.environ.get("DIARIZER_MODELS") or Path(__file__).resolve().parent.parent / "models")
 
 _RELEASES = "https://github.com/k2-fsa/sherpa-onnx/releases/download"
-SEGMENTATION = "segmentation-3.0.onnx"
+SEGMENTATION = os.environ.get("DIARIZER_SEGMENTATION", "segmentation-3.0.onnx")
 _SEG_SOURCE = (f"{_RELEASES}/speaker-segmentation-models/sherpa-onnx-pyannote-segmentation-3-0.tar.bz2",
                "sherpa-onnx-pyannote-segmentation-3-0/model.onnx",
                "220ad67ca923bef2fa91f2390c786097bf305bceb5e261d4af67b38e938e1079")
@@ -33,6 +33,8 @@ EMBEDDERS = {
 # separated speakers far better than ResNet34 or CAM++ (d-prime 1.9-6.2 vs
 # 0.15-1.3) and is the fastest of the three on CPU.
 DEFAULT_EMBEDDER = "titanet-small"
+# Fine-tuned on Kaggle (train/kaggle/). Nothing to download: they ship in models/.
+LOCAL_ONLY = {"titanet-small-ft", "titanet-small-multi"}
 
 # Learned projection applied after the embedder (train/fit_backend.py, trained
 # on 38 AMI training meetings, 120 speakers). Loaded automatically when present.
@@ -78,6 +80,8 @@ def fetch(embedders=(DEFAULT_EMBEDDER,), log=print) -> None:
             data = tar.extractfile(_SEG_SOURCE[1]).read()
         _save(seg, data, _SEG_SOURCE[2])
     for name in embedders:
+        if name in LOCAL_ONLY:
+            continue
         filename, sha = EMBEDDERS[name]
         dest = MODELS_DIR / filename
         if not _ok(dest, sha):

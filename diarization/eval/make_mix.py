@@ -127,6 +127,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--meetings", type=int, default=12)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--first", type=int, default=1, help="number of the first meeting, e.g. 13 to add mix13 onward")
     a = ap.parse_args()
     rng = np.random.default_rng(a.seed)
     ro, ru = cv_speakers("ro"), cv_speakers("ru")
@@ -153,7 +154,7 @@ def main():
             voices.update(libri_speakers(n_en, rng))
         if bi:
             voices[f"bi_{bi[:8]}"] = clips["ro"][bi] + clips["ru"][bi]  # one person, two languages, one label
-        name = f"mix{m:02d}"
+        name = f"mix{m + a.first - 1:02d}"
         audio, ref = build_meeting(voices, rng)
         wavfile.write(out / f"{name}.mix.wav", SR, audio)
         (out / f"{name}.rttm").write_text("".join(
@@ -161,7 +162,8 @@ def main():
         (out / f"{name}.uem").write_text(f"{name} 1 0.000 {len(audio) / SR:.3f}\n")
         summary[name] = {"speakers": sorted(voices), "minutes": round(len(audio) / SR / 60, 1), "turns": len(ref)}
         print(f"{name}: {len(voices)} speakers {sorted(voices)}, {len(audio) / SR / 60:.1f} min, {len(ref)} turns")
-    (out / "meetings.json").write_text(json.dumps(summary, indent=2))
+    old = json.loads((out / "meetings.json").read_text()) if (out / "meetings.json").exists() else {}
+    (out / "meetings.json").write_text(json.dumps({**old, **summary}, indent=2))
 
 
 if __name__ == "__main__":

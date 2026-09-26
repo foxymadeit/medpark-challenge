@@ -7,17 +7,19 @@ a trained backend.
 
 import argparse
 import collections
+from pathlib import Path
 
 import numpy as np
 
 from diarizer.backend import Backend
 
+from . import run_eval
 from .der import read_rttm
-from .run_eval import DATA, observe
+from .run_eval import observe
 
 
 def labelled(cached, meeting, purity=0.8):
-    ref = read_rttm(DATA / f"{meeting}.rttm")
+    ref = read_rttm(run_eval.DATA / f"{meeting}.rttm")
     E, L = [], []
     for o in cached["obs"]:
         for emb, runs in zip(o.embs, o.runs):
@@ -47,14 +49,21 @@ def main():
     ap.add_argument("--meetings", nargs="+", default=["ES2011a", "IS1008a"])
     ap.add_argument("--embedder", default="titanet-small")
     ap.add_argument("--backend", nargs="*", default=[])
+    ap.add_argument("--data", type=Path, help="meeting folder (default data/ami)")
+    ap.add_argument("--kind", default="Array1-01")
     a = ap.parse_args()
+    if a.data:
+        run_eval.DATA = a.data.resolve()
+    raw = []
     for m in a.meetings:
-        E, L = labelled(observe(m, "Array1-01", a.embedder, 1.0), m)
+        E, L = labelled(observe(m, a.kind, a.embedder, 1.0), m)
         d, s, x = dprime(E, L)
+        raw.append(d)
         print(f"{m:8s} raw                d' {d:5.2f}  same {s:.3f} diff {x:.3f}")
         for p in a.backend:
             d, s, x = dprime(Backend.load(p)(E), L)
             print(f"{m:8s} {p.split('/')[-1]:18s} d' {d:5.2f}  same {s:.3f} diff {x:.3f}")
+    print(f"mean raw d' {np.mean(raw):.2f}")
 
 
 if __name__ == "__main__":

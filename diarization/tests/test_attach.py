@@ -42,3 +42,10 @@ def test_reads_the_three_whisper_json_shapes():
     cpp = {"transcription": [{"offsets": {"from": 500, "to": 1500}, "text": " hi"}]}
     for obj in (openai, bare, cpp):
         assert load_segments(obj) == [{"start": 0.5, "end": 1.5, "text": " hi"}]
+
+
+def test_unsorted_turns_and_long_turns_give_the_same_answer():
+    turns = [{"speaker": "B", "start": 5.0, "end": 12.0}, {"speaker": "A", "start": 0.0, "end": 30.0}]
+    assert attach([{"start": 20.0, "end": 21.0, "text": "x"}], turns)[0]["speaker"] == "A"
+    assert attach([{"start": 6.0, "end": 11.0, "text": "y"}], turns)[0]["speaker"] in {"A", "B"}
+    assert attach([{"start": 31.5, "end": 32.0, "text": "z"}], turns, max_gap=2.0)[0]["speaker"] == "A"

@@ -3,6 +3,10 @@ overlapped speech counted. Hypothesis labels are mapped to reference
 speakers with the assignment that maximises matched time.
 
 DER = (missed speech + false alarm + speaker confusion) / reference speech.
+
+Turn accuracy is the share of reference turns whose frames mostly went to
+the right person under the same mapping: how often a line of the minutes
+gets the right name.
 """
 
 import numpy as np
@@ -31,6 +35,7 @@ def der(ref, hyp, step: float = 0.01, collar: float = 0.0) -> dict:
     end = max([b for _, _, b in ref] + [b for _, _, b in hyp] + [0.0])
     n = int(np.ceil(end / step)) + 1
     R, H = _matrix(ref, n, step), _matrix(hyp, n, step)
+    R0, H0 = R, H
     scored = np.ones(n, dtype=bool)
     if collar > 0:
         c = int(round(collar / step))
@@ -44,8 +49,15 @@ def der(ref, hyp, step: float = 0.01, collar: float = 0.0) -> dict:
         overlap = R.T.astype(np.int64) @ H.astype(np.int64)
         ri, hi = linear_sum_assignment(-overlap)
         correct = sum((R[:, r] & H[:, h]).astype(int) for r, h in zip(ri, hi))
+        mapped = dict(zip(ri, hi))
     else:
         correct = np.zeros(len(R), dtype=int)
+        mapped = {}
+    names = sorted({s for s, _, _ in ref})
+    hits = 0
+    for s, a, b in ref:
+        votes = H0[int(round(a / step)):int(round(b / step))].sum(0) if H0.shape[1] else np.zeros(0)
+        hits += bool(votes.size and votes.max() > 0 and mapped.get(names.index(s)) == int(votes.argmax()))
     total = n_ref.sum()
     miss = np.maximum(n_ref - n_hyp, 0).sum()
     fa = np.maximum(n_hyp - n_ref, 0).sum()
@@ -57,4 +69,5 @@ def der(ref, hyp, step: float = 0.01, collar: float = 0.0) -> dict:
         "confusion": conf / total,
         "ref_speakers": R.shape[1],
         "hyp_speakers": H.shape[1],
+        "turn_accuracy": hits / max(len(ref), 1),
     }

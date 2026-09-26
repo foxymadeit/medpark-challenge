@@ -35,3 +35,11 @@ def test_read_rttm(tmp_path):
     p = tmp_path / "m.rttm"
     p.write_text("SPEAKER m 1 1.50 2.00 <NA> <NA> FEE005 <NA> <NA>\n")
     assert read_rttm(p) == [("FEE005", 1.5, 3.5)]
+
+
+def test_turn_accuracy_counts_turns_given_to_the_right_person():
+    from eval.der import der
+    ref = [("A", 0.0, 2.0), ("B", 2.0, 4.0), ("A", 4.0, 6.0)]
+    hyp = [("x", 0.0, 2.0), ("y", 2.0, 4.0), ("y", 4.0, 6.0)]  # last turn went to B's label
+    assert abs(der(ref, hyp)["turn_accuracy"] - 2 / 3) < 1e-9
+    assert der(ref, [("x", 0.0, 2.0), ("y", 2.0, 4.0), ("x", 4.0, 6.0)])["turn_accuracy"] == 1.0

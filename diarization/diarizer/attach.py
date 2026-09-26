@@ -6,6 +6,8 @@ Turns and transcript must share a time base (seconds from the start of the
 same recording), which holds for `diarizer file` and Whisper run on that file.
 """
 
+import bisect
+
 
 def load_segments(obj) -> list[dict]:
     """openai-whisper JSON, a bare list (faster-whisper dumps), or whisper.cpp -oj."""
@@ -24,30 +26,41 @@ def load_segments(obj) -> list[dict]:
     return out
 
 
-def _speaker(a: float, b: float, turns, max_gap: float):
-    # ponytail: linear scan per word, about 10M steps for an hour; bisect on sorted starts if it ever shows up
-    overlap, nearest, gap = {}, None, max_gap
-    for t in turns:
-        ov = min(b, t["end"]) - max(a, t["start"])
-        if ov > 0:
-            overlap[t["speaker"]] = overlap.get(t["speaker"], 0.0) + ov
-        elif -ov <= gap:
-            nearest, gap = t["speaker"], -ov
-    return max(overlap, key=overlap.get) if overlap else nearest
+class _Turns:
+    """Turns sorted by start, so each lookup visits only the turns that can
+    touch the interval: O(log T + hits) instead of a scan of every turn."""
+
+    def __init__(self, turns):
+        self.t = sorted(turns, key=lambda t: t["start"])
+        self.starts = [t["start"] for t in self.t]
+        self.longest = max((t["end"] - t["start"] for t in self.t), default=0.0)
+
+    def speaker(self, a: float, b: float, max_gap: float):
+        overlap, nearest, gap = {}, None, max_gap
+        i = bisect.bisect_left(self.starts, b + max_gap)
+        while i > 0 and self.starts[i - 1] >= a - max_gap - self.longest:
+            i -= 1
+            t = self.t[i]
+            ov = min(b, t["end"]) - max(a, t["start"])
+            if ov > 0:
+                overlap[t["speaker"]] = overlap.get(t["speaker"], 0.0) + ov
+            elif -ov <= gap:
+                nearest, gap = t["speaker"], -ov
+        return max(overlap, key=overlap.get) if overlap else nearest
 
 
 def attach(segments, turns, max_gap: float = 2.0) -> list[dict]:
     """[{speaker, start, end, text}] in transcript order. speaker is None when
     no turn is within max_gap seconds (usually noise Whisper wrote down)."""
-    out = []
+    index, out = _Turns(turns), []
     for s in segments:
         if not s.get("words"):
-            out.append({"speaker": _speaker(s["start"], s["end"], turns, max_gap),
+            out.append({"speaker": index.speaker(s["start"], s["end"], max_gap),
                         "start": s["start"], "end": s["end"], "text": s["text"].strip()})
             continue
         runs = []
         for w in s["words"]:
-            spk = _speaker(w["start"], w["end"], turns, max_gap)
+            spk = index.speaker(w["start"], w["end"], max_gap)
             if runs and runs[-1]["speaker"] == spk:
                 runs[-1] = {**runs[-1], "end": w["end"], "text": runs[-1]["text"] + w["word"]}
             else:
