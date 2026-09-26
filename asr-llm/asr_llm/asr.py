@@ -63,11 +63,18 @@ class WhisperAsr:
             compute_type=settings.asr_compute_type,
             cpu_threads=settings.cpu_threads,
         )
+        if settings.asr_joint_languages:
+            _use_joint_language_tokens(settings.asr_joint_languages)
 
     def transcribe_batch(
         self, samples: np.ndarray, prev_lang: str | None = None
     ) -> tuple[str, str | None, list[Hypothesis]]:
         samples = samples.astype(np.float32)
+        if settings.asr_joint_languages:  # one decode, prompted with every language token
+            text, _, score, words = self._decode(samples, settings.asr_joint_languages[0])
+            cyr = sum("Ѐ" <= c <= "ӿ" for c in text) > len(text) / 2
+            language = "ru" if cyr else settings.asr_joint_languages[0]
+            return text, language, [Hypothesis(language=language, text=text, score=score, words=words, source="whisper-joint")] if text else []
         if prev_lang and samples.size < settings.min_lid_s * settings.sample_rate:
             languages = [prev_lang]
         else:
@@ -113,6 +120,20 @@ class WhisperAsr:
     def close(self) -> None:
         self._model = None
         gc.collect()
+
+
+def _use_joint_language_tokens(languages: tuple[str, ...]) -> None:
+    """Prompt Whisper with several language tokens at once (<|ro|><|ru|>) instead of one.
+    Concatenated language tokens were reported to help code-switched speech zero-shot
+    (Peng et al. 2023, arXiv:2305.11095). Patches faster-whisper's start-of-transcript
+    sequence for this process."""
+    from faster_whisper import tokenizer as fw
+
+    def sot_sequence(self) -> list[int]:
+        ids = [self.tokenizer.token_to_id(f"<|{lang}|>") for lang in languages]
+        return [self.sot, *ids, *([self.task] if self.task is not None else [])]
+
+    fw.Tokenizer.sot_sequence = property(sot_sequence)
 
 
 def _biased_score(result: tuple) -> float:

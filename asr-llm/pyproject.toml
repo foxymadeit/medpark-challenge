@@ -10,6 +10,7 @@ dependencies = [
   "numpy>=2.0",
   "pydantic-settings>=2.6",
   "rapidfuzz>=3.6",  # C++ fuzzy matching for the glossary term corrector
+  "wordfreq>=3.1",  # RO/RU/EN word frequencies, bundled offline: the ensemble's lexicon check
 ]
 
 [project.optional-dependencies]

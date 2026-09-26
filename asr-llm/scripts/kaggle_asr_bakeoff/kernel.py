@@ -1,8 +1,15 @@
 """Kaggle T4: which ASR setup the product ships. A wrapper around asr_train.zeroshot
 (same test sets, same scorer) that adds what the zero-shot bench leaves out:
 
-- the product's Whisper pipeline four ways: large-v3 and large-v3-turbo, each with the
-  word-level language merge off and on (asr_llm.asr.merge_words);
+- the product's Whisper pipeline five ways: large-v3 and large-v3-turbo, each with the
+  word-level language merge off and on (asr_llm.asr.merge_words), and large-v3 prompted
+  with both language tokens <|ro|><|ru|> in one decode (arXiv:2305.11095);
+- language specialists on the product's VAD utterances (specialists.py): SpeD-RoASR for
+  Romanian (greedy TDT, greedy CTC, CTC beam with the authors' 6-gram LM), GigaAM-v3 e2e
+  RNNT for Russian, Parakeet-TDT v3 for English, alone and combined per utterance and per
+  span (asr_llm/ensemble.py);
+- LLM error correction of the unclear utterances only, the N-best from every system into
+  the minutes' local model (asr_llm/fuse.py), gated on insertions against the gold;
 - the glossary term corrector (asr_llm/correct.py) applied afterwards to every engine's
   output, scored before and after, so it ships only if it helps;
 - one-hour timing for the Whisper setups (60 min of Medpark audio).
@@ -32,8 +39,18 @@ WORK = Path("/kaggle/working")
 OUT = WORK / "out"
 T0 = time.time()
 WHISPER = {"large-v3": "models/whisper", "turbo": "models/whisper-turbo"}
-VARIANTS = [(m, merge) for m in WHISPER for merge in (False, True)]
-STEPS = ["setup", "smoke", "nemo"] + [f"whisper:{m}{'+merge' if g else ''}" for m, g in VARIANTS] + ["hour:large-v3", "hour:turbo", "correct"]
+VARIANTS = [(m, merge, False) for m in WHISPER for merge in (False, True)] + [("large-v3", False, True)]
+SPECIALISTS = ["cut", "nemo:sped", "nemo:sped-ctc", "nemo:sped-ctc-lm", "nemo:parakeet", "gigaam", "combine", "ger"]
+LLM = "gemma3:12b"  # the minutes' local model; GER runs on the same one
+os.environ.setdefault("BENCH_N", "60")
+
+
+def label(model: str, merge: bool, joint: bool) -> str:
+    return model + ("-merge" if merge else "") + ("-roru-tokens" if joint else "")
+
+
+STEPS = (["setup", "smoke", "nemo"] + [f"whisper:{label(*v)}" for v in VARIANTS]
+         + [f"hour:{m}" for m in WHISPER] + [f"spec:{s}" for s in SPECIALISTS] + ["correct"])
 STATE = {"step": "setup", "done": 0, "last": time.time(), "warnings": []}
 PEAK: dict[str, float] = {}
 
@@ -87,22 +104,61 @@ def step(name: str, fn, *args) -> None:
         STATE["last"] = time.time()
 
 
-def whisper_env(model: str, merge: bool) -> dict:
-    return {**os.environ, "MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16",
-            "MOM_ASR_MODEL_DIR": str(ASR / WHISPER[model]), "MOM_CS_MERGE": str(merge).lower(),
-            "MOM_CORRECT_TERMS": "false"}  # scored raw here; the corrector is measured separately below
+def whisper_env(model: str, merge: bool, joint: bool = False) -> dict:
+    env = {**os.environ, "MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16",
+           "MOM_ASR_MODEL_DIR": str(ASR / WHISPER[model]), "MOM_CS_MERGE": str(merge).lower(),
+           "MOM_CORRECT_TERMS": "false"}  # scored raw here; the corrector is measured separately below
+    if joint:
+        env["MOM_ASR_JOINT_LANGUAGES"] = '["ro", "ru"]'
+    return env
 
 
 BENCH = f"{sys.executable} -m asr_train.zeroshot --work {WORK} --sets all " \
         "--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md"
 
 
-def run_whisper(model: str, merge: bool) -> None:
-    label = model + ("-merge" if merge else "")
-    sh(f"{BENCH} --models whisper", env=whisper_env(model, merge))
-    (OUT / "result_whisper.json").rename(OUT / f"result_whisper-{label}.json")
+def run_whisper(model: str, merge: bool, joint: bool) -> None:
+    name = label(model, merge, joint)
+    sh(f"{BENCH} --models whisper", env=whisper_env(model, merge, joint))
+    (OUT / "result_whisper.json").rename(OUT / f"result_whisper-{name}.json")
     for f in OUT.glob("hyp_whisper_*.json"):
-        f.rename(OUT / f.name.replace("hyp_whisper_", f"hyp_whisper-{label}_"))
+        f.rename(OUT / f.name.replace("hyp_whisper_", f"hyp_whisper-{name}_"))
+
+
+SPEC = f"{sys.executable} scripts/kaggle_asr_bakeoff/specialists.py"
+
+
+def install_ollama() -> None:
+    """The installer ships a .tar.zst and needs zstd; fall back to the release archive."""
+    sh("apt-get -qq update > /dev/null && apt-get -qq install -y zstd pciutils > /dev/null || true")
+    try:
+        sh("curl -fsSL https://ollama.com/install.sh | sh > /tmp/ollama-install.log 2>&1")
+    except subprocess.CalledProcessError:
+        log(Path("/tmp/ollama-install.log").read_text(errors="replace")[-1500:])
+        sh("curl -fsSL https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tar.zst | zstd -d | tar -x -C /usr")
+    env = {**os.environ, "OLLAMA_MODELS": "/tmp/ollama", "OLLAMA_HOST": "127.0.0.1:11434"}
+    subprocess.Popen("ollama serve > /tmp/ollama.log 2>&1", shell=True, env=env)
+    for _ in range(60):
+        if subprocess.run("curl -s 127.0.0.1:11434/api/version", shell=True, capture_output=True).returncode == 0:
+            break
+        time.sleep(1)
+    sh(f"ollama pull {LLM}", env=env)
+
+
+def specialists(stage: str) -> None:
+    if stage == "gigaam":
+        sh("pip install -q git+https://github.com/salute-developers/GigaAM")
+        sh(f"{SPEC} gigaam --work {WORK}")
+    elif stage.startswith("nemo:"):
+        sh(f"{SPEC} nemo --work {WORK} --model {stage.split(':')[1]}")
+    elif stage == "ger":
+        install_ollama()
+        # Ensemble fit scores are 0..1, not log-probabilities: margin, floor and home bias in that scale.
+        env = {**os.environ, "MOM_FUSE_MARGIN": "0.1", "MOM_FUSE_FLOOR": "0.5", "MOM_HOME_BIAS": "0.03"}
+        sh(f"{SPEC} ger --work {WORK} --llm ollama:{LLM}", env=env)
+        subprocess.run(f"ollama rm {LLM}", shell=True)
+    else:
+        sh(f"{SPEC} {stage} --work {WORK}")
 
 
 def time_hour(model: str) -> None:
@@ -149,7 +205,7 @@ def main() -> None:
         def setup():
             sh(f"git clone -q --depth 1 -b samoilov-asr-llm https://github.com/foxymadeit/medpark-challenge {REPO}")
             sh("pip install -q 'nemo_toolkit[asr]' huggingface_hub soundfile pyarrow")
-            sh(f"pip install -q -e '{ASR}[asr]' && python scripts/fetch_whisper.py all")
+            sh(f"pip install -q -e '{ASR}[asr]' wordfreq && python scripts/fetch_whisper.py all")
         step("setup", setup)
 
         def smoke():  # the product pipeline end to end on the synthetic round, smallest setup, before anything long
@@ -158,10 +214,12 @@ def main() -> None:
             log("smoke test passed: " + json.loads((OUT / "smoke_transcript.json").read_text())["text"][:200])
         step("smoke", smoke)
         step("nemo", sh, f"{BENCH} --audio data/Medpark_audio.m4a --models parakeet,canary,jackrabbit")
-        for model, merge in VARIANTS:
-            step(f"whisper:{model}{'+merge' if merge else ''}", run_whisper, model, merge)
+        for model, merge, joint in VARIANTS:
+            step(f"whisper:{label(model, merge, joint)}", run_whisper, model, merge, joint)
         for model in WHISPER:
             step(f"hour:{model}", time_hour, model)
+        for stage in SPECIALISTS:
+            step(f"spec:{stage}", specialists, stage)
         step("correct", correct_all)
     finally:
         report = {"minutes": round((time.time() - T0) / 60, 1), "warnings": STATE["warnings"],

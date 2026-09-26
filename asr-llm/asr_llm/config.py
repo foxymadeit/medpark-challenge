@@ -72,6 +72,8 @@ class Settings(BaseSettings):
     cs_merge: bool = False
     cs_margin: float = 0.25  # mean word probability the other decode must beat the winner by
     cs_min_words: int = 2
+    # Non-empty: one decode prompted with all these language tokens (<|ro|><|ru|>), no per-language decodes.
+    asr_joint_languages: tuple[str, ...] = ()
 
     ffmpeg_bin: str = "ffmpeg"
 
