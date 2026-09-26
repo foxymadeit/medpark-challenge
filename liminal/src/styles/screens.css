@@ -302,7 +302,6 @@
 .summary-points__tools { position: absolute; top: -4px; right: 0; display: flex; gap: 2px; opacity: 0; transition: opacity 120ms; }
 .summary-points__item:hover .summary-points__tools, .summary-points__item:focus-within .summary-points__tools { opacity: 1; }
 .summary-points__input { width: 100%; min-height: 60px; padding: 8px 12px; resize: vertical; font: inherit; }
-.summary-points__add { align-self: flex-start; height: 32px; margin-left: -8px; padding: 0 10px; font-size: 14px; }
 .review__sub-title { margin: 0; color: var(--sm-ink-primary); font: 600 16px/22px var(--sm-font-sign); }
 .record__tasks-title { margin: var(--sm-space-2) 0 var(--sm-space-3); }
 .summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
@@ -361,6 +360,7 @@
   border-top: 1px solid var(--sm-surface-hairline);
   background: var(--sm-surface-panel);
 }
+.action-bar > .btn { min-width: 184px; justify-content: center; } /* Preview and Send the same size */
 .action-bar__left { position: absolute; left: 48px; top: 50%; transform: translateY(-50%); gap: var(--sm-space-2); }
 
 .t-data-md { font: 500 15px/20px var(--sm-font-data); }

@@ -266,10 +266,15 @@ export function Review() {
 
         <section className="card review__pane review__pane--tasks" aria-labelledby="rv-summary" tabIndex={0}>
           {/* The MoM: written summary first, then the tasks. */}
-          <h2 id="rv-summary" className="review__pane-title">
-            {t('review.summary')}
-          </h2>
-          <SummaryPoints points={meeting.summary ?? []} onChange={(points) => setSummary(meeting.id, points)} />
+          <SummaryPoints
+            points={meeting.summary ?? []}
+            onChange={(points) => setSummary(meeting.id, points)}
+            head={
+              <h2 id="rv-summary" className="review__pane-title">
+                {t('review.summary')}
+              </h2>
+            }
+          />
           <div className="summary-head summary-head--tasks">
             <h3 className="review__sub-title">{t('review.tasks')}</h3>
             <button type="button" className="btn btn--ghost summary-head__add" onClick={addTask} disabled={isNew}>
