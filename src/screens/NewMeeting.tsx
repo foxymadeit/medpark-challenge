@@ -1,9 +1,10 @@
-import { CheckIcon, EnvelopeSimpleIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
-import { useState, type KeyboardEvent } from 'react';
+import { CheckIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DatePicker } from '../components/DatePicker';
+import { EmailsField } from '../components/EmailsField';
 import { useI18n } from '../i18n/I18nProvider';
-import { isEmail, todayISO } from '../lib/format';
+import { todayISO } from '../lib/format';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES } from '../types';
 
@@ -12,8 +13,6 @@ export function NewMeeting() {
   const { t } = useI18n();
   const { draft, setDraft, templates } = useStore();
   const navigate = useNavigate();
-  const [emailInput, setEmailInput] = useState('');
-  const [emailError, setEmailError] = useState<string>();
   const selectedTemplate = templates.find((x) => x.id === draft.templateId);
   // Until the user types a name, the template's name (or "Medical meeting") is used.
   const suggestedName = selectedTemplate?.name ?? t('newMeeting.untitled', { type: t(`types.${draft.type}`) });
@@ -25,25 +24,6 @@ export function NewMeeting() {
     // Keeping the suggestion as-is stays "unnamed", so switching template still renames it.
     setDraft({ title: v && v !== suggestedName ? v : undefined });
     setEditingName(false);
-  };
-
-  const commitEmail = () => {
-    const values = emailInput.split(/[\s,;]+/).filter(Boolean);
-    if (!values.length) return;
-    const bad = values.find((v) => !isEmail(v));
-    if (bad) return setEmailError(t('common.emailInvalid'));
-    setDraft({ emails: [...new Set([...draft.emails, ...values])] });
-    setEmailInput('');
-    setEmailError(undefined);
-  };
-
-  const onEmailKey = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      commitEmail();
-    } else if (e.key === 'Backspace' && !emailInput && draft.emails.length) {
-      setDraft({ emails: draft.emails.slice(0, -1) });
-    }
   };
 
   return (
@@ -115,39 +95,7 @@ export function NewMeeting() {
           </p>
         </div>
 
-        <div className="stack" style={{ gap: 8 }}>
-          <label className="t-strong" htmlFor="nm-emails">
-            {t('newMeeting.emails')}
-          </label>
-          <div className="emails-field">
-            <EnvelopeSimpleIcon size={20} aria-hidden />
-            {draft.emails.map((email) => (
-              <span key={email} className="tag emails-field__tag">
-                {email}
-                <button type="button" className="emails-field__remove" aria-label={t('newMeeting.removeEmail', { email })} onClick={() => setDraft({ emails: draft.emails.filter((x) => x !== email) })}>
-                  <XIcon size={12} aria-hidden />
-                </button>
-              </span>
-            ))}
-            <input
-              id="nm-emails"
-              type="email"
-              className="emails-field__input"
-              placeholder={draft.emails.length ? '' : t('newMeeting.emailsPh')}
-              value={emailInput}
-              onChange={(e) => setEmailInput(e.target.value)}
-              onKeyDown={onEmailKey}
-              onBlur={commitEmail}
-              aria-invalid={emailError ? true : undefined}
-              aria-describedby={emailError ? 'nm-email-err' : undefined}
-            />
-          </div>
-          {emailError && (
-            <p id="nm-email-err" className="field__error">
-              {emailError}
-            </p>
-          )}
-        </div>
+        <EmailsField emails={draft.emails} onChange={(emails) => setDraft({ emails })} />
 
         <div className="start-options">
           <button type="button" className="start-tile start-tile--record" onClick={() => navigate('/recording')}>

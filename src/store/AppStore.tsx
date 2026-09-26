@@ -177,8 +177,8 @@ function useStoreValue() {
         transcript: cardioTranscript,
         tasks: materialiseTasks(date, id, cardioTasks),
       };
-      // Name and date belong to this meeting only; the next one starts unnamed, dated today.
-      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined, date: undefined } }));
+      // Name, date and added people belong to this meeting only; the next one starts fresh (type and template stay).
+      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined, date: undefined, emails: [] } }));
       return id;
     },
     [state, snapshot],

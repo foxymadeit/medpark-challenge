@@ -87,6 +87,11 @@
 .emails-field__tag { gap: 4px; padding-right: 2px; }
 .emails-field__remove { display: inline-flex; padding: 4px; border: 0; border-radius: 4px; background: none; color: var(--sm-ink-secondary); }
 .emails-field__remove:hover { background: var(--sm-surface-hairline); }
+.emails-combo { position: relative; }
+.emails-combo__list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30; margin: 0; padding: 4px; list-style: none; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06), 0 24px 48px rgba(16, 16, 16, 0.05); }
+.emails-combo__option { display: flex; align-items: center; gap: var(--sm-space-3); padding: 8px; border-radius: var(--sm-radius-inner); cursor: pointer; }
+.emails-combo__option .who__text { min-width: 0; }
+.emails-combo__option.is-active { background: var(--sm-surface-ground); }
 .start-options { display: flex; gap: var(--sm-space-4); }
 .start-tile {
   min-width: 0;
