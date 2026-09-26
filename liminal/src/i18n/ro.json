@@ -348,7 +348,7 @@
     "voicesToName_one": "{count} voce de identificat",
     "voicesToName_few": "{count} voci de identificat",
     "voicesToName": "{count} de voci de identificat",
-    "transcriptCheck": "Verificați transcrierea",
+    "transcriptCheck": "Revizuiți transcrierea",
     "transcriptHide": "Ascundeți transcrierea"
   },
   "sent": {

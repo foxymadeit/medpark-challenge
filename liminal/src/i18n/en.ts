@@ -281,7 +281,7 @@ export const en = {
     manual: 'Manual',
     auto: 'Auto',
     transcript: 'Transcript',
-    transcriptCheck: 'Check the transcript',
+    transcriptCheck: 'Review the transcript',
     transcriptHide: 'Hide transcript',
     transcriptMeta: '{count} lines',
     transcriptMeta_one: '{count} line',

@@ -355,7 +355,7 @@
     "voicesToName_few": "{count} голоса нужно определить",
     "voicesToName_many": "{count} голосов нужно определить",
     "voicesToName": "{count} голоса нужно определить",
-    "transcriptCheck": "Проверить расшифровку",
+    "transcriptCheck": "Просмотреть расшифровку",
     "transcriptHide": "Скрыть расшифровку"
   },
   "sent": {
