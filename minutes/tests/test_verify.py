@@ -58,3 +58,12 @@ def test_a_number_that_is_not_in_the_evidence_needs_confirmation():
 def test_a_name_that_appears_nowhere_needs_confirmation():
     out = run(Fact("N1", "note", "Dr. Popov a propus RMN cardiac.", ["L0001"], quote="propun RMN cardiac"))
     assert out["N1"].status == "confirm"
+
+
+def test_a_speaker_label_owner_must_be_the_exact_speaker_of_a_cited_line():
+    lines = [Line("L0001", 0, 3, "Speaker 2", "Mă ocup eu de raport până vineri."),
+             Line("L0002", 3, 6, "Speaker 5", "Bine.")]
+    ok = verify([Fact("A1", "action", "Pregătește raportul.", ["L0001"], quote="mă ocup eu de raport", owner="Speaker 2")], lines, "2026-09-24")
+    wrong = verify([Fact("A1", "action", "Pregătește raportul.", ["L0001"], quote="mă ocup eu de raport", owner="Speaker 5")], lines, "2026-09-24")
+    assert ok[0].status == "ok" and wrong[0].status == "confirm"
+    assert verify([Fact("A1", "action", "x", ["L0001"], quote="mă ocup eu de raport", owner="Vorbitorul 2")], lines, "2026-09-24")[0].status == "ok"

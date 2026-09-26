@@ -98,7 +98,13 @@ def _check(f, by_id, meeting_date, known):
                    status=status, problems=problems)
 
 
+_LABEL = re.compile(r"(?:speaker|vorbitor(?:ul)?|спикер|участник|говорящий)\s*(\d+)")
+
+
 def _person_in(person: str, evidence: str, speakers: str) -> bool:
+    label = _LABEL.fullmatch(fold(person))
+    if label:   # "Speaker 2" / "Vorbitorul 2": the very same diarizer label must speak a cited line
+        return label.group(1) in {m.group(1) for m in _LABEL.finditer(speakers)}
     words = [w for w in fold(person).split() if w not in HONORIFICS and len(w) > 2]
     if not words:
         return False
