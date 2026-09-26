@@ -32,3 +32,20 @@ def test_pipeline_helpers_work_without_network(no_network, meeting_audio):
 
     assert batches
     assert "ro | ru | en" in llm_glossary_for("pacient cu hipertensiune")
+
+
+def test_ollama_backend_is_loopback_only(monkeypatch):
+    from asr_llm.config import settings
+    from asr_llm.llm import OllamaLlm, make_llm
+
+    monkeypatch.setattr(settings, "ollama_url", "http://10.0.0.5:11434")
+    with pytest.raises(ValueError, match="must be local"):
+        make_llm("ollama:qwen3.5:9b")
+
+    monkeypatch.setattr(settings, "ollama_url", "http://127.0.0.1:11434")
+    llm = make_llm("ollama:qwen3.5:9b")
+    assert isinstance(llm, OllamaLlm)
+    sent = {}
+    monkeypatch.setattr(llm, "_post", lambda path, body: sent.update(body) or {"message": {"content": '{"ok": 1}'}})
+    assert llm.chat_json("sys", "user", max_tokens=10) == {"ok": 1}
+    assert sent["model"] == "qwen3.5:9b" and sent["format"] == "json"

@@ -40,6 +40,11 @@ class Settings(BaseSettings):
     min_lid_s: float = 1.5
 
     llm_gguf: Path = ASR_ROOT / "models" / "llm" / "qwen2.5-7b-instruct-q4_k_m.gguf"
+    # Minutes/fusion model: "" = llm_gguf, a GGUF path, or "ollama:<name>" (e.g. ollama:qwen3.5:9b).
+    llm_model: str = ""
+    ollama_url: str = "http://127.0.0.1:11434"
+    ollama_timeout_s: float = 600.0
+    ollama_think: bool | str = False  # gpt-oss wants "low" | "medium" | "high"
     llm_language: str = "ro"
     # 12 min of mixed RO/RU/EN plus the glossary does not fit in 4096.
     llm_ctx: int = 8192
@@ -49,7 +54,7 @@ class Settings(BaseSettings):
 
     # Hypothesis fusion: off | single (one LLM, unclear utterances) | debate (every LLM, every utterance).
     fusion: str = "off"
-    fusion_ggufs: list[Path] = []  # debate models; empty = llm_gguf only
+    fusion_models: list[str] = []  # debate models, same format as llm_model; empty = llm_model only
     fuse_margin: float = 0.15  # ro/ru scores closer than this = unclear
     fuse_floor: float = -0.8  # best score below this = unclear
     fuse_window: int = 15

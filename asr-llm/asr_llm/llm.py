@@ -3,6 +3,8 @@ from __future__ import annotations
 import gc
 import json
 from pathlib import Path
+from urllib.parse import urlparse
+from urllib.request import Request, urlopen
 
 from .clean import _fold, ground_minutes
 from .config import settings
@@ -128,17 +130,55 @@ class LocalLlm:
         return ground_minutes(Minutes.model_validate(data), text)
 
     def translate_minutes(self, minutes: Minutes, language: str) -> Minutes:
-        result = self._llm.create_chat_completion(
-            messages=[
-                {"role": "system", "content": TRANSLATE_PROMPT.format(language=language)},
-                {"role": "user", "content": json.dumps(minutes.model_dump(), ensure_ascii=False)},
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.0,
+        data = self.chat_json(
+            TRANSLATE_PROMPT.format(language=language),
+            json.dumps(minutes.model_dump(), ensure_ascii=False),
+            max_tokens=2000,
         )
-        content = result["choices"][0]["message"]["content"]
-        translated = Minutes.model_validate(json.loads(content))
-        return lock_translation(minutes, translated, language)
+        return lock_translation(minutes, Minutes.model_validate(data), language)
+
+
+class OllamaLlm(LocalLlm):
+    """Same minutes/fusion logic, served by a local Ollama (loopback only)."""
+
+    def __init__(self, model: str) -> None:
+        host = urlparse(settings.ollama_url).hostname
+        if host not in {"127.0.0.1", "localhost", "::1"}:
+            raise ValueError(f"Ollama must be local, got {settings.ollama_url}")
+        self.model_id = f"ollama:{model}"
+        self._model = model
+
+    def _post(self, path: str, body: dict) -> dict:
+        req = Request(settings.ollama_url + path, data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
+        with urlopen(req, timeout=settings.ollama_timeout_s) as resp:
+            return json.loads(resp.read())
+
+    def chat_json(self, system: str, user: str, max_tokens: int) -> dict:
+        body = {
+            "model": self._model,
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            "stream": False,
+            "format": "json",
+            "think": settings.ollama_think,
+            "options": {"temperature": 0.1, "num_predict": max_tokens, "num_ctx": settings.llm_ctx},
+        }
+        content = self._post("/api/chat", body)["message"]["content"]
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"LLM returned invalid JSON ({exc})") from exc
+
+    def close(self) -> None:
+        """Unload now, so the next debate model gets the memory."""
+        self._post("/api/generate", {"model": self._model, "keep_alive": 0})
+
+
+def make_llm(spec: str | None = None) -> LocalLlm:
+    """`ollama:<name>` for an Ollama model, a GGUF path, or empty for settings.llm_gguf."""
+    spec = spec if spec is not None else settings.llm_model
+    if spec.startswith("ollama:"):
+        return OllamaLlm(spec.removeprefix("ollama:"))
+    return LocalLlm(Path(spec) if spec else None)
 
 
 def split_windows(segments: list[SpeechSegment], window_s: float) -> list[list[SpeechSegment]]:

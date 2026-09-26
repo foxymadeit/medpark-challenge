@@ -11,7 +11,7 @@ from .clean import collapse_repeat_segments
 from .config import settings
 from .diarization import load_turns, speaker_for, split_at_turns
 from .fuse import fuse_debate, fuse_single
-from .llm import LocalLlm
+from .llm import make_llm
 from .schemas import Minutes, PipelineResult, SpeechSegment, Transcript, format_segments
 from .vad import speech_spans
 
@@ -69,12 +69,12 @@ def fuse_transcript(transcript: Transcript) -> tuple[Transcript, float]:
         return transcript, 0.0
     t0 = time.perf_counter()
     if settings.fusion == "single":
-        llm = LocalLlm()
+        llm = make_llm()
         segments = fuse_single(llm, transcript.segments)
         llm.close()
     elif settings.fusion == "debate":
-        paths = settings.fusion_ggufs or [settings.llm_gguf]
-        loaders = [lambda p=p: LocalLlm(p) for p in paths]
+        specs = settings.fusion_models or [settings.llm_model]
+        loaders = [lambda spec=spec: make_llm(spec) for spec in specs]
         segments = fuse_debate(loaders, transcript.segments, settings.debate_rounds, settings.debate_window)
     else:
         raise ValueError(f"unknown fusion mode {settings.fusion!r}")
@@ -88,7 +88,7 @@ def write_minutes(
     language: str | None = None,
 ) -> tuple[Minutes, float]:
     t0 = time.perf_counter()
-    minutes = LocalLlm().extract_minutes(transcript, meeting_type, language=language)
+    minutes = make_llm().extract_minutes(transcript, meeting_type, language=language)
     return minutes, time.perf_counter() - t0
 
 

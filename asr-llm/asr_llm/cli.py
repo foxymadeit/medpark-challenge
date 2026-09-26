@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from .llm import LocalLlm
+from .llm import make_llm
 from .offline import block_outbound
 from .config import settings
 from .pipeline import fuse_transcript, load_transcript, minutes_from_transcript, run_pipeline
@@ -89,7 +89,7 @@ def _extract_then_translate(
     if not codes:
         raise SystemExit("pass --to-languages, for example ro,ru")
     transcript = load_transcript(transcript_path)
-    llm = LocalLlm()
+    llm = make_llm()
     minutes = llm.extract_minutes(transcript, meeting_type, language=language)
     payload = {
         "minutes": minutes.model_dump(),
@@ -110,7 +110,7 @@ def _translate_minutes(path: Path, languages: str, out: Path | None) -> None:
     raw = json.loads(path.read_text(encoding="utf-8"))
     payload = raw["minutes"] if isinstance(raw, dict) and "minutes" in raw else raw
     source = Minutes.model_validate(payload)
-    llm = LocalLlm()
+    llm = make_llm()
     translated = {code: llm.translate_minutes(source, code).model_dump() for code in codes}
     text = json.dumps(translated, indent=2, ensure_ascii=False)
     if out:
