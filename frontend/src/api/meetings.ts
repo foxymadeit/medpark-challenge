@@ -386,11 +386,65 @@ export async function saveTemplate(
     return value;
   });
 }
+export async function saveMeetingAsTemplate(
+  meeting: Meeting,
+  accountRole: "admin" | "staff",
+): Promise<MeetingTemplate> {
+  return saveTemplate(
+    {
+      name: `${meeting.title} template`,
+      meetingType: meeting.type,
+      defaultTitle: meeting.title,
+      participantStaffIds: [
+        ...new Set(
+          meeting.participantSnapshots?.map(
+            (participant) => participant.staffId,
+          ) ??
+            meeting.participants.map(
+              (participant) => participant.staffId ?? participant.id,
+            ),
+        ),
+      ],
+      agendaTopics: structuredClone(meeting.agendaTopics ?? []),
+      active: true,
+    },
+    accountRole,
+  );
+}
+export async function deactivateTemplate(
+  id: string,
+  accountRole: "admin" | "staff",
+): Promise<MeetingTemplate> {
+  if (accountRole !== "admin") throw new ApiError("unauthorized");
+  if (!DEMO_MODE)
+    return request(`/templates/${encodeURIComponent(id)}/deactivate`, {
+      method: "POST",
+    });
+  return mutate((store) => {
+    const template = store.templates.find((item) => item.id === id);
+    if (!template) throw new ApiError("notFound");
+    template.active = false;
+    template.updatedAt = new Date().toISOString();
+    return template;
+  });
+}
 export async function getVoiceProfiles(): Promise<VoiceProfile[]> {
   return DEMO_MODE ? readStore().voiceProfiles : request("/voice-profiles");
 }
 export async function getSpeakerClusters(): Promise<DetectedSpeakerCluster[]> {
   return DEMO_MODE ? readStore().speakerClusters : request("/speaker-clusters");
+}
+export async function getSpeakerSample(
+  clusterId: string,
+): Promise<Blob | undefined> {
+  if (DEMO_MODE) return undefined;
+  const response = await fetch(
+    `/api/speaker-clusters/${encodeURIComponent(clusterId)}/sample`,
+    { credentials: "include" },
+  );
+  if (response.status === 404) return undefined;
+  if (!response.ok) throw new ApiError("requestFailed");
+  return response.blob();
 }
 export async function identifySpeakerCluster(
   clusterId: string,
@@ -415,18 +469,6 @@ export async function identifySpeakerCluster(
       ? "voice_profile_ready"
       : "identified_without_voice_profile";
     return cluster;
-  });
-}
-export async function addPerson(
-  person: Pick<Participant, "name" | "email">,
-): Promise<Participant> {
-  if (!person.name.trim()) throw new ApiError("required");
-  if (!DEMO_MODE)
-    return request("/people", { method: "POST", body: JSON.stringify(person) });
-  return mutate((s) => {
-    const p = { ...person, name: person.name.trim(), id: crypto.randomUUID() };
-    s.people.push(p);
-    return p;
   });
 }
 export async function enrollVoice(id: string, blob: Blob): Promise<void> {

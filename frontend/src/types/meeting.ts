@@ -79,6 +79,31 @@ export interface MeetingParticipantSnapshot {
   departmentAtMeeting: string;
   speakerId?: string;
 }
+export interface MeetingDelivery {
+  id: string;
+  meetingId: string;
+  subject: string;
+  body: string;
+  recipients: Pick<
+    MeetingParticipantSnapshot,
+    "staffId" | "nameAtMeeting" | "emailAtMeeting"
+  >[];
+  attachmentFilename: string;
+  status: "draft" | "sending" | "sent" | "failed";
+  sentAt?: string;
+}
+export interface MeetingArtifact {
+  id: string;
+  meetingId: string;
+  type:
+    | "minutes_docx"
+    | "minutes_pdf"
+    | "transcript_txt"
+    | "speakers_rttm"
+    | "recording";
+  filename: string;
+  createdAt: string;
+}
 export interface VoiceProfile {
   id: string;
   staffId: string;
@@ -184,6 +209,8 @@ export interface Meeting {
   reviewState?: ReviewState;
   templateId?: string;
   agendaTopics?: AgendaTopic[];
+  delivery?: MeetingDelivery;
+  artifacts?: MeetingArtifact[];
 }
 export interface CreateMeetingInput {
   title: string;

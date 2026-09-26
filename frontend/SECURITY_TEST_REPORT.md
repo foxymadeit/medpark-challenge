@@ -1,4 +1,4 @@
-# Secure MOM frontend security test
+# Liminal frontend security test
 
 Date: 2026-09-26. Scope: the local `frontend/` application and its demo data. No external host, production service, real account, or real patient recording was tested.
 

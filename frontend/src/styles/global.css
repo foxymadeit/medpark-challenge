@@ -136,6 +136,9 @@
   margin: 0;
   overflow-wrap: anywhere;
 }
+.recipient-line {
+  display: block;
+}
 .email-body-field textarea {
   resize: vertical;
   min-height: 180px;

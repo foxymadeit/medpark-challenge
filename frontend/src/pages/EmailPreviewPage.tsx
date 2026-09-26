@@ -7,7 +7,7 @@ import {
   downloadMinutesDocx,
   minutesDocxFilename,
 } from "../api/docx";
-import { sendNow } from "../api/meetings";
+import { sendNow, updateMeeting } from "../api/meetings";
 import Button from "../components/Button";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
@@ -35,8 +35,30 @@ export default function EmailPreviewPage() {
     return <Navigate to={`/meetings/${meeting.id}/minutes`} replace />;
 
   const date = new Date(meeting.createdAt).toLocaleDateString(i18n.language);
-  const subject = `${meeting.title} — ${t("minutes")} — ${date}`;
-  const generatedBody = t("emailPreviewBody", { title: meeting.title, date });
+  const subject = `${t("minutes")} — ${meeting.title} — ${date}`;
+  const participantNames = meeting.participantSnapshots
+    ?.map((person) => person.nameAtMeeting)
+    .join(", ");
+  const decisions = meeting.decisions
+    ?.map((decision, index) => `${index + 1}. ${decision.text}`)
+    .join("\n");
+  const actions = meeting.actionItems
+    ?.map((item) => {
+      const owner =
+        meeting.participantSnapshots?.find(
+          (person) => person.staffId === item.ownerStaffId,
+        )?.nameAtMeeting ?? t("unassigned");
+      return `• ${item.task} — ${owner} — ${item.deadline ?? t("noDeadline")}`;
+    })
+    .join("\n");
+  const generatedBody = t("emailPreviewBody", {
+    title: meeting.title,
+    date,
+    participants: participantNames || "—",
+    summary: meeting.summary || "—",
+    decisions: decisions || "—",
+    actions: actions || "—",
+  });
   const body = bodyOverride ?? generatedBody;
 
   async function handleSend() {
@@ -45,6 +67,36 @@ export default function EmailPreviewPage() {
     setActionError("");
     try {
       await createMinutesDocx(meeting!);
+      const attachmentFilename = minutesDocxFilename(meeting!);
+      await updateMeeting(meeting!.id, {
+        delivery: {
+          id: meeting!.delivery?.id ?? crypto.randomUUID(),
+          meetingId: meeting!.id,
+          subject,
+          body,
+          recipients: meeting!.participantSnapshots!.map(
+            ({ staffId, nameAtMeeting, emailAtMeeting }) => ({
+              staffId,
+              nameAtMeeting,
+              emailAtMeeting,
+            }),
+          ),
+          attachmentFilename,
+          status: "sending",
+        },
+        artifacts: [
+          ...(meeting!.artifacts ?? []).filter(
+            (artifact) => artifact.type !== "minutes_docx",
+          ),
+          {
+            id: crypto.randomUUID(),
+            meetingId: meeting!.id,
+            type: "minutes_docx",
+            filename: attachmentFilename,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      });
       await sendNow(meeting!.id);
       navigate(`/meetings/${meeting!.id}/minutes`);
     } catch (reason) {
@@ -72,7 +124,16 @@ export default function EmailPreviewPage() {
         <dl className="email-preview-meta">
           <div>
             <dt>{t("to")}</dt>
-            <dd>{recipients.join(", ") || t("emailUnavailable")}</dd>
+            <dd>
+              {meeting.participantSnapshots?.length
+                ? meeting.participantSnapshots.map((person) => (
+                    <span className="recipient-line" key={person.staffId}>
+                      {person.nameAtMeeting} &lt;
+                      {person.emailAtMeeting || t("emailUnavailable")}&gt;
+                    </span>
+                  ))
+                : t("emailUnavailable")}
+            </dd>
           </div>
           <div>
             <dt>{t("subject")}</dt>

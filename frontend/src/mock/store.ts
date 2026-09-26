@@ -217,6 +217,10 @@ export function advanceStore(
       m.status = "sent";
       m.deliveryState = "sent";
       m.sentAt = new Date(Date.parse(m.sendingStartedAt) + 800).toISOString();
+      if (m.delivery) {
+        m.delivery.status = "sent";
+        m.delivery.sentAt = m.sentAt;
+      }
       changed = true;
     }
   }

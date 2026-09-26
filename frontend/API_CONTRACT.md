@@ -1,4 +1,4 @@
-# Secure MOM v2 — local API contract
+# Liminal — local API contract
 
 The existing React + TypeScript + Vite client uses `src/api/meetings.ts` for all meeting, participant, audio, and delivery operations. Pages do not access browser storage. `src/api/client.ts` provides relative `/api` requests with `credentials: include`, generic errors and a 20-second timeout. Real authentication uses `/api/auth/login`, `/api/auth/me`, and `/api/auth/logout`.
 
@@ -41,7 +41,9 @@ Types are defined in `src/types/meeting.ts`:
 - Department: `medical | executive | administrative`.
 - Status: `draft | recording | uploaded | processing | sending_soon | ready | sending | sent | stopped | failed`.
 - Meeting includes `sendMode: manual | auto`, `reviewState: not_ready | needs_review | reviewed`, title, timestamps, input mode, participants, distribution list, audio metadata, decisions, summary, action items, raw transcript, speaker timeline, progress, and scheduled/sent timestamps.
-- Participant includes an immutable ID, display name, optional staff email/role/department, speaker ID/slot, enrollment state and measured speaking seconds.
+- `UserAccount`, `StaffProfile`, temporal `StaffRoleAssignment`, and immutable `MeetingParticipantSnapshot` are separate concepts. Historical meetings and exports render snapshots.
+- `VoiceProfile` and `DetectedSpeakerCluster` are separate from staff identity. An unidentified cluster is never inferred from a staff member without enrollment.
+- `MeetingTemplate` stores staff IDs and reusable setup data; each created meeting snapshots its setup and participants.
 - Action item includes immutable ID, task, nullable participant owner, nullable deadline, completion flag and optional source timestamp. Unresolved fields stay null.
 - Transcript segments include original spoken text, speaker ID or null, start/end seconds and optional language. Preserve code-switching and the original speech; normalize terminology only in structured minutes.
 
@@ -72,8 +74,21 @@ Types are defined in `src/types/meeting.ts`:
 | POST `/api/meetings/{id}/stop-send`           | —                                                           | Updated `Meeting`; atomically cancel unsent job                                        |
 | GET `/api/action-items`                       | Optional future filters                                     | `{meetingId,actionItem}[]`; current UI derives these from meetings                     |
 | GET `/api/people`                             | —                                                           | Staff `Participant[]`                                                                  |
-| POST `/api/people`                            | `{name,email?}`                                             | Created staff participant                                                              |
+| GET `/api/voice-profiles`                     | —                                                           | Enrolled `VoiceProfile[]`                                                              |
+| GET `/api/speaker-clusters`                   | —                                                           | Detected speaker clusters                                                              |
+| GET `/api/speaker-clusters/{id}/sample`       | —                                                           | Audio snippet or 404; UI never fabricates playback                                     |
+| POST `/api/speaker-clusters/{id}/identify`    | `{staffId}`                                                 | Human-confirmed cluster identity                                                       |
 | POST `/api/people/{id}/voice-enrollment`      | Multipart `audio`                                           | 204; store local enrollment metadata                                                   |
+| GET `/api/templates`                          | —                                                           | Active templates                                                                       |
+| GET `/api/templates/{id}`                     | —                                                           | Template                                                                               |
+| POST/PATCH `/api/templates[/{id}]`            | Template setup metadata                                     | ADMIN-only create/update                                                               |
+| POST `/api/templates/{id}/deactivate`         | —                                                           | ADMIN-only deactivation                                                                |
+| GET `/api/admin`                              | —                                                           | ADMIN-only users, staff, roles and distribution lists                                  |
+| POST `/api/admin/users`                       | Account fields                                              | ADMIN-only account creation                                                            |
+| PATCH `/api/admin/users/{id}`                 | `{active}`                                                  | ADMIN-only account activation                                                          |
+| POST/PATCH `/api/admin/people[/{id}]`         | Official staff fields                                       | ADMIN-only staff creation/update/deactivation                                          |
+| POST `/api/admin/people/{id}/roles`           | `{title,department,validFrom}`                              | ADMIN-only temporal role assignment; closes current role                               |
+| PATCH `/api/admin/lists/{id}`                 | Distribution-list fields                                    | ADMIN-only list management                                                             |
 | GET `/api/system`                             | —                                                           | `{local:boolean,services:[{id,available}]}` for `asr,speakers,automation,mail,storage` |
 | GET `/api/capabilities`                       | —                                                           | `{autoModeAvailable:false}` until Auto is released                                     |
 
@@ -116,6 +131,6 @@ Tests cover authenticated routing, demo credentials, language persistence, origi
 
 ## Account and participant boundary
 
-`GET /api/auth/me` returns the authenticated **account** (`AuthUser`), including `role: "admin" | "user"`. `GET /api/people` returns **staff/participants** (`Participant[]`). These are distinct models and must never share a current-user variable. The demo admin is Administrator / AD; Elena Ciobanu is only a participant. Adding or enrolling a participant cannot change the authenticated account. The frontend hides and guards System for non-admins; the server must also authorize its endpoint.
+`GET /api/auth/me` returns the authenticated **account** (`AuthUser`), including `role: "admin" | "staff"`. `GET /api/people` returns active official staff available for selection. These models must never share a current-user variable. The demo admin is Administrator / AD; Elena Ciobanu is only a participant. The server must enforce every Admin and template write permission; hidden frontend controls are not authorization.
 
 Demo delivery transitions `ready/sending_soon → sending → sent`, with a persisted 800 ms simulated delivery phase. Reopening reconciles elapsed timestamps; this does not send email. Backend scheduling, retries, delivery receipts and idempotency belong to the local server.

@@ -27,6 +27,7 @@ describe("application flows", () => {
   it("keeps the signed-out page free of participant data and supports keyboard login", async () => {
     const user = userEvent.setup();
     mount("/login", false);
+    expect(screen.queryByText(/Secure MOM/i)).toBeNull();
     expect(screen.queryByText("Elena Ciobanu")).toBeNull();
     expect(screen.queryByText("Dr. Ana Popescu")).toBeNull();
     const username = screen.getByLabelText("Username");
@@ -164,6 +165,10 @@ describe("application flows", () => {
       "Demo delivery simulated locally. No email was sent.",
     );
     expect(screen.queryByRole("button", { name: "Send now" })).toBeNull();
+    expect((await getMeeting("meeting-001")).delivery).toMatchObject({
+      status: "sent",
+      attachmentFilename: expect.stringMatching(/Minutes\.docx$/),
+    });
   });
   it("keeps voice profiles separate from unidentified speaker clusters", async () => {
     mount("/people");
@@ -196,6 +201,7 @@ describe("application flows", () => {
   it("handles history search and missing meetings without a blank page", async () => {
     const view = mount("/history");
     await screen.findByLabelText("Search meetings, people or words said");
+    expect(view.container.querySelector(".department-tile")).toBeNull();
     fireEvent.change(
       screen.getByLabelText("Search meetings, people or words said"),
       { target: { value: "no such meeting" } },

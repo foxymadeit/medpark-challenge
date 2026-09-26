@@ -12,7 +12,6 @@ import {
   stopScheduledSend,
   sendNow,
   getTranscript,
-  addPerson,
   enrollVoice,
   getRecording,
   saveRecording,
@@ -22,6 +21,7 @@ import {
   getSystem,
   getTemplates,
   saveTemplate,
+  saveMeetingAsTemplate,
 } from "../src/api/meetings";
 import { advanceStore, readStore, writeStore } from "../src/mock/store";
 import { invalidMinutes } from "../src/api/validation";
@@ -100,6 +100,23 @@ describe("demo workflow with no network", () => {
         (participant) => participant.staffId === "ana",
       ),
     ).toEqual(original);
+  });
+  it("saves only reusable meeting setup as an admin template", async () => {
+    const meeting = await create();
+    meeting.agendaTopics = [
+      { id: "topic-1", text: "Reusable topic", order: 0 },
+    ];
+    const template = await saveMeetingAsTemplate(meeting, "admin");
+    expect(template).toMatchObject({
+      meetingType: "medical",
+      defaultTitle: "Test board",
+      participantStaffIds: expect.arrayContaining(["ana"]),
+      agendaTopics: [{ id: "topic-1", text: "Reusable topic", order: 0 }],
+    });
+    expect(template).not.toHaveProperty("transcript");
+    await expect(saveMeetingAsTemplate(meeting, "staff")).rejects.toThrow(
+      "unauthorized",
+    );
   });
   it("creates a meeting, persists processing, and waits for explicit review and send", async () => {
     vi.useFakeTimers();
@@ -300,7 +317,10 @@ describe("demo workflow with no network", () => {
     const blob = new Blob(["audio fixture"], { type: "audio/webm" });
     await saveRecording(m.id, blob);
     expect(await getRecording(m.id)).toBeDefined();
-    const p = await addPerson({ name: "Test staff member" });
+    const p = await saveStaffProfile(
+      { name: "Test staff member", email: "voice.test@medpark.local" },
+      "admin",
+    );
     await enrollVoice(p.id, blob);
     expect((await getPeople()).find((x) => x.id === p.id)).toMatchObject({
       enrolled: true,

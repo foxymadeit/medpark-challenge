@@ -6,6 +6,7 @@ import {
   getPeople,
   getSpeakerClusters,
   getVoiceProfiles,
+  getSpeakerSample,
   identifySpeakerCluster,
 } from "../api/meetings";
 import { notifyUpdate, useData } from "../hooks/useData";
@@ -21,6 +22,26 @@ export default function PeoplePage() {
   const [identifying, setIdentifying] = useState<string>();
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState("");
+  async function playSample(clusterId: string) {
+    setActionError("");
+    try {
+      const sample = await getSpeakerSample(clusterId);
+      if (!sample) throw new Error("sampleUnavailable");
+      const url = URL.createObjectURL(sample);
+      const audio = new Audio(url);
+      audio.onended = () => URL.revokeObjectURL(url);
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        setActionError("sampleUnavailable");
+      };
+      await audio.play();
+    } catch (reason) {
+      setActionError(
+        reason instanceof Error ? reason.message : "requestFailed",
+      );
+    }
+  }
   if (!people.data || !profiles.data || !clusters.data)
     return (
       <StatePanel
@@ -95,7 +116,10 @@ export default function PeoplePage() {
                 {Math.floor(cluster.speakingSeconds / 60)}:
                 {String(cluster.speakingSeconds % 60).padStart(2, "0")}
               </span>
-              <Button disabled={!cluster.sampleAvailable}>
+              <Button
+                disabled={!cluster.sampleAvailable}
+                onClick={() => void playSample(cluster.id)}
+              >
                 <FiPlay /> {t("playSample")}
               </Button>
               {person ? (
@@ -144,11 +168,21 @@ export default function PeoplePage() {
                 disabled={busy}
                 onClick={async () => {
                   setBusy(true);
-                  await identifySpeakerCluster(activeCluster.id, person.id);
-                  setBusy(false);
-                  setIdentifying(undefined);
-                  clusters.refresh();
-                  notifyUpdate();
+                  setActionError("");
+                  try {
+                    await identifySpeakerCluster(activeCluster.id, person.id);
+                    setIdentifying(undefined);
+                    clusters.refresh();
+                    notifyUpdate();
+                  } catch (reason) {
+                    setActionError(
+                      reason instanceof Error
+                        ? reason.message
+                        : "requestFailed",
+                    );
+                  } finally {
+                    setBusy(false);
+                  }
                 }}
               >
                 <strong>{person.name}</strong>
@@ -160,6 +194,11 @@ export default function PeoplePage() {
             <p className="muted">{t("personNotFoundAdmin")}</p>
           )}
         </Modal>
+      )}
+      {actionError && (
+        <p className="error" role="alert">
+          {t(actionError, { defaultValue: t("requestFailed") })}
+        </p>
       )}
     </>
   );

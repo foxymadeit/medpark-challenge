@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { getPeople, getTemplate, saveTemplate } from "../api/meetings";
+import {
+  deactivateTemplate,
+  getPeople,
+  getTemplate,
+  saveTemplate,
+} from "../api/meetings";
 import { useData } from "../hooks/useData";
 import { useAuth } from "../auth/useAuth";
 import { departments } from "../api/config";
@@ -28,6 +33,7 @@ export default function TemplateEditorPage() {
   const [topics, setTopics] = useState("");
   const [recurrence, setRecurrence] = useState("");
   const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState("");
   useEffect(() => {
     if (template.data) {
       // Populate the editable draft when the persisted template arrives.
@@ -124,30 +130,38 @@ export default function TemplateEditorPage() {
             disabled={busy || !name.trim()}
             onClick={async () => {
               setBusy(true);
-              const saved = await saveTemplate(
-                {
-                  id,
-                  name,
-                  meetingType: type,
-                  defaultTitle: title,
-                  participantStaffIds: participants,
-                  agendaTopics: topics
-                    .split("\n")
-                    .filter(Boolean)
-                    .map((text, order) => ({
-                      id: crypto.randomUUID(),
-                      text: text.trim(),
-                      order,
-                    })),
-                  recurrence: recurrence
-                    ? { type: "custom", label: recurrence }
-                    : undefined,
-                  active: true,
-                },
-                user.role,
-              );
-              setBusy(false);
-              navigate(`/templates/${saved.id}/edit`);
+              setActionError("");
+              try {
+                const saved = await saveTemplate(
+                  {
+                    id,
+                    name,
+                    meetingType: type,
+                    defaultTitle: title,
+                    participantStaffIds: participants,
+                    agendaTopics: topics
+                      .split("\n")
+                      .filter(Boolean)
+                      .map((text, order) => ({
+                        id: crypto.randomUUID(),
+                        text: text.trim(),
+                        order,
+                      })),
+                    recurrence: recurrence
+                      ? { type: "custom", label: recurrence }
+                      : undefined,
+                    active: true,
+                  },
+                  user.role,
+                );
+                navigate(`/templates/${saved.id}/edit`);
+              } catch (reason) {
+                setActionError(
+                  reason instanceof Error ? reason.message : "requestFailed",
+                );
+              } finally {
+                setBusy(false);
+              }
             }}
           >
             {t("save")}
@@ -155,7 +169,34 @@ export default function TemplateEditorPage() {
           <Link className="button secondary" to="/templates">
             {t("cancel")}
           </Link>
+          {id && (
+            <Button
+              variant="danger"
+              disabled={busy}
+              onClick={() => {
+                setBusy(true);
+                setActionError("");
+                void deactivateTemplate(id, user.role)
+                  .then(() => navigate("/templates"))
+                  .catch((reason: unknown) =>
+                    setActionError(
+                      reason instanceof Error
+                        ? reason.message
+                        : "requestFailed",
+                    ),
+                  )
+                  .finally(() => setBusy(false));
+              }}
+            >
+              {t("deactivateTemplate")}
+            </Button>
+          )}
         </div>
+        {actionError && (
+          <p className="error" role="alert">
+            {t(actionError, { defaultValue: t("requestFailed") })}
+          </p>
+        )}
       </section>
     </>
   );

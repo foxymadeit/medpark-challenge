@@ -7,7 +7,6 @@ import { departments } from "../api/config";
 import { meetingUrl } from "../utils";
 import StatePanel from "../components/StatePanel";
 import StatusTag from "../components/StatusTag";
-import DepartmentTile from "../components/DepartmentTile";
 import InputField from "../components/InputField";
 import { formatTime } from "../utils";
 export default function HistoryPage() {
@@ -81,7 +80,6 @@ export default function HistoryPage() {
           rows.map((m) => (
             <Link className="history-row" key={m.id} to={meetingUrl(m)}>
               <div className="history-title">
-                <DepartmentTile type={m.type} />
                 <strong>{m.title}</strong>
               </div>
               <span className="mono">

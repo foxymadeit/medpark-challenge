@@ -156,7 +156,7 @@ const resources = {
       attachment: "Attachment",
       emailBody: "Message",
       emailPreviewBody:
-        "Hello,\n\nPlease find attached the minutes for {{title}}, held on {{date}}.\n\nRegards,\nLiminal",
+        "Hello,\n\nPlease find attached the minutes for {{title}}, held on {{date}}.\n\nParticipants:\n{{participants}}\n\nSummary:\n{{summary}}\n\nDecisions:\n{{decisions}}\n\nAction items:\n{{actions}}\n\nRegards,\nLiminal",
       downloadWord: "Download Word",
       invalidRecipient:
         "Every participant needs a valid email address before sending.",
@@ -167,7 +167,9 @@ const resources = {
       comingLater: "Coming later",
       templates: "Templates",
       newTemplate: "New template",
+      saveAsTemplate: "Save as template",
       editTemplate: "Edit template",
+      deactivateTemplate: "Deactivate template",
       templateName: "Template name",
       meetingType: "Meeting type",
       defaultMeetingTitle: "Default meeting title",
@@ -275,6 +277,7 @@ const resources = {
       voicesToIdentify: "Voices to identify",
       identifyPerson: "Identify person",
       playSample: "Play sample",
+      sampleUnavailable: "This voice sample is not available.",
       identifiedManually: "Identified manually",
       voiceProfileNotEnrolled: "Voice profile not enrolled",
       searchStaff: "Search staff",
@@ -329,7 +332,7 @@ const resources = {
       deliveryFailed: "Minutes are ready but weren't sent",
       deliveryFailedDetail:
         "Local mail could not reach {{list}}. Your minutes remain available.",
-      deliveryRetryThirty: "Secure MOM tries again every 30 seconds.",
+      deliveryRetryThirty: "Liminal tries again every 30 seconds.",
       printMinutes: "Print / save PDF",
       downloadPdf: "Download PDF",
       transcriptionStopped: "Transcription stopped at minute 12",
@@ -513,7 +516,7 @@ const resources = {
       attachment: "Atașament",
       emailBody: "Mesaj",
       emailPreviewBody:
-        "Bună ziua,\n\nGăsiți atașat procesul-verbal pentru {{title}}, desfășurată la {{date}}.\n\nCu respect,\nLiminal",
+        "Bună ziua,\n\nGăsiți atașat procesul-verbal pentru {{title}}, desfășurată la {{date}}.\n\nParticipanți:\n{{participants}}\n\nRezumat:\n{{summary}}\n\nDecizii:\n{{decisions}}\n\nSarcini:\n{{actions}}\n\nCu respect,\nLiminal",
       downloadWord: "Descarcă Word",
       invalidRecipient:
         "Fiecare participant trebuie să aibă o adresă de email validă înainte de trimitere.",
@@ -524,7 +527,9 @@ const resources = {
       comingLater: "Disponibil ulterior",
       templates: "Șabloane",
       newTemplate: "Șablon nou",
+      saveAsTemplate: "Salvează ca șablon",
       editTemplate: "Editează șablonul",
+      deactivateTemplate: "Dezactivează șablonul",
       templateName: "Numele șablonului",
       meetingType: "Tipul ședinței",
       defaultMeetingTitle: "Titlul implicit al ședinței",
@@ -632,6 +637,7 @@ const resources = {
       voicesToIdentify: "Voci de identificat",
       identifyPerson: "Identifică persoana",
       playSample: "Redă mostra",
+      sampleUnavailable: "Această mostră vocală nu este disponibilă.",
       identifiedManually: "Identificată manual",
       voiceProfileNotEnrolled: "Profil vocal neînregistrat",
       searchStaff: "Caută personal",
@@ -684,8 +690,7 @@ const resources = {
       deliveryFailed: "Procesul-verbal este gata, dar nu a fost trimis",
       deliveryFailedDetail:
         "Emailul local nu a putut contacta {{list}}. Procesul-verbal rămâne disponibil.",
-      deliveryRetryThirty:
-        "Secure MOM încearcă din nou la fiecare 30 de secunde.",
+      deliveryRetryThirty: "Liminal încearcă din nou la fiecare 30 de secunde.",
       printMinutes: "Tipărește / salvează PDF",
       downloadPdf: "Descarcă PDF",
       transcriptionStopped: "Transcrierea s-a oprit la minutul 12",
@@ -867,7 +872,7 @@ const resources = {
       attachment: "Вложение",
       emailBody: "Сообщение",
       emailPreviewBody:
-        "Здравствуйте,\n\nВо вложении протокол совещания {{title}}, состоявшегося {{date}}.\n\nС уважением,\nLiminal",
+        "Здравствуйте,\n\nВо вложении протокол совещания {{title}}, состоявшегося {{date}}.\n\nУчастники:\n{{participants}}\n\nРезюме:\n{{summary}}\n\nРешения:\n{{decisions}}\n\nЗадачи:\n{{actions}}\n\nС уважением,\nLiminal",
       downloadWord: "Скачать Word",
       invalidRecipient:
         "Перед отправкой у каждого участника должен быть действительный адрес электронной почты.",
@@ -878,7 +883,9 @@ const resources = {
       comingLater: "Позже",
       templates: "Шаблоны",
       newTemplate: "Новый шаблон",
+      saveAsTemplate: "Сохранить как шаблон",
       editTemplate: "Изменить шаблон",
+      deactivateTemplate: "Деактивировать шаблон",
       templateName: "Название шаблона",
       meetingType: "Тип совещания",
       defaultMeetingTitle: "Название совещания по умолчанию",
@@ -986,6 +993,7 @@ const resources = {
       voicesToIdentify: "Голоса для идентификации",
       identifyPerson: "Определить человека",
       playSample: "Воспроизвести образец",
+      sampleUnavailable: "Этот образец голоса недоступен.",
       identifiedManually: "Определено вручную",
       voiceProfileNotEnrolled: "Голосовой профиль не зарегистрирован",
       searchStaff: "Поиск сотрудников",
@@ -1040,7 +1048,7 @@ const resources = {
       deliveryFailed: "Протокол готов, но не отправлен",
       deliveryFailedDetail:
         "Локальная почта не смогла связаться с {{list}}. Протокол остаётся доступным.",
-      deliveryRetryThirty: "Secure MOM повторяет попытку каждые 30 секунд.",
+      deliveryRetryThirty: "Liminal повторяет попытку каждые 30 секунд.",
       printMinutes: "Печать / сохранить PDF",
       downloadPdf: "Скачать PDF",
       transcriptionStopped: "Расшифровка остановилась на 12-й минуте",

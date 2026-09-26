@@ -1,4 +1,4 @@
-# Secure MOM v2 implementation and validation
+# Liminal implementation and validation
 
 ## Result
 
@@ -11,7 +11,7 @@ Manual delivery is now the default: processing ends in review, corrections are s
 ## Verification
 
 - `npm run build`: passed.
-- `npm test`: 48 passed, 6 files.
+- `npm test`: see the current final validation report; the suite covers six test files.
 - `npm run lint`: passed.
 - `git diff --check`: passed.
 - Auth: normalized login, rejection, logout, stale-session handling, Administrator identity, account/participant separation and non-admin System guard.
@@ -28,7 +28,7 @@ Desktop screenshots confirmed Meetings, History, People, System, New Meeting (Me
 
 The initial retry failed because Vite was no longer listening on port 5173. Brave retained the previous rendered page in memory, so its URL changed while the content stayed stale. Restarting Vite outside the sandbox restored normal navigation. A separate Chrome attempt had also failed with ScreenCaptureKit error -3811 (audio/video capture failure), but Brave now captures correctly.
 
-The latest Figma metadata and design context were re-read for the Screens root, S02 Meetings and S03 Start a Medical meeting. They confirm the Secure MOM wordmark, the three-item top navigation, shorter department doors, helper copy, simplified start screen and deferred participant confirmation. The current environment exposed no browser surface for a new screenshot pass; responsive behavior is covered by existing component tests and CSS review. Real microphone capture was not started because that requires hardware permission. No merge into Coflazo-Branch was attempted.
+The current product wordmark is Liminal. The implementation uses the official local SVG asset and a reusable `LiminalLogo`. Responsive behavior is covered by component tests and CSS review. Real microphone capture still requires hardware permission and must be verified on the deployment machine.
 
 ## Prototype and backend boundary
 
@@ -71,7 +71,6 @@ Paths below are relative to `frontend/`; they include earlier uncommitted v2 wor
 - `src/auth/useAuth.ts`
 - `src/components/ActionItem.tsx`
 - `src/components/ActionItemRow.tsx`
-- `src/components/AddPerson.tsx`
 - `src/components/Button.tsx`
 - `src/components/DepartmentDoor.tsx`
 - `src/components/DepartmentTile.tsx`

@@ -8,7 +8,8 @@ import {
 } from "../src/auth/demoSession";
 import { AuthContext } from "../src/auth/useAuth";
 import AdminRoute from "../src/auth/AdminRoute";
-import { addPerson, getPeople } from "../src/api/meetings";
+import { getPeople } from "../src/api/meetings";
+import { saveStaffProfile } from "../src/api/admin";
 import { readStore, writeStore } from "../src/mock/store";
 import i18n from "../src/i18n/i18n";
 describe("account separation and translations", () => {
@@ -39,7 +40,10 @@ describe("account separation and translations", () => {
     const store = readStore();
     store.people.find((p) => p.id === "elena")!.email = "admin@medpark.local";
     writeStore(store);
-    await addPerson({ name: "Another participant" });
+    await saveStaffProfile(
+      { name: "Another participant", email: "another@medpark.local" },
+      "admin",
+    );
     expect((await getPeople()).find((p) => p.id === "elena")?.email).not.toBe(
       before?.email,
     );
@@ -53,7 +57,7 @@ describe("account separation and translations", () => {
             id: "staff",
             name: "Staff",
             email: "staff@medpark.local",
-            role: "user",
+            role: "staff",
           },
           loading: false,
           error: "",
