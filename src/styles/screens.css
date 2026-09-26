@@ -247,7 +247,9 @@
 .review__pane--transcript:not(.is-open) { padding-block: var(--sm-space-4); }
 .review__disclosure { display: flex; align-items: center; gap: var(--sm-space-3); width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .review__disclosure-meta { font-weight: 400; letter-spacing: 0; }
-.review__disclosure-caret { margin-left: auto; color: var(--sm-ink-secondary); transition: transform 150ms; }
+.review__disclosure-action { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; color: var(--sm-ink-primary); font: 600 15px/20px var(--sm-font-body); letter-spacing: 0; white-space: nowrap; }
+.review__disclosure:hover .review__disclosure-action { text-decoration: underline; text-underline-offset: 3px; }
+.review__disclosure-caret { color: var(--sm-ink-secondary); transition: transform 150ms; }
 .review__pane--transcript.is-open .review__disclosure-caret { transform: rotate(180deg); }
 .review__transcript-body { display: flex; flex-direction: column; gap: var(--sm-space-4); }
 .transcript { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }
