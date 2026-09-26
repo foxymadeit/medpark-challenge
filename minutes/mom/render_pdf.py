@@ -10,6 +10,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 from . import latexcheck
@@ -21,6 +22,18 @@ LANG_TAG = {"ro": "ro-MD", "ru": "ru", "en": "en-GB"}
 RERUN = re.compile(r"Rerun to get|Label\(s\) may have changed|Table widths have changed|may have changed\. Rerun")
 
 
+def creation_date(now: datetime | None = None) -> str:
+    """PDF/A needs a creation date. XeTeX before 2019 has no \\creationdate, and
+    pdfx then stops with "CreationDate is not properly supported" (Kaggle's
+    TeX Live did). Give it one, only where the engine has none; SOURCE_DATE_EPOCH
+    keeps builds reproducible when set."""
+    epoch = os.environ.get("SOURCE_DATE_EPOCH")
+    now = now or (datetime.fromtimestamp(int(epoch), timezone.utc) if epoch else datetime.now(timezone.utc))
+    stamp = now.astimezone(timezone.utc).strftime("D:%Y%m%d%H%M%S+00'00'")
+    return (f"\\ifdefined\\pdfcreationdate\\else\\ifdefined\\creationdate\\else"
+            f"\\def\\pdfcreationdate{{\\string {stamp}}}\\fi\\fi")
+
+
 def tex_source(meeting: Meeting, body: str, lang: str, model: str, verified: str) -> str:
     e = latexcheck.escape
     time = f"{e(meeting.start)}--{e(meeting.end)}" if meeting.start and meeting.end else e(meeting.start)
@@ -29,7 +42,8 @@ def tex_source(meeting: Meeting, body: str, lang: str, model: str, verified: str
             "model": model, "verified": verified}
     if meeting.quorum:
         sets["quorum"] = meeting.quorum
-    lines = [f"\\def\\momtemplatedir{{{TEMPLATE.as_posix()}/}}", "\\documentclass{medpark-mom}", f"\\momlanguage{{{lang}}}"]
+    lines = [creation_date(), f"\\def\\momtemplatedir{{{TEMPLATE.as_posix()}/}}", "\\documentclass{medpark-mom}",
+             f"\\momlanguage{{{lang}}}"]
     lines += [f"\\momset{{{k}}}{{{v if k == 'time' else e(v)}}}" for k, v in sets.items()]  # time is pre-escaped
     lines += ["\\begin{document}", "\\begin{minutes}", _attendance(meeting), body.strip()]
     if meeting.next_meeting and "\\nextmeeting" not in body:
