@@ -29,21 +29,12 @@ export async function shot(page: Page, name: string) {
   await page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true });
 }
 
-export async function login(page: Page) {
-  await page.goto("/login");
-  await page.getByLabel("Email or username").fill("admin@medpark.local");
-  await page.getByLabel("Password").fill("correct horse battery");
-  await page.getByLabel("Password").press("Enter");
-  await page.waitForURL("**/meetings");
-}
-
 /** Upload a recording as a new meeting and wait until the minutes page. */
 export async function uploadMeeting(
   page: Page,
   type: "medical" | "executive",
   onProcessing?: () => Promise<void>,
 ) {
-  await login(page);
   await page.goto(`/meetings/new/${type}?mode=upload`);
   await expect(
     page.getByRole("checkbox", { name: /Send automatically/ }),

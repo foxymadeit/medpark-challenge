@@ -17,15 +17,7 @@ const TYPES = {
   ".svg": "image/svg+xml",
   ".woff2": "font/woff2",
 };
-const USER = {
-  id: "u1",
-  email: "admin@medpark.local",
-  name: "Administrator",
-  role: "admin",
-  initials: "AD",
-};
 const meetings = new Map();
-let session = null;
 
 const iso = (ms = 0) => new Date(Date.now() + ms).toISOString();
 function send(res, status, body, headers = {}) {
@@ -168,35 +160,6 @@ function settle(m) {
 }
 
 const routes = [
-  [
-    "POST",
-    /^\/api\/auth\/login$/,
-    async (req, res) => {
-      const b = await body(req);
-      if (b.email !== USER.email || b.password !== "correct horse battery")
-        return send(res, 401, { error: "invalid" });
-      session = randomUUID();
-      send(res, 200, USER, {
-        "Set-Cookie": `sid=${session}; HttpOnly; SameSite=Strict; Path=/`,
-      });
-    },
-  ],
-  [
-    "GET",
-    /^\/api\/auth\/me$/,
-    (req, res) =>
-      session && req.headers.cookie?.includes(session)
-        ? send(res, 200, USER)
-        : send(res, 401, {}),
-  ],
-  [
-    "POST",
-    /^\/api\/auth\/logout$/,
-    (req, res) => {
-      session = null;
-      send(res, 204);
-    },
-  ],
   [
     "GET",
     /^\/api\/routing$/,

@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import { getMeetings } from "../api/meetings";
 import { departments } from "../api/config";
 import { useData } from "../hooks/useData";
-import { useAuth } from "../auth/useAuth";
 import DepartmentDoor from "../components/DepartmentDoor";
 import { useRouting } from "../hooks/useRouting";
 import MeetingList from "../components/MeetingList";
@@ -20,13 +19,12 @@ import Button from "../components/Button";
 export default function MeetingsPage() {
   const { t } = useTranslation();
   const routing = useRouting();
-  const { user } = useAuth();
   const { data, error, refresh } = useData(getMeetings);
   const [choose, setChoose] = useState<false | "record" | "upload">(false);
   if (!data) return <StatePanel error={error} retry={refresh} />;
   const actions = data.flatMap((m) =>
     (m.actionItems ?? [])
-      .filter((a) => !a.completed && a.ownerStaffId === user?.staffProfileId)
+      .filter((a) => !a.completed)
       .map((item) => ({ meeting: m, item })),
   );
   return (
@@ -58,7 +56,7 @@ export default function MeetingsPage() {
           <div className="dashboard-columns">
             <section>
               <div className="section-heading">
-                <h2>{t("myActions")}</h2>
+                <h2>{t("openActions")}</h2>
                 <small>{t("openCount", { count: actions.length })}</small>
               </div>
               <div className="panel">

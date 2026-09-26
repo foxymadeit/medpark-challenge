@@ -304,7 +304,6 @@ svg {
 .warning {
   color: #b86a00;
 }
-.login-timeout,
 .offline-banner {
   display: flex;
   align-items: flex-start;
@@ -601,27 +600,6 @@ svg {
   color: var(--sm-ink-secondary);
 }
 
-.timeout-login {
-  min-height: 100vh;
-  padding: 22px 64px;
-  background: var(--sm-surface-ground);
-}
-.timeout-brand {
-  font: 600 18px var(--sm-heading);
-}
-.timeout-login .login-panel {
-  width: 440px;
-  max-width: calc(100vw - 32px);
-  margin: 174px auto 0;
-  padding: 32px;
-}
-.timeout-login .login-panel .button {
-  width: 100%;
-}
-.timeout-login .login-timeout {
-  font-size: 13px;
-}
-
 .upload-problems-card {
   width: 720px;
   max-width: 100%;
@@ -774,12 +752,6 @@ svg {
     max-width: calc(100vw - 32px);
     white-space: normal;
   }
-  .timeout-login {
-    padding: 18px 16px;
-  }
-  .timeout-login .login-panel {
-    margin-top: 80px;
-  }
 }
 .panel {
   background: var(--sm-surface-panel);
@@ -926,18 +898,25 @@ svg {
   color: white;
   background: var(--sm-ink-primary);
 }
-.account-wrap {
+.admin-menu-wrap {
   position: relative;
 }
-.account {
+.admin-menu-button {
   width: 36px;
   height: 36px;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
   border: 0;
   background: var(--sm-surface-ground);
-  font-weight: 600;
+  color: var(--sm-ink-primary);
 }
-.account-menu {
+@media (hover: hover) and (pointer: fine) {
+  .admin-menu-button:hover {
+    background: #efece6;
+  }
+}
+.admin-menu {
   position: absolute;
   z-index: 20;
   right: 0;
@@ -950,17 +929,6 @@ svg {
   box-shadow: var(--sm-lift);
   display: grid;
   gap: 12px;
-}
-.account-who {
-  display: grid;
-  gap: 2px;
-}
-.account-who p,
-.account-who small {
-  margin: 0;
-}
-.account-who small {
-  color: var(--sm-ink-secondary);
 }
 .mobile-tabs,
 .mobile-dashboard {
@@ -1322,47 +1290,6 @@ textarea {
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-}
-.login-layout {
-  max-width: 1440px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: 1fr 520px;
-  gap: 100px;
-  align-items: center;
-  padding: 136px 64px 100px;
-}
-.login-layout > h1 {
-  max-width: 520px;
-  font-size: 40px;
-  line-height: 46px;
-  letter-spacing: -1.2px;
-}
-.login-panel {
-  padding: 48px;
-}
-.login-panel h2 {
-  font-size: 28px;
-  margin: 0 0 72px;
-}
-.login-panel .form-field {
-  margin-bottom: 32px;
-}
-.login-panel > .button {
-  width: 100%;
-  margin-top: 32px;
-}
-.login-note {
-  border-top: 1px solid var(--sm-surface-hairline);
-  padding-top: 24px;
-  margin: 24px 0 0;
-  display: flex;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--sm-ink-secondary);
-}
-.login-note svg {
-  color: var(--sm-dept-medical);
 }
 .recording-grid {
   display: grid;
@@ -2287,17 +2214,6 @@ blockquote {
   .record-timer {
     font-size: 52px;
   }
-  .login-layout {
-    gap: 64px;
-    grid-template-columns: 1fr 460px;
-    padding: 100px 48px;
-  }
-  .login-layout > h1 {
-    font-size: 34px;
-  }
-  .login-panel {
-    padding: 40px;
-  }
 }
 @media (max-width: 900px) {
   .desktop-nav {
@@ -2311,10 +2227,9 @@ blockquote {
   .top-right {
     gap: 8px;
   }
-  .account {
+  .admin-menu-button {
     width: 30px;
     height: 30px;
-    font-size: 12px;
   }
   .language-switcher button {
     min-width: 32px;
@@ -2389,21 +2304,6 @@ blockquote {
   }
   .person-row strong {
     gap: 12px;
-  }
-  .login-layout {
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-    padding: 80px 32px;
-  }
-  .login-panel {
-    padding: 28px;
-  }
-  .login-panel h2 {
-    margin-bottom: 48px;
-  }
-  .login-layout > h1 {
-    font-size: 30px;
-    line-height: 38px;
   }
   .action-row {
     grid-template-columns: 22px 1fr 130px 80px 28px;
@@ -2633,30 +2533,6 @@ blockquote {
   }
   .page-footer > .button {
     width: 100%;
-  }
-  .login-layout {
-    padding: 36px 20px;
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-  .login-layout > h1 {
-    font-size: 28px;
-    line-height: 34px;
-    max-width: 360px;
-    margin: 0;
-  }
-  .login-panel {
-    padding: 28px;
-  }
-  .login-panel h2 {
-    margin-bottom: 32px;
-    font-size: 24px;
-  }
-  .login-panel > .button {
-    margin-top: 8px;
-  }
-  .login-panel .form-field {
-    margin-bottom: 24px;
   }
   .selected-file {
     padding: 20px;

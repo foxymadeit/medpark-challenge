@@ -1,4 +1,4 @@
-"""SQLite storage for Liminal: accounts, sessions, the job queue, and JSON
+"""SQLite storage for Liminal: the audit trail, the job queue, and JSON
 documents (meetings, people, templates and the rest of the frontend's model).
 
 One file, WAL mode, a single process. Every read-modify-write that changes a
@@ -17,18 +17,14 @@ from pathlib import Path
 DATA = Path(os.getenv("LIMINAL_DATA", Path(__file__).resolve().parent / "data"))
 
 SCHEMA = """
-CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL COLLATE NOCASE, username TEXT, name TEXT NOT NULL,
-  role TEXT NOT NULL, password_hash TEXT NOT NULL, staff_profile_id TEXT,
-  active INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, created_by TEXT NOT NULL);
-CREATE TABLE IF NOT EXISTS sessions (
-  token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL, created_at REAL NOT NULL, last_seen REAL NOT NULL);
-CREATE TABLE IF NOT EXISTS login_failures (key TEXT NOT NULL, at REAL NOT NULL);
-CREATE INDEX IF NOT EXISTS login_failures_key ON login_failures(key, at);
+-- Liminal once had accounts; a database from then drops their password hashes and sessions.
+DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS login_failures;
+DROP TABLE IF EXISTS users;
 CREATE TABLE IF NOT EXISTS docs (
   kind TEXT NOT NULL, id TEXT NOT NULL, data TEXT NOT NULL, updated_at REAL NOT NULL, PRIMARY KEY (kind, id));
 CREATE TABLE IF NOT EXISTS audit (
-  id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, user_id TEXT, method TEXT NOT NULL, route TEXT NOT NULL,
+  id INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, method TEXT NOT NULL, route TEXT NOT NULL,
   meeting_id TEXT, status INTEGER NOT NULL, address TEXT);
 CREATE TRIGGER IF NOT EXISTS audit_no_update BEFORE UPDATE ON audit BEGIN SELECT RAISE(ABORT, 'the audit trail is append-only'); END;
 CREATE TRIGGER IF NOT EXISTS audit_no_delete BEFORE DELETE ON audit BEGIN SELECT RAISE(ABORT, 'the audit trail is append-only'); END;
@@ -52,6 +48,7 @@ def db() -> sqlite3.Connection:
         con.execute("PRAGMA foreign_keys=ON")
         con.executescript(SCHEMA)
         os.chmod(DATA / "liminal.db", 0o600)
+        (DATA / "initial-admin-password.txt").unlink(missing_ok=True)   # left by the old first start
         _local.con, _local.path = con, DATA
     return con
 

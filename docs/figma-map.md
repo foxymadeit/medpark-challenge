@@ -30,7 +30,7 @@ retired); S15 and S16 keep their codes so older notes stay valid.
 
 | Frame | ID | Route | Page component |
 |---|---|---|---|
-| S01 Sign in | `6:2` | `/login` | `LoginPage` |
+| S01 Sign in | `6:2` | none: there is no sign-in; `/login` goes to `/meetings` | none |
 | S02 Meetings | `6:57` | `/meetings` | `MeetingsPage` |
 | S03 Start a Medical meeting | `6:189` | `/meetings/new/:department` | `NewMeetingPage` |
 | S04 Recording | `8:164` | `/meetings/:id/record` | `RecordingPage` |
@@ -94,7 +94,7 @@ retired); S15 and S16 keep their codes so older notes stay valid.
 | X04 Upload problems | `51:1484` | `/meetings/:id/upload` |
 | X05 Service not answering | `51:1550` | Banner on any page (`/api/system` reports a service down) |
 | X06 Page not found | `52:1481` | `*` (`NotFoundPage`) |
-| X07 Signed out | `52:1515` | `/login` after the 30-minute inactivity sign-out |
+| X07 Signed out | `52:1515` | none: there is no sign-in, so nobody is signed out |
 | X08 Meetings, first day | `52:1535` | `/meetings` with no meetings yet |
 | X09 Waiting in line | `52:1588` | `/meetings/:id/processing` while queued |
 | X10 Sending stopped | `52:1639` | `/meetings/:id/minutes` after Stop sending |

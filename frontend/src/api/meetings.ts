@@ -230,9 +230,7 @@ export async function uploadRecording(
 }
 export async function getRecording(id: string): Promise<Blob | undefined> {
   if (DEMO_MODE) return getAudio(id);
-  const r = await fetch(`/api${path(id)}/recording`, {
-    credentials: "include",
-  });
+  const r = await fetch(`/api${path(id)}/recording`);
   if (!r.ok) return undefined;
   return r.blob();
 }
@@ -461,9 +459,7 @@ export async function saveTemplate(
     MeetingTemplate,
     "id" | "createdAt" | "updatedAt" | "createdBy"
   > & { id?: string },
-  accountRole: "admin" | "staff",
 ): Promise<MeetingTemplate> {
-  if (accountRole !== "admin") throw new ApiError("unauthorized");
   const participantIds = [...new Set(input.participantStaffIds)];
   if (
     !input.name.trim() ||
@@ -494,7 +490,7 @@ export async function saveTemplate(
       id: existing?.id ?? crypto.randomUUID(),
       name: input.name.trim(),
       participantStaffIds: participantIds,
-      createdBy: existing?.createdBy ?? "demo-admin",
+      createdBy: existing?.createdBy ?? "network",
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     };
@@ -505,34 +501,26 @@ export async function saveTemplate(
 }
 export async function saveMeetingAsTemplate(
   meeting: Meeting,
-  accountRole: "admin" | "staff",
 ): Promise<MeetingTemplate> {
-  return saveTemplate(
-    {
-      name: `${meeting.title} template`,
-      meetingType: meeting.type,
-      defaultTitle: meeting.title,
-      participantStaffIds: [
-        ...new Set(
-          meeting.participantSnapshots?.map(
-            (participant) => participant.staffId,
-          ) ??
-            meeting.participants.map(
-              (participant) => participant.staffId ?? participant.id,
-            ),
-        ),
-      ],
-      agendaTopics: structuredClone(meeting.agendaTopics ?? []),
-      active: true,
-    },
-    accountRole,
-  );
+  return saveTemplate({
+    name: `${meeting.title} template`,
+    meetingType: meeting.type,
+    defaultTitle: meeting.title,
+    participantStaffIds: [
+      ...new Set(
+        meeting.participantSnapshots?.map(
+          (participant) => participant.staffId,
+        ) ??
+          meeting.participants.map(
+            (participant) => participant.staffId ?? participant.id,
+          ),
+      ),
+    ],
+    agendaTopics: structuredClone(meeting.agendaTopics ?? []),
+    active: true,
+  });
 }
-export async function deactivateTemplate(
-  id: string,
-  accountRole: "admin" | "staff",
-): Promise<MeetingTemplate> {
-  if (accountRole !== "admin") throw new ApiError("unauthorized");
+export async function deactivateTemplate(id: string): Promise<MeetingTemplate> {
   if (!DEMO_MODE)
     return request(`/templates/${encodeURIComponent(id)}/deactivate`, {
       method: "POST",
@@ -557,7 +545,6 @@ export async function getSpeakerSample(
   if (DEMO_MODE) return undefined;
   const response = await fetch(
     `/api/speaker-clusters/${encodeURIComponent(clusterId)}/sample`,
-    { credentials: "include" },
   );
   if (response.status === 404) return undefined;
   if (!response.ok) throw new ApiError("requestFailed");
@@ -659,7 +646,8 @@ export async function getSystem(): Promise<SystemState> {
 /** One entry of the server's append-only audit trail (never any content). */
 export interface AuditRow {
   at: string;
-  user?: string | null;
+  /** The network address the request came from. */
+  address?: string | null;
   method: string;
   route: string;
   meetingId?: string | null;
@@ -678,8 +666,6 @@ const AUDIT_ACTIONS: [RegExp, string][] = [
   [/\/documents\//, "audit_document"],
   [/\/transcript$/, "audit_transcript"],
   [/\/(minutes|actions\/|review)/, "audit_edit"],
-  [/\/auth\/login$/, "audit_login"],
-  [/\/auth\/logout$/, "audit_logout"],
   [/\/(admin|templates|people)/, "audit_admin"],
 ];
 /** The translation key that says, in plain words, what an audit entry was. */

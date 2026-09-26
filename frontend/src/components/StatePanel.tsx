@@ -60,11 +60,8 @@ export default function StatePanel({
       {error && (
         <div className="button-row">
           {retry && <Button onClick={retry}>{t("retry")}</Button>}
-          <Link
-            className="button secondary"
-            to={error === "unauthorized" ? "/login" : "/meetings"}
-          >
-            {t(error === "unauthorized" ? "signIn" : "backMeetings")}
+          <Link className="button secondary" to="/meetings">
+            {t("backMeetings")}
           </Link>
         </div>
       )}

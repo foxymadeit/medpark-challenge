@@ -2,12 +2,10 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getPeople, getTemplates } from "../api/meetings";
 import { useData } from "../hooks/useData";
-import { useAuth } from "../auth/useAuth";
 import StatePanel from "../components/StatePanel";
 
 export default function TemplatesPage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const templates = useData(getTemplates);
   const people = useData(getPeople);
   if (!templates.data || !people.data)
@@ -25,11 +23,9 @@ export default function TemplatesPage() {
     <>
       <div className="section-heading spread">
         <h1>{t("templates")}</h1>
-        {user?.role === "admin" && (
-          <Link className="button primary" to="/templates/new">
-            {t("newTemplate")}
-          </Link>
-        )}
+        <Link className="button primary" to="/templates/new">
+          {t("newTemplate")}
+        </Link>
       </div>
       <div className="template-grid">
         {templates.data.map((template) => {
@@ -80,14 +76,12 @@ export default function TemplatesPage() {
                 ))}
               </div>
               <div className="button-row">
-                {user?.role === "admin" && (
-                  <Link
-                    className="button secondary"
-                    to={`/templates/${template.id}/edit`}
-                  >
-                    {t("edit")}
-                  </Link>
-                )}
+                <Link
+                  className="button secondary"
+                  to={`/templates/${template.id}/edit`}
+                >
+                  {t("edit")}
+                </Link>
                 <Link
                   className={`button primary ${unavailable.length ? "disabled" : ""}`}
                   aria-disabled={Boolean(unavailable.length)}

@@ -3,7 +3,6 @@ import { FiCheckCircle, FiMail, FiCopy } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { markReviewed, saveMeetingAsTemplate } from "../api/meetings";
-import { useAuth } from "../auth/useAuth";
 import { notifyUpdate } from "../hooks/useData";
 import type { Meeting } from "../types/meeting";
 import Button from "./Button";
@@ -26,7 +25,6 @@ function waitingFor(m: Meeting): string {
 export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const reviewed = meeting.reviewState === "reviewed";
@@ -80,13 +78,13 @@ export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
         >
           <FiMail /> {t("previewEmail")}
         </Button>
-        {reviewed && user?.role === "admin" && (
+        {reviewed && (
           <Button
             disabled={busy}
             onClick={() => {
               setBusy(true);
               setError("");
-              void saveMeetingAsTemplate(meeting, user.role)
+              void saveMeetingAsTemplate(meeting)
                 .then((template) => navigate(`/templates/${template.id}/edit`))
                 .catch((reason: unknown) =>
                   setError(

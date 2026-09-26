@@ -1,19 +1,19 @@
 """The /api routes the Liminal web app calls (frontend/API_CONTRACT.md).
 
-Every route but login needs a session. Meetings are visible to the person
-who created them and to administrators. The server owns statuses, the
-distribution list, speaker identities and delivery; the browser only asks.
+There are no accounts: every page on the hospital network can use every
+route, and every meeting is visible to all (security.py says what limits
+access instead). The server owns statuses, the distribution list, speaker
+identities and delivery; the browser only asks.
 """
 
 import os
 import re
-import secrets
 import shutil
 import uuid
 from datetime import date
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, Header, HTTPException, Request, Response, UploadFile
+from fastapi import APIRouter, File, Header, HTTPException, Response, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
@@ -23,7 +23,7 @@ import delivery
 import jobs
 import security
 import store
-from security import current_user, now_iso, require_admin
+from security import NETWORK, now_iso
 
 router = APIRouter(prefix="/api")
 TYPES = ("medical", "executive", "administrative")
@@ -34,11 +34,6 @@ _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 
 # ---------------------------------------------------------------- models
-class Login(BaseModel):
-    email: str = Field(max_length=254)
-    password: str = Field(max_length=256)
-
-
 class CreateMeeting(BaseModel):
     title: str = Field(min_length=1, max_length=120)
     type: str
@@ -91,15 +86,15 @@ def _distribution(meeting_type: str) -> list[str]:
     return delivery.recipients(meeting_type) if (lst is None or lst.get("active", True)) else []
 
 
-def meeting_for(meeting_id: str, user: dict) -> dict:
+def meeting_for(meeting_id: str) -> dict:
     m = store.get("meetings", meeting_id)
-    if m is None or (user["role"] != "admin" and m.get("createdBy") != user["id"]):
+    if m is None:
         raise HTTPException(404, "Meeting not found.")
     return m
 
 
-def _update(meeting_id: str, user: dict, change) -> dict:
-    meeting_for(meeting_id, user)
+def _update(meeting_id: str, change) -> dict:
+    meeting_for(meeting_id)
     return store.update("meetings", meeting_id, change)
 
 
@@ -118,38 +113,19 @@ def _locked(m: dict) -> None:
         raise HTTPException(409, "The minutes have already been sent.")
 
 
-# ---------------------------------------------------------------- auth
-@router.post("/auth/login")
-def login(body: Login, request: Request, response: Response):
-    return security.login(request, response, body.email, body.password)
-
-
-@router.get("/auth/me")
-def me(user: dict = Depends(current_user)):
-    return security.public_user(user)
-
-
-@router.post("/auth/logout", status_code=204)
-def logout(request: Request, response: Response):
-    security.logout(request, response)
-    response.status_code = 204
-    return response
-
-
 # ---------------------------------------------------------------- meetings
 @router.get("/meetings")
-def list_meetings(user: dict = Depends(current_user)):
-    ms = [m for m in store.all_docs("meetings") if user["role"] == "admin" or m.get("createdBy") == user["id"]]
-    return sorted(ms, key=lambda m: m["createdAt"], reverse=True)
+def list_meetings():
+    return sorted(store.all_docs("meetings"), key=lambda m: m["createdAt"], reverse=True)
 
 
 @router.post("/meetings", status_code=201)
-def create_meeting(body: CreateMeeting, user: dict = Depends(current_user)):
+def create_meeting(body: CreateMeeting):
     if body.type not in TYPES or body.inputMode not in ("record", "upload"):
         raise HTTPException(422, "Unknown meeting type or input mode.")
     participants = [_participant(p, i) for i, p in enumerate(body.participants)]
     m = {"id": str(uuid.uuid4()), "title": body.title.strip(), "type": body.type, "status": "draft",
-         "createdAt": now_iso(), "createdBy": user["id"], "inputMode": body.inputMode,
+         "createdAt": now_iso(), "createdBy": NETWORK["id"], "inputMode": body.inputMode,
          "participants": participants, "participantSnapshots": [_snapshot(p, body.type) for p in participants],
          "distributionList": _distribution(body.type), "agendaTopics": body.agendaTopics,
          "sendMode": "auto" if delivery.AUTO_AVAILABLE else "manual", "reviewState": "not_ready",
@@ -160,12 +136,12 @@ def create_meeting(body: CreateMeeting, user: dict = Depends(current_user)):
 
 
 @router.get("/meetings/{meeting_id}")
-def get_meeting(meeting_id: str, user: dict = Depends(current_user)):
-    return meeting_for(meeting_id, user)
+def get_meeting(meeting_id: str):
+    return meeting_for(meeting_id)
 
 
 @router.patch("/meetings/{meeting_id}")
-def patch_meeting(meeting_id: str, changes: dict, user: dict = Depends(current_user)):
+def patch_meeting(meeting_id: str, changes: dict):
     def change(m):
         for key, value in changes.items():
             if key == "status":
@@ -191,11 +167,11 @@ def patch_meeting(meeting_id: str, changes: dict, user: dict = Depends(current_u
                     continue
                 m[key] = value
             # everything else (ids, statuses, minutes, delivery) is server-owned and ignored
-    return _update(meeting_id, user, change)
+    return _update(meeting_id, change)
 
 
-def _store_audio(meeting_id: str, user: dict, upload: UploadFile, *, measure: bool) -> dict:
-    m = meeting_for(meeting_id, user)
+def _store_audio(meeting_id: str, upload: UploadFile, *, measure: bool) -> dict:
+    m = meeting_for(meeting_id)
     if m["status"] not in CLIENT_STATUSES + ("failed",):
         raise HTTPException(409, "This meeting already has its minutes.")
     saved = audio.save(upload, jobs.work_dir(meeting_id), measure=measure)
@@ -209,20 +185,20 @@ def _store_audio(meeting_id: str, user: dict, upload: UploadFile, *, measure: bo
 
 
 @router.post("/meetings/{meeting_id}/recording", status_code=204)
-def save_recording(meeting_id: str, audio_file: UploadFile = File(alias="audio"), user: dict = Depends(current_user)):
-    _store_audio(meeting_id, user, audio_file, measure=False)   # checkpoints: measured when processing starts
+def save_recording(meeting_id: str, audio_file: UploadFile = File(alias="audio")):
+    _store_audio(meeting_id, audio_file, measure=False)   # checkpoints: measured when processing starts
     return Response(status_code=204)
 
 
 @router.post("/meetings/{meeting_id}/upload", status_code=204)
-def upload(meeting_id: str, audio_file: UploadFile = File(alias="audio"), user: dict = Depends(current_user)):
-    _store_audio(meeting_id, user, audio_file, measure=True)
+def upload(meeting_id: str, audio_file: UploadFile = File(alias="audio")):
+    _store_audio(meeting_id, audio_file, measure=True)
     return Response(status_code=204)
 
 
 @router.get("/meetings/{meeting_id}/recording")
-def get_recording(meeting_id: str, user: dict = Depends(current_user)):
-    meeting_for(meeting_id, user)
+def get_recording(meeting_id: str):
+    meeting_for(meeting_id)
     path = next(jobs.work_dir(meeting_id).glob("audio.*"), None)
     if path is None:
         raise HTTPException(404, "No recording yet.")
@@ -230,8 +206,8 @@ def get_recording(meeting_id: str, user: dict = Depends(current_user)):
 
 
 @router.post("/meetings/{meeting_id}/process")
-def process(meeting_id: str, user: dict = Depends(current_user)):
-    m = meeting_for(meeting_id, user)
+def process(meeting_id: str):
+    m = meeting_for(meeting_id)
     path = next(jobs.work_dir(meeting_id).glob("audio.*"), None)
     if path is None:
         raise HTTPException(409, "Record or upload the meeting first.")
@@ -250,21 +226,21 @@ def process(meeting_id: str, user: dict = Depends(current_user)):
 
 
 @router.get("/meetings/{meeting_id}/processing")
-def processing(meeting_id: str, user: dict = Depends(current_user)):
-    return meeting_for(meeting_id, user)
+def processing(meeting_id: str):
+    return meeting_for(meeting_id)
 
 
 @router.get("/meetings/{meeting_id}/minutes")
-def minutes(meeting_id: str, user: dict = Depends(current_user)):
-    return meeting_for(meeting_id, user)
+def minutes(meeting_id: str):
+    return meeting_for(meeting_id)
 
 
 @router.patch("/meetings/{meeting_id}/minutes")
-def patch_minutes(meeting_id: str, body: MinutesPatch, user: dict = Depends(current_user)):
+def patch_minutes(meeting_id: str, body: MinutesPatch):
     def change(m):
         _locked(m)
         if body.summary is not None:
-            corrections.record(meeting_id, "summary", "summary", m.get("summary"), body.summary.strip(), user)
+            corrections.record(meeting_id, "summary", "summary", m.get("summary"), body.summary.strip())
             m["summary"] = body.summary.strip()
         if body.decisions is not None:
             before = {d["id"]: d.get("text") for d in m.get("decisions") or []}
@@ -277,16 +253,16 @@ def patch_minutes(meeting_id: str, body: MinutesPatch, user: dict = Depends(curr
             for d in decisions:
                 _resolve(m, d["id"])
                 if d["id"] in before:
-                    corrections.record(meeting_id, d["id"], "text", before[d["id"]], d["text"], user)
+                    corrections.record(meeting_id, d["id"], "text", before[d["id"]], d["text"])
             for gone in old - {d["id"] for d in decisions}:
                 _resolve(m, gone)
             m["decisions"] = decisions
         _restart_window(m)
-    return _update(meeting_id, user, change)
+    return _update(meeting_id, change)
 
 
 @router.patch("/meetings/{meeting_id}/actions/{action_id}")
-def patch_action(meeting_id: str, action_id: str, body: ActionPatch, user: dict = Depends(current_user)):
+def patch_action(meeting_id: str, action_id: str, body: ActionPatch):
     fields = body.model_dump(exclude_unset=True)
 
     def change(m):
@@ -316,11 +292,11 @@ def patch_action(meeting_id: str, action_id: str, body: ActionPatch, user: dict 
             a["completed"] = bool(fields["completed"])
         for field in ("task", "ownerParticipantId", "deadline"):
             if field in fields:
-                corrections.record(meeting_id, action_id, field, was.get(field), a.get(field), user)
+                corrections.record(meeting_id, action_id, field, was.get(field), a.get(field))
         if set(fields) - {"completed"}:
             _resolve(m, action_id)
             _restart_window(m)
-    return _update(meeting_id, user, change)
+    return _update(meeting_id, change)
 
 
 def _valid_date(d: str) -> bool:
@@ -332,7 +308,7 @@ def _valid_date(d: str) -> bool:
 
 
 @router.post("/meetings/{meeting_id}/confirmations/{fact_id}")
-def confirm(meeting_id: str, fact_id: str, body: Confirmation, user: dict = Depends(current_user)):
+def confirm(meeting_id: str, fact_id: str, body: Confirmation):
     """Settle one item the checks could not confirm: keep it as written, or take it out."""
     if body.action not in ("keep", "remove"):
         raise HTTPException(422, "Use keep or remove.")
@@ -350,11 +326,11 @@ def confirm(meeting_id: str, fact_id: str, body: Confirmation, user: dict = Depe
             m["decisions"] = [d for d in m.get("decisions") or [] if d["id"] != fact_id]
             m["actionItems"] = [a for a in m.get("actionItems") or [] if a["id"] != fact_id]
         _resolve(m, fact_id)
-    return _update(meeting_id, user, change)
+    return _update(meeting_id, change)
 
 
 @router.patch("/meetings/{meeting_id}/participants")
-def patch_participants(meeting_id: str, body: dict, user: dict = Depends(current_user)):
+def patch_participants(meeting_id: str, body: dict):
     def change(m):
         _locked(m)
         m["participants"] = [_participant(p, i) for i, p in enumerate(body.get("participants") or [])]
@@ -365,14 +341,14 @@ def patch_participants(meeting_id: str, body: dict, user: dict = Depends(current
                 a["ownerParticipantId"] = None
                 a["ownerStaffId"] = None
         _restart_window(m)
-    return _update(meeting_id, user, change)
+    return _update(meeting_id, change)
 
 
 @router.post("/meetings/{meeting_id}/feedback", status_code=204)
-def feedback(meeting_id: str, body: dict, user: dict = Depends(current_user)):
-    meeting_for(meeting_id, user)
+def feedback(meeting_id: str, body: dict):
+    meeting_for(meeting_id)
     item = {k: str(body.get(k, ""))[:4000] for k in ("field", "before", "after")}
-    item.update(id=str(uuid.uuid4()), meetingId=meeting_id, createdAt=now_iso(), createdBy=user["id"])
+    item.update(id=str(uuid.uuid4()), meetingId=meeting_id, createdAt=now_iso(), createdBy=NETWORK["id"])
     if isinstance(body.get("sourceTimestamp"), (int, float)):
         item["sourceTimestamp"] = body["sourceTimestamp"]
     store.put("feedback", item)
@@ -380,7 +356,7 @@ def feedback(meeting_id: str, body: dict, user: dict = Depends(current_user)):
 
 
 @router.post("/meetings/{meeting_id}/review")
-def review(meeting_id: str, user: dict = Depends(current_user)):
+def review(meeting_id: str):
     def change(m):
         if m["status"] != "ready":
             raise HTTPException(409, "The minutes are not ready for review.")
@@ -388,18 +364,17 @@ def review(meeting_id: str, user: dict = Depends(current_user)):
         if issues or not m.get("participants"):
             raise HTTPException(409, "; ".join(issues) or "Add the participants first.")
         m["reviewState"] = "reviewed"
-    return _update(meeting_id, user, change)
+    return _update(meeting_id, change)
 
 
 @router.get("/meetings/{meeting_id}/transcript")
-def transcript(meeting_id: str, user: dict = Depends(current_user)):
-    return meeting_for(meeting_id, user).get("transcript") or []
+def transcript(meeting_id: str):
+    return meeting_for(meeting_id).get("transcript") or []
 
 
 @router.post("/meetings/{meeting_id}/send")
-def send(meeting_id: str, idempotency_key: str | None = Header(default=None, max_length=128),
-         user: dict = Depends(current_user)):
-    meeting_for(meeting_id, user)
+def send(meeting_id: str, idempotency_key: str | None = Header(default=None, max_length=128)):
+    meeting_for(meeting_id)
     try:
         m, started = delivery.begin(meeting_id, manual=True, key=idempotency_key)
     except delivery.NotSendable as e:
@@ -410,15 +385,15 @@ def send(meeting_id: str, idempotency_key: str | None = Header(default=None, max
 
 
 @router.post("/meetings/{meeting_id}/stop-send")
-def stop_send(meeting_id: str, user: dict = Depends(current_user)):
-    meeting_for(meeting_id, user)
+def stop_send(meeting_id: str):
+    meeting_for(meeting_id)
     return delivery.stop(meeting_id)
 
 
 @router.get("/meetings/{meeting_id}/documents/{name}")
-def document(meeting_id: str, name: str, user: dict = Depends(current_user)):
+def document(meeting_id: str, name: str):
     """name is `ro.pdf`, `ru.docx` and so on; files come only from the meeting's own minutes folder."""
-    m = meeting_for(meeting_id, user)
+    m = meeting_for(meeting_id)
     match = re.fullmatch(r"(ro|ru|en)\.(pdf|docx)", name)
     filename = (m.get("documents") or {}).get(match.group(1), {}).get(match.group(2)) if match else None
     if not filename:
@@ -433,42 +408,39 @@ def document(meeting_id: str, name: str, user: dict = Depends(current_user)):
 
 
 @router.get("/action-items")
-def action_items(user: dict = Depends(current_user)):
-    return [{"meetingId": m["id"], "actionItem": a} for m in list_meetings(user) for a in m.get("actionItems") or []]
+def action_items():
+    return [{"meetingId": m["id"], "actionItem": a} for m in list_meetings() for a in m.get("actionItems") or []]
 
 
 # ---------------------------------------------------------------- people and voices
 @router.get("/people")
-def people(user: dict = Depends(current_user)):
+def people():
     return [p for p in store.all_docs("people") if p.get("active", True)]
 
 
 @router.post("/people", status_code=201)
-def add_person(body: dict, user: dict = Depends(current_user)):
+def add_person(body: dict):
     name = str(body.get("name", "")).strip()[:120]
     if not name:
         raise HTTPException(422, "A person needs a name.")
-    person = {"id": str(uuid.uuid4()), "name": name, "active": True, "createdAt": now_iso(), "createdBy": user["id"]}
+    person = {"id": str(uuid.uuid4()), "name": name, "active": True, "createdAt": now_iso(), "createdBy": NETWORK["id"]}
     if body.get("email"):
         person["email"] = str(body["email"]).strip()[:254]
     return store.put("people", person)
 
 
 @router.post("/people/{person_id}/voice-enrollment", status_code=204)
-def enroll(person_id: str, audio_file: UploadFile = File(alias="audio"), user: dict = Depends(current_user)):
+def enroll(person_id: str, audio_file: UploadFile = File(alias="audio")):
     person = store.get("people", person_id)
     if person is None:
         raise HTTPException(404, "Person not found.")
-    # anyone may enroll a new voice with the person present; replacing one would
-    # let a speaker take over someone else's name in every later meeting
-    if store.get("voices", f"voice-{person_id}") and user["role"] != "admin":
-        raise HTTPException(403, "This person already has a voiceprint. Only an administrator can replace it.")
+    # enrolling again replaces the voiceprint; the audit trail keeps when and from which address
     if person["name"].startswith("-"):   # the name is a command argument for the enroll tool
         raise HTTPException(422, "A name cannot start with a dash.")
     folder = store.DATA / "voices" / person_id
     saved = audio.save(audio_file, folder, measure=True)
     profile = {"id": f"voice-{person_id}", "staffId": person_id, "status": "prototype", "createdAt": now_iso(),
-               "consentRecordedBy": user["id"]}
+               "consentRecordedBy": NETWORK["id"]}
     cmd = os.getenv("LIMINAL_ENROLL_CMD")   # e.g. diarizer enroll {name} --file {audio} --consent --plain
     if cmd:
         try:
@@ -482,23 +454,22 @@ def enroll(person_id: str, audio_file: UploadFile = File(alias="audio"), user: d
 
 
 @router.get("/voice-profiles")
-def voice_profiles(user: dict = Depends(current_user)):
+def voice_profiles():
     return store.all_docs("voices")
 
 
 @router.get("/speaker-clusters")
-def speaker_clusters(user: dict = Depends(current_user)):
-    visible = {m["id"] for m in list_meetings(user)}
-    return [c for c in store.all_docs("clusters") if c["meetingId"] in visible]
+def speaker_clusters():
+    return store.all_docs("clusters")
 
 
 @router.post("/speaker-clusters/{cluster_id}/identify")
-def identify(cluster_id: str, body: dict, user: dict = Depends(current_user)):
+def identify(cluster_id: str, body: dict):
     cluster = store.get("clusters", cluster_id)
     person = store.get("people", str(body.get("staffId", "")))
     if cluster is None or person is None:
         raise HTTPException(404, "Voice or person not found.")
-    meeting_for(cluster["meetingId"], user)
+    meeting_for(cluster["meetingId"])
     ready = any(v["staffId"] == person["id"] for v in store.all_docs("voices"))
     cluster.update(identifiedStaffId=person["id"],
                    status="voice_profile_ready" if ready else "identified_without_voice_profile")
@@ -515,26 +486,26 @@ def identify(cluster_id: str, body: dict, user: dict = Depends(current_user)):
 
 # ---------------------------------------------------------------- templates
 @router.get("/templates")
-def templates(user: dict = Depends(current_user)):
+def templates():
     return [t for t in store.all_docs("templates") if t.get("active", True)]
 
 
 @router.get("/templates/{template_id}")
-def template(template_id: str, user: dict = Depends(current_user)):
+def template(template_id: str):
     t = store.get("templates", template_id)
     if t is None:
         raise HTTPException(404, "Template not found.")
     return t
 
 
-def _template(body: dict, user: dict, existing: dict | None) -> dict:
+def _template(body: dict, existing: dict | None) -> dict:
     name = str(body.get("name", "")).strip()[:120]
     if not name or body.get("meetingType") not in TYPES:
         raise HTTPException(422, "A template needs a name and a meeting type.")
     ids = [str(i) for i in body.get("participantStaffIds") or []]
     if len(set(ids)) != len(ids) or any(store.get("people", i) is None for i in ids):
         raise HTTPException(422, "Unknown or repeated participant.")
-    t = existing or {"id": str(uuid.uuid4()), "createdBy": user["id"], "createdAt": now_iso(), "active": True}
+    t = existing or {"id": str(uuid.uuid4()), "createdBy": NETWORK["id"], "createdAt": now_iso(), "active": True}
     t.update(name=name, meetingType=body["meetingType"], participantStaffIds=ids,
              agendaTopics=body.get("agendaTopics") or [], updatedAt=now_iso())
     for key in ("defaultTitle", "recurrence", "active"):
@@ -544,20 +515,20 @@ def _template(body: dict, user: dict, existing: dict | None) -> dict:
 
 
 @router.post("/templates", status_code=201)
-def create_template(body: dict, user: dict = Depends(require_admin)):
-    return _template(body, user, None)
+def create_template(body: dict):
+    return _template(body, None)
 
 
 @router.patch("/templates/{template_id}")
-def update_template(template_id: str, body: dict, user: dict = Depends(require_admin)):
+def update_template(template_id: str, body: dict):
     existing = store.get("templates", template_id)
     if existing is None:
         raise HTTPException(404, "Template not found.")
-    return _template({**existing, **body}, user, existing)
+    return _template({**existing, **body}, existing)
 
 
 @router.post("/templates/{template_id}/deactivate")
-def deactivate_template(template_id: str, user: dict = Depends(require_admin)):
+def deactivate_template(template_id: str):
     existing = store.get("templates", template_id)
     if existing is None:
         raise HTTPException(404, "Template not found.")
@@ -579,7 +550,7 @@ def _tool(stage: str) -> bool:
 
 
 @router.get("/system")
-def system(user: dict = Depends(require_admin)):
+def system():
     free = shutil.disk_usage(store.DATA).free
     try:
         delivery.mailer()   # constructing it validates the SMTP settings
@@ -606,13 +577,13 @@ def _dummy() -> dict:
 
 
 @router.get("/capabilities")
-def capabilities(user: dict = Depends(current_user)):
+def capabilities():
     return {"autoModeAvailable": delivery.AUTO_AVAILABLE}
 
 
 # ---------------------------------------------------------------- admin
 @router.get("/admin/audit")
-def audit(user: dict = Depends(require_admin)):
+def audit():
     """The latest 500 entries of the append-only audit trail."""
     return security.audit_rows()
 
@@ -624,65 +595,33 @@ class Approval(BaseModel):
 
 
 @router.get("/admin/glossary-candidates")
-def glossary_candidates(user: dict = Depends(require_admin)):
+def glossary_candidates():
     """Words people corrected in the minutes, most frequent first."""
     return corrections.candidates()
 
 
 @router.post("/admin/glossary-candidates/approve")
-def approve_candidate(body: Approval, user: dict = Depends(require_admin)):
-    return corrections.approve(body.heard.strip(), body.corrected.strip(), body.lang, user)
+def approve_candidate(body: Approval):
+    return corrections.approve(body.heard.strip(), body.corrected.strip(), body.lang)
 
 
 @router.get("/admin")
-def admin(user: dict = Depends(require_admin)):
-    accounts = [security.account(dict(r)) for r in store.db().execute("SELECT * FROM users ORDER BY created_at")]
+def admin():
     staff = [{"id": p["id"], "name": p["name"], "email": p.get("email", ""), "active": p.get("active", True),
               "createdAt": p.get("createdAt", ""), "createdBy": p.get("createdBy", "")} for p in store.all_docs("people")]
-    return {"accounts": accounts, "staffProfiles": staff, "staffRoles": store.all_docs("roles"),
+    return {"staffProfiles": staff, "staffRoles": store.all_docs("roles"),
             "distributionLists": store.all_docs("lists")}
 
 
-@router.post("/admin/users", status_code=201)
-def create_account(body: dict, user: dict = Depends(require_admin)):
-    email = str(body.get("email") or "").strip()
-    username = str(body.get("username") or "").strip()[:64]
-    if not username or "@" not in email or body.get("role") not in ("admin", "staff"):
-        raise HTTPException(422, "An account needs a username, an email and a role.")
-    password = secrets.token_urlsafe(12)
-    try:
-        u = security.create_user(email, username, body["role"], password, username=username,
-                                 staff_profile_id=body.get("staffProfileId"), created_by=user["id"])
-    except Exception as e:
-        if "UNIQUE" in str(e):
-            raise HTTPException(409, "An account with that email exists.")
-        raise
-    return {**security.account(u), "temporaryPassword": password}   # shown once, never stored in clear
-
-
-@router.patch("/admin/users/{account_id}")
-def patch_account(account_id: str, body: dict, user: dict = Depends(require_admin)):
-    if security.user_by_id(account_id) is None:
-        raise HTTPException(404, "Account not found.")
-    if "active" in body:
-        if account_id == user["id"] and not body["active"]:
-            raise HTTPException(409, "You cannot switch off your own account.")
-        with store.tx() as con:
-            con.execute("UPDATE users SET active=? WHERE id=?", (1 if body["active"] else 0, account_id))
-            if not body["active"]:
-                con.execute("DELETE FROM sessions WHERE user_id=?", (account_id,))
-    return security.account(security.user_by_id(account_id))
-
-
 @router.post("/admin/people", status_code=201)
-def create_staff(body: dict, user: dict = Depends(require_admin)):
-    person = add_person(body, user)
+def create_staff(body: dict):
+    person = add_person(body)
     return {"id": person["id"], "name": person["name"], "email": person.get("email", ""), "active": True,
-            "createdAt": person["createdAt"], "createdBy": user["id"]}
+            "createdAt": person["createdAt"], "createdBy": NETWORK["id"]}
 
 
 @router.patch("/admin/people/{person_id}")
-def patch_staff(person_id: str, body: dict, user: dict = Depends(require_admin)):
+def patch_staff(person_id: str, body: dict):
     def change(p):
         if "name" in body:
             name = str(body["name"]).strip()[:120]
@@ -701,7 +640,7 @@ def patch_staff(person_id: str, body: dict, user: dict = Depends(require_admin))
 
 
 @router.post("/admin/people/{person_id}/roles", status_code=201)
-def assign_role(person_id: str, body: dict, user: dict = Depends(require_admin)):
+def assign_role(person_id: str, body: dict):
     if store.get("people", person_id) is None:
         raise HTTPException(404, "Person not found.")
     title, valid_from = str(body.get("title", "")).strip()[:120], str(body.get("validFrom", ""))
@@ -713,13 +652,13 @@ def assign_role(person_id: str, body: dict, user: dict = Depends(require_admin))
                 store.put("roles", {**r, "validTo": valid_from})
         role = store.put("roles", {"id": str(uuid.uuid4()), "staffId": person_id, "title": title,
                                    "department": str(body.get("department", ""))[:120], "validFrom": valid_from,
-                                   "validTo": None, "createdBy": user["id"]})
+                                   "validTo": None, "createdBy": NETWORK["id"]})
         store.update("people", person_id, lambda p: p.update(role=title))
     return role
 
 
 @router.patch("/admin/lists/{list_id}")
-def patch_list(list_id: str, body: dict, user: dict = Depends(require_admin)):
+def patch_list(list_id: str, body: dict):
     lst = store.update("lists", list_id, lambda x: x.update(active=bool(body.get("active", x.get("active", True)))))
     if lst is None:
         raise HTTPException(404, "List not found.")

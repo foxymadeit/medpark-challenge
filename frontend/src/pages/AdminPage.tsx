@@ -1,13 +1,10 @@
 import { useCallback, useState, type FormEvent } from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../auth/useAuth";
 import {
   assignStaffRole,
   getAdminData,
-  saveAccount,
   saveStaffProfile,
-  setAccountActive,
   setDistributionListActive,
   setStaffActive,
 } from "../api/admin";
@@ -15,7 +12,7 @@ import { useData, notifyUpdate } from "../hooks/useData";
 import StatePanel from "../components/StatePanel";
 import Button from "../components/Button";
 
-type Section = "overview" | "users" | "people" | "roles" | "lists";
+type Section = "overview" | "people" | "roles" | "lists";
 
 export default function AdminPage({
   section = "overview",
@@ -23,7 +20,6 @@ export default function AdminPage({
   section?: Section;
 }) {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const { data, error, refresh } = useData(
     useCallback(() => getAdminData(), []),
   );
@@ -49,7 +45,7 @@ export default function AdminPage({
 
   const nav = (
     <nav className="admin-nav" aria-label={t("adminArea")}>
-      {["overview", "users", "people", "roles", "lists"].map((item) => (
+      {["overview", "people", "roles", "lists"].map((item) => (
         <NavLink
           key={item}
           end={item === "overview"}
@@ -86,11 +82,6 @@ export default function AdminPage({
       {section === "overview" && (
         <nav className="panel admin-overview" aria-label={t("overview")}>
           <AdminSummary
-            label={t("users")}
-            value={data.accounts.length}
-            to="/admin/users"
-          />
-          <AdminSummary
             label={t("people")}
             value={data.staffProfiles.length}
             to="/admin/people"
@@ -107,20 +98,11 @@ export default function AdminPage({
           />
         </nav>
       )}
-      {section === "users" && (
-        <UsersPanel data={data} busy={busy} run={run} role={user!.role} t={t} />
-      )}
       {section === "people" && (
-        <PeoplePanel
-          data={data}
-          busy={busy}
-          run={run}
-          role={user!.role}
-          t={t}
-        />
+        <PeoplePanel data={data} busy={busy} run={run} t={t} />
       )}
       {section === "roles" && (
-        <RolesPanel data={data} busy={busy} run={run} role={user!.role} t={t} />
+        <RolesPanel data={data} busy={busy} run={run} t={t} />
       )}
       {section === "lists" && (
         <section className="panel admin-table-list">
@@ -134,11 +116,7 @@ export default function AdminPage({
                 disabled={busy}
                 onClick={() =>
                   void run(() =>
-                    setDistributionListActive(
-                      list.id,
-                      !list.active,
-                      user!.role,
-                    ),
+                    setDistributionListActive(list.id, !list.active),
                   )
                 }
               >
@@ -178,96 +156,18 @@ type PanelProps = {
   data: Awaited<ReturnType<typeof getAdminData>>;
   busy: boolean;
   run: (action: () => Promise<unknown>) => Promise<void>;
-  role: "admin" | "staff";
   t: ReturnType<typeof useTranslation>["t"];
 };
 
-function UsersPanel({ data, busy, run, role, t }: PanelProps) {
+function PeoplePanel({ data, busy, run, t }: PanelProps) {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     void run(() =>
-      saveAccount(
-        {
-          username: String(form.get("username")),
-          email: String(form.get("email")),
-          role: String(form.get("role")) as "admin" | "staff",
-          staffProfileId: String(form.get("staffProfileId")) || undefined,
-        },
-        role,
-      ),
-    );
-    event.currentTarget.reset();
-  };
-  return (
-    <div className="admin-layout">
-      <form className="panel admin-form" onSubmit={submit}>
-        <h2>{t("createAccount")}</h2>
-        <label>
-          {t("username")}
-          <input name="username" required />
-        </label>
-        <label>
-          {t("email")}
-          <input name="email" type="email" />
-        </label>
-        <label>
-          {t("role")}
-          <select name="role">
-            <option value="staff">{t("staff")}</option>
-            <option value="admin">{t("admin")}</option>
-          </select>
-        </label>
-        <label>
-          {t("person")}
-          <select name="staffProfileId">
-            <option value="">{t("notGiven")}</option>
-            {data.staffProfiles.map((profile) => (
-              <option key={profile.id} value={profile.id}>
-                {profile.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <Button variant="primary" disabled={busy} type="submit">
-          {t("create")}
-        </Button>
-      </form>
-      <section className="panel admin-table-list">
-        {data.accounts.map((account) => (
-          <div className="admin-row" key={account.id}>
-            <div>
-              <strong>{account.username}</strong>
-              <p>
-                {t(account.role)} · {t(account.active ? "active" : "inactive")}
-              </p>
-            </div>
-            <Button
-              disabled={busy || account.id === "demo-admin"}
-              onClick={() =>
-                void run(() =>
-                  setAccountActive(account.id, !account.active, role),
-                )
-              }
-            >
-              {t(account.active ? "deactivate" : "activate")}
-            </Button>
-          </div>
-        ))}
-      </section>
-    </div>
-  );
-}
-
-function PeoplePanel({ data, busy, run, role, t }: PanelProps) {
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    void run(() =>
-      saveStaffProfile(
-        { name: String(form.get("name")), email: String(form.get("email")) },
-        role,
-      ),
+      saveStaffProfile({
+        name: String(form.get("name")),
+        email: String(form.get("email")),
+      }),
     );
     event.currentTarget.reset();
   };
@@ -299,9 +199,7 @@ function PeoplePanel({ data, busy, run, role, t }: PanelProps) {
             <Button
               disabled={busy}
               onClick={() =>
-                void run(() =>
-                  setStaffActive(profile.id, !profile.active, role),
-                )
+                void run(() => setStaffActive(profile.id, !profile.active))
               }
             >
               {t(profile.active ? "deactivate" : "activate")}
@@ -313,20 +211,17 @@ function PeoplePanel({ data, busy, run, role, t }: PanelProps) {
   );
 }
 
-function RolesPanel({ data, busy, run, role, t }: PanelProps) {
+function RolesPanel({ data, busy, run, t }: PanelProps) {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     void run(() =>
-      assignStaffRole(
-        {
-          staffId: String(form.get("staffId")),
-          title: String(form.get("title")),
-          department: String(form.get("department")),
-          validFrom: String(form.get("validFrom")),
-        },
-        role,
-      ),
+      assignStaffRole({
+        staffId: String(form.get("staffId")),
+        title: String(form.get("title")),
+        department: String(form.get("department")),
+        validFrom: String(form.get("validFrom")),
+      }),
     );
     event.currentTarget.reset();
   };

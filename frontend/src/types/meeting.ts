@@ -37,17 +37,6 @@ export interface Participant {
   enrollmentKind?: "prototype" | "verified";
   active?: boolean;
 }
-export type AccountRole = "admin" | "staff";
-export interface UserAccount {
-  id: string;
-  username: string;
-  email?: string;
-  role: AccountRole;
-  staffProfileId?: string;
-  active: boolean;
-  createdAt: string;
-  createdBy: string;
-}
 export interface StaffProfile {
   id: string;
   name: string;

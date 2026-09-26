@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import i18n from "../src/i18n/i18n";
 import { routes } from "../src/router";
-import { saveDemoSession } from "../src/auth/demoSession";
 import { readStore, writeStore } from "../src/mock/store";
 import ProcessingStages from "../src/components/ProcessingStages";
 import type { Meeting } from "../src/types/meeting";
@@ -14,7 +13,6 @@ beforeEach(async () => {
 });
 
 function mount(path: string) {
-  saveDemoSession();
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   return render(<RouterProvider router={router} />);
 }

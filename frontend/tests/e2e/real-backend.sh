@@ -12,8 +12,6 @@ rm -rf "$DATA" "${MAIL_DIR:-/tmp/liminal-mail}"
 FAKE="$B/tests/fake_stages"
 
 export LIMINAL_DATA="$DATA"
-export LIMINAL_ADMIN_EMAIL=admin@medpark.local
-export LIMINAL_ADMIN_PASSWORD="correct horse battery"
 export LIMINAL_FRONTEND_DIST="$FRONTEND/dist"
 export LIMINAL_SEND_WINDOW_S=10 LIMINAL_AUTO_MODE=1
 export LIMINAL_ALLOWED_ORIGINS=http://127.0.0.1:8000

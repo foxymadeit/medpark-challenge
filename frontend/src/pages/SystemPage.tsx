@@ -89,7 +89,7 @@ export default function SystemPage() {
             <thead>
               <tr>
                 <th>{t("auditWhen")}</th>
-                <th>{t("auditWho")}</th>
+                <th>{t("auditFrom")}</th>
                 <th>{t("auditWhat")}</th>
                 <th>{t("auditResult")}</th>
               </tr>
@@ -98,7 +98,7 @@ export default function SystemPage() {
               {audit.slice(0, 12).map((row, i) => (
                 <tr key={`${row.at}-${i}`}>
                   <td>{formatClock(row.at, i18n.language)}</td>
-                  <td>{row.user ?? t("auditNobody")}</td>
+                  <td className="mono">{row.address ?? "-"}</td>
                   <td>{t(auditAction(row))}</td>
                   <td>{t(row.status < 400 ? "auditDone" : "auditRefused")}</td>
                 </tr>

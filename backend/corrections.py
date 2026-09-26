@@ -1,9 +1,9 @@
 """Learning from the edits people make to the minutes, on site, without retraining.
 
 Every edit is kept as a `corrections` document: which meeting, item and field,
-the value before and after, who and when. Nothing else. Word swaps inside
-those edits ("pneumania" -> "pneumonia") become glossary candidates; an
-administrator approves one and it lands in LIMINAL_DATA/site_glossary.json,
+the value before and after, and when. Nothing else. Word swaps inside
+those edits ("pneumania" -> "pneumonia") become glossary candidates; a
+person approves one on the System page and it lands in LIMINAL_DATA/site_glossary.json,
 which the term corrector and the minutes writer read through
 LIMINAL_SITE_GLOSSARY (see README).
 """
@@ -16,7 +16,7 @@ import re
 import uuid
 
 import store
-from security import now_iso
+from security import NETWORK, now_iso
 
 _WORD = re.compile(r"[^\W\d_]+(?:-[^\W\d_]+)*", re.UNICODE)
 _CYRILLIC = re.compile(r"[Ѐ-ӿ]")
@@ -25,12 +25,12 @@ MIN_LETTERS = 4
 SIMILAR = 0.6   # a respelling, not a reworded phrase ("aprobat" -> "respins" is 0.14)
 
 
-def record(meeting_id: str, item: str, field: str, before, after, user: dict) -> None:
+def record(meeting_id: str, item: str, field: str, before, after) -> None:
     """Keep one edit; unchanged values are not an edit."""
     if before == after:
         return
     store.put("corrections", {"id": uuid.uuid4().hex, "meetingId": meeting_id, "item": item, "field": field,
-                              "before": before, "after": after, "by": user["id"], "at": now_iso()})
+                              "before": before, "after": after, "by": NETWORK["id"], "at": now_iso()})
 
 
 def term_pairs(before: str, after: str) -> list[tuple[str, str]]:
@@ -72,12 +72,12 @@ def candidates() -> list[dict]:
     return sorted(found.values(), key=lambda r: -r["count"])
 
 
-def approve(heard: str, corrected: str, lang: str, user: dict) -> dict:
+def approve(heard: str, corrected: str, lang: str) -> dict:
     """Append one row to the site glossary (same shape as the medical one), once."""
     path = store.DATA / "site_glossary.json"
     with store.tx():
         data = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {
-            "meta": {"site": "Terms approved by this site's administrators from corrections to the minutes."},
+            "meta": {"site": "Terms approved on this site from corrections to the minutes."},
             "aligned": []}
         row = {"source": "site", lang: corrected, "heard": heard}
         if row not in data["aligned"]:
@@ -88,5 +88,5 @@ def approve(heard: str, corrected: str, lang: str, user: dict) -> dict:
                 json.dump(data, f, ensure_ascii=False, indent=2)
             os.replace(tmp, path)
         store.put("glossary-approved", {"id": _key(heard, corrected), "heard": heard, "corrected": corrected,
-                                        "lang": lang, "by": user["id"], "at": now_iso()})
+                                        "lang": lang, "by": NETWORK["id"], "at": now_iso()})
     return row

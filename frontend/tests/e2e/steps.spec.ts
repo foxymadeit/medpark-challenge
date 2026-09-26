@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { login, silentWav } from "./helpers";
+import { silentWav } from "./helpers";
 
 // The judge counts hesitation. This counts every action a person takes from the
 // meetings list to a delivered email, and fails if the flow grows.
@@ -11,8 +11,9 @@ test("upload to delivered email: five actions, none after the upload", async ({
     actions += 1;
     await step();
   };
-  await login(page);
-  await page.goto("/meetings");
+  // Opening the app is the start: no sign-in, straight to the meetings.
+  await page.goto("/");
+  await page.waitForURL("**/meetings");
   await act(() =>
     page.getByRole("link", { name: /Executive/ }).first().click(),
   );

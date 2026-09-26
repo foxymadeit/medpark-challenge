@@ -7,6 +7,7 @@
 .button,
 .chip,
 .language-switcher button,
+.admin-menu-button,
 .minutes-language button,
 .meeting-list-row,
 .admin-nav a,
@@ -217,18 +218,18 @@ html[data-fade] .top-bar {
 /* Menus and dialogs: open 150 ms opacity, close 120 ms; the scrim fades
    150 ms. No scale, no slide. */
 .edit-dialog,
-.account-menu {
+.admin-menu {
   opacity: 1;
   transition: opacity 150ms ease;
 }
 @starting-style {
   .edit-dialog[open],
-  .account-menu {
+  .admin-menu {
     opacity: 0;
   }
 }
 .edit-dialog[data-closing],
-.account-menu[data-closing] {
+.admin-menu[data-closing] {
   opacity: 0;
   transition-duration: 120ms;
 }

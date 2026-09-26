@@ -43,8 +43,8 @@ function countByType(entries: [string, unknown][]): Routing {
   return out;
 }
 
-/** The server decides who receives each meeting type. Asks `/routing`;
- * administrators can also read it from `/admin`; otherwise no count. */
+/** The server decides who receives each meeting type. Asks `/routing`,
+ * then the distribution lists in `/admin`; otherwise no count. */
 export async function getRouting(): Promise<Routing> {
   if (DEMO_MODE)
     return Object.fromEntries(

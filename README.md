@@ -92,7 +92,7 @@ transcription vendor. Liminal has no vendor in the data path.
 | Week 1 | IT installs one compose stack; one medical board, a table microphone | minutes emailed under 15 min after the meeting |
 | Weeks 2 to 4 | the same board every week | items a person had to change per meeting falls week on week; zero patient names in any email |
 | Month 2 | executive and administrative boards | share of meetings that go out with no edits |
-| Month 3 | every board; Active Directory sign-in; the hospital's mail relay | adoption: share of board meetings processed |
+| Month 3 | every board; the hospital's mail relay | adoption: share of board meetings processed |
 
 **What could go wrong, and the answer.**
 
@@ -366,8 +366,8 @@ hospital's internal use.
 3. **Switch on the meeting type.** Medical, Executive or Administrative.
 4. **Email that list** through the hospital mail server, participants on copy.
 
-Administrators edit the distribution lists in Liminal, the one place they
-live; n8n reads them from each request, and hospital IT can change the routing
+The distribution lists are edited on Liminal's Administration page, the one
+place they live; n8n reads them from each request, and hospital IT can change the routing
 itself in n8n's editor without touching code.
 Telemetry, update checks, templates and community packages are switched off,
 and `offline_check.sh` fails if any comes back on. Tested against Mailpit:
@@ -385,17 +385,13 @@ test behind for each control.
 | Threat | Control | Proof |
 |---|---|---|
 | Audio or text leaving the building | socket guard in every process, loopback-only model client; every container on an internal network with no route out, behind a bare port-forwarding gateway (**tightened after our review**) | `offline_check.sh`, socket-blocking tests in all four Python parts |
-| Forged minutes sent to a board | the mail endpoint needs an administrator and passes the origin check and audit trail; the n8n webhook needs the backend's secret (**found and fixed in our review**) | `test_nobody_signed_out_can_send_mail`, `check_routing.py` |
-| Password guessing | scrypt, one generic error, 5 failures per account (20 per address) per 15 min | `test_login_is_generic_rate_limited…` |
-| Stolen or stale sessions | HttpOnly SameSite=Strict cookie, only its SHA-256 stored, 30 min idle, 12 h absolute | `test_session_cookie_flags…` |
+| Forged minutes sent to a board | the mail endpoint passes the origin check and the audit trail like every `/api` route; the n8n webhook needs the backend's secret (**found and fixed in our review**) | `test_a_page_from_another_site_cannot_send_mail`, `check_routing.py` |
+| Someone outside the hospital using Liminal | the app has no accounts, passwords or sessions, so access is limited by where it runs: every port is bound to 127.0.0.1 on the server or to the hospital network only, and the services sit on an internal Docker network with no route out | `test_no_route_asks_anyone_to_sign_in`, `offline_check.sh` |
 | Cross-site forgery | state changes need this server's Origin | `test_state_changes_from_another_origin…` |
-| Reading another person's meeting | creator and administrators only | `test_meetings_are_private…` |
-| A staff member adding a reader to others' meetings through a template | template writes need an administrator (found and fixed in our review) | `test_only_an_admin_writes_templates` |
-| Speaking under someone else's name | replacing a voiceprint needs an administrator (found and fixed) | `test_staff_enroll_a_voice_once…` |
 | A "recording" that makes ffmpeg read files or URLs | type checked by bytes, local files only, 500 MB and 3 h caps | `test_upload_checks_bytes_not_names` |
 | A transcript that runs commands through LaTeX | macro whitelist, shell escape off, paranoid file access | 14 injection tests |
 | Another account reading minutes or voiceprints | folders 0700, files 0600, `mom purge --days 30` | `test_voiceprints_and_sessions_are_private` |
-| Nobody can say who read or sent what | append-only audit trail: every change and every read of a recording, transcript or document, with user, time, route, meeting and result, but not the content; SQLite triggers refuse edits and deletes; administrators only | `test_the_audit_trail_records_who_did_what…` |
+| Nobody can say what was read or sent, or from where | append-only audit trail: every change and every read of a recording, transcript or document, with the time, network address, route, meeting and result, but not the content; SQLite triggers refuse edits and deletes; shown on the System page | `test_the_audit_trail_records_what_and_from_where…` |
 | A swapped model or package | models pinned by SHA-256, CycloneDX SBOM | `minutes/compliance/sbom.json` |
 | Script injection in the browser | React escaping, CSP `default-src 'self'`, no framing | frontend security report |
 
@@ -422,7 +418,7 @@ email, send. The interface speaks English, Romanian and Russian, works on
 desktop, tablet and phone, meets WCAG 2.2 AA contrast, and moves between
 states with short fades.
 
-We drove the whole flow in a headless browser, login to delivered email, 17
+We drove the whole flow in a headless browser, opening the app to delivered email, 17
 routes at desktop and phone width, switching between all three languages: 0 console errors, 0
 broken links. The first pass scored 89/100 and listed 13 issues; all 13 are
 fixed and under test.
@@ -583,15 +579,15 @@ Measured, then removed, so nobody has to try them again:
 About 31,000 lines of Python and TypeScript, tests included: web app 11,800,
 transcription 5,900, speaker labels 5,000, minutes 5,100, backend 3,100.
 
-## Tests: 399 passing, 2 skipped
+## Tests: 392 passing, 2 skipped
 
 | Part | Tests |
 |---|---|
 | Minutes | 117, including the full pipeline with sockets blocked and 14 LaTeX injection attempts |
 | Speaker labels | 79 |
 | Transcription | 81 passing; 2 training-data tests skip unless the training extras are installed |
-| Backend | 42: auth, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, permissions, hardware profiles, meeting-type check, audit trail |
-| Web app | 69 unit, 11 end-to-end in a real browser |
+| Backend | 40: open access with no sign-in, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, hardware profiles, meeting-type check, audit trail |
+| Web app | 63 unit, 12 end-to-end in a real browser |
 
 ```bash
 cd minutes && pytest

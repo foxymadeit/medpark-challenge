@@ -1,4 +1,3 @@
-import { DEMO_SESSION_KEY, saveDemoSession } from "../src/auth/demoSession";
 import {
   act,
   fireEvent,
@@ -8,7 +7,6 @@ import {
   within,
 } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import i18n from "../src/i18n/i18n";
 import { routes } from "../src/router";
@@ -18,67 +16,34 @@ import { notifyUpdate } from "../src/hooks/useData";
 beforeEach(async () => {
   await i18n.changeLanguage("en");
 });
-function mount(path = "/meetings", auth = true) {
-  if (auth) saveDemoSession();
+function mount(path = "/meetings") {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   return render(<RouterProvider router={router} />);
 }
 describe("application flows", () => {
-  it("keeps the signed-out page free of participant data and supports keyboard login", async () => {
-    const user = userEvent.setup();
-    mount("/login", false);
-    expect(screen.queryByText(/Secure MOM/i)).toBeNull();
-    expect(screen.queryByText("Elena Ciobanu")).toBeNull();
-    expect(screen.queryByText("Dr. Ana Popescu")).toBeNull();
-    const username = screen.getByLabelText("Email or username");
-    const password = screen.getByLabelText("Password");
-    await user.clear(username);
-    await user.type(username, "admin@medpark.local");
-    await user.type(password, "wrong{Enter}");
-    await screen.findByRole("alert");
-    expect((password as HTMLInputElement).value).toBe("");
-    await user.type(password, "test-only-demo-password{Enter}");
-    await screen.findByRole("heading", { name: "Start a meeting" });
-  });
-  // Regression: ISSUE-010, sign-in dropped the page that was asked for
-  it("returns to the page that asked for a sign-in", async () => {
-    mount("/history", false);
-    await screen.findByRole("heading", { name: "Sign in" });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "test-only-demo-password" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    await screen.findByRole("heading", { name: "History" });
-  });
-  it("protects routes, rejects invalid credentials, accepts normalized demo username and logs out", async () => {
+  it("opens straight on the meetings with nothing to sign in to", async () => {
     const fetch = vi.fn();
     vi.stubGlobal("fetch", fetch);
-    mount("/meetings", false);
-    await screen.findByRole("heading", { name: "Sign in" });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "wrong" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    await screen.findByRole("alert");
-    fireEvent.change(screen.getByLabelText("Email or username"), {
-      target: { value: " ADMIN@MEDPARK.LOCAL " },
-    });
-    fireEvent.change(screen.getByLabelText("Password"), {
-      target: { value: "test-only-demo-password" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
-    await screen.findByRole("heading", { name: "Start a meeting" });
-    expect(sessionStorage.getItem(DEMO_SESSION_KEY)).not.toBeNull();
+    for (const path of ["/", "/login"]) {
+      const view = mount(path);
+      await screen.findByRole("heading", { name: "Start a meeting" });
+      expect(document.querySelector("input[type=password]")).toBeNull();
+      view.unmount();
+    }
     expect(fetch).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Account" }));
-    expect(screen.getByText("Administrator")).toBeTruthy();
-    expect(screen.getByText("admin@medpark.local")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Account" }).textContent).toBe(
-      "AD",
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Log out" }));
-    await screen.findByRole("heading", { name: "Sign in" });
-    expect(sessionStorage.getItem(DEMO_SESSION_KEY)).toBeNull();
+  });
+  it("reaches Administration and System from the top bar menu", async () => {
+    mount();
+    await screen.findByRole("heading", { name: "Start a meeting" });
+    const opener = screen.getByRole("button", { name: "Administration" });
+    expect(opener.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(opener);
+    expect(screen.queryByRole("button", { name: /log out/i })).toBeNull();
+    fireEvent.click(screen.getByRole("link", { name: "System" }));
+    await screen.findByRole("heading", { name: "System" });
+    fireEvent.click(screen.getByRole("button", { name: "Administration" }));
+    fireEvent.click(screen.getByRole("link", { name: "Administration" }));
+    await screen.findByRole("heading", { name: "Administration" });
   });
   it("creates an upload meeting without assuming room participants", async () => {
     mount();
@@ -231,17 +196,17 @@ describe("application flows", () => {
     expect(screen.getByText(/New oncology cases/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Pause" })).toBeNull();
   });
-  it("provides admin-only governance routes and working account creation", async () => {
-    mount("/admin/users");
-    await screen.findByRole("heading", { name: "Users" });
-    fireEvent.change(screen.getByLabelText("Username"), {
-      target: { value: "staff.user" },
+  it("lets anyone add a person from the administration pages", async () => {
+    mount("/admin/people");
+    await screen.findByRole("heading", { name: "People" });
+    fireEvent.change(screen.getByLabelText("Name"), {
+      target: { value: "Dr. Maria Lungu" },
     });
     fireEvent.change(screen.getByLabelText("Email (optional)"), {
-      target: { value: "staff.user@medpark.local" },
+      target: { value: "maria.lungu@medpark.local" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Create" }));
-    await screen.findByText("staff.user");
+    await screen.findByText("Dr. Maria Lungu");
   });
   it("shows background processing completion when returning to meetings", async () => {
     mount();
@@ -350,26 +315,6 @@ describe("final Figma states", () => {
     await screen.findByRole("heading", { name: "This page isn't here" });
     fireEvent.click(screen.getByRole("link", { name: "Back to meetings" }));
     await screen.findByRole("heading", { name: "Start a meeting" });
-  });
-  it("signs out after inactivity, preserves meetings, and shows the timeout notice", async () => {
-    vi.useFakeTimers();
-    const count = readStore().meetings.length;
-    mount();
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
-    });
-    expect(screen.getByText(/signed out after 30 minutes/)).toBeTruthy();
-    expect(readStore().meetings).toHaveLength(count);
-    expect(sessionStorage.getItem(DEMO_SESSION_KEY)).toBeNull();
-  });
-  it("activity resets the inactivity timer", async () => {
-    vi.useFakeTimers();
-    mount();
-    await act(async () => vi.advanceTimersByTime(29 * 60 * 1000));
-    fireEvent.keyDown(window, { key: "Tab" });
-    await act(async () => vi.advanceTimersByTime(2 * 60 * 1000));
-    expect(screen.queryByText(/signed out after 30 minutes/)).toBeNull();
-    expect(sessionStorage.getItem(DEMO_SESSION_KEY)).not.toBeNull();
   });
   it("shows queued and failed processing states with deterministic retry", async () => {
     await updateMeeting("meeting-001", {

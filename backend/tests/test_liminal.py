@@ -4,6 +4,7 @@
 import io
 import json
 import os
+import re
 import socket
 import sys
 import time
@@ -14,8 +15,6 @@ from unittest.mock import patch
 import pytest
 
 os.environ["LIMINAL_START_WORKERS"] = "0"
-os.environ["LIMINAL_ADMIN_EMAIL"] = "admin@medpark.local"
-os.environ["LIMINAL_ADMIN_PASSWORD"] = "correct horse battery"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -23,7 +22,6 @@ import api  # noqa: E402
 import delivery  # noqa: E402
 import jobs  # noqa: E402
 import main  # noqa: E402
-import security  # noqa: E402
 import store  # noqa: E402
 from services.EmailService import EmailDeliveryResult  # noqa: E402
 
@@ -40,12 +38,6 @@ def client(tmp_path, monkeypatch):
                                               "--session {session} --type {type} --out {work}/minutes")
     with TestClient(main.app, headers=ORIGIN) as c:
         yield c
-
-
-def login(c, email="admin@medpark.local", password="correct horse battery"):
-    r = c.post("/api/auth/login", json={"email": email, "password": password})
-    assert r.status_code == 200, r.text
-    return r.json()
 
 
 def wav_bytes(seconds=2.0) -> bytes:
@@ -73,7 +65,6 @@ def run_queue():
 
 
 def processed(c, **extra) -> dict:
-    login(c)
     m = new_meeting(c, **extra)
     upload(c, m["id"])
     assert c.post(f"/api/meetings/{m['id']}/process").json()["processingState"] == "queued"
@@ -81,61 +72,55 @@ def processed(c, **extra) -> dict:
     return c.get(f"/api/meetings/{m['id']}").json()
 
 
-# ---------------------------------------------------------------- auth and requests
-def test_login_is_generic_rate_limited_and_the_cookie_is_strict(client):
-    r = client.post("/api/auth/login", json={"email": "admin@medpark.local", "password": "wrong"})
-    assert r.status_code == 401 and "incorrect" in r.json()["detail"]
-    assert client.post("/api/auth/login", json={"email": "nobody@x", "password": "wrong"}).json() == r.json()
-    for _ in range(4):
-        client.post("/api/auth/login", json={"email": "admin@medpark.local", "password": "wrong"})
-    assert client.post("/api/auth/login", json={"email": "admin@medpark.local",
-                                               "password": "correct horse battery"}).status_code == 429
-    security_row = store.db().execute("SELECT password_hash FROM users").fetchone()[0]
-    assert security_row.startswith("scrypt$") and "battery" not in security_row
+# ---------------------------------------------------------------- open access and requests
+def test_no_route_asks_anyone_to_sign_in(client):
+    assert not client.cookies
+    checked = 0
+    for route in [*api.router.routes, *main.app.routes]:
+        if not getattr(route, "path", "").startswith("/api/"):
+            continue
+        path = re.sub(r"{[^}]+}", "x", route.path)
+        for method in route.methods - {"HEAD", "OPTIONS"}:
+            r = client.request(method, path, json={})
+            assert r.status_code not in (401, 403), (method, path, r.status_code)
+            checked += 1
+    assert checked > 30
+    for gone in ("/api/auth/login", "/api/auth/logout", "/api/admin/users"):
+        assert client.post(gone, json={}).status_code in (404, 405), gone
 
 
-def test_session_cookie_flags_me_and_logout(client):
-    r = client.post("/api/auth/login", json={"email": "admin@medpark.local", "password": "correct horse battery"})
-    cookie = r.headers["set-cookie"].lower()
-    assert "httponly" in cookie and "samesite=strict" in cookie
-    assert client.get("/api/auth/me").json()["role"] == "admin"
-    assert client.post("/api/auth/logout").status_code == 204
-    assert client.get("/api/auth/me").status_code == 401
-
-
-def test_every_route_needs_a_session(client):
-    for path in ("/api/meetings", "/api/people", "/api/templates", "/api/system", "/api/admin", "/api/action-items"):
-        assert client.get(path).status_code == 401, path
+def test_meetings_are_served_with_no_cookie_and_visible_to_every_page(client):
+    m = new_meeting(client)
+    other = TestClient(main.app, headers=ORIGIN)   # another computer on the hospital network
+    assert not other.cookies
+    assert [x["id"] for x in other.get("/api/meetings").json()] == [m["id"]]
+    assert other.get(f"/api/meetings/{m['id']}").json()["title"] == "Consiliul medical"
+    assert m["createdBy"] == "network"
 
 
 def test_state_changes_from_another_origin_are_refused(client):
-    login(client)
     assert client.post("/api/meetings", json={}, headers={"Origin": "http://evil.example"}).status_code == 403
     bare = TestClient(main.app)
-    bare.cookies = client.cookies
     assert bare.post("/api/meetings", json={"title": "x", "type": "medical", "inputMode": "upload"}).status_code == 403
 
 
-def test_staff_cannot_open_system_or_admin(client):
-    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
-    login(client, "nurse@medpark.local", "long enough password")
-    assert client.get("/api/system").status_code == 403
-    assert client.get("/api/admin").status_code == 403
-    assert client.post("/api/admin/users", json={"username": "x", "email": "x@x", "role": "admin"}).status_code == 403
-
-
-def test_meetings_are_private_to_their_creator(client):
-    login(client)
-    m = new_meeting(client)
-    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
-    login(client, "nurse@medpark.local", "long enough password")
-    assert client.get(f"/api/meetings/{m['id']}").status_code == 404
-    assert client.get("/api/meetings").json() == []
+def test_a_database_from_the_account_days_loses_its_passwords(tmp_path):
+    import sqlite3
+    old = tmp_path / "old"
+    old.mkdir()
+    con = sqlite3.connect(old / "liminal.db")
+    con.executescript("CREATE TABLE users (id TEXT, password_hash TEXT); INSERT INTO users VALUES ('u', 'scrypt$x$y');"
+                      "CREATE TABLE sessions (token_hash TEXT); CREATE TABLE login_failures (key TEXT);")
+    con.close()
+    (old / "initial-admin-password.txt").write_text("admin@medpark.local\nsecret\n")
+    store.reset_for_tests(old)
+    tables = {r[0] for r in store.db().execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    assert not tables & {"users", "sessions", "login_failures"}
+    assert not (old / "initial-admin-password.txt").exists()
 
 
 # ---------------------------------------------------------------- uploads
 def test_upload_checks_bytes_not_names(client):
-    login(client)
     m = new_meeting(client)
     url = f"/api/meetings/{m['id']}/upload"
     assert client.post(url, files={"audio": ("a.wav", b"<?xml evil", "audio/wav")}).status_code == 415
@@ -148,7 +133,6 @@ def test_upload_checks_bytes_not_names(client):
 
 
 def test_the_server_owns_statuses(client):
-    login(client)
     m = new_meeting(client)
     r = client.patch(f"/api/meetings/{m['id']}", json={"status": "sent", "distributionList": ["x@evil.example"]})
     assert r.status_code == 409
@@ -224,7 +208,6 @@ def test_a_failed_stage_marks_the_meeting_failed_with_a_reference(client, monkey
 
 
 def test_running_jobs_go_back_to_the_queue_after_a_restart(client):
-    login(client)
     m = new_meeting(client)
     upload(client, m["id"])
     client.post(f"/api/meetings/{m['id']}/process")
@@ -272,46 +255,37 @@ def test_nothing_leaves_the_machine(client):
 
 
 def test_system_reports_each_service(client):
-    login(client)
     s = client.get("/api/system").json()
     assert s["local"] is True and {x["id"] for x in s["services"]} >= {"asr", "speakers", "mail", "automation", "storage"}
     assert s["capabilities"] == {"autoModeAvailable": True}
 
 
 def test_security_headers(client):
-    r = client.get("/api/auth/me")
+    r = client.get("/api/meetings")
     assert r.headers["x-frame-options"] == "DENY" and "default-src 'self'" in r.headers["content-security-policy"]
     assert r.headers["cache-control"] == "no-store"
 
 
-def test_only_an_admin_writes_templates(client):
-    login(client)
+def test_templates_are_written_and_deactivated_from_any_page(client):
     person = client.post("/api/people", json={"name": "Elena Ciobanu"}).json()
     body = {"name": "Consiliu", "meetingType": "medical", "participantStaffIds": [person["id"]]}
     t = client.post("/api/templates", json=body)
-    assert t.status_code == 201
-    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
-    login(client, "nurse@medpark.local", "long enough password")
-    assert client.post("/api/templates", json=body).status_code == 403
-    assert client.patch(f"/api/templates/{t.json()['id']}", json={"participantStaffIds": []}).status_code == 403
-    assert client.post(f"/api/templates/{t.json()['id']}/deactivate").status_code == 403
-    login(client)
+    assert t.status_code == 201 and t.json()["createdBy"] == "network"
+    assert client.post("/api/templates", json={**body, "participantStaffIds": ["nobody"]}).status_code == 422
+    changed = client.patch(f"/api/templates/{t.json()['id']}", json={"participantStaffIds": []})
+    assert changed.status_code == 200 and changed.json()["participantStaffIds"] == []
     gone = client.post(f"/api/templates/{t.json()['id']}/deactivate")
     assert gone.status_code == 200 and gone.json()["active"] is False
     assert client.get("/api/templates").json() == []
 
 
-def test_staff_enroll_a_voice_once_and_only_an_admin_replaces_it(client):
-    login(client)
+def test_enrolling_a_voice_again_replaces_it(client):
     person = client.post("/api/people", json={"name": "Elena Ciobanu"}).json()
-    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
-    login(client, "nurse@medpark.local", "long enough password")
     enroll = lambda: client.post(f"/api/people/{person['id']}/voice-enrollment",
                                  files={"audio": ("voice.wav", wav_bytes(), "audio/wav")})
     assert enroll().status_code == 204
-    assert enroll().status_code == 403
-    login(client)
     assert enroll().status_code == 204
+    assert [v["staffId"] for v in client.get("/api/voice-profiles").json()] == [person["id"]]
 
 
 def test_a_meeting_that_sounds_like_another_type_waits_for_a_person(client, monkeypatch):
@@ -333,27 +307,23 @@ def test_a_matching_type_changes_nothing(client, monkeypatch):
     assert m["status"] == "sending_soon" and not m["needsConfirmation"]
 
 
-def test_the_audit_trail_records_who_did_what_and_cannot_be_rewritten(client):
+def test_the_audit_trail_records_what_and_from_where_and_cannot_be_rewritten(client):
     m = processed(client)
     client.get(f"/api/meetings/{m['id']}/documents/ro.pdf")
     rows = client.get("/api/admin/audit").json()
     actions = [(r["method"], r["route"]) for r in rows]
     assert ("POST", "/api/meetings/{meeting_id}/upload") in actions
     assert ("GET", "/api/meetings/{meeting_id}/documents/{name}") in actions
-    assert all(r["userId"] for r in rows if r["route"] != "/api/auth/login")
+    assert all(r["address"] and r["at"] for r in rows) and not any("userId" in r or "user" in r for r in rows)
     assert not any("Consiliul" in json.dumps(r) for r in rows)   # never the content
     with pytest.raises(Exception):
         with store.tx() as con:
             con.execute("DELETE FROM audit")
-    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
-    login(client, "nurse@medpark.local", "long enough password")
-    assert client.get("/api/admin/audit").status_code == 403
 
 
 # ---------------------------------------------------------------- learning from corrections
-def test_an_edit_records_only_the_changed_field_and_who_made_it(client):
+def test_an_edit_records_only_the_changed_field_and_when(client):
     m = processed(client)
-    me = client.get("/api/auth/me").json()
     client.patch(f"/api/meetings/{m['id']}/actions/A1", json={"task": "Pacient cu pneumania, control mâine."})
     client.patch(f"/api/meetings/{m['id']}/actions/A1", json={"task": "Pacient cu pneumonia, control mâine."})
     client.patch(f"/api/meetings/{m['id']}/actions/A1", json={"completed": True})   # not a correction
@@ -362,7 +332,7 @@ def test_an_edit_records_only_the_changed_field_and_who_made_it(client):
     last = rows[-1]
     assert (last["meetingId"], last["item"], last["field"]) == (m["id"], "A1", "task")
     assert last["before"] == "Pacient cu pneumania, control mâine." and last["after"] == "Pacient cu pneumonia, control mâine."
-    assert last["by"] == me["id"] and last["at"]
+    assert last["by"] == "network" and last["at"]
     assert set(last) == {"id", "meetingId", "item", "field", "before", "after", "by", "at"}
 
 
@@ -376,7 +346,7 @@ def test_term_fixes_are_word_swaps_not_punctuation_or_case():
     assert corrections.term_pairs("Protocolul aprobat.", "Protocolul respins.") == []   # a new word, not a respelling
 
 
-def test_admin_sees_candidates_by_count_and_staff_cannot(client):
+def test_candidates_come_by_count(client):
     m = processed(client)
     url = f"/api/meetings/{m['id']}/minutes"
     for before, after in [("Pneumania confirmată.", "Pneumonia confirmată."),
@@ -388,11 +358,6 @@ def test_admin_sees_candidates_by_count_and_staff_cannot(client):
     assert [(c["heard"], c["corrected"], c["count"]) for c in got][:2] == [
         ("pneumania", "pneumonia", 2), ("coronarografie", "coronaroangiografie", 1)]
     assert got[0]["meetingIds"] == [m["id"]] and got[0]["approved"] is False and got[0]["lang"] == "ro"
-    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
-    login(client, "nurse@medpark.local", "long enough password")
-    assert client.get("/api/admin/glossary-candidates").status_code == 403
-    body = {"heard": "pneumania", "corrected": "pneumonia", "lang": "ro"}
-    assert client.post("/api/admin/glossary-candidates/approve", json=body).status_code == 403
 
 
 def test_approving_writes_the_site_glossary_once(client):
