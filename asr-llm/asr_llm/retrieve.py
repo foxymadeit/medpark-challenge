@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import re
+import zlib
 from dataclasses import dataclass
+from functools import lru_cache
 
 import numpy as np
 
@@ -22,7 +24,8 @@ def _ngrams(text: str) -> list[str]:
 def _hash_vec(text: str) -> np.ndarray:
     vec = np.zeros(_DIM, dtype=np.float32)
     for gram in _ngrams(text):
-        vec[hash(gram) % _DIM] += 1.0
+        # crc32, not hash(): str hashes change per process, which made retrieval non-reproducible.
+        vec[zlib.crc32(gram.encode()) % _DIM] += 1.0
     n = float(np.linalg.norm(vec))
     if n:
         vec /= n
@@ -40,6 +43,24 @@ class GlossaryHit:
     en: str
     score: float
     source: str
+    definition: str = ""
+
+
+@lru_cache(maxsize=1)
+def _index() -> tuple[list[tuple[dict, str, set[str]]], np.ndarray]:
+    """Glossary rows with their hash vectors, built once per process."""
+    data = load_glossary()
+    docs: list[tuple[dict, str, set[str]]] = []
+    blobs: list[str] = []
+    for row in data.get("aligned", []):
+        blob = " ".join(row.get(lang) or "" for lang in ("ro", "ru", "en"))
+        docs.append((row, row.get("source") or "aligned", _tokens(blob)))
+        blobs.append(blob)
+    for term in data.get("english_extra") or []:
+        docs.append(({"ro": term, "ru": term, "en": term}, "english_extra", _tokens(term)))
+        blobs.append(term)
+    matrix = np.stack([_hash_vec(b) for b in blobs]) if blobs else np.zeros((0, _DIM), dtype=np.float32)
+    return docs, matrix
 
 
 def retrieve_terms(query: str, *, k: int = 24) -> list[GlossaryHit]:
@@ -49,26 +70,22 @@ def retrieve_terms(query: str, *, k: int = 24) -> list[GlossaryHit]:
     there is no neural net. It can still fetch an unused term; the LLM prompt
     must say not to invent facts from the list.
     """
-    data = load_glossary()
-    docs: list[tuple[str, dict, str]] = []
-    for row in data.get("aligned", []):
-        blob = " ".join(row.get(lang) or "" for lang in ("ro", "ru", "en"))
-        docs.append((blob, row, row.get("source") or "aligned"))
-    for term in data.get("english_extra") or []:
-        docs.append((term, {"ro": term, "ru": term, "en": term}, "english_extra"))
-
+    docs, matrix = _index()
+    if not docs:
+        return []
     q_vec = _hash_vec(query)
     q_tok = _tokens(query)
+    q_fold = query.casefold()
+    cosines = matrix @ q_vec
     scored: list[GlossaryHit] = []
-    for blob, row, source in docs:
-        cosine = float(q_vec @ _hash_vec(blob))
-        overlap = len(q_tok & _tokens(blob))
+    for (row, source, tokens), cosine in zip(docs, cosines):
+        overlap = len(q_tok & tokens)
         surface = 1.0 if any(
-            (row.get(lang) or "").casefold() in query.casefold()
+            (row.get(lang) or "").casefold() in q_fold
             for lang in ("ro", "ru", "en")
             if row.get(lang) and len(row[lang]) >= 4
         ) else 0.0
-        score = cosine + 0.35 * overlap + 0.8 * surface
+        score = float(cosine) + 0.35 * overlap + 0.8 * surface
         if score <= 0:
             continue
         scored.append(
@@ -78,6 +95,7 @@ def retrieve_terms(query: str, *, k: int = 24) -> list[GlossaryHit]:
                 en=row.get("en") or "",
                 score=score,
                 source=source,
+                definition=row.get("def_en") or "",
             )
         )
     scored.sort(key=lambda h: h.score, reverse=True)
@@ -104,9 +122,9 @@ def llm_glossary_for(transcript: str, *, k: int = 24) -> str:
     for row in data.get("aligned", []):
         if row.get("source") == "hospital-ops":
             lines.append(f"{row['ro']} | {row['ru']} | {row['en']}")
-    hits = retrieve_terms(transcript, k=k)
-    for hit in hits:
-        if hit.source == "hospital-ops":
-            continue
-        lines.append(f"{hit.ro} | {hit.ru} | {hit.en}")
+    hits = [hit for hit in retrieve_terms(transcript, k=k) if hit.source != "hospital-ops"]
+    for rank, hit in enumerate(hits):
+        # The best few carry a short definition so a model can tell which medical sense fits.
+        meaning = f" — {hit.definition[:140]}" if hit.definition and rank < 5 else ""
+        lines.append(f"{hit.ro} | {hit.ru} | {hit.en}{meaning}")
     return "\n".join(lines)
