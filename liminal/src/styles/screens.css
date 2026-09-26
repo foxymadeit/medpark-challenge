@@ -244,13 +244,17 @@
   padding: var(--sm-space-6);
 }
 /* Transcript: a disclosure under the minutes; closed it's a one-line bar. */
-.review__pane--transcript:not(.is-open) { padding-block: var(--sm-space-4); }
 .review__disclosure { display: flex; align-items: center; gap: var(--sm-space-3); width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .review__disclosure-meta { font-weight: 400; letter-spacing: 0; }
 .review__disclosure-action { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; color: var(--sm-ink-primary); font: 600 15px/20px var(--sm-font-body); letter-spacing: 0; white-space: nowrap; }
 .review__disclosure-caret { color: var(--sm-ink-secondary); transition: transform 150ms; }
 .review__pane--transcript.is-open .review__disclosure-caret { transform: rotate(180deg); }
-.review__transcript-body { display: flex; flex-direction: column; gap: var(--sm-space-4); }
+.review__pane--transcript { gap: 0; }
+/* Header stays put; the body grows downwards (0fr → 1fr). */
+.review__transcript-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 280ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.review__pane--transcript.is-open .review__transcript-body { grid-template-rows: 1fr; }
+.review__transcript-inner { display: flex; flex-direction: column; gap: var(--sm-space-4); min-height: 0; overflow: hidden; padding-top: var(--sm-space-4); }
+@media (prefers-reduced-motion: reduce) { .review__transcript-body { transition: none; } }
 .transcript { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }
 .transcript__line { position: relative; display: flex; flex-direction: column; gap: var(--sm-space-1); }
 .transcript__line:has(.transcript__pen) .transcript__text { padding-right: 32px; }
