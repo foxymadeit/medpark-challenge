@@ -31,7 +31,7 @@ export async function shot(page: Page, name: string) {
 
 export async function login(page: Page) {
   await page.goto("/login");
-  await page.getByLabel("Username").fill("admin@medpark.local");
+  await page.getByLabel("Email or username").fill("admin@medpark.local");
   await page.getByLabel("Password").fill("correct horse battery");
   await page.getByLabel("Password").press("Enter");
   await page.waitForURL("**/meetings");

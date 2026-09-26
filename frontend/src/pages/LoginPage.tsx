@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useSearchParams } from "react-router-dom";
+import { Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { FiClock as Clock } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/useAuth";
@@ -10,6 +10,14 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const { user, login } = useAuth();
   const [params] = useSearchParams();
+  // back to the page that asked for a sign-in; only paths inside this app
+  const asked = (useLocation().state as { from?: string } | null)?.from;
+  const back =
+    asked?.startsWith("/") &&
+    !asked.startsWith("//") &&
+    !asked.startsWith("/login")
+      ? asked
+      : "/meetings";
   const timedOut =
     params.get("reason") === "timeout" ||
     sessionStorage.getItem("secure-mom-timeout") === "1";
@@ -17,7 +25,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
-  if (user) return <Navigate to="/meetings" replace />;
+  if (user) return <Navigate to={back} replace />;
   const form = (
     <form
       className="panel login-panel"
@@ -43,7 +51,7 @@ export default function LoginPage() {
         </div>
       )}
       <InputField
-        label={t("username")}
+        label={t("signInEmail")}
         autoComplete="username"
         autoCapitalize="none"
         spellCheck={false}

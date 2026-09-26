@@ -30,7 +30,7 @@ describe("application flows", () => {
     expect(screen.queryByText(/Secure MOM/i)).toBeNull();
     expect(screen.queryByText("Elena Ciobanu")).toBeNull();
     expect(screen.queryByText("Dr. Ana Popescu")).toBeNull();
-    const username = screen.getByLabelText("Username");
+    const username = screen.getByLabelText("Email or username");
     const password = screen.getByLabelText("Password");
     await user.clear(username);
     await user.type(username, "admin@medpark.local");
@@ -39,6 +39,16 @@ describe("application flows", () => {
     expect((password as HTMLInputElement).value).toBe("");
     await user.type(password, "test-only-demo-password{Enter}");
     await screen.findByRole("heading", { name: "Start a meeting" });
+  });
+  // Regression: ISSUE-010, sign-in dropped the page that was asked for
+  it("returns to the page that asked for a sign-in", async () => {
+    mount("/history", false);
+    await screen.findByRole("heading", { name: "Sign in" });
+    fireEvent.change(screen.getByLabelText("Password"), {
+      target: { value: "test-only-demo-password" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    await screen.findByRole("heading", { name: "History" });
   });
   it("protects routes, rejects invalid credentials, accepts normalized demo username and logs out", async () => {
     const fetch = vi.fn();
@@ -50,7 +60,7 @@ describe("application flows", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
     await screen.findByRole("alert");
-    fireEvent.change(screen.getByLabelText("Username"), {
+    fireEvent.change(screen.getByLabelText("Email or username"), {
       target: { value: " ADMIN@MEDPARK.LOCAL " },
     });
     fireEvent.change(screen.getByLabelText("Password"), {

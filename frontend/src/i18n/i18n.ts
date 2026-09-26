@@ -69,6 +69,7 @@ const resources = {
       signingIn: "Signing in…",
       loginMessage: "Meeting minutes that stay inside Medpark.",
       username: "Username",
+      signInEmail: "Email or username",
       password: "Password",
       invalidCredentials: "Invalid username or password.",
       meetingFor: "{{department}} meeting",
@@ -198,7 +199,8 @@ const resources = {
       deliveryConfirmed: "Delivery confirmed",
       sentTo: "Sent to the {{list}} at {{time}}",
       sentToCount_one: "Sent to the {{list}}, {{count}} recipient, at {{time}}",
-      sentToCount_other: "Sent to the {{list}}, {{count}} recipients, at {{time}}",
+      sentToCount_other:
+        "Sent to the {{list}}, {{count}} recipients, at {{time}}",
       sendingTo: "Sending to the {{list}}",
       demoDelivery: "Demo delivery simulated locally. No email was sent.",
       deliveredTo: "Delivered to",
@@ -285,7 +287,8 @@ const resources = {
       serviceDesc_asr: "Turns the recording into text on this server",
       serviceDesc_speakers: "Works out who spoke when, on this server",
       serviceDesc_automation: "Writes and checks the minutes on this server",
-      serviceDesc_mail: "Sends the minutes through the hospital's own mail server",
+      serviceDesc_mail:
+        "Sends the minutes through the hospital's own mail server",
       serviceDesc_storage: "Keeps recordings and minutes on this server",
       available: "Available",
       unavailable: "Unavailable",
@@ -497,6 +500,7 @@ const resources = {
       signingIn: "Se autentifică…",
       loginMessage: "Procese-verbale care rămân în Medpark.",
       username: "Utilizator",
+      signInEmail: "Email sau utilizator",
       password: "Parolă",
       invalidCredentials: "Utilizator sau parolă incorectă.",
       meetingFor: "Ședință {{department}}",
@@ -588,9 +592,12 @@ const resources = {
         "Procesul-verbal este gata pentru trimitere explicită.",
       reviewChecklist:
         "Verifică rezumatul, deciziile, sarcinile și participanții.",
-      waitingParticipants: "Așteaptă verificarea: adaugă cel puțin un participant.",
-      waitingOwners: "Așteaptă verificarea: atribuie un responsabil fiecărei sarcini.",
-      waitingFlags: "Așteaptă verificarea: păstrează sau scoate elementele marcate.",
+      waitingParticipants:
+        "Așteaptă verificarea: adaugă cel puțin un participant.",
+      waitingOwners:
+        "Așteaptă verificarea: atribuie un responsabil fiecărei sarcini.",
+      waitingFlags:
+        "Așteaptă verificarea: păstrează sau scoate elementele marcate.",
       waitingCheck: "Verifică procesul-verbal, apoi trimite.",
       markReviewComplete: "Marchează verificarea finalizată",
       send: "Trimite",
@@ -631,9 +638,12 @@ const resources = {
       backMinutes: "Înapoi la procesul-verbal",
       deliveryConfirmed: "Trimitere confirmată",
       sentTo: "Trimis către {{list}} la {{time}}",
-      sentToCount_one: "Trimis către {{list}}, {{count}} destinatar, la {{time}}",
-      sentToCount_few: "Trimis către {{list}}, {{count}} destinatari, la {{time}}",
-      sentToCount_other: "Trimis către {{list}}, {{count}} de destinatari, la {{time}}",
+      sentToCount_one:
+        "Trimis către {{list}}, {{count}} destinatar, la {{time}}",
+      sentToCount_few:
+        "Trimis către {{list}}, {{count}} destinatari, la {{time}}",
+      sentToCount_other:
+        "Trimis către {{list}}, {{count}} de destinatari, la {{time}}",
       sendingTo: "Se trimite către {{list}}",
       demoDelivery:
         "Trimitere demo simulată local. Niciun email nu a fost trimis.",
@@ -719,9 +729,12 @@ const resources = {
       storage: "Stocare locală",
       serviceDesc_asr: "Transformă înregistrarea în text pe acest server",
       serviceDesc_speakers: "Stabilește cine și când a vorbit, pe acest server",
-      serviceDesc_automation: "Redactează și verifică procesul-verbal pe acest server",
-      serviceDesc_mail: "Trimite procesul-verbal prin serverul de email al spitalului",
-      serviceDesc_storage: "Păstrează înregistrările și procesele-verbale pe acest server",
+      serviceDesc_automation:
+        "Redactează și verifică procesul-verbal pe acest server",
+      serviceDesc_mail:
+        "Trimite procesul-verbal prin serverul de email al spitalului",
+      serviceDesc_storage:
+        "Păstrează înregistrările și procesele-verbale pe acest server",
       available: "Disponibil",
       unavailable: "Indisponibil",
       simulated: "Simulat",
@@ -937,6 +950,7 @@ const resources = {
       signingIn: "Вход…",
       loginMessage: "Протоколы совещаний остаются в Medpark.",
       username: "Пользователь",
+      signInEmail: "Эл. почта или имя пользователя",
       password: "Пароль",
       invalidCredentials: "Неверное имя пользователя или пароль.",
       meetingFor: "Совещание: {{department}}",
@@ -1028,8 +1042,10 @@ const resources = {
       reviewBeforeSending: "Проверьте перед отправкой",
       readyToSendDetail: "Протокол готов к явной отправке.",
       reviewChecklist: "Проверьте сводку, решения, задачи и участников.",
-      waitingParticipants: "Ожидает проверки: добавьте хотя бы одного участника.",
-      waitingOwners: "Ожидает проверки: назначьте ответственного для каждой задачи.",
+      waitingParticipants:
+        "Ожидает проверки: добавьте хотя бы одного участника.",
+      waitingOwners:
+        "Ожидает проверки: назначьте ответственного для каждой задачи.",
       waitingFlags: "Ожидает проверки: оставьте или уберите отмеченные пункты.",
       waitingCheck: "Проверьте протокол, затем отправьте.",
       markReviewComplete: "Завершить проверку",
@@ -1073,8 +1089,10 @@ const resources = {
       sentTo: "Отправлено: {{list}}, в {{time}}",
       sentToCount_one: "Отправлено: {{list}}, {{count}} получатель, в {{time}}",
       sentToCount_few: "Отправлено: {{list}}, {{count}} получателя, в {{time}}",
-      sentToCount_many: "Отправлено: {{list}}, {{count}} получателей, в {{time}}",
-      sentToCount_other: "Отправлено: {{list}}, {{count}} получателя, в {{time}}",
+      sentToCount_many:
+        "Отправлено: {{list}}, {{count}} получателей, в {{time}}",
+      sentToCount_other:
+        "Отправлено: {{list}}, {{count}} получателя, в {{time}}",
       sendingTo: "Идёт отправка: {{list}}",
       demoDelivery:
         "Демо-отправка смоделирована локально. Письмо не отправлялось.",
