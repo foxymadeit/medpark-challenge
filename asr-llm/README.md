@@ -1,0 +1,244 @@
+# ASR + local LLM (reference hardware)
+
+Target: **one 16 GB GPU**, or **CPU 32 GB RAM**. Runtime: **no internet**.
+
+Diarization and n8n are other people's slices.
+
+## How the process runs
+
+```
+audio (or a ready transcript JSON)
+        │
+        ▼
+ 1. ffmpeg → 16 kHz mono
+ 2. Silero VAD → utterances           ← cut at every ≥300 ms pause, ≤15 s
+    (+ diarizer turns: cut again where the speaker changes)
+ 3. decode every utterance as ro AND ru ← Whisper LID says ru 0.9 on plain Moldovan RO
+    (+ en when LID's top pick is en); keep the higher avg_logprob,
+    ro gets +0.1 as the meeting's main language
+    clip < 1.5 s → reuse previous language
+    drop known subtitle hallucinations ("Продолжение следует…")
+ 4. faster-whisper large-v3           ← NO glossary, NO hotwords
+    (MOM_ASR_ENGINE=specialists instead: SpeD-RoASR + GigaAM-v3 + Parakeet v3,
+     combined per utterance and span by lexicon fit; see "Which setup ships")
+ 5. unload Whisper; snap misheard medical terms to the glossary (correct.py), log each change
+        │
+        ▼
+ 6. retrieve ~24 glossary rows        ← numpy search over medical_ro_ru_en.json
+    that look like this transcript
+        │
+        ▼
+ 7. local LLM (GGUF), per 10-min window ← summary + action items + term normalize
+    windows merged in Python (dedupe), one short call for title/summary
+ 8. JSON minutes
+```
+
+Whisper never sees the dictionary. The LLM sees a **subset** retrieved from the frozen JSON. Nothing is trained on the Medpark sample.
+
+Two ways in:
+
+- **Full:** audio file → steps 1–8 (needs Whisper weights + GGUF, CUDA if available).
+- **Skip ASR:** `--from-transcript transcript_v2.json` → steps 6–8 (needs GGUF only). Use this for the Kaggle v2 text.
+
+`--preview-glossary` stops after step 6: prints the retrieved table, no LLM.
+
+## Models (copy in by hand, or one-time fetch while you still have internet)
+
+```
+asr-llm/models/whisper/                         # Systran faster-whisper large-v3
+asr-llm/models/llm/qwen2.5-7b-instruct-q4_k_m.gguf
+```
+
+```bash
+python scripts/fetch_qwen.py    # Qwen/Qwen2.5-7B-Instruct-GGUF, q4_k_m, ~4.7 GB
+```
+
+## Canary check (Kaggle T4, not the Mac)
+
+Whisper v2 stays the frozen baseline. Canary-1B-v2 is a second ASR pass on the
+same audio. Weights download on Kaggle (Internet ON, GPU T4). Paste
+`scripts/kaggle_canary_bench.py` into one cell. It writes
+`/kaggle/working/transcript_canary.json` in the same shape as the Whisper bench.
+Canary is told `source_lang=ro` (transcribe, not translate); Russian and English
+stretches may lose to Whisper.
+
+## Run
+
+```bash
+cd asr-llm
+pip install -e ".[asr,llm,dev]"
+
+# See which terms the retriever picks (no GPU LLM required)
+python -m asr_llm.cli --from-transcript ~/Downloads/transcript_v2.json --preview-glossary
+
+# Minutes from the Kaggle v2 transcript
+python -m asr_llm.cli --from-transcript ~/Downloads/transcript_v2.json \
+  --meeting-type medical --out /tmp/mom.json
+
+# Full local audio path (slow on M4 CPU, fine on NVIDIA 16 GB)
+python -m asr_llm.cli ../data/Medpark_audio.m4a --meeting-type medical --out /tmp/mom.json
+```
+
+## Why the ASR works this way
+
+Measured on `data/Medpark_audio.m4a` (11:42):
+
+| Run | What went wrong |
+|---|---|
+| Whisper large-v3, auto language per 15 s chunk | 59 % of letters Cyrillic in a mostly Romanian meeting: `Ело фост … ку инфаркт миокарди` (RO written as RU), plus RO/RU decoded as Lithuanian |
+| Canary-1B-v2 forced to `ro` | Romanian fine, Russian mangled, loops "Eu cum." on the last 30 s |
+| old energy VAD | kept 198 s of 702 s: its threshold was the median loudness, which in a busy meeting *is* speech |
+| Whisper forced to `ru` on Romanian speech | it **translates**: "dreapta și stânga" → "и правая, и левая" — a fluent lie, lower avg_logprob than the `ro` decode |
+
+First 113 s, 14 utterances, ro vs ru decode: LID picked `ru` on 12 of them (0.54–0.94) though
+nearly all are Romanian. avg_logprob picked the right language on 10/14; the 4 misses were
+within 0.06, which the +0.1 home bias flips.
+
+Tuning knobs (env `MOM_*`): `HOME_LANGUAGE` / `HOME_BIAS`, `ASR_ALWAYS_DECODE`, `MIN_LID_S`,
+`VAD_MIN_SILENCE_MS`, `ASR_MODEL_DIR` (turbo for CPU-only / speed), `LLM_WINDOW_S`.
+
+## Measuring ASR
+
+```bash
+python -m asr_llm.score transcript.json                        # LID / script checks, no gold needed
+python -m asr_llm.score transcript.json --gold data/gold_0-181s.txt --window 181   # + CER/WER, term hits
+```
+
+`script_mismatch` counts `ro` lines written in Cyrillic (and `ru` in Latin). The gold file is
+the first 3 min corrected by hand by someone who speaks RO and RU. Judge every ASR change by it.
+
+GPU check on Kaggle (T4, Internet ON only for the fetch):
+
+```bash
+git clone -b samoilov-asr-llm https://github.com/foxymadeit/medpark-challenge && cd medpark-challenge/asr-llm
+pip install -e ".[asr]" && python scripts/fetch_whisper.py large-v3
+MOM_ASR_COMPUTE_TYPE=int8_float16 python -m asr_llm.cli ../data/Medpark_audio.m4a --skip-llm --out transcript.json
+python -m asr_llm.score transcript.json
+```
+
+## Mixed-language sentences: LLM fusion (optional, off by default)
+
+Every utterance keeps all its decodes (`segments[].hypotheses`). With `MOM_FUSION=single`, one
+model looks at the **unclear** utterances only (ro/ru scores within `FUSE_MARGIN`, or best below
+`FUSE_FLOOR`), 15 per call. Its answer must be built from hypothesis words (≥85 %) and may not
+swap wholesale to a clearly worse-scored decode; otherwise the acoustic winner stays. A
+forced-Russian decode of Romanian speech reads fluently, so fluency is not evidence.
+
+A multi-model debate (every model, every sentence, two rounds) was tried and removed: it took
+81 min for 11.7 min of audio, and on the hand-corrected gold it scored CER 0.46 against 0.47
+for no fusion at all.
+
+Models come from GGUF files or a local Ollama:
+
+```bash
+brew install ollama && brew services start ollama          # listens on 127.0.0.1 only
+ollama pull qwen3.5:9b
+
+# compare on the same transcript (hypotheses from the Kaggle bench or a local run)
+MOM_LLM_MODEL=ollama:qwen3.5:9b python -m asr_llm.cli --from-transcript t.json --fusion single --fuse-only --out single.json
+python -m asr_llm.score single.json --gold data/gold_0-181s.txt --window 181
+```
+
+## Trilingual medical dictionary
+
+`scripts/build_glossary.py` (dev time only) turns the 2,050 Harvard terms plus
+`data/icu_terms_en.txt` into RO/RU/EN rows with definitions: Wikidata labels for
+entities with a MeSH/UMLS/ICD id first, then Qwen2.5-32B on Kaggle for the rest,
+checked by back-translation (`back_ok`). Runtime only reads the merged JSON. The
+fusion and minutes prompts get the ~24 rows that match the text, the best five with
+a short definition.
+
+Until the Qwen translation runs, `build_glossary.py merge` takes the Harvard terms whose
+Romanian **and** Russian names both come from Wikidata's human labels: 806 terms, which
+with the ICD-10, ICU and hospital rows makes 892 trilingual rows. The 1,373 Harvard terms
+without both labels stay in `english_extra`, English only.
+
+### Snapping misheard terms back (`asr_llm/correct.py`, on by default)
+
+After ASR, each utterance is compared, in its own language, with the glossary's terms of
+one to four words. A span is replaced by the dictionary spelling only when all of these hold:
+
+- the span is at least 6 letters long and scores at least 88 (rapidfuzz ratio) against the
+  term, on a key that ignores case, diacritics, `ё/й` and doubled letters;
+- the first letter matches and each word keeps its last two letters, so a case ending is never
+  overwritten ("пневманией" stays; only "пневмания" becomes "пневмония");
+- the difference is not only in the ending, since that is inflection ("ecografia"), not an error;
+- the term is in the utterance's language: a Russian term never lands in a Romanian sentence.
+
+Every change goes into the transcript's `corrections` list (time, language, before, after,
+score), so a reviewer can see and undo it. `MOM_CORRECT_TERMS=false` turns it off. This is
+the post-processing kind of contextual correction, with no retraining
+([SpellMapper](https://arxiv.org/pdf/2306.02317); orthographic and phonetic distance for
+clinical text, [Fivez et al.](https://arxiv.org/pdf/1710.07045)).
+
+### Word-level language merge (`MOM_CS_MERGE`, off until the gold says otherwise)
+
+Every utterance is already decoded as `ro` and `ru`. With the merge on, the winning decode keeps
+its words, but a run of two or more words that the other decode heard with a mean word
+probability at least `MOM_CS_MARGIN` (0.25) higher over the same time span, written in that
+language's own script, replaces the winner's words there. The segment's language becomes, for
+example, `ro+ru`. This is the "two monolingual decodes, pick per span by confidence" approach
+([Weiner et al.](https://arxiv.org/pdf/2109.00921)). A forced-Russian decode of Romanian speech
+reads fluently, which is why the margin is wide and the default is off until measured.
+
+### Which setup ships: `scripts/kaggle_asr_bakeoff`
+
+A wrapper around `asr_train.zeroshot` that also runs the product's Whisper pipeline four ways
+(large-v3 and turbo, merge off and on), times an hour of audio for each model, and scores the
+term corrector before and after on every engine's output. Push it with
+`kaggle kernels push -p asr-llm/scripts/kaggle_asr_bakeoff`; results land in `out/report.json`.
+
+## Fine-tuning an ASR model (dev time only)
+
+`asr_train/` builds a RO/RU/EN training set with spliced code-switching, fine-tunes
+Parakeet-TDT-0.6B-v3 on it, and benches ASR candidates. It runs the same locally and on
+Kaggle: `scripts/kaggle_asr_{data,finetune,zeroshot}/kernel.py` only pass `/kaggle` paths.
+It is never imported at meeting runtime, and unlike `asr_llm` it does not force HF offline.
+
+```bash
+cd asr-llm
+pip install -e ".[train-data,train,dev]"   # plus torch + torchaudio built for your CUDA
+
+# 1. data (~150 h + 30 h collage). Offline: copy the Hub repos into a mirror first, see asr_train/hub.py
+python -m asr_train.build_data --out data/asrdata [--hf-mirror ~/hf-mirror]
+python -m asr_train.build_data --out /tmp/smoke --sources fleurs --collage-hours 0.2   # quick run
+
+# 2. fine-tune: every visible GPU, bf16 where supported, fp16 on T4
+python -m asr_train.finetune --data-dir data/asrdata --check                     # manifests + audio only
+python -m asr_train.finetune --data-dir data/asrdata --out runs/ft [--resume auto] \
+    [--base-model models/parakeet-tdt-0.6b-v3.nemo]                               # local base = no Hub
+python -m asr_train.finetune --data-dir /tmp/smoke --out /tmp/ft --max-steps 50 --val-every 25   # smoke run
+
+# 3. bench, before and after: CER/WER on gold + public test sets, RTFx on the long file
+python -m asr_train.zeroshot --work runs/zeroshot --audio ../data/Medpark_audio.m4a
+python -m asr_train.zeroshot --work runs/zeroshot --models parakeet \
+    --model-path parakeet=runs/ft/parakeet-tdt-0.6b-v3-medpark.nemo
+
+# any extra recording: --clip NAME=AUDIO[,REFERENCE]; with only clips, no dataset is downloaded
+python -m asr_train.zeroshot --work runs/synthetic --models parakeet,whisper \
+    --clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md
+```
+
+`data/syntethic_record.m4a` (4:32) should be a recording of `data/recording_scripts/medical_round.md`.
+A `.md` reference is read as the script's spoken lines. It is what was *meant* to be said, not a
+by-ear gold, so a changed or ad-libbed line counts against the model until the script is corrected.
+The `whisper` model here runs the full `asr_llm` ASR (VAD, ro+ru decodes, language pick).
+
+Checkpoints: the best two by `val_wer` and `last.ckpt` are saved after every dev check.
+`final.ckpt` and the `.nemo` are saved when training ends. `--max-hours` is a per-session
+budget and is not carried through a resume, so a resumed 11-hour Kaggle run gets another 11 hours.
+
+## With diarization
+
+```bash
+diarizer file meeting.m4a --out sessions/x          # Coflazo-Branch
+python -m asr_llm.cli meeting.m4a --diarization sessions/x/meeting.json --out mom.json
+```
+
+`POST /minutes` takes the same file as an optional `diarization` form field.
+
+## Tests
+
+```bash
+pytest
+```

@@ -1,0 +1,14 @@
+{
+  "id": "volodymyrsamoilov/medpark-asr-zeroshot",
+  "title": "medpark-asr-zeroshot",
+  "code_file": "kernel.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "machine_shape": "NvidiaTeslaT4",
+  "dataset_sources": ["volodymyrsamoilov/medpark-audop"],
+  "competition_sources": [],
+  "kernel_sources": []
+}

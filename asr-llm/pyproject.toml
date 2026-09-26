@@ -1,0 +1,36 @@
+[project]
+name = "medpark-asr-llm"
+version = "0.1.0"
+description = "On-premise ASR + local LLM minutes for a 16GB GPU or 32GB CPU host"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "python-multipart>=0.0.12",
+  "numpy>=2.0",
+  "pydantic-settings>=2.6",
+  "rapidfuzz>=3.6",  # C++ fuzzy matching for the glossary term corrector
+  "wordfreq>=3.1",  # RO/RU/EN word frequencies, bundled offline: the ensemble's lexicon check
+]
+
+[project.optional-dependencies]
+asr = ["faster-whisper>=1.1"]
+llm = ["llama-cpp-python>=0.3.0"]
+dev = ["pytest>=8.3"]
+# Dev-time training (asr_train), never needed at meeting runtime.
+# torch and torchaudio are left to the user: pick the build that matches the local CUDA.
+train-data = ["huggingface_hub>=0.25", "soundfile>=0.12", "pyarrow>=15", "librosa>=0.10", "scipy>=1.11", "uroman>=1.3"]
+train = ["nemo_toolkit[asr]", "huggingface_hub>=0.25", "soundfile>=0.12", "pyarrow>=15"]
+
+[project.scripts]
+mom-asr = "asr_llm.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["asr_llm*", "asr_train*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

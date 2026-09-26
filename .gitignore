@@ -1,21 +1,38 @@
 .venv/
+venv/
 __pycache__/
 *.pyc
 .pytest_cache/
+.ruff_cache/
+*.egg-info/
+.DS_Store
+.env
+.claude/
+sessions/
+data/team/
+data/ami/*.wav
+# mixed-language test meetings, rebuilt by eval/make_mix.py
+data/mix/
+
+# ASR models and runs, fetched by scripts
+asr-llm/models/whisper/
+asr-llm/models/whisper-turbo/
+asr-llm/models/llm/
+asr-llm/.venv/
+asr-llm/runs/
+*.gguf
+*.bin
+*.pt
+*.onnx
+
+# diarizer models: only the shipped ones are tracked
 diarization/models/*
 !diarization/models/segmentation-3.0.onnx
 !diarization/models/segmentation-ft.onnx
 !diarization/models/nemo_en_titanet_small.onnx
 !diarization/models/NOTICE.md
 !diarization/models/titanet-small.backend.d64.npz
-sessions/
-data/team/
-.DS_Store
-data/ami/*.wav
 diarization/eval/cache/
 diarization/voices/
-# mixed-language test meetings, rebuilt by eval/make_mix.py
-data/mix/
 # VHS text capture, used only to check a recording
 diarization/demo/cli.txt
-.claude/
