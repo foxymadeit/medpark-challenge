@@ -348,6 +348,8 @@ workflow ([backend/n8n/liminal-routing.json](backend/n8n/liminal-routing.json)),
 self-hosted in the same compose stack. n8n's Community Edition is free for a
 hospital's internal use.
 
+<p align="center"><img src="docs/readme/n8n.png" alt="The n8n workflow: Minutes from Liminal, Prepare the email, Route by meeting type, then Email the Medical, Executive or Administrative board" width="85%"></p>
+
 1. **Webhook.** The backend posts the checked minutes and the three PDFs.
 2. **Prepare.** One Code node writes the subject ("MoM | Medical | …") and body
    and attaches the RO, RU and EN PDFs. An unknown type tag fails the webhook
