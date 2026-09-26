@@ -41,3 +41,20 @@ def test_word_merge_swaps_in_a_confident_russian_run_and_nothing_else():
     assert merge_words(ro, [ru]) == ("Pacientul e не стабилен", ["ru"])
     weak = ru.model_copy(update={"words": [(w[0], w[1], w[2], 0.3) for w in ru.words]})
     assert merge_words(ro, [weak]) == ("Pacientul e ne stabil", [])
+
+
+def test_a_term_approved_on_site_is_corrected_too(tmp_path, monkeypatch):
+    import json
+
+    from asr_llm import correct, glossary
+
+    site = tmp_path / "site_glossary.json"
+    site.write_text(json.dumps({"aligned": [{"source": "site", "ro": "zorvatinib", "heard": "zorvatenib"}]}))
+    monkeypatch.setenv("LIMINAL_SITE_GLOSSARY", str(site))
+    glossary.load_glossary.cache_clear(), correct._terms.cache_clear()
+    try:
+        assert correct_text("Pacientul primește zorvatenib.", "ro")[0] == "Pacientul primește zorvatinib."
+    finally:
+        monkeypatch.delenv("LIMINAL_SITE_GLOSSARY")
+        glossary.load_glossary.cache_clear(), correct._terms.cache_clear()
+    assert correct_text("Pacientul primește zorvatenib.", "ro")[0] == "Pacientul primește zorvatenib."

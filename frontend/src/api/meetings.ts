@@ -688,3 +688,39 @@ export function auditAction(row: Pick<AuditRow, "method" | "route">): string {
     return "audit_listen";
   return AUDIT_ACTIONS.find(([re]) => re.test(row.route))?.[1] ?? "audit_other";
 }
+
+/** A word people corrected in the minutes, offered for the site glossary. */
+export interface GlossaryCandidate {
+  heard: string;
+  corrected: string;
+  count: number;
+  meetingIds: string[];
+  lang: "ro" | "ru" | "en";
+  approved: boolean;
+}
+export async function getGlossaryCandidates(): Promise<GlossaryCandidate[]> {
+  return DEMO_MODE
+    ? []
+    : request<GlossaryCandidate[]>("/admin/glossary-candidates");
+}
+export async function approveGlossaryCandidate(
+  c: Pick<GlossaryCandidate, "heard" | "corrected" | "lang">,
+): Promise<void> {
+  if (DEMO_MODE) return;
+  await request("/admin/glossary-candidates/approve", {
+    method: "POST",
+    body: JSON.stringify({
+      heard: c.heard,
+      corrected: c.corrected,
+      lang: c.lang,
+    }),
+  });
+}
+/** Waiting candidates first, most frequent first; approved ones after. */
+export function orderCandidates(
+  list: GlossaryCandidate[],
+): GlossaryCandidate[] {
+  return [...list].sort(
+    (a, b) => Number(a.approved) - Number(b.approved) || b.count - a.count,
+  );
+}

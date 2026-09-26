@@ -36,3 +36,21 @@ def test_the_writer_is_told_the_standard_terms():
     llm = Recorder()
     write_body(llm, facts, "en", {"N1": "infarct miocardic acut"})
     assert "Infarct miocardic acut → Acute myocardial infarction" in llm.user
+
+
+def test_a_term_approved_on_site_reaches_the_writer(tmp_path, monkeypatch):
+    import json
+
+    from mom import glossary
+
+    site = tmp_path / "site_glossary.json"
+    site.write_text(json.dumps({"aligned": [{"source": "site", "ro": "zorvatinib", "heard": "zorvatenib"}]}))
+    monkeypatch.setenv("LIMINAL_SITE_GLOSSARY", str(site))
+    glossary._table.cache_clear()
+    try:
+        rows = terms_for(["Pacientul primește zorvatinib de mâine."], "ro")
+        assert any(r["source"] == "site" and r["matched"] == "zorvatinib" for r in rows)
+    finally:
+        monkeypatch.delenv("LIMINAL_SITE_GLOSSARY")
+        glossary._table.cache_clear()
+    assert not any(r["source"] == "site" for r in terms_for(["Pacientul primește zorvatinib de mâine."], "ro"))

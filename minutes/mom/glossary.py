@@ -4,6 +4,7 @@ terms_for() picks the rows whose term appears in the facts, so the model uses
 the standard form in each language. It never adds a fact."""
 
 import json
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -22,9 +23,14 @@ def _stem(word: str) -> str:
 @lru_cache(maxsize=1)
 def _table() -> tuple:
     """(row, [(lang, term, stems)]) for every aligned row; "nor = noradrenalină"
-    and "eco = ecografie / ecocardiografie" give one alternative per side."""
+    and "eco = ecografie / ecocardiografie" give one alternative per side.
+    Rows of the site glossary at LIMINAL_SITE_GLOSSARY, when set, come last."""
+    rows = json.loads(DATA.read_text(encoding="utf-8"))["aligned"]
+    site = os.environ.get("LIMINAL_SITE_GLOSSARY")
+    if site and Path(site).is_file():
+        rows = rows + (json.loads(Path(site).read_text(encoding="utf-8")).get("aligned") or [])
     out = []
-    for row in json.loads(DATA.read_text(encoding="utf-8"))["aligned"]:
+    for row in rows:
         forms = []
         for lang in LANGS:
             for alt in re.split(r"\s*[=/]\s*", row.get(lang, "")):

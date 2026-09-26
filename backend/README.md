@@ -79,6 +79,40 @@ next start.
 - Meetings carry `processingStages`, `needsConfirmation`, `documents`,
   `deliveredVia` and `sendWindowSeconds` in addition to the contract fields.
 
+## Learning from corrections
+
+When someone edits the minutes (the summary, a decision, or an action's text,
+owner or deadline), the server keeps a `corrections` record: meeting, item,
+field, the value before and after, who and when. Nothing else is stored.
+
+Word swaps inside those edits become glossary candidates: a replaced span of
+one to three words, every word at least four letters on both sides, that
+differs by more than case or punctuation and still looks like the same word
+(similarity 0.6 or more, so "pneumania" to "pneumonia" counts and "aprobat" to
+"respins" does not).
+
+- `GET /api/admin/glossary-candidates` (admin): `[{heard, corrected, count,
+  meetingIds, lang, approved}]`, most frequent first. `lang` is a guess
+  (Cyrillic is `ru`, anything else `ro`); the administrator can change it.
+- `POST /api/admin/glossary-candidates/approve` (admin) with
+  `{heard, corrected, lang}` appends `{"source": "site", "<lang>": corrected,
+  "heard": heard}` to `LIMINAL_DATA/site_glossary.json` (mode 0600), in the
+  same `aligned` row shape as `medical_ro_ru_en.json`. Approving twice adds
+  one row.
+
+Both consumers read that file when `LIMINAL_SITE_GLOSSARY` points at it:
+
+- the ASR term corrector (`asr-llm/asr_llm/glossary.py`, used by
+  `correct.py`) adds the site rows to its dictionary, so a near miss of an
+  approved term snaps to it like any other glossary term;
+- the minutes writer (`minutes/mom/glossary.py`) offers the site rows to the
+  model as standard terms.
+
+The backend sets `LIMINAL_SITE_GLOSSARY` to `LIMINAL_DATA/site_glossary.json`
+for every stage it runs (unless it is already set), and each stage is a new
+process, so an approved term applies from the next meeting on. No model is
+retrained. To take a term back out, delete its row from the file.
+
 ## Security
 
 | Area | What the server does |

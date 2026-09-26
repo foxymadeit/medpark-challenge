@@ -11,6 +11,7 @@ import { listName, routingLine } from "../api/routing";
 import { useRouting } from "../hooks/useRouting";
 import { useData } from "../hooks/useData";
 import StatePanel from "../components/StatePanel";
+import CorrectedWords from "../components/CorrectedWords";
 import { formatClock } from "../utils";
 export default function SystemPage() {
   const { t, i18n } = useTranslation();
@@ -108,6 +109,7 @@ export default function SystemPage() {
           <p>{t("auditEmpty")}</p>
         )}
       </section>
+      <CorrectedWords />
       <section className="panel minutes-card">
         <h2>{t("distribution")}</h2>
         <div className="distribution-grid">

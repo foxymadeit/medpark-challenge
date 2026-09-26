@@ -18,6 +18,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 import audio
+import corrections
 import delivery
 import jobs
 import security
@@ -263,9 +264,11 @@ def patch_minutes(meeting_id: str, body: MinutesPatch, user: dict = Depends(curr
     def change(m):
         _locked(m)
         if body.summary is not None:
+            corrections.record(meeting_id, "summary", "summary", m.get("summary"), body.summary.strip(), user)
             m["summary"] = body.summary.strip()
         if body.decisions is not None:
-            old = {d["id"] for d in m.get("decisions") or []}
+            before = {d["id"]: d.get("text") for d in m.get("decisions") or []}
+            old = set(before)
             decisions = []
             for d in body.decisions:
                 text = str(d.get("text", "")).strip()
@@ -273,6 +276,8 @@ def patch_minutes(meeting_id: str, body: MinutesPatch, user: dict = Depends(curr
                     decisions.append({"id": str(d.get("id") or f"D{uuid.uuid4().hex[:6]}")[:64], "text": text[:2000]})
             for d in decisions:
                 _resolve(m, d["id"])
+                if d["id"] in before:
+                    corrections.record(meeting_id, d["id"], "text", before[d["id"]], d["text"], user)
             for gone in old - {d["id"] for d in decisions}:
                 _resolve(m, gone)
             m["decisions"] = decisions
@@ -290,6 +295,7 @@ def patch_action(meeting_id: str, action_id: str, body: ActionPatch, user: dict 
         a = next((x for x in m.get("actionItems") or [] if x["id"] == action_id), None)
         if a is None:
             raise HTTPException(404, "Action not found.")
+        was = dict(a)
         if "task" in fields:
             if not (fields["task"] or "").strip():
                 raise HTTPException(422, "An action needs its text.")
@@ -308,6 +314,9 @@ def patch_action(meeting_id: str, action_id: str, body: ActionPatch, user: dict 
             a["deadline"] = d
         if "completed" in fields:
             a["completed"] = bool(fields["completed"])
+        for field in ("task", "ownerParticipantId", "deadline"):
+            if field in fields:
+                corrections.record(meeting_id, action_id, field, was.get(field), a.get(field), user)
         if set(fields) - {"completed"}:
             _resolve(m, action_id)
             _restart_window(m)
@@ -606,6 +615,23 @@ def capabilities(user: dict = Depends(current_user)):
 def audit(user: dict = Depends(require_admin)):
     """The latest 500 entries of the append-only audit trail."""
     return security.audit_rows()
+
+
+class Approval(BaseModel):
+    heard: str = Field(min_length=1, max_length=120)
+    corrected: str = Field(min_length=1, max_length=120)
+    lang: str = Field(pattern="^(ro|ru|en)$")
+
+
+@router.get("/admin/glossary-candidates")
+def glossary_candidates(user: dict = Depends(require_admin)):
+    """Words people corrected in the minutes, most frequent first."""
+    return corrections.candidates()
+
+
+@router.post("/admin/glossary-candidates/approve")
+def approve_candidate(body: Approval, user: dict = Depends(require_admin)):
+    return corrections.approve(body.heard.strip(), body.corrected.strip(), body.lang, user)
 
 
 @router.get("/admin")
