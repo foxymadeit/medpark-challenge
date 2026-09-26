@@ -10,6 +10,14 @@ colors:
   ink-tertiary: "#6f685f"
   danger: "#b3261e"
   danger-tint: "#fbeae8"
+  speaker-1: "#b73f74"
+  speaker-2: "#c27544"
+  speaker-3: "#0093a5"
+  speaker-4: "#6450a1"
+  speaker-5: "#1a7444"
+  speaker-6: "#d46d7a"
+  speaker-7: "#006eb8"
+  speaker-8: "#489b6e"
 typography:
   display:
     fontFamily: "Onest, system-ui, sans-serif"
@@ -148,9 +156,10 @@ numbers, and it stays out of the way until something needs a decision. The
 minutes are the only thing on screen that should feel loud.
 
 The page is warm bone, cards are white with a 1 px hairline and a shadow you
-notice only when it is missing. There is one ink. The only colour is red, and
-it turns up only when something is recording, failed, or can still be stopped.
-Meeting types and speakers are told apart by their names, never by colour. The references were HockeyStack and glasa.io for
+notice only when it is missing. There is one ink. Red turns up only when
+something is recording, failed, or can still be stopped. People get one colour
+each, taken from Sanzo Wada's dictionary, always beside their name. Meeting
+types are words, never colours. The references were HockeyStack and glasa.io for
 restraint and density. We ruled out anything cartoonish, pointed or chatty.
 
 **Key characteristics**
@@ -169,7 +178,7 @@ restraint and density. We ruled out anything cartoonish, pointed or chatty.
 
 ## Colors
 
-Warm neutrals and one near-black ink. Red is the only colour.
+Warm neutrals and one near-black ink. Red for danger, and one Wada colour per person.
 
 - **Surfaces.** `ground` is the page, `panel` is every card and sheet, and
   `hairline` is every divider and card edge at 1 px.
@@ -178,9 +187,74 @@ Warm neutrals and one near-black ink. Red is the only colour.
   safely ignore; it still passes 4.5:1 on both surfaces.
 - **Danger.** It is used for "Stop sending", destructive actions and errors,
   always together with a word.
-- **No decorative colour.** Meeting types, speakers and statuses are words.
-  There are no department colours, speaker colours, coloured dots, or icons in
-  tinted squares. Speaker timelines use ink bars, one row per named person.
+- **No decorative colour.** Meeting types and statuses are words. There are no
+  department colours and no icons in tinted squares.
+- **Speakers.** Each voice gets the next slot, in order, as it appears. The 50
+  colours come from Sanzo Wada's *A Dictionary of Colour Combinations* (1933),
+  via mattdesl's MIT dataset, filtered to 3:1 on panel and ground, away from
+  grey and from the danger red, and ordered by an exhaustive search checked
+  with the dataviz palette validator (Machado 2009 colour-blind model):
+  - **1 to 5** pass every check on every pair: normal ΔE ≥ 15, colour-blind
+    ΔE ≥ 7.1. Wada's muted range has no larger fully distinct set.
+  - **6 to 8** pass every check on neighbouring pairs (normal ΔE ≥ 16,
+    colour-blind ΔE ≥ 9.2).
+  - **9 to 50** are all different and all readable, but too close to tell
+    apart by colour alone. Past 8 people the name does the work.
+  A speaker colour is a 10 px dot before a name, or a timeline bar in a row
+  labelled with the name. It is never text, a fill behind text, or a button.
+
+| Slot | Hex | Wada name |
+|---|---|---|
+|  1 | `#b73f74` | Rosolanc Purple |
+|  2 | `#c27544` | Cinnamon Rufous |
+|  3 | `#0093a5` | Cerulian Blue |
+|  4 | `#6450a1` | Blue Violet |
+|  5 | `#1a7444` | Diamine Green |
+|  6 | `#d46d7a` | Old Rose |
+|  7 | `#006eb8` | Blue |
+|  8 | `#489b6e` | Green |
+|  9 | `#59256a` | Red Violet |
+| 10 | `#653514` | Mars Brown Tobacco |
+| 11 | `#004f46` | Dusky Green |
+| 12 | `#4f4086` | Violet |
+| 13 | `#7c4226` | Brown |
+| 14 | `#007190` | Antwarp Blue |
+| 15 | `#986f2d` | Orange Citrine |
+| 16 | `#00978d` | Benzol Green |
+| 17 | `#7d133a` | Pansy Purple |
+| 18 | `#642d5e` | Violet Red |
+| 19 | `#dd4027` | Red Orange |
+| 20 | `#5a82b3` | Olympic Blue |
+| 21 | `#da525d` | Eugenia Red B |
+| 22 | `#064f6e` | Vandar Poel's Blue |
+| 23 | `#8c4c62` | Veronia Purple |
+| 24 | `#005b8d` | Helvetia Blue |
+| 25 | `#704357` | Dark Slate Purple |
+| 26 | `#009465` | Dull Viridian Green |
+| 27 | `#e2625e` | Eugenia Red A |
+| 28 | `#802626` | Pale Burnt Lake |
+| 29 | `#648f7b` | Pistachio Green |
+| 30 | `#d96629` | English Red |
+| 31 | `#635a3a` | Deep Grayish Olive |
+| 32 | `#80719e` | Dull Blue Violet |
+| 33 | `#8b835b` | Dark Citrine |
+| 34 | `#00908a` | Light Porcelain Green |
+| 35 | `#713b4c` | Violet Carmine |
+| 36 | `#66629c` | Dark Soft Violet |
+| 37 | `#099197` | Green Blue |
+| 38 | `#a36752` | Sudan Brown |
+| 39 | `#437742` | Cossack Green |
+| 40 | `#555832` | Lincoln Green |
+| 41 | `#644b1e` | Sepia |
+| 42 | `#819238` | Oil Green |
+| 43 | `#84565b` | Purple Drab |
+| 44 | `#1c4286` | Deep Lyons Blue |
+| 45 | `#96874d` | Buffy Citrine |
+| 46 | `#7a4456` | Taupe Brown |
+| 47 | `#762c19` | Madder Brown |
+| 48 | `#806e4b` | Light Brownish Olive |
+| 49 | `#71502f` | Pale Raw Umber |
+| 50 | `#40456a` | Violet Blue |
 
 ## Typography
 
@@ -234,7 +308,7 @@ Nothing else casts a shadow. Lists inside cards are separated by hairlines, not 
 ## Shapes
 
 Controls (buttons, inputs, checkboxes, the language switch) use 10 px corners.
-Cards, sheets and dialogs use 18 px. The only dot is the red recording pulse. Nothing is square and nothing is pointed. Chevrons appear only inside
+Cards, sheets and dialogs use 18 px. Dots are full circles: a speaker's colour, or the red recording pulse. Nothing is square and nothing is pointed. Chevrons appear only inside
 a select, and arrows are never used as decoration. Every card edge is a 1 px
 hairline.
 
@@ -248,7 +322,7 @@ Pressed, Disabled and Focus states.
   "Stop sending" and delete.
 - **Door**: the three meeting types on the start screen: a name and where the
   minutes go. No icon, no colour. The whole door is the target.
-- **Speaker**: name and talk time.
+- **Speaker**: colour dot, name, talk time.
 - **Status**: a word on a neutral chip. Only Recording and Failed are red.
 - **Language switch**: EN, RO, RU, always top right. It switches the whole
   interface and the page `lang`.
@@ -306,13 +380,13 @@ countdown bar still empties, because it carries meaning.
 **Do**
 
 - Use buttons that say what happens: "Send now", "Stop sending", "Write the minutes".
-- Name every speaker and every status in words.
+- Put a name next to every speaker colour and a word next to every status.
 - Keep a 2 px ink focus ring with a 2 px offset on every control.
 - Make "Now speaking" and the countdown polite live regions, and read the timer only on request.
 
 **Don't**
 
-- Colour-code meeting types or speakers, or put an icon in a tinted square.
+- Colour-code meeting types, put an icon in a tinted square, or use a speaker colour as text or a fill.
 - Add helper paragraphs, empty-state illustrations or emoji.
 - Use pill-shaped cards, pointed shapes, or arrows as ornament.
 - Animate anything people do many times a day.

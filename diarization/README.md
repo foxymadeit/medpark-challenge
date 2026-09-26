@@ -28,7 +28,7 @@ and that just pulls the extra embedders we compare against.
 
 ```bash
 diarizer live                          # talk; press Enter or Ctrl+C to finish
-diarizer live --speakers 4             # at most 4 people (optional)
+diarizer live --speakers 4             # hard cap on people; usually leave it out (see Measured)
 diarizer file meeting.m4a --start-time 14:00:00
 diarizer file meeting.m4a --mic far    # skip the microphone check (auto, close or far)
 diarizer enroll "Dr. Popescu" --language ro        # optional: read the passage shown, about 25 s
@@ -118,6 +118,17 @@ including people switching between Romanian and Russian. Thresholds tuned on
 | **close profile** | **93.0%** (DER 7.0%) | **96.3%** |
 | same, stock segmentation model | 90.1% | 94.6% |
 | far profile on this clean speech | 80.2% | 81.6% |
+
+**Long meetings with many people**: 4 meetings of 30 minutes with 11 to 14
+people each (about 200 to 236 turns per meeting), built the same way.
+
+| Setup | Accuracy | Turn accuracy |
+|---|---|---|
+| **close profile, head count unknown** | **93.6%** (DER 6.4%) | **95.9%** |
+| same, `--speakers` set to the true count | 89.2% | 89.3% |
+
+With the count left open it sometimes opens one or two extra speakers; forcing
+the count merges real people instead, which costs more. Leave `--speakers` out.
 
 **AMI far-field, one table mic, 4 speakers per meeting**, the harder case.
 Thresholds tuned on 8 dev meetings, scored on 4 held-out test meetings
