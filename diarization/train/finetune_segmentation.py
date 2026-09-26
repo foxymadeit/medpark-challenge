@@ -29,7 +29,8 @@ from pyannote.database import FileFinder, registry
 def export(model, path):
     model = model.eval().cpu()
     torch.onnx.export(model, torch.zeros(1, 1, 160000), str(path), input_names=["x"], output_names=["y"],
-                      dynamic_axes={"x": {0: "N", 2: "T"}, "y": {0: "N", 1: "F"}}, opset_version=13)
+                      dynamic_axes={"x": {0: "N", 2: "T"}, "y": {0: "N", 1: "F"}}, opset_version=13,
+                      dynamo=False)  # the classic exporter, as used for the shipped model
     return path
 
 
