@@ -8,11 +8,11 @@ web
 
 ## Users
 
-People in Medpark International Hospital meetings: executive and administrative leadership, medical boards, and interdisciplinary hospital teams (doctors, medical professionals, managers). Anyone attending a meeting may be the one who runs Secure MOM for it: starting a recording or uploading one, choosing the meeting type, and checking the minutes. There is no dedicated operator and no training, so every step has to explain itself. Most attendees mostly read the finished minutes and their own action items.
+People in Medpark International Hospital meetings: executive and administrative leadership, medical boards, and interdisciplinary hospital teams (doctors, medical professionals, managers). Anyone attending a meeting may be the one who runs Liminal for it: starting a recording or uploading one, choosing the meeting type, and checking the minutes. There is no dedicated operator and no training, so every step has to explain itself. Most attendees mostly read the finished minutes and their own action items.
 
 ## Product Purpose
 
-Secure MOM turns a meeting recording, or a live meeting, into Minutes of Meeting: a summary, the decisions taken, and the action items with their owners and deadlines. The minutes go by email to the meeting type's distribution list. Success is minutes that people can use without editing, delivered within minutes of the meeting ending. The target is under 15 minutes for a 60-minute recording on the reference hardware.
+Liminal turns a meeting recording, or a live meeting, into Minutes of Meeting: a summary, the decisions taken, and the action items with their owners and deadlines. The minutes go by email to the meeting type's distribution list. Success is minutes that people can use without editing, delivered within minutes of the meeting ending. The target is under 15 minutes for a 60-minute recording on the reference hardware.
 
 ## Positioning
 
@@ -37,7 +37,7 @@ Everything runs inside the hospital. There are no cloud calls at any point, and 
 
 ## Brand Commitments
 
-Product name: Secure MOM. Client: Medpark International Hospital. The user asked for a new visual identity for the alternative designs, so no existing palette or typography is binding.
+Product name: Liminal. Client: Medpark International Hospital. The user asked for a new visual identity for the alternative designs, so no existing palette or typography is binding.
 
 ## Evidence on Hand
 

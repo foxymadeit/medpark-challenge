@@ -163,9 +163,9 @@ def _styles(doc):
 def _properties(doc, meeting, lang, model):
     p = doc.core_properties
     p.title = f"{DOC_WORD[lang]} {meeting.title(lang)}"
-    p.author = f"Secure MOM (AI-generated, local model {model})"
+    p.author = f"Liminal (AI-generated, local model {model})"
     p.subject = "AI-generated minutes of meeting. Drafted locally by an AI system and reviewed by the chair before sending."
-    p.keywords = "AI-generated; Secure MOM; minutes of meeting; Medpark"
+    p.keywords = "AI-generated; Liminal; minutes of meeting; Medpark"
     p.comments = "Generated locally. AI Act Art. 50(2) marking."
     p.language = {"ro": "ro-MD", "ru": "ru-RU", "en": "en-GB"}[lang]
 

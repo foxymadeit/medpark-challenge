@@ -55,9 +55,9 @@ def xmp_source(meeting: Meeting, lang: str, model: str) -> str:
     e = latexcheck.escape
     return "\n".join([
         f"\\Title{{{DOC_WORD[lang]} {e(meeting.title(lang))}}}",
-        f"\\Author{{Secure MOM (AI-generated, local model {e(model)})}}",
+        f"\\Author{{Liminal (AI-generated, local model {e(model)})}}",
         "\\Subject{AI-generated minutes of meeting. Drafted locally by an AI system and reviewed by the chair before sending.}",
-        "\\Keywords{AI-generated\\sep Secure MOM\\sep minutes of meeting\\sep Medpark}",
+        "\\Keywords{AI-generated\\sep Liminal\\sep minutes of meeting\\sep Medpark}",
         f"\\Language{{{LANG_TAG[lang]}}}",
         "\\Publisher{Medpark International Hospital}", ""])
 

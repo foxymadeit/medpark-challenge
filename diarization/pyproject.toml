@@ -1,7 +1,7 @@
 [project]
 name = "diarizer"
 version = "1.0.0"
-description = "Offline speaker diarization for Secure MOM: live mic and recorded files"
+description = "Offline speaker diarization for Liminal: live mic and recorded files"
 requires-python = ">=3.10"
 dependencies = [
   "numpy>=1.26",

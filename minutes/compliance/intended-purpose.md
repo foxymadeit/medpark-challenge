@@ -1,6 +1,6 @@
 # Intended purpose
 
-The Secure MOM minutes generator turns the transcript of a hospital meeting
+The Liminal minutes generator turns the transcript of a hospital meeting
 (executive, administrative or medical board) into written minutes: attendance,
 agenda, what was noted, what was decided, and who agreed to do what by when.
 It runs entirely on the hospital's own computers.

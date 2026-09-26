@@ -1,7 +1,7 @@
 [project]
 name = "mom"
 version = "0.1.0"
-description = "Secure MOM minutes: transcript to checked Medpark minutes (PDF and DOCX, RO/RU/EN), fully offline"
+description = "Liminal minutes: transcript to checked Medpark minutes (PDF and DOCX, RO/RU/EN), fully offline"
 requires-python = ">=3.10"
 dependencies = [
   "python-docx>=1.1",

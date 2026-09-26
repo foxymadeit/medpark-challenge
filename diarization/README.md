@@ -1,6 +1,6 @@
 # diarizer
 
-Who spoke when, for Secure MOM. It runs on a laptop with the network off.
+Who spoke when, for Liminal. It runs on a laptop with the network off.
 
 `diarizer live` listens to the microphone and gives each new voice the next
 label (Speaker 1, Speaker 2, ...). A returning voice gets its old label back.

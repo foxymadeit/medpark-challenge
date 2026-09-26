@@ -41,7 +41,7 @@ How we meet it:
 
 - **Machine-readable:** the PDF's XMP metadata and the DOCX's core properties
   state that the text is AI-generated in the Author, Subject and Keywords fields,
-  together with the generator (Secure MOM), the model and the date. Each
+  together with the generator (Liminal), the model and the date. Each
   `report.json` also records the digest of the model file.
 - **Human-readable:** every page footer says the minutes were generated locally by
   AI and reviewed by the chair before sending.

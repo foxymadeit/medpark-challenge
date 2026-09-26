@@ -52,4 +52,4 @@ def test_screen_and_summary_render_without_errors():
                   "turns": [{"speaker": "Dr. Ana Popescu", "start_clock": "14:00:00.000", "end_clock": "14:00:04.000"}]},
             ["sessions/x.json"])
     text = out.getvalue()
-    assert "SECURE MOM" in text and "DR. ANA POPESCU" in text and "saved sessions/x.json" in text
+    assert "LIMINAL" in text and "DR. ANA POPESCU" in text and "saved sessions/x.json" in text

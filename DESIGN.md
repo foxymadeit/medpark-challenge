@@ -1,5 +1,5 @@
 ---
-name: Secure MOM
+name: Liminal
 description: Offline meeting minutes for Medpark. Calm, exact, quiet.
 colors:
   ground: "#f7f6f3"
@@ -136,20 +136,20 @@ components:
     padding: "24px"
 ---
 
-# Design System: Secure MOM
+# Design System: Liminal
 
 The source of truth is the Figma file
-[Secure MOM v2](https://www.figma.com/design/5gmJObntS61v2ehrmh01j9). Its
+[Liminal v2](https://www.figma.com/design/5gmJObntS61v2ehrmh01j9). Its
 **Style guide** page covers everything below with live components, plus the
 EN/RO/RU glossary and writing rules. The token names in this file match the
-variables in the "Secure MOM v2" collection. In CSS they become
+variables in the "Liminal v2" collection. In CSS they become
 `--sm-<group>-<name>`, for example `--sm-ink-primary` and `--sm-signal-danger`.
 
 ## Overview
 
 **Creative North Star: "The quiet instrument"**
 
-Secure MOM is used by doctors and managers who have a few minutes between
+Liminal is used by doctors and managers who have a few minutes between
 meetings, often on a tablet lying flat on a table. The interface behaves like
 a good clinical instrument: it shows one reading at a time, it is exact about
 numbers, and it stays out of the way until something needs a decision. The

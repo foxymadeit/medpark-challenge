@@ -1,1 +1,1 @@
-"""Offline speaker diarization for Secure MOM."""
+"""Offline speaker diarization for Liminal."""

@@ -112,7 +112,7 @@ class Screen:
         w = max(40, self.console.width - 2)
         out = Text()
         rec = "●" if int(time.time() * 2) % 2 else "○"
-        out.append(spread(f" SECURE MOM ▸ {self.title}", f"{rec} {self.phase} {mmss(time.time() - self.t0)} ", w + 1) + "\n", BRIGHT)
+        out.append(spread(f" LIMINAL ▸ {self.title}", f"{rec} {self.phase} {mmss(time.time() - self.t0)} ", w + 1) + "\n", BRIGHT)
         out.append(" " + "─" * w + "\n", DIM)
         for row in wave(self.levels, w):
             out.append(" " + row + "\n", BASE)

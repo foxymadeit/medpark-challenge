@@ -1,5 +1,5 @@
 # The README's terminal demo. Record with: cd diarization && vhs demo/cli.tape
-# The live screen is our test harness; Secure MOM itself is the web app in DESIGN.md.
+# The live screen is our test harness; Liminal itself is the web app in DESIGN.md.
 
 Output demo/cli.gif
 Output demo/cli.txt
@@ -20,7 +20,7 @@ Enter
 Sleep 1s
 Show
 
-Type "# testing tool only: this is how we check the diarizer. The product is the Secure MOM web app."
+Type "# testing tool only: this is how we check the diarizer. The product is the Liminal web app."
 Enter
 Sleep 1s
 Type "# 5 people: Ion (RO), Maria (RO+RU), David (EN), Sofia (RU), Alexandru (RU)"
