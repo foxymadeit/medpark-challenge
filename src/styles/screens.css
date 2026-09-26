@@ -107,8 +107,22 @@
 .templates-side__item[aria-pressed='true'] .who__name { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ── Recording ── */
-.recording { flex-direction: row; align-items: flex-start; padding: 48px 48px 48px 0; }
-.recorder { display: flex; flex-direction: column; align-items: center; gap: var(--sm-space-4); flex: 1; min-height: 640px; padding-top: 128px; }
+.recording { flex-direction: row; align-items: flex-start; gap: var(--sm-space-6); padding: 48px; }
+/* Soft tint, continuing the Record tile on New meeting (Figma 2042:2215 has no recording variant). */
+.recorder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sm-space-4);
+  flex: 1;
+  min-width: 0;
+  min-height: 640px;
+  padding: 104px var(--sm-space-6) var(--sm-space-6);
+  border: 1px solid var(--sm-tint-record-line);
+  border-radius: var(--sm-radius-panel);
+  background: var(--sm-tint-record);
+  box-shadow: var(--sm-elevation-card);
+}
 .recorder__meeting { align-items: center; gap: var(--sm-space-1); text-align: center; }
 .recorder__state { display: inline-flex; align-items: center; gap: var(--sm-space-2); margin: 0; }
 .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sm-ink-primary); animation: rec-blink 1.6s ease-in-out infinite; }

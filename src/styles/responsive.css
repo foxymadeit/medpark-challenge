@@ -61,8 +61,8 @@
   .new-meeting { flex-direction: column; justify-content: flex-start; gap: var(--sm-space-8); }
   .new-meeting__main, .templates-side { width: 100%; flex: none; margin-top: 0; }
 
-  .recording { flex-direction: column; align-items: stretch; gap: var(--sm-space-8); padding: 32px 24px; }
-  .recorder { min-height: 0; padding-top: 24px; }
+  .recording { flex-direction: column; align-items: stretch; gap: var(--sm-space-6); padding: 32px 24px; }
+  .recorder { min-height: 0; padding-top: 32px; }
   .recorder__note { margin-top: var(--sm-space-4); text-align: center; }
   .live-details { width: 100%; }
 
