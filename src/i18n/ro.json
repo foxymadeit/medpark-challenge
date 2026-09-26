@@ -155,14 +155,15 @@
     "title": "Ședință nouă",
     "name": "Numele ședinței",
     "rename": "Redenumește ședința",
+    "date": "Data ședinței",
     "type": "Tipul ședinței",
     "typeDesc": {
       "medical": "Procesul-verbal pune accent pe pacienți, paturi și doze.",
       "executive": "Procesul-verbal pune accent pe decizii, responsabili și bugete.",
       "administrative": "Procesul-verbal pune accent pe consumabile, săli și programări."
     },
-    "templateSelected": "Selectat · clic pentru a anula",
     "templateClear": "Anulează șablonul",
+    "fromTemplate": "Șablon: {name}",
     "emails": "E-mailuri (opțional)",
     "emailsPh": "Adăugați e-mailurile participanților",
     "removeEmail": "Elimină {email}",
@@ -170,9 +171,6 @@
     "micOk": "Microfon extern conectat",
     "upload": "Încarcă audio",
     "uploadHint": "WAV, MP3 sau M4A, până la 3 ore",
-    "templatesTitle": "Sau folosiți un șablon",
-    "templatesLead": "Completează tipul și participanții.",
-    "allTemplates": "Toate șabloanele",
     "untitled": "Ședință {type}"
   },
   "recording": {

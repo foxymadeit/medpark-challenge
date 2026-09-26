@@ -51,9 +51,16 @@
 .headline { display: flex; align-items: center; gap: var(--sm-space-2); min-width: 0; }
 .headline__text { min-width: 0; overflow-wrap: anywhere; cursor: text; }
 .headline__pen { flex-shrink: 0; width: 36px; height: 36px; }
+.date-chip { position: relative; display: inline-flex; align-items: center; gap: var(--sm-space-2); align-self: flex-start; height: 36px; margin-top: var(--sm-space-2); padding: 0 var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); color: var(--sm-ink-secondary); cursor: pointer; }
+.date-chip:hover { background: var(--sm-surface-ground); }
+.date-chip:focus-within { border-color: var(--sm-ink-primary); }
+.date-chip input { border: 0; padding: 0; background: transparent; color: var(--sm-ink-primary); font: 500 15px/20px var(--sm-font-body); cursor: pointer; }
+.date-chip input:focus { outline: none; }
+.template-tag { align-self: flex-start; gap: 6px; margin-top: var(--sm-space-2); }
+.date-chip__tag { padding: 1px 6px; border-radius: 6px; background: var(--sm-surface-ground); color: var(--sm-ink-secondary); font: 500 12px/16px var(--sm-font-body); }
 .headline-input { height: 48px; padding: 0 12px; margin-left: -13.5px; width: calc(100% + 13.5px); font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
 .new-meeting { flex-direction: row; align-items: flex-start; justify-content: center; gap: 48px; padding-top: 34px; }
-/* 656 + 48 + 400 at 1440 (Figma); below that the main column gives way first, the template card stops at 300. */
+/* One centred 656px column (the template card was removed on request). */
 .new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); flex: 0 1 656px; min-width: 0; }
 .emails-field {
   display: flex;
@@ -104,28 +111,6 @@
 .start-tile--upload { border: 1px solid var(--sm-tint-upload-line); background: var(--sm-tint-upload); }
 .start-tile--upload:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-upload-line); }
 .start-tile__status { display: inline-flex; align-items: center; gap: var(--sm-space-2); color: var(--sm-ink-secondary); font: 400 13px/18px var(--sm-font-body); }
-.templates-side { display: flex; flex-direction: column; gap: var(--sm-space-4); flex: 0 1 400px; min-width: 300px; margin-top: 90px; /* title level with "Meeting type" */ }
-.templates-side__list { margin: 0; padding: 0; list-style: none; }
-.templates-side__list li + li { border-top: 1px solid var(--sm-surface-hairline); }
-.templates-side__item {
-  display: flex;
-  align-items: center;
-  gap: var(--sm-space-3);
-  width: 100%;
-  padding: var(--sm-space-3) 0;
-  border: 0;
-  border-radius: var(--sm-radius-inner);
-  background: none;
-  text-align: left;
-}
-.templates-side__item:hover .who__name { text-decoration: underline; text-underline-offset: 3px; }
-/* Selected template: outlined card, still one click to switch or clear. */
-.templates-side__list li:has([aria-pressed='true']) + li,
-.templates-side__list li:has(+ li [aria-pressed='true']) { border-color: transparent; }
-.templates-side__list li:has([aria-pressed='true']) { border-top-color: transparent; }
-.templates-side__item[aria-pressed='true'] { margin: 4px -12px; padding: 12px 11px; width: calc(100% + 24px); border: 1.5px solid var(--sm-action); border-radius: var(--sm-radius-tile); background: var(--sm-action-tint); }
-.templates-side__item[aria-pressed='true'] .who__sub { color: var(--sm-action); font-weight: 500; }
-.templates-side__check { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--sm-action); color: var(--sm-surface-panel); }
 
 
 /* ── Recording ── */

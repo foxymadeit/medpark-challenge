@@ -1,12 +1,12 @@
-import { ArrowRightIcon, CheckIcon, EnvelopeSimpleIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { CalendarBlankIcon, CheckIcon, EnvelopeSimpleIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type KeyboardEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/I18nProvider';
-import { isEmail } from '../lib/format';
+import { isEmail, todayISO } from '../lib/format';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES } from '../types';
 
-/** 01 — type chips, optional template & emails, then Record / Upload tiles. */
+/** 01 — name, date, type, optional emails, then Record / Upload tiles (templates start from the Templates page). */
 export function NewMeeting() {
   const { t } = useI18n();
   const { draft, setDraft, templates } = useStore();
@@ -50,7 +50,7 @@ export function NewMeeting() {
       <div className="new-meeting__main">
         {/* The meeting's name is the headline; the pen (or a click on it) makes it editable. */}
         <div className="stack" style={{ gap: 4 }}>
-          <p className="section-title">{t('newMeeting.title')}</p>
+          <p className="section-title">{t('newMeeting.name')}</p>
           {editingName ? (
             <input
               autoFocus
@@ -76,6 +76,32 @@ export function NewMeeting() {
                 <PencilSimpleIcon size={20} aria-hidden />
               </button>
             </div>
+          )}
+          {/* Date: native picker (keyboard + screen reader friendly), styled as a chip. */}
+          <label className="date-chip">
+            <CalendarBlankIcon size={18} aria-hidden />
+            <span className="sr-only">{t('newMeeting.date')}</span>
+            <input
+              type="date"
+              value={draft.date ?? todayISO()}
+              onChange={(e) => setDraft({ date: e.target.value || undefined })}
+              aria-describedby="nm-date-rel"
+            />
+            {(draft.date ?? todayISO()) === todayISO() && (
+              <span id="nm-date-rel" className="date-chip__tag">
+                {t('review.today')}
+              </span>
+            )}
+          </label>
+          {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
+          {selectedTemplate && (
+            <span className="tag template-tag">
+              <ListChecksIcon size={14} aria-hidden />
+              {t('newMeeting.fromTemplate', { name: selectedTemplate.name })}
+              <button type="button" className="emails-field__remove" aria-label={t('newMeeting.templateClear')} title={t('newMeeting.templateClear')} onClick={() => setDraft({ templateId: undefined })}>
+                <XIcon size={12} aria-hidden />
+              </button>
+            </span>
           )}
         </div>
 
@@ -154,48 +180,6 @@ export function NewMeeting() {
         </div>
       </div>
 
-      <aside className="templates-side" aria-labelledby="nm-tpl">
-        <div className="stack" style={{ gap: 4 }}>
-          <h2 id="nm-tpl" className="section-title">
-            {t('newMeeting.templatesTitle')}
-          </h2>
-          <p className="note">{t('newMeeting.templatesLead')}</p>
-        </div>
-        <ul className="templates-side__list">
-          {templates.slice(0, 3).map((tpl) => {
-            const on = draft.templateId === tpl.id;
-            return (
-              <li key={tpl.id}>
-                <button
-                  type="button"
-                  className="templates-side__item"
-                  aria-pressed={on}
-                  title={on ? t('newMeeting.templateClear') : undefined}
-                  onClick={() => setDraft(on ? { templateId: undefined } : { templateId: tpl.id, type: tpl.type })}
-                >
-                  {on ? (
-                    <span className="templates-side__check" aria-hidden>
-                      <CheckIcon size={12} weight="bold" />
-                    </span>
-                  ) : (
-                    <ListChecksIcon size={20} aria-hidden />
-                  )}
-                  <span className="who__text" style={{ flex: 1 }}>
-                    <span className="who__name">{tpl.name}</span>
-                    <span className="who__sub">
-                      {on ? t('newMeeting.templateSelected') : `${t(`types.${tpl.type}`)} · ${t('common.participantsCount', { count: tpl.participantIds.length })}`}
-                    </span>
-                  </span>
-                  {on ? <XIcon size={16} aria-hidden /> : <ArrowRightIcon size={16} aria-hidden />}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        <Link to="/templates" className="link-btn">
-          {t('newMeeting.allTemplates')}
-        </Link>
-      </aside>
     </div>
   );
 }

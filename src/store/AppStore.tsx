@@ -14,6 +14,8 @@ export interface Draft {
   templateId?: string;
   /** Name typed on New meeting; wins over the template name. */
   title?: string;
+  /** Meeting date chosen on New meeting (ISO); defaults to today. */
+  date?: string;
   emails: string[];
 }
 
@@ -159,7 +161,7 @@ function useStoreValue() {
         if (known && !participants.some((x) => x.personId === known.id)) participants.push(snapshot(known.id)!);
         if (!known) participants.push({ personId: uid('guest'), name: email, email, roleThen: '' });
       }
-      const date = todayISO();
+      const date = draft.date ?? todayISO();
       const title = draft.title?.trim() || template?.name || fileName || fallbackTitle;
       const meeting: Meeting = {
         id,
@@ -175,8 +177,8 @@ function useStoreValue() {
         transcript: cardioTranscript,
         tasks: materialiseTasks(date, id, cardioTasks),
       };
-      // The typed name belongs to this meeting only; the next one starts unnamed.
-      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined } }));
+      // Name and date belong to this meeting only; the next one starts unnamed, dated today.
+      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined, date: undefined } }));
       return id;
     },
     [state, snapshot],

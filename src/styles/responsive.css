@@ -25,7 +25,6 @@
 
 /* ── ≤1200: narrower desktop ── */
 @media (max-width: 1200px) {
-  .templates-side { flex: 0 1 360px; }
   .review__pane--transcript { width: auto; flex: 1 1 0; min-width: 0; }
   .record__people { width: auto; flex: 1 1 0; min-width: 0; }
   .live-details { width: 340px; }
@@ -58,7 +57,7 @@
   .action-bar { left: 0; }
 
   .new-meeting { flex-direction: column; justify-content: flex-start; gap: var(--sm-space-8); }
-  .new-meeting__main, .templates-side { width: 100%; flex: none; margin-top: 0; }
+  .new-meeting__main { width: 100%; flex: none; }
 
   .recording { flex-direction: column; align-items: stretch; gap: var(--sm-space-6); padding: 32px 24px; }
   .recorder { min-height: 0; padding-top: 32px; }
