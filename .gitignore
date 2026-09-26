@@ -18,3 +18,4 @@ diarization/voices/
 data/mix/
 # VHS text capture, used only to check a recording
 diarization/demo/cli.txt
+.claude/
