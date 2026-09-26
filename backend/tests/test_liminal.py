@@ -281,3 +281,33 @@ def test_security_headers(client):
     r = client.get("/api/auth/me")
     assert r.headers["x-frame-options"] == "DENY" and "default-src 'self'" in r.headers["content-security-policy"]
     assert r.headers["cache-control"] == "no-store"
+
+
+def test_only_an_admin_writes_templates(client):
+    login(client)
+    person = client.post("/api/people", json={"name": "Elena Ciobanu"}).json()
+    body = {"name": "Consiliu", "meetingType": "medical", "participantStaffIds": [person["id"]]}
+    t = client.post("/api/templates", json=body)
+    assert t.status_code == 201
+    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
+    login(client, "nurse@medpark.local", "long enough password")
+    assert client.post("/api/templates", json=body).status_code == 403
+    assert client.patch(f"/api/templates/{t.json()['id']}", json={"participantStaffIds": []}).status_code == 403
+    assert client.post(f"/api/templates/{t.json()['id']}/deactivate").status_code == 403
+    login(client)
+    gone = client.post(f"/api/templates/{t.json()['id']}/deactivate")
+    assert gone.status_code == 200 and gone.json()["active"] is False
+    assert client.get("/api/templates").json() == []
+
+
+def test_staff_enroll_a_voice_once_and_only_an_admin_replaces_it(client):
+    login(client)
+    person = client.post("/api/people", json={"name": "Elena Ciobanu"}).json()
+    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
+    login(client, "nurse@medpark.local", "long enough password")
+    enroll = lambda: client.post(f"/api/people/{person['id']}/voice-enrollment",
+                                 files={"audio": ("voice.wav", wav_bytes(), "audio/wav")})
+    assert enroll().status_code == 204
+    assert enroll().status_code == 403
+    login(client)
+    assert enroll().status_code == 204

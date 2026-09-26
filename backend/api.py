@@ -446,6 +446,12 @@ def enroll(person_id: str, audio_file: UploadFile = File(alias="audio"), user: d
     person = store.get("people", person_id)
     if person is None:
         raise HTTPException(404, "Person not found.")
+    # anyone may enroll a new voice with the person present; replacing one would
+    # let a speaker take over someone else's name in every later meeting
+    if store.get("voices", f"voice-{person_id}") and user["role"] != "admin":
+        raise HTTPException(403, "This person already has a voiceprint. Only an administrator can replace it.")
+    if person["name"].startswith("-"):   # the name is a command argument for the enroll tool
+        raise HTTPException(422, "A name cannot start with a dash.")
     folder = store.DATA / "voices" / person_id
     saved = audio.save(audio_file, folder, measure=True)
     profile = {"id": f"voice-{person_id}", "staffId": person_id, "status": "prototype", "createdAt": now_iso(),
@@ -497,7 +503,7 @@ def identify(cluster_id: str, body: dict, user: dict = Depends(current_user)):
 # ---------------------------------------------------------------- templates
 @router.get("/templates")
 def templates(user: dict = Depends(current_user)):
-    return store.all_docs("templates")
+    return [t for t in store.all_docs("templates") if t.get("active", True)]
 
 
 @router.get("/templates/{template_id}")
@@ -525,16 +531,24 @@ def _template(body: dict, user: dict, existing: dict | None) -> dict:
 
 
 @router.post("/templates", status_code=201)
-def create_template(body: dict, user: dict = Depends(current_user)):
+def create_template(body: dict, user: dict = Depends(require_admin)):
     return _template(body, user, None)
 
 
 @router.patch("/templates/{template_id}")
-def update_template(template_id: str, body: dict, user: dict = Depends(current_user)):
+def update_template(template_id: str, body: dict, user: dict = Depends(require_admin)):
     existing = store.get("templates", template_id)
     if existing is None:
         raise HTTPException(404, "Template not found.")
     return _template({**existing, **body}, user, existing)
+
+
+@router.post("/templates/{template_id}/deactivate")
+def deactivate_template(template_id: str, user: dict = Depends(require_admin)):
+    existing = store.get("templates", template_id)
+    if existing is None:
+        raise HTTPException(404, "Template not found.")
+    return store.put("templates", {**existing, "active": False, "updatedAt": now_iso()})
 
 
 # ---------------------------------------------------------------- system
