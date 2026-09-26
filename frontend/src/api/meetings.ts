@@ -60,6 +60,7 @@ export function fromServer(raw: ServerMeeting): Meeting {
       id: c.id,
       text: c.text,
       reason: (c.problems ?? []).join(". "),
+      problems: c.problems,
     }));
   if (documents)
     out.documents = Array.isArray(documents)

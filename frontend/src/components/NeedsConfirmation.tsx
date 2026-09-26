@@ -4,6 +4,7 @@ import { decideConfirmation, markReviewed, sendNow } from "../api/meetings";
 import { notifyUpdate } from "../hooks/useData";
 import type { ConfirmItem, Meeting } from "../types/meeting";
 import Button from "./Button";
+import { explainProblems } from "../api/reasons";
 
 type Choice = "keep" | "remove";
 
@@ -84,7 +85,11 @@ export default function NeedsConfirmation({
           <li key={item.id} className="confirm-row">
             <div>
               <strong>{item.text}</strong>
-              <p>{item.reason}</p>
+              <p>
+                {item.problems?.length
+                  ? explainProblems(item.problems, t)
+                  : item.reason}
+              </p>
             </div>
             {item.settledElsewhere ? (
               <span className="confirm-state">{t("settled")}</span>

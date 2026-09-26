@@ -67,7 +67,7 @@ test("medical: flagged item, then confirm, then sent with the PDFs", async ({
   await expect(
     page.getByText("One item needs a person before sending"),
   ).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("action without an owner")).toBeVisible();
+  await expect(page.getByText("No owner was named in the meeting.")).toBeVisible();
   await shot(page, "03-needs-confirmation");
   const next = page.getByRole("button", { name: "Continue to sending" });
   await expect(next).toBeDisabled();

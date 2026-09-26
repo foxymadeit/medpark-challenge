@@ -190,6 +190,8 @@ export interface ConfirmItem {
   id: string;
   text: string;
   reason: string;
+  /** The checks' own messages, translated for the reader at display time. */
+  problems?: string[];
   decision?: "keep" | "remove";
 }
 export interface LocalizedMinutes {
