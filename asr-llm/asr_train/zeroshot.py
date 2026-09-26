@@ -309,6 +309,13 @@ def whisper_child(bench: Bench) -> None:
         result["sets"][name] = {**score_items(items, hyps), "seconds": round(time.perf_counter() - t0, 1)}
         bench.save(f"hyp_whisper_{name}.json", [{"ref": i["text"], "hyp": h} for i, h in zip(items, hyps)])
         bench.save("result_whisper.json", result)
+    for label, wav in bench.timing_files():  # the product's ASR stage on the whole recording, and on an hour of it
+        t0 = time.perf_counter()
+        transcribe_audio(wav)
+        took = time.perf_counter() - t0
+        secs = len(decode_audio(wav)) / 16000
+        result[label] = {"audio_s": round(secs, 1), "seconds": round(took, 1), "rtfx": round(secs / took, 1)}
+        bench.save("result_whisper.json", result)
 
 
 def guarded(bench: Bench, name: str, fn, *args, **kwargs) -> None:

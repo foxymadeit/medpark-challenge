@@ -78,20 +78,57 @@ class WhisperAsr:
         if prev_lang and samples.size < settings.min_lid_s * settings.sample_rate:
             languages = [prev_lang]
         else:
-            languages = list(settings.asr_always_decode)
+            languages = self._languages(samples)
+        return _pick([self._decode(samples, lang) for lang in languages])
+
+    def _languages(self, samples: np.ndarray) -> list[str]:
+        """Always the home languages; plus the detector's top pick among the meeting's languages."""
+        languages = list(settings.asr_always_decode)
+        if samples.size >= settings.min_lid_s * settings.sample_rate:
             _, _, probs = self._model.detect_language(samples)
             ranked = rank_languages(probs, settings.asr_languages)
             if ranked and ranked[0][0] not in languages:
                 languages.append(ranked[0][0])
-        results = [self._decode(samples, lang) for lang in languages]
-        text, language, _, _ = max(results, key=_biased_score)
-        hypotheses = [Hypothesis(language=lang, text=t, score=s, words=w) for t, lang, s, w in results if t]
-        if settings.cs_merge and len(hypotheses) > 1:
-            best = next(h for h in hypotheses if h.language == language)
-            merged, switched = merge_words(best, [h for h in hypotheses if h is not best])
-            if switched:
-                return merged, f"{language}+{'+'.join(switched)}", hypotheses
-        return text, language, hypotheses
+        return languages
+
+    def transcribe_all(self, batches) -> list[AsrChunk]:
+        """Every utterance at once: one batched GPU pass per language instead of one call per
+        utterance and language. Same languages, scores and pick as transcribe_batch, except that
+        a clip too short for LID gets the home languages rather than the previous clip's."""
+        from faster_whisper import BatchedInferencePipeline
+
+        batches = list(batches)
+        samples = [b.samples.astype(np.float32) for b in batches]
+        wanted = [self._languages(x) for x in samples]
+        gap = np.zeros(settings.sample_rate, np.float32)  # 1 s between clips: a segment maps to one clip unambiguously
+        audio = np.concatenate([part for x in samples for part in (x, gap)]) if samples else gap
+        starts = np.cumsum([0] + [x.size + gap.size for x in samples[:-1]]) / settings.sample_rate
+        pipeline = BatchedInferencePipeline(model=self._model)
+        results: list[list[tuple]] = [[] for _ in batches]
+        for lang in dict.fromkeys(lang for langs in wanted for lang in langs):
+            idx = [i for i, langs in enumerate(wanted) if lang in langs]
+            clips = [{"start": starts[i], "end": starts[i] + samples[i].size / settings.sample_rate} for i in idx]
+            segments, _ = pipeline.transcribe(
+                audio,
+                language=lang,
+                task="transcribe",
+                beam_size=5,
+                condition_on_previous_text=False,
+                clip_timestamps=clips,
+                batch_size=settings.asr_batch_size,
+                word_timestamps=settings.cs_merge,
+            )
+            clip_starts = [c["start"] for c in clips]
+            per_clip: dict[int, list] = {i: [] for i in idx}
+            for seg in segments:
+                per_clip[idx[max(0, int(np.searchsorted(clip_starts, seg.start + 1e-3)) - 1)]].append(seg)
+            for i, segs in per_clip.items():
+                results[i].append(_score(segs, lang, offset=starts[i]))
+        chunks = []
+        for b, res in zip(batches, results):
+            text, language, hypotheses = _pick(res)
+            chunks.append(AsrChunk(start=b.start, end=b.end, text=text, language=language, hypotheses=hypotheses))
+        return chunks
 
     def _decode(self, samples: np.ndarray, language: str) -> tuple[str, str, float, list]:
         """Text in one forced language, scored by duration-weighted avg_logprob."""
@@ -104,22 +141,41 @@ class WhisperAsr:
             vad_filter=False,
             word_timestamps=settings.cs_merge,
         )
-        # Whisper's own silence rule, applied per utterance.
-        kept = [
-            s
-            for s in segments
-            if not (s.no_speech_prob > 0.6 and s.avg_logprob < -1.0) and not _is_hallucination(s.text)
-        ]
-        if not kept:
-            return "", language, float("-inf"), []
-        weights = [max(s.end - s.start, 1e-3) for s in kept]
-        score = sum(s.avg_logprob * w for s, w in zip(kept, weights)) / sum(weights)
-        words = [(w.start, w.end, w.word.strip(), w.probability) for s in kept for w in (getattr(s, "words", None) or [])]
-        return " ".join(s.text.strip() for s in kept).strip(), language, score, words
+        return _score(segments, language)
 
     def close(self) -> None:
         self._model = None
         gc.collect()
+
+
+def _score(segments, language: str, offset: float = 0.0) -> tuple[str, str, float, list]:
+    """Text in one forced language, scored by duration-weighted avg_logprob. Word times are
+    made clip-relative (offset = the clip's start in a batched decode)."""
+    # Whisper's own silence rule, applied per utterance.
+    kept = [
+        s
+        for s in segments
+        if not (s.no_speech_prob > 0.6 and s.avg_logprob < -1.0) and not _is_hallucination(s.text)
+    ]
+    if not kept:
+        return "", language, float("-inf"), []
+    weights = [max(s.end - s.start, 1e-3) for s in kept]
+    score = sum(s.avg_logprob * w for s, w in zip(kept, weights)) / sum(weights)
+    words = [(w.start - offset, w.end - offset, w.word.strip(), w.probability) for s in kept for w in (getattr(s, "words", None) or [])]
+    return " ".join(s.text.strip() for s in kept).strip(), language, score, words
+
+
+def _pick(results: list[tuple]) -> tuple[str, str | None, list[Hypothesis]]:
+    """The best-scoring language's text (home language favoured on close calls), merged with
+    confident runs from the other decodes when settings.cs_merge is on."""
+    text, language, _, _ = max(results, key=_biased_score)
+    hypotheses = [Hypothesis(language=lang, text=t, score=s, words=w) for t, lang, s, w in results if t]
+    if settings.cs_merge and len(hypotheses) > 1:
+        best = next(h for h in hypotheses if h.language == language)
+        merged, switched = merge_words(best, [h for h in hypotheses if h is not best])
+        if switched:
+            return merged, f"{language}+{'+'.join(switched)}", hypotheses
+    return text, language, hypotheses
 
 
 def _use_joint_language_tokens(languages: tuple[str, ...]) -> None:
@@ -174,6 +230,9 @@ def merge_words(best: Hypothesis, others: list[Hypothesis]) -> tuple[str, list[s
 
 
 def transcribe_batches(engine: WhisperAsr, batches) -> list[AsrChunk]:
+    batched = settings.asr_batch_size > 1 and not settings.asr_joint_languages
+    if isinstance(engine, WhisperAsr) and engine.device == "cuda" and batched:
+        return engine.transcribe_all(batches)
     chunks: list[AsrChunk] = []
     language: str | None = None
     for batch in batches:

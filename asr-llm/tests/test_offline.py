@@ -49,3 +49,10 @@ def test_ollama_backend_is_loopback_only(monkeypatch):
     monkeypatch.setattr(llm, "_post", lambda path, body: sent.update(body) or {"message": {"content": '{"ok": 1}'}})
     assert llm.chat_json("sys", "user", max_tokens=10) == {"ok": 1}
     assert sent["model"] == "qwen3.5:9b" and sent["format"] == "json"
+
+
+def test_relative_model_dir_means_asr_llm_models(monkeypatch):
+    from asr_llm.config import ASR_ROOT, Settings
+
+    monkeypatch.setenv("MOM_ASR_MODEL_DIR", "models/whisper-turbo")  # as the backend's profiles set it
+    assert Settings().asr_model_dir == ASR_ROOT / "models" / "whisper-turbo"

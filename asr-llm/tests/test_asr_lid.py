@@ -81,3 +81,27 @@ def test_hallucination_variants_are_dropped_but_long_sentences_kept():
     assert not _is_hallucination("Pacientul e stabil.")
     long = "Am discutat cu familia și le-am spus că vă mulțumim pentru vizionare nu are sens aici în salon azi dimineață"
     assert not _is_hallucination(long)
+
+
+def test_batched_decode_matches_per_utterance(monkeypatch):
+    # Two utterances: Romanian scores better on the first, Russian on the second.
+    table = {"ro": [(-0.3, "unu"), (-0.9, "doi")], "ru": [(-0.8, "один"), (-0.2, "два")]}
+
+    class FakePipeline:
+        def __init__(self, model):
+            pass
+
+        def transcribe(self, audio, language, clip_timestamps, **_):
+            segs = [SimpleNamespace(start=c["start"] + 0.1, end=c["end"], text=table[language][k][1],
+                                    avg_logprob=table[language][k][0], no_speech_prob=0.0)
+                    for k, c in enumerate(clip_timestamps)]
+            return iter(segs), None
+
+    import faster_whisper
+
+    monkeypatch.setattr(faster_whisper, "BatchedInferencePipeline", FakePipeline)
+    batches = [SimpleNamespace(samples=np.zeros(SR * 3), start=0.0, end=3.0),
+               SimpleNamespace(samples=np.zeros(SR * 2), start=5.0, end=7.0)]
+    chunks = engine(FakeWhisper([("ru", 0.9)], {})).transcribe_all(batches)
+    assert [(c.start, c.text, c.language) for c in chunks] == [(0.0, "unu", "ro"), (5.0, "два", "ru")]
+    assert [h.text for h in chunks[1].hypotheses] == ["doi", "два"]

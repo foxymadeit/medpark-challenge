@@ -55,6 +55,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--devices", type=int, default=int(_env("DEVICES", "0")), help="GPUs to use; 0 = all visible.")
     p.add_argument("--precision", default=_env("PRECISION", "auto"), help="auto | bf16-mixed | 16-mixed | 32.")
     p.add_argument("--workers", type=int, default=int(_env("WORKERS", "4")))
+    # The TDT loss holds batch x frames x tokens x 8193 vocab floats (three copies): ~5 GB for one pair of
+    # 20 s clips, on top of ~10 GB of weights, grads and AdamW state. 12 s cuts that ~6x; both T4s hit OOM at 20.
+    p.add_argument("--max-duration", type=float, default=float(_env("MAX_DURATION", "12")))
     p.add_argument("--exclude-sources", default=_env("EXCLUDE_SOURCES", "rompar"),
                    help="Comma-separated manifest sources left out of training. rompar: its transcripts do not "
                         "match its audio (every model, 0.72+ CER on it vs 0.02-0.04 on FLEURS).")
@@ -97,10 +100,10 @@ def trainer_kwargs(args: argparse.Namespace, n_gpus: int, bf16_ok: bool) -> dict
     }
 
 
-def dataset_configs(train: str, dev: str, batch: int, workers: int, pin_memory: bool) -> tuple[dict, dict]:
+def dataset_configs(train: str, dev: str, batch: int, workers: int, pin_memory: bool, max_duration: float = 12.0) -> tuple[dict, dict]:
     common = {"sample_rate": 16000, "num_workers": workers, "pin_memory": pin_memory, "use_start_end_token": False}
-    train_ds = {**common, "manifest_filepath": train, "batch_size": batch, "shuffle": True, "max_duration": 20.0, "min_duration": 0.5}
-    val_ds = {**common, "manifest_filepath": dev, "batch_size": batch, "shuffle": False}
+    train_ds = {**common, "manifest_filepath": train, "batch_size": batch, "shuffle": True, "max_duration": max_duration, "min_duration": 0.5}
+    val_ds = {**common, "manifest_filepath": dev, "batch_size": batch, "shuffle": False, "max_duration": max_duration}
     return train_ds, val_ds
 
 
@@ -258,7 +261,7 @@ def train_model(args: argparse.Namespace, data: Path, rank: str) -> None:
     )
     model.set_trainer(trainer)
 
-    train_ds, val_ds = dataset_configs(str(train), str(dev), args.batch, args.workers, pin_memory=n_gpus > 0)
+    train_ds, val_ds = dataset_configs(str(train), str(dev), args.batch, args.workers, n_gpus > 0, args.max_duration)
     with open_dict(model.cfg):
         model.cfg.train_ds = train_ds
         model.cfg.validation_ds = val_ds

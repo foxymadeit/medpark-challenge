@@ -20,14 +20,22 @@ def sh(cmd: str, **kwargs) -> None:
     subprocess.run(cmd, shell=True, check=True, **kwargs)
 
 
+# What this push runs. The full bench: NEMO = "parakeet,canary,jackrabbit", SETS = "all".
+# Last push: a Whisper speed re-check (batched decode) on gold, the synthetic round and a timed hour;
+# the NeMo numbers from the full run of 2026-09-26 stand.
+NEMO = ""
+SETS = "gold"
+
 sh(f"git clone -q --depth 1 -b {BRANCH} https://github.com/foxymadeit/medpark-challenge {REPO}")
 # faster-whisper + pydantic-settings: the cut child uses asr_llm's Silero VAD to split long recordings.
-sh("pip install -q 'nemo_toolkit[asr]' huggingface_hub soundfile pyarrow faster-whisper pydantic-settings")
+nemo = "'nemo_toolkit[asr]' " if NEMO else ""
+sh(f"pip install -q {nemo}huggingface_hub soundfile pyarrow faster-whisper pydantic-settings")
 audio = next(Path("/kaggle/input").rglob("*.m4a"))
 # The synthetic medical round ships in the repo; its recording script is the reference until someone corrects it by ear.
 clip = "--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md"
-bench = f"{sys.executable} -m asr_train.zeroshot --work /kaggle/working --sets all {clip}"
-sh(f"{bench} --audio '{audio}' --models parakeet,canary,jackrabbit", cwd=ASR)
+bench = f"{sys.executable} -m asr_train.zeroshot --work /kaggle/working --sets {SETS} {clip} --audio '{audio}'"
+if NEMO:
+    sh(f"{bench} --models {NEMO}", cwd=ASR)
 # Whisper runs the asr_llm pipeline: its deps and weights come after the NeMo runs. The test sets are reused.
 sh(f"pip install -q -e '{ASR}[asr]' && python scripts/fetch_whisper.py large-v3", cwd=ASR)
 env = {**os.environ, "MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16"}

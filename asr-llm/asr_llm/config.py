@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PACKAGE_DIR = Path(__file__).resolve().parent
@@ -25,6 +26,9 @@ class Settings(BaseSettings):
 
     device: str = "auto"  # auto | cuda | cpu
     asr_compute_type: str = "int8"
+    # Utterances per GPU call (faster-whisper BatchedInferencePipeline). 1 = one utterance at a
+    # time, as on CPU, where batching is not used.
+    asr_batch_size: int = 16
     # faster-whisper defaults to 4 threads; the CPU-only profile needs all cores.
     cpu_threads: int = os.cpu_count() or 4
     asr_model_dir: Path = ASR_ROOT / "models" / "whisper"
@@ -81,6 +85,14 @@ class Settings(BaseSettings):
     asr_joint_languages: tuple[str, ...] = ()
 
     ffmpeg_bin: str = "ffmpeg"
+
+    @field_validator("asr_model_dir", "sped_model", "parakeet_model", "gigaam_dir", "llm_gguf")
+    @classmethod
+    def _under_asr_root(cls, path: Path) -> Path:
+        """A relative model path (the backend's MOM_ASR_MODEL_DIR=models/whisper) means asr-llm/models,
+        not wherever the process happens to start."""
+        path = path.expanduser()
+        return path if path.is_absolute() else ASR_ROOT / path
 
 
 settings = Settings()
