@@ -2994,23 +2994,45 @@ blockquote {
 }
 
 /* System page: the audit trail, read-only */
-.audit-trail table {
+.audit-trail table,
+.corrected-words table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
-.audit-trail th {
+.audit-trail th,
+.corrected-words th {
   text-align: left;
   font-weight: 500;
   color: var(--sm-ink-secondary);
   padding: 8px 12px 8px 0;
   border-bottom: 1px solid var(--sm-surface-hairline);
 }
-.audit-trail td {
+.audit-trail td,
+.corrected-words td {
   padding: 8px 12px 8px 0;
   border-bottom: 1px solid var(--sm-surface-hairline);
 }
 .audit-trail td:first-child {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* System page: words people corrected, offered for the site glossary */
+.corrected-words td {
+  vertical-align: middle;
+  transition: color 180ms ease;
+}
+.corrected-words td:nth-child(3) {
+  font-variant-numeric: tabular-nums;
+}
+.corrected-words tr.approved td {
+  color: var(--sm-ink-secondary);
+}
+.corrected-words td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+.corrected-words .success {
+  animation: sm-fade-in 180ms ease-out both;
 }
