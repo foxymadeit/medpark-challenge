@@ -546,7 +546,7 @@ first and a heartbeat every minute showing progress, time left and warnings.
 | Gentle | TitaNet-small, frozen encoder | 46 min | 21 min | 35.1 GB |
 | Segmentation | pyannote segmentation 3.0 | 87 min | 69 min | 41.9 GB |
 | **Speaker models, total** | | **5.3 h** | **3.3 h** | **142 GB** |
-| Transcription | Parakeet-TDT-0.6B-v3 on RO/RU/EN plus 30 h of spliced code-switching | 2 h budget | | queued, runs tonight |
+| Transcription | Parakeet-TDT-0.6B-v3 on RO/RU/EN plus 30 h of spliced code-switching | not run | | dropped: the GPU went to the hour test, and no fine-tune beat its base model here |
 
 | Dataset | Language | Used |
 |---|---|---|
