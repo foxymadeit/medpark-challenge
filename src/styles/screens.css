@@ -233,6 +233,8 @@
 .step.is-active { color: var(--sm-ink-primary); font-weight: 600; }
 .step__dot { width: 16px; height: 16px; border: 1.5px solid var(--sm-ink-tertiary); border-radius: 50%; }
 .step.is-active .step__dot { border: 2px solid var(--sm-ink-primary); }
+.processing__skip { align-self: center; font-size: 13px; opacity: 0.7; }
+.processing__skip:hover { opacity: 1; }
 .processing__note { display: inline-flex; align-items: center; gap: var(--sm-space-2); margin-top: auto; }
 
 /* ── Review ── */

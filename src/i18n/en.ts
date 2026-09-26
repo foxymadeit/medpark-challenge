@@ -272,6 +272,7 @@ export const en = {
     step2: 'Recognising people and keywords',
     step3: 'Grouping tasks by owner',
     note: 'Offline. Audio never leaves the hospital network.',
+    skip: 'Skip to the minutes (demo)',
     progress: 'Progress',
     done: 'done',
     liveTitle: 'Transcribed so far',

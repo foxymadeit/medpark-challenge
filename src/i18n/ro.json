@@ -274,7 +274,8 @@
     "done": "gata",
     "liveTitle": "Transcris până acum",
     "chunks": "{n} din {total} fragmente",
-    "listening": "Se transcrie partea următoare"
+    "listening": "Se transcrie partea următoare",
+    "skip": "Treceți la procesul-verbal (demo)"
   },
   "review": {
     "meta_one": "{type} · {n} min · {count} participant",
