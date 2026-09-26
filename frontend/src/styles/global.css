@@ -853,11 +853,6 @@ svg {
   background: white;
   border-bottom: 1px solid var(--sm-surface-hairline);
 }
-.wordmark {
-  font: 600 18px var(--sm-heading);
-  letter-spacing: -0.36px;
-  white-space: nowrap;
-}
 .liminal-logo {
   display: inline-flex;
   align-items: center;
@@ -2440,9 +2435,6 @@ blockquote {
   }
   .top-right {
     gap: 0;
-  }
-  .wordmark {
-    font-size: 17px;
   }
   .language-switcher button {
     min-width: 38px;
