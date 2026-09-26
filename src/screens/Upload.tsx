@@ -102,11 +102,14 @@ export function Upload() {
           </div>
         )}
       </div>
-      <div className="page__actions">
-        <Button variant="primary" icon={<CpuIcon size={20} aria-hidden />} disabled={!file} onClick={submit}>
-          {t('upload.submit')}
-        </Button>
-      </div>
+      {/* Appears only once a file is attached. */}
+      {file && (
+        <div className="page__actions">
+          <Button variant="primary" icon={<CpuIcon size={20} aria-hidden />} onClick={submit}>
+            {t('upload.submit')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
