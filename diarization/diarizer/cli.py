@@ -170,7 +170,7 @@ def live_screen(args) -> None:
 
     intro = not args.no_intro
     try:
-        with Live(screen, console=console, refresh_per_second=12, transient=True):
+        with Live(screen, console=console, refresh_per_second=12, transient=True, screen=True):
             screen.phase, screen.hint = ("INTRO", INTRO_HINT) if intro else ("LIVE", LIVE_HINT)
             profile, db, first = args.mic, None, []
             if args.mic == "auto":
@@ -194,7 +194,7 @@ def live_screen(args) -> None:
         if not (args.duration and heard >= args.duration * SR):
             while not lines.empty():  # stray Enters from naming must not end the meeting
                 lines.get()
-            with Live(screen, console=console, refresh_per_second=12, transient=True):
+            with Live(screen, console=console, refresh_per_second=12, transient=True, screen=True):
                 screen.phase, screen.hint = "LIVE", LIVE_HINT
                 pump()
     except KeyboardInterrupt:
@@ -241,7 +241,7 @@ def file_screen(args) -> None:
     holder: dict = {}
     screen = ui.Screen(lambda i: holder["d"].label(i) if "d" in holder else f"Speaker {i}", console, title="FILE")
     screen.phase, screen.hint, screen.progress = "FILE", path.name.upper(), 0.0
-    with Live(screen, console=console, refresh_per_second=12, transient=True):
+    with Live(screen, console=console, refresh_per_second=12, transient=True, screen=True):
         screen.status = "LISTENING TO THE ROOM"
         profile, db = choose_profile(args, audio, quiet=True)
         holder["d"] = d = build(args, profile, quiet=True)
@@ -301,7 +301,7 @@ def enroll_screen(args):
     screen.phase, screen.progress, screen.passage = "REC", 0.0, PASSAGES[args.language]
     screen.hint = "READ THE TEXT ABOVE AT YOUR NORMAL PACE"
     chunks, n, loud = [], 0, 0
-    with Live(screen, console=console, refresh_per_second=12, transient=True):
+    with Live(screen, console=console, refresh_per_second=12, transient=True, screen=True):
         for block, _ in mic_blocks(device=args.device):
             chunks.append(block)
             n += len(block)
