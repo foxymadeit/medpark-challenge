@@ -13,9 +13,11 @@ audio (or a ready transcript JSON)
  1. ffmpeg → 16 kHz mono
  2. Silero VAD → utterances           ← cut at every ≥300 ms pause, ≤15 s
     (+ diarizer turns: cut again where the speaker changes)
- 3. language ID limited to ro/ru/en   ← Whisper alone picks ru/lt for Moldovan RO
-    close call → decode in both, keep the higher avg_logprob
+ 3. decode every utterance as ro AND ru ← Whisper LID says ru 0.9 on plain Moldovan RO
+    (+ en when LID's top pick is en); keep the higher avg_logprob,
+    ro gets +0.1 as the meeting's main language
     clip < 1.5 s → reuse previous language
+    drop known subtitle hallucinations ("Продолжение следует…")
  4. faster-whisper large-v3           ← NO glossary, NO hotwords
  5. unload Whisper
         │
@@ -84,8 +86,13 @@ Measured on `data/Medpark_audio.m4a` (11:42):
 | Whisper large-v3, auto language per 15 s chunk | 59 % of letters Cyrillic in a mostly Romanian meeting: `Ело фост … ку инфаркт миокарди` (RO written as RU), plus RO/RU decoded as Lithuanian |
 | Canary-1B-v2 forced to `ro` | Romanian fine, Russian mangled, loops "Eu cum." on the last 30 s |
 | old energy VAD | kept 198 s of 702 s: its threshold was the median loudness, which in a busy meeting *is* speech |
+| Whisper forced to `ru` on Romanian speech | it **translates**: "dreapta și stânga" → "и правая, и левая" — a fluent lie, lower avg_logprob than the `ro` decode |
 
-Tuning knobs (env `MOM_*`): `LID_MARGIN` (1.0 = always decode twice), `MIN_LID_S`,
+First 113 s, 14 utterances, ro vs ru decode: LID picked `ru` on 12 of them (0.54–0.94) though
+nearly all are Romanian. avg_logprob picked the right language on 10/14; the 4 misses were
+within 0.06, which the +0.1 home bias flips.
+
+Tuning knobs (env `MOM_*`): `HOME_LANGUAGE` / `HOME_BIAS`, `ASR_ALWAYS_DECODE`, `MIN_LID_S`,
 `VAD_MIN_SILENCE_MS`, `ASR_MODEL_DIR` (turbo for CPU-only / speed), `LLM_WINDOW_S`.
 
 ## Measuring ASR

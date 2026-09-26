@@ -30,8 +30,12 @@ class Settings(BaseSettings):
     asr_model_dir: Path = ASR_ROOT / "models" / "whisper"
     # Whisper picks from 99 languages; Moldovan Romanian often wins as ru/lt.
     asr_languages: tuple[str, ...] = ("ro", "ru", "en")
-    # Decode in both top languages when their probabilities are this close. 1.0 = always.
-    lid_margin: float = 0.25
+    # Whisper LID says ru at 0.9 on plain Moldovan Romanian, and forcing ru then
+    # *translates*. So these are always decoded; the higher avg_logprob wins.
+    asr_always_decode: tuple[str, ...] = ("ro", "ru")
+    # The meeting's main language wins close calls by this much avg_logprob.
+    home_language: str = "ro"
+    home_bias: float = 0.1
     # Shorter clips ("Da", "Ага") carry the previous language; LID is noise there.
     min_lid_s: float = 1.5
 

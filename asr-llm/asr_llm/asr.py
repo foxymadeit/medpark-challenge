@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .clean import _fold
 from .config import settings
 from .local import pick_device, require_local_path
 
@@ -24,10 +25,18 @@ def rank_languages(probs: list[tuple[str, float]], allowed: tuple[str, ...]) -> 
     return sorted(((lang, p / total) for lang, p in kept), key=lambda item: item[1], reverse=True)
 
 
-def candidate_languages(ranked: list[tuple[str, float]], margin: float) -> list[str]:
-    if len(ranked) > 1 and ranked[0][1] - ranked[1][1] < margin:
-        return [ranked[0][0], ranked[1][0]]
-    return [ranked[0][0]]
+# Subtitle credits Whisper learned from web video; it emits them on noise.
+_HALLUCINATIONS = {
+    "продолжение следует",
+    "субтитры сделал dimatorzok",
+    "субтитры создавал dimatorzok",
+    "спасибо за просмотр",
+    "să vă mulțumim",
+    "vă mulțumim pentru vizionare",
+    "nu uitați să vă abonați",
+    "thank you for watching",
+    "thanks for watching",
+}
 
 
 class WhisperAsr:
@@ -49,9 +58,13 @@ class WhisperAsr:
         if prev_lang and samples.size < settings.min_lid_s * settings.sample_rate:
             languages = [prev_lang]
         else:
+            languages = list(settings.asr_always_decode)
             _, _, probs = self._model.detect_language(samples)
-            languages = candidate_languages(rank_languages(probs, settings.asr_languages), settings.lid_margin)
-        text, language, _ = max((self._decode(samples, lang) for lang in languages), key=lambda r: r[2])
+            ranked = rank_languages(probs, settings.asr_languages)
+            if ranked and ranked[0][0] not in languages:
+                languages.append(ranked[0][0])
+        results = [self._decode(samples, lang) for lang in languages]
+        text, language, _ = max(results, key=_biased_score)
         return text, language
 
     def _decode(self, samples: np.ndarray, language: str) -> tuple[str, str, float]:
@@ -65,7 +78,11 @@ class WhisperAsr:
             vad_filter=False,
         )
         # Whisper's own silence rule, applied per utterance.
-        kept = [s for s in segments if not (s.no_speech_prob > 0.6 and s.avg_logprob < -1.0)]
+        kept = [
+            s
+            for s in segments
+            if not (s.no_speech_prob > 0.6 and s.avg_logprob < -1.0) and _fold(s.text) not in _HALLUCINATIONS
+        ]
         if not kept:
             return "", language, float("-inf")
         weights = [max(s.end - s.start, 1e-3) for s in kept]
@@ -75,6 +92,11 @@ class WhisperAsr:
     def close(self) -> None:
         self._model = None
         gc.collect()
+
+
+def _biased_score(result: tuple[str, str, float]) -> float:
+    _, language, score = result
+    return score + (settings.home_bias if language == settings.home_language else 0.0)
 
 
 def transcribe_batches(engine: WhisperAsr, batches) -> list[AsrChunk]:
