@@ -254,7 +254,8 @@
     "wrongType": "Folosiți un fișier WAV, MP3 sau M4A.",
     "uploading": "Se încarcă…",
     "uploaded": "Audio încărcat",
-    "cancel": "Anulează încărcarea"
+    "cancel": "Anulează încărcarea",
+    "change": "Schimbă fișierul"
   },
   "processing": {
     "title": "Se scrie procesul-verbal",

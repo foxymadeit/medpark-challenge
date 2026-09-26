@@ -257,6 +257,7 @@ export const en = {
     uploading: 'Uploading…',
     uploaded: 'Audio uploaded',
     cancel: 'Cancel upload',
+    change: 'Change file',
   },
   processing: {
     title: 'Writing the minutes',

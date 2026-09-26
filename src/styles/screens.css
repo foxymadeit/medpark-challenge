@@ -114,10 +114,8 @@
 .start-tile--upload.is-over { box-shadow: var(--sm-elevation-card), 0 0 0 2px var(--sm-action); }
 .start-tile--upload.is-file { cursor: default; }
 .start-tile--upload.is-file:hover { box-shadow: var(--sm-elevation-card); }
-.start-tile__top { display: flex; align-self: stretch; align-items: flex-start; justify-content: space-between; gap: var(--sm-space-2); }
 .start-tile__progress { align-self: stretch; margin: 4px 0 2px; }
 .start-tile__file { display: flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0; color: var(--sm-ink-secondary); font: 400 13px/18px var(--sm-font-body); }
-.start-tile__meta { flex: none; }
 .start-tile__remove { display: inline-flex; flex: none; padding: 2px; border: 0; border-radius: 4px; background: none; color: inherit; cursor: pointer; }
 .start-tile__remove:hover { color: var(--sm-ink-primary); background: rgba(16, 16, 16, 0.06); }
 .start-tile--upload:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-upload-line); }

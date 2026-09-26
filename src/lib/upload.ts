@@ -19,3 +19,9 @@ export function readMinutes(file: File): Promise<number> {
     audio.src = url;
   });
 }
+
+/** File picked on the New meeting card, handed to the Upload screen (a File can't go in localStorage). */
+let pending: { file: File; minutes: number } | null = null;
+export const handOffUpload = (v: { file: File; minutes: number }) => void (pending = v);
+export const handedUpload = () => pending;
+export const clearHandedUpload = () => void (pending = null);

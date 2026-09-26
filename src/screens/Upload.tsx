@@ -1,5 +1,5 @@
 import { CpuIcon, FileAudioIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
-import { useRef, useState, type DragEvent } from 'react';
+import { useEffect, useRef, useState, type DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { useI18n } from '../i18n/I18nProvider';
@@ -7,7 +7,7 @@ import { formatBytes } from '../lib/format';
 import { useDraftMeeting } from '../lib/meeting';
 import { useStore } from '../store/AppStore';
 
-import { ACCEPT, isAudio, readMinutes } from '../lib/upload';
+import { ACCEPT, clearHandedUpload, handedUpload, isAudio, readMinutes } from '../lib/upload';
 
 /** 03 — Upload audio. */
 export function Upload() {
@@ -16,7 +16,9 @@ export function Upload() {
   const { createMeetingFromDraft } = useStore();
   const { title, typeLabel, count } = useDraftMeeting();
   const input = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<{ file: File; minutes: number } | null>(null);
+  // Arriving from the New meeting card: the file is already uploaded. Read once (StrictMode-safe), then forget it.
+  const [file, setFile] = useState<{ file: File; minutes: number } | null>(handedUpload);
+  useEffect(clearHandedUpload, []);
   const [error, setError] = useState<string>();
   const [over, setOver] = useState(false);
 
@@ -43,24 +45,27 @@ export function Upload() {
     <div className="page upload">
       <div className="upload__column">
         <div className="page__head">
-          <h1 className="t-h1">{t('upload.title')}</h1>
+          <h1 className="t-h1">{file ? t('upload.uploaded') : t('upload.title')}</h1>
           <p className="lead">
             {title} · {typeLabel} · {t('common.participantsCount', { count })}
           </p>
         </div>
-        <button
-          type="button"
-          className={`dropzone${over ? ' is-over' : ''}`}
-          onClick={() => input.current?.click()}
-          onDragOver={(e) => (e.preventDefault(), setOver(true))}
-          onDragLeave={() => setOver(false)}
-          onDrop={onDrop}
-          aria-describedby={error ? 'upload-err' : undefined}
-        >
-          <UploadSimpleIcon size={32} aria-hidden />
-          <span className="t-strong">{t('upload.drop')}</span>
-          <span className="note">{t('upload.hint')}</span>
-        </button>
+        {/* Once a file is in, the file row replaces the drop zone; "Change file" reopens the picker. */}
+        {!file && (
+          <button
+            type="button"
+            className={`dropzone${over ? ' is-over' : ''}`}
+            onClick={() => input.current?.click()}
+            onDragOver={(e) => (e.preventDefault(), setOver(true))}
+            onDragLeave={() => setOver(false)}
+            onDrop={onDrop}
+            aria-describedby={error ? 'upload-err' : undefined}
+          >
+            <UploadSimpleIcon size={32} aria-hidden />
+            <span className="t-strong">{t('upload.drop')}</span>
+            <span className="note">{t('upload.hint')}</span>
+          </button>
+        )}
         <input ref={input} type="file" accept={ACCEPT} hidden onChange={(e) => void take(e.target.files?.[0])} />
         {error && (
           <p id="upload-err" className="field__error" role="alert">
@@ -77,6 +82,9 @@ export function Upload() {
                 {formatBytes(file.file.size)}
               </span>
             </span>
+            <button type="button" className="link-btn" onClick={() => input.current?.click()}>
+              {t('upload.change')}
+            </button>
             <button type="button" className="icon-btn" aria-label={t('upload.remove', { name: file.file.name })} onClick={() => setFile(null)}>
               <XIcon size={16} aria-hidden />
             </button>
