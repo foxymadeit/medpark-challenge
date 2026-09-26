@@ -8,8 +8,8 @@ import { formatDayMonth } from '../lib/format';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 
-/** ms between two recipients ticking off; the plane flies during the first one. */
-const STEP_MS = 450;
+/** ms per recipient: their green bar fills over this time, then the check pops. */
+const STEP_MS = 1200;
 
 /**
  * 07 — Sent. MOCK sending animation: a paper plane leaves, each recipient ticks off in turn,
@@ -31,7 +31,7 @@ export function Sent() {
 
   useEffect(() => {
     if (done) return;
-    const timer = window.setTimeout(() => setTicked((n) => n + 1), ticked === 0 ? STEP_MS * 1.6 : STEP_MS);
+    const timer = window.setTimeout(() => setTicked((n) => n + 1), STEP_MS);
     return () => window.clearTimeout(timer);
   }, [ticked, done]);
 
@@ -60,6 +60,12 @@ export function Sent() {
                 <span className="who__text" style={{ flex: 1, minWidth: 0 }}>
                   <span className="who__name truncate">{p.name}</span>
                   <span className="who__sub truncate">{p.email ?? t('review.noEmail')}</span>
+                  {/* Green bar fills while this email goes out; stays full once sent. */}
+                  {p.email && (
+                    <span className="sent__bar" aria-hidden>
+                      <span className="sent__bar-fill" style={{ animationDuration: `${STEP_MS}ms` }} />
+                    </span>
+                  )}
                 </span>
                 <span className="sent__state">
                   {state === 'sent' && (
@@ -67,7 +73,7 @@ export function Sent() {
                       <CheckIcon size={12} weight="bold" aria-hidden />
                     </span>
                   )}
-                  {state === 'sending' && <span className="sent__spinner" aria-label={t('sent.stateSending')} />}
+                  {state === 'sending' && <span className="sr-only">{t('sent.stateSending')}</span>}
                   {state === 'waiting' && <span className="sent__wait" aria-hidden />}
                   {state === 'skipped' && <span className="note">{t('sent.stateSkipped')}</span>}
                 </span>
