@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   FiCalendar as CalendarBlank,
   FiMic as Microphone,
@@ -35,6 +36,7 @@ export default function MeetingsPage() {
     <>
       <div className="desktop-dashboard">
         <h1>{data.length ? t("startMeeting") : t("meetings")}</h1>
+        <p className="dashboard-helper">{t("meetingStartHint")}</p>
         {data.length === 0 && (
           <p className="first-day-kicker">{t("startMeeting")}</p>
         )}
@@ -76,7 +78,12 @@ export default function MeetingsPage() {
               </div>
             </section>
             <section>
-              <h2>{t("recent")}</h2>
+              <div className="section-heading spread">
+                <h2>{t("recent")}</h2>
+                <Link className="text-link" to="/history">
+                  {t("allMeetings")}
+                </Link>
+              </div>
               <MeetingList meetings={data.slice(0, 4)} />
             </section>
           </div>

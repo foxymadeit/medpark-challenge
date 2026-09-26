@@ -14,7 +14,9 @@ Replace `CHANGE_ME` with your local demo password; quote values containing `#`. 
 
 The demo account is **Administrator / AD**, separate from staff participants. System is admin-only.
 
-Open the local URL printed by Vite. Demo credentials: `admin@medpark.local` / `<VITE_DEMO_PASSWORD from .env.local>`. Set `VITE_DEMO_SEND_COUNTDOWN_SECONDS=15` for a shorter demo and restart Vite. The default is five minutes.
+Open the local URL printed by Vite. Demo credentials: `admin@medpark.local` / `<VITE_DEMO_PASSWORD from .env.local>`.
+
+Manual mode is the current default: process → review the transcript, minutes and tasks → correct content → confirm participants → mark the review complete → Send. Processing never starts a countdown or sends automatically. Auto mode is a future, locked capability. Its prepared flow uses a 30-second countdown and can be stopped into manual review, but it is unavailable by default.
 
 Demo mode uses localStorage for metadata and IndexedDB for audio. WAV, MP3, M4A and FLAC uploads are validated in the browser, while a real backend must validate decoded content again. Processing, queue/failure states, speaker activity and email delivery are simulated deterministically; sample transcripts are explicitly labeled. Interface language supports EN/RO/RU without translating spoken content. Sessions sign out after 30 minutes without pointer, keyboard or touch activity while preserving meeting data. All runtime assets are served locally.
 

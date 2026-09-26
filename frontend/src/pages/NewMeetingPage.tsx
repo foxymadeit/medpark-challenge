@@ -9,20 +9,15 @@ import {
   FiCheck as Check,
   FiMic as Microphone,
   FiUpload as UploadSimple,
-  FiUserPlus as UserPlus,
 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import { createMeeting, getPeople } from "../api/meetings";
+import { createMeeting } from "../api/meetings";
 import { departments, distribution } from "../api/config";
 import type { MeetingType } from "../types/meeting";
-import { useData } from "../hooks/useData";
-import DepartmentTile from "../components/DepartmentTile";
 import DepartmentDoor from "../components/DepartmentDoor";
 import RouteProgress from "../components/RouteProgress";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
-import AddPerson from "../components/AddPerson";
-import StatePanel from "../components/StatePanel";
 export default function NewMeetingPage() {
   const { t, i18n } = useTranslation();
   const [search] = useSearchParams();
@@ -32,13 +27,10 @@ export default function NewMeetingPage() {
     ? (chosen as MeetingType)
     : null;
   const navigate = useNavigate();
-  const { data: people, error, refresh } = useData(getPeople, 0);
   const [title, setTitle] = useState("");
   const [mode, setMode] = useState<"record" | "upload">(
     search.get("mode") === "upload" ? "upload" : "record",
   );
-  const [selected, setSelected] = useState<string[]>(["ana", "elena", "igor"]);
-  const [add, setAdd] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState("");
   if (!type)
@@ -56,7 +48,6 @@ export default function NewMeetingPage() {
         </div>
       </>
     );
-  if (!people) return <StatePanel error={error} retry={refresh} />;
   return (
     <>
       <Link className="back-link" to="/meetings">
@@ -64,7 +55,6 @@ export default function NewMeetingPage() {
       </Link>
       <div className="meeting-heading">
         <div className="meeting-heading-title">
-          <DepartmentTile type={type} />
           <div>
             <h1>{t("meetingFor", { department: t(type) })}</h1>
             <p>{t("routing", distribution[type])}</p>
@@ -96,7 +86,7 @@ export default function NewMeetingPage() {
           </button>
         ))}
       </div>
-      <div className="setup-fields">
+      <div className="setup-fields setup-fields-simple">
         <InputField
           label={t("optionalTitle")}
           maxLength={120}
@@ -104,31 +94,6 @@ export default function NewMeetingPage() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t("titlePlaceholder")}
         />
-        <div>
-          <label>{t("roomPeople")}</label>
-          <div className="people-chips">
-            {people.map((p) => (
-              <button
-                key={p.id}
-                className={`chip ${selected.includes(p.id) ? "selected" : ""}`}
-                aria-pressed={selected.includes(p.id)}
-                onClick={() =>
-                  setSelected((s) =>
-                    s.includes(p.id)
-                      ? s.filter((id) => id !== p.id)
-                      : [...s, p.id],
-                  )
-                }
-              >
-                {selected.includes(p.id) && <Check size={14} />} {p.name}
-              </button>
-            ))}
-            <Button variant="quiet" onClick={() => setAdd(true)}>
-              <UserPlus size={20} />
-              {t("add")}
-            </Button>
-          </div>
-        </div>
       </div>
       <div className="page-footer">
         {failure && (
@@ -148,7 +113,7 @@ export default function NewMeetingPage() {
                   `${t("meetingFor", { department: t(type) })} — ${new Date().toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" })}`,
                 type,
                 inputMode: mode,
-                participants: people.filter((p) => selected.includes(p.id)),
+                participants: [],
               });
               navigate(
                 `/meetings/${m.id}/${mode === "record" ? "record" : "upload"}`,
@@ -168,16 +133,6 @@ export default function NewMeetingPage() {
           {t(mode === "record" ? "startRecording" : "continue")}
         </Button>
       </div>
-      {add && (
-        <AddPerson
-          onClose={() => setAdd(false)}
-          onAdded={(p) => {
-            setSelected((s) => [...s, p.id]);
-            setAdd(false);
-            refresh();
-          }}
-        />
-      )}
     </>
   );
 }

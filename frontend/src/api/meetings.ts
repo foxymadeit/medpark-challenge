@@ -1,12 +1,18 @@
 import { invalidMinutes } from "./validation";
 import type {
   ActionItem,
+  CorrectionFeedback,
   CreateMeetingInput,
   Meeting,
   Participant,
   SystemState,
 } from "../types/meeting";
-import { DEMO_MODE, distribution, SEND_COUNTDOWN_SECONDS } from "./config";
+import {
+  AUTO_COUNTDOWN_SECONDS,
+  AUTO_MODE_AVAILABLE,
+  DEMO_MODE,
+  distribution,
+} from "./config";
 import { ApiError, request } from "./client";
 import {
   findMeeting,
@@ -36,8 +42,10 @@ export async function createMeeting(
       id: crypto.randomUUID(),
       title: input.title.trim().slice(0, 120),
       status: "draft",
+      sendMode: "manual",
+      reviewState: "not_ready",
       createdAt: new Date().toISOString(),
-      participants: input.participants.map((p, i) => ({
+      participants: (input.participants ?? []).map((p, i) => ({
         ...p,
         speakerSlot: i,
         speakerId: p.id,
@@ -114,6 +122,7 @@ export async function startProcessing(id: string): Promise<Meeting> {
       processingStartedAt: new Date().toISOString(),
       processingEndsAt: new Date(Date.now() + 12000).toISOString(),
       sendScheduledAt: null,
+      reviewState: "not_ready" as const,
     });
   });
 }
@@ -142,11 +151,15 @@ function restartWindow(m: Meeting) {
   if (invalidMinutes(m)) {
     m.status = "ready";
     m.sendScheduledAt = null;
-  } else if (m.status === "sending_soon") {
+  } else if (
+    m.status === "sending_soon" &&
+    m.sendMode === "auto" &&
+    AUTO_MODE_AVAILABLE
+  ) {
     m.sendScheduledAt = new Date(
-      Date.now() + SEND_COUNTDOWN_SECONDS * 1000,
+      Date.now() + AUTO_COUNTDOWN_SECONDS * 1000,
     ).toISOString();
-    m.sendWindowSeconds = SEND_COUNTDOWN_SECONDS;
+    m.sendWindowSeconds = AUTO_COUNTDOWN_SECONDS;
   }
 }
 export async function updateActionItem(
@@ -187,6 +200,8 @@ export async function stopScheduledSend(id: string): Promise<Meeting> {
     const m = findMeeting(s, id);
     if (m.status === "sending_soon") {
       m.status = "ready";
+      m.sendMode = "manual";
+      m.reviewState = "needs_review";
       m.deliveryState = "stopped";
       m.sendScheduledAt = null;
     }
@@ -202,7 +217,13 @@ export async function sendNow(id: string): Promise<Meeting> {
   return mutate((s) => {
     const m = findMeeting(s, id);
     if (["sent", "sending"].includes(m.status)) return m;
-    if (!["ready", "sending_soon"].includes(m.status) || invalidMinutes(m))
+    if (
+      !["ready", "sending_soon"].includes(m.status) ||
+      invalidMinutes(m) ||
+      !m.participants.length ||
+      !m.distributionList.length ||
+      m.reviewState !== "reviewed"
+    )
       throw new ApiError("unresolved");
     m.status = "sending";
     m.deliveryState = "sending";
@@ -210,7 +231,58 @@ export async function sendNow(id: string): Promise<Meeting> {
     m.deliveryFailedAt = undefined;
     m.sendingStartedAt = new Date().toISOString();
     m.sendScheduledAt = null;
+    m.reviewState = "reviewed";
     return m;
+  });
+}
+export async function markReviewed(id: string): Promise<Meeting> {
+  if (!DEMO_MODE) return request(`${path(id)}/review`, { method: "POST" });
+  return mutate((store) => {
+    const meeting = findMeeting(store, id);
+    if (
+      meeting.status !== "ready" ||
+      invalidMinutes(meeting) ||
+      !meeting.participants.length ||
+      !meeting.distributionList.length
+    )
+      throw new ApiError("unresolved");
+    meeting.reviewState = "reviewed";
+    return meeting;
+  });
+}
+export async function updateParticipants(
+  id: string,
+  participants: Participant[],
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return request(`${path(id)}/participants`, {
+      method: "PATCH",
+      body: JSON.stringify({ participants }),
+    });
+  return mutate((s) => {
+    const meeting = findMeeting(s, id);
+    meeting.participants = participants.map((participant, index) => ({
+      ...participant,
+      speakerId: participant.speakerId ?? participant.id,
+      speakerSlot: participant.speakerSlot ?? index,
+    }));
+    return meeting;
+  });
+}
+export async function saveCorrectionFeedback(
+  feedback: Omit<CorrectionFeedback, "createdAt">,
+): Promise<void> {
+  const value = { ...feedback, createdAt: new Date().toISOString() };
+  if (!DEMO_MODE) {
+    await request(`${path(feedback.meetingId)}/feedback`, {
+      method: "POST",
+      body: JSON.stringify(value),
+    });
+    return;
+  }
+  mutate((store) => {
+    store.feedback.push(value);
+    return value;
   });
 }
 export async function getTranscript(id: string) {
@@ -284,6 +356,7 @@ export async function getSystem(): Promise<SystemState> {
             description: "Demo browser storage; no hospital capacity claim",
           },
         ],
+        capabilities: { autoModeAvailable: AUTO_MODE_AVAILABLE },
       }
     : request("/system");
 }

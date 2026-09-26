@@ -3,7 +3,11 @@ import { Link } from "react-router-dom";
 import { FiEdit2 as PencilSimple } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import type { ActionItem, Meeting } from "../types/meeting";
-import { toggleActionItem, updateActionItem } from "../api/meetings";
+import {
+  saveCorrectionFeedback,
+  toggleActionItem,
+  updateActionItem,
+} from "../api/meetings";
 import { notifyUpdate } from "../hooks/useData";
 import SpeakerLabel from "./SpeakerLabel";
 import Button from "./Button";
@@ -122,6 +126,24 @@ export default function ActionItemRow({
                   ownerParticipantId: owner || null,
                   deadline: deadline || null,
                 });
+                const before = JSON.stringify({
+                  task: item.task,
+                  ownerParticipantId: item.ownerParticipantId,
+                  deadline: item.deadline,
+                });
+                const after = JSON.stringify({
+                  task: task.trim(),
+                  ownerParticipantId: owner || null,
+                  deadline: deadline || null,
+                });
+                if (before !== after)
+                  await saveCorrectionFeedback({
+                    meetingId: meeting.id,
+                    field: `actionItems.${item.id}`,
+                    before,
+                    after,
+                    sourceTimestamp: item.sourceTimestampSeconds,
+                  });
                 setEdit(false);
               });
             }}
@@ -155,7 +177,7 @@ export default function ActionItemRow({
                 {t("saidAt", { time: formatTime(item.sourceTimestampSeconds) })}
               </p>
             )}
-            <p className="muted">{t("restartWindow")}</p>
+            <p className="muted">{t("correctionFeedbackNotice")}</p>
             <div className="button-row">
               <Button
                 type="submit"

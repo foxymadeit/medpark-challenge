@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FiEdit2 as PencilSimple } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import type { Meeting } from "../types/meeting";
-import { updateMinutes } from "../api/meetings";
+import { saveCorrectionFeedback, updateMinutes } from "../api/meetings";
 import { notifyUpdate } from "../hooks/useData";
 import Button from "./Button";
 export default function EditableMinutes({
@@ -29,6 +29,12 @@ export default function EditableMinutes({
     setBusy(true);
     setError("");
     try {
+      const before =
+        field === "summary"
+          ? (meeting.summary ?? "")
+          : (meeting.decisions ?? [])
+              .map((decision) => decision.text)
+              .join("\n");
       await updateMinutes(
         meeting.id,
         field === "summary"
@@ -43,6 +49,13 @@ export default function EditableMinutes({
                 })),
             },
       );
+      if (before !== value.trim())
+        await saveCorrectionFeedback({
+          meetingId: meeting.id,
+          field,
+          before,
+          after: value.trim(),
+        });
       setEditing(false);
       notifyUpdate();
     } catch (e) {
@@ -100,6 +113,7 @@ export default function EditableMinutes({
           {t(error, { defaultValue: t("requestFailed") })}
         </p>
       )}
+      {editing && <p className="muted">{t("correctionFeedbackNotice")}</p>}
     </section>
   );
 }

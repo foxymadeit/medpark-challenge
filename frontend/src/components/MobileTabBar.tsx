@@ -7,7 +7,6 @@ export default function MobileTabBar() {
       {[
         ["meetings", "/meetings"],
         ["actions", "/action-items"],
-        ["history", "/history"],
         ["people", "/people"],
       ].map(([label, to]) => (
         <NavLink key={to} to={to}>

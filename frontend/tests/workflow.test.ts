@@ -16,6 +16,10 @@ import {
   enrollVoice,
   getRecording,
   saveRecording,
+  markReviewed,
+  updateParticipants,
+  saveCorrectionFeedback,
+  getSystem,
 } from "../src/api/meetings";
 import { advanceStore, readStore, writeStore } from "../src/mock/store";
 import { invalidMinutes } from "../src/api/validation";
@@ -36,7 +40,7 @@ async function create() {
   });
 }
 describe("demo workflow with no network", () => {
-  it("creates a meeting, persists processing through reload, and sends after the configured window", async () => {
+  it("creates a meeting, persists processing, and waits for explicit review and send", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
     const network = vi.fn(() => {
@@ -54,13 +58,17 @@ describe("demo workflow with no network", () => {
     ).toBe("processing");
     vi.setSystemTime(now.getTime() + 12001);
     const ready = await getMeeting(m.id);
-    expect(ready.status).toBe("sending_soon");
+    expect(ready.status).toBe("ready");
+    expect(ready.reviewState).toBe("needs_review");
+    expect(ready.sendScheduledAt).toBeNull();
     expect(ready.summary).toBeTruthy();
     expect(ready.decisions?.length).toBe(3);
     expect(ready.actionItems?.length).toBe(3);
-    vi.setSystemTime(Date.parse(ready.sendScheduledAt!) + 1);
-    expect((await getMeeting(m.id)).status).toBe("sending");
-    vi.setSystemTime(Date.parse(ready.sendScheduledAt!) + 801);
+    vi.setSystemTime(now.getTime() + 3600000);
+    expect((await getMeeting(m.id)).status).toBe("ready");
+    await markReviewed(m.id);
+    await sendNow(m.id);
+    vi.setSystemTime(Date.now() + 801);
     const sent = await getMeeting(m.id);
     expect(sent.status).toBe("sent");
     expect(sent.sendScheduledAt).toBeNull();
@@ -75,8 +83,33 @@ describe("demo workflow with no network", () => {
     await startProcessing(m.id);
     vi.setSystemTime(now.getTime() + 3600000);
     expect((await getMeetings()).find((x) => x.id === m.id)?.status).toBe(
-      "sent",
+      "ready",
     );
+  });
+  it("defaults to Manual, keeps Auto unavailable, and persists participants and correction feedback", async () => {
+    const meeting = await createMeeting({
+      title: "Manual review",
+      type: "medical",
+      inputMode: "upload",
+    });
+    expect(meeting.sendMode).toBe("manual");
+    expect((await getSystem()).capabilities?.autoModeAvailable).toBe(false);
+    const people = await getPeople();
+    const updated = await updateParticipants(meeting.id, [people[0]]);
+    expect(updated.participants.map((person) => person.id)).toEqual([
+      people[0].id,
+    ]);
+    await saveCorrectionFeedback({
+      meetingId: meeting.id,
+      field: "summary",
+      before: "Draft",
+      after: "Corrected",
+    });
+    expect(readStore().feedback.at(-1)).toMatchObject({
+      meetingId: meeting.id,
+      field: "summary",
+      after: "Corrected",
+    });
   });
   it("honors a 15-second countdown and pauses when review data is unresolved", () => {
     const store = readStore();
@@ -84,11 +117,12 @@ describe("demo workflow with no network", () => {
     m.status = "processing";
     m.processingStartedAt = now.toISOString();
     m.processingEndsAt = new Date(now.getTime() + 12000).toISOString();
-    advanceStore(store, now.getTime() + 12000, 15);
+    m.sendMode = "auto";
+    advanceStore(store, now.getTime() + 12000, 15, true);
     expect(m.status).toBe("sending_soon");
     expect(Date.parse(m.sendScheduledAt!)).toBe(now.getTime() + 27000);
     m.actionItems![0].ownerParticipantId = null;
-    advanceStore(store, now.getTime() + 28000, 15);
+    advanceStore(store, now.getTime() + 28000, 15, true);
     expect(m.status).toBe("ready");
     expect(m.sendScheduledAt).toBeNull();
     expect(invalidMinutes(m)).toBe(true);
@@ -104,6 +138,7 @@ describe("demo workflow with no network", () => {
     await stopScheduledSend(m.id);
     vi.setSystemTime(now.getTime() + 60000);
     expect((await getMeeting(m.id)).status).toBe("ready");
+    await markReviewed(m.id);
     const sent = await sendNow(m.id);
     expect(sent.status).toBe("sending");
     await expect(
@@ -152,17 +187,18 @@ describe("demo workflow with no network", () => {
     });
     await expect(sendNow(m.id)).rejects.toThrow("unresolved");
   });
-  it("restarts only an active countdown on editing and keeps a stopped window stopped", async () => {
+  it("does not restart an unavailable automatic countdown and keeps a stopped window stopped", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(now);
     const m = (await getMeetings())[0];
     await updateMeeting(m.id, {
       status: "sending_soon",
+      sendMode: "auto",
       sendScheduledAt: new Date(now.getTime() + 1000).toISOString(),
     });
     await updateMinutes(m.id, { summary: "Revised" });
     expect(Date.parse((await getMeeting(m.id)).sendScheduledAt!)).toBe(
-      now.getTime() + 300000,
+      now.getTime() + 1000,
     );
     await stopScheduledSend(m.id);
     await updateActionItem(m.id, "a1", { deadline: "2026-10-01" });

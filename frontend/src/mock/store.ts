@@ -1,18 +1,24 @@
 import { invalidMinutes } from "../api/validation";
-import type { Meeting, Participant } from "../types/meeting";
+import type {
+  CorrectionFeedback,
+  Meeting,
+  Participant,
+} from "../types/meeting";
 import { sampleMinutes, seedMeetings, seedPeople } from "./seed";
-import { SEND_COUNTDOWN_SECONDS } from "../api/config";
+import { AUTO_COUNTDOWN_SECONDS } from "../api/config";
 import { ApiError } from "../api/client";
 export interface DemoStore {
-  version: 2;
+  version: 2 | 3;
   meetings: Meeting[];
   people: Participant[];
+  feedback: CorrectionFeedback[];
 }
 export const STORE_KEY = "secure-mom-v2";
 export function advanceStore(
   store: DemoStore,
   now = Date.now(),
-  countdown = SEND_COUNTDOWN_SECONDS,
+  countdown = AUTO_COUNTDOWN_SECONDS,
+  autoModeAvailable = false,
 ): boolean {
   let changed = false;
   for (const m of store.meetings) {
@@ -49,9 +55,11 @@ export function advanceStore(
         Object.assign(m, sampleMinutes(m.participants, m.durationSeconds), {
           demoGenerated: true,
         });
-        m.status = invalidMinutes(m) ? "ready" : "sending_soon";
+        const auto = m.sendMode === "auto" && autoModeAvailable;
+        m.status = auto && !invalidMinutes(m) ? "sending_soon" : "ready";
         m.processingState = "complete";
-        m.deliveryState = m.status === "sending_soon" ? "scheduled" : "stopped";
+        m.reviewState = "needs_review";
+        m.deliveryState = auto ? "scheduled" : "stopped";
         m.sendWindowSeconds = countdown;
         m.sendScheduledAt =
           m.status === "sending_soon"
@@ -96,20 +104,40 @@ export function readStore(): DemoStore {
       throw new ApiError("storage");
     }
     if (
-      store.version !== 2 ||
+      ![2, 3].includes(store.version) ||
       !Array.isArray(store.meetings) ||
       !Array.isArray(store.people)
     )
       throw new ApiError("storage");
   } else {
     store = {
-      version: 2,
+      version: 3,
       meetings: seedMeetings(),
       people: structuredClone(seedPeople),
+      feedback: [],
     };
     writeStore(store);
   }
   let migrated = false;
+  if (store.version === 2) {
+    store.version = 3;
+    store.feedback = [];
+    migrated = true;
+  }
+  store.feedback ??= [];
+  for (const meeting of store.meetings) {
+    if (!meeting.sendMode) {
+      meeting.sendMode = "manual";
+      meeting.reviewState =
+        meeting.status === "processing" ? "not_ready" : "needs_review";
+      if (meeting.status === "sending_soon") {
+        meeting.status = "ready";
+        meeting.deliveryState = "stopped";
+        meeting.sendScheduledAt = null;
+      }
+      migrated = true;
+    }
+  }
   for (const person of [
     ...store.people,
     ...store.meetings.flatMap((m) => m.participants),

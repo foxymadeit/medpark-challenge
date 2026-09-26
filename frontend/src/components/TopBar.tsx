@@ -23,16 +23,12 @@ export default function TopBar({
           {[
             ["meetings", "/meetings"],
             ["actions", "/action-items"],
-            ["history", "/history"],
             ["people", "/people"],
-            ["system", "/system"],
-          ]
-            .filter(([label]) => label !== "system" || user?.role === "admin")
-            .map(([label, path]) => (
-              <NavLink key={path} to={path}>
-                {t(label)}
-              </NavLink>
-            ))}
+          ].map(([label, path]) => (
+            <NavLink key={path} to={path}>
+              {t(label)}
+            </NavLink>
+          ))}
         </nav>
       )}
       <div className="top-right">

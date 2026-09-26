@@ -13,6 +13,16 @@ export type MeetingStatus =
 export type ProcessingState = "queued" | "running" | "failed" | "complete";
 export type DeliveryState =
   "scheduled" | "stopped" | "sending" | "sent" | "failed";
+export type SendMode = "manual" | "auto";
+export type ReviewState = "not_ready" | "needs_review" | "reviewed";
+export interface CorrectionFeedback {
+  meetingId: string;
+  field: string;
+  before: string;
+  after: string;
+  sourceTimestamp?: number;
+  createdAt: string;
+}
 export interface Participant {
   id: string;
   name: string;
@@ -82,16 +92,19 @@ export interface Meeting {
   sendWindowSeconds?: number;
   reviewFlags?: string[];
   demoGenerated?: boolean;
+  sendMode: SendMode;
+  reviewState?: ReviewState;
 }
 export interface CreateMeetingInput {
   title: string;
   type: MeetingType;
   inputMode: "record" | "upload";
-  participants: Participant[];
+  participants?: Participant[];
 }
 export interface SystemState {
   local: boolean;
   lastCheckedAt?: string;
   host?: string;
   services: { id: string; available: boolean; description?: string }[];
+  capabilities?: { autoModeAvailable: boolean };
 }

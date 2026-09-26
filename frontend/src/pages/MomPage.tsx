@@ -8,6 +8,8 @@ import { useMeeting } from "../hooks/useMeeting";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import SendCountdown from "../components/SendCountdown";
+import ManualReviewBar from "../components/ManualReviewBar";
+import ReviewParticipants from "../components/ReviewParticipants";
 import EditableMinutes from "../components/EditableMinutes";
 import ActionItemRow from "../components/ActionItemRow";
 import SpeakerLabel from "../components/SpeakerLabel";
@@ -70,9 +72,12 @@ export default function MomPage() {
             >
               {t("deliveryConfirmed")}
             </Link>
-          ) : (
+          ) : m.sendMode === "auto" && m.status === "sending_soon" ? (
             <SendCountdown meeting={m} />
+          ) : (
+            <ManualReviewBar meeting={m} />
           )}
+          <ReviewParticipants meeting={m} />
           <EditableMinutes meeting={m} field="summary" />
           <EditableMinutes meeting={m} field="decisions" />
           <section className="panel action-card">

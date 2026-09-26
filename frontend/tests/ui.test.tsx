@@ -68,7 +68,7 @@ describe("application flows", () => {
     await screen.findByRole("heading", { name: "Sign in" });
     expect(sessionStorage.getItem(DEMO_SESSION_KEY)).toBeNull();
   });
-  it("creates an upload meeting from the selected department with a generated title and people", async () => {
+  it("creates an upload meeting without assuming room participants", async () => {
     mount();
     await screen.findByRole("heading", { name: "Start a meeting" });
     fireEvent.click(screen.getByRole("link", { name: /Medical Sends to/ }));
@@ -82,7 +82,7 @@ describe("application flows", () => {
     const m = (await getMeetings())[0];
     expect(m.type).toBe("medical");
     expect(m.title).toContain("Medical meeting");
-    expect(m.participants.map((p) => p.id)).toEqual(["ana", "elena", "igor"]);
+    expect(m.participants).toEqual([]);
     expect(m.inputMode).toBe("upload");
   });
   it("switches language, persists it, and leaves the original transcript untouched", async () => {
@@ -124,19 +124,18 @@ describe("application flows", () => {
       ),
     );
   });
-  it("stops the send countdown and supports send-now with a simulated delivery receipt", async () => {
+  it("requires manual review and supports explicit send with a simulated receipt", async () => {
     await updateMeeting("meeting-001", {
-      status: "sending_soon",
-      sendScheduledAt: new Date(Date.now() + 300000).toISOString(),
-      sendWindowSeconds: 300,
+      status: "ready",
+      sendMode: "manual",
+      reviewState: "needs_review",
+      sendScheduledAt: null,
     });
     mount("/meetings/meeting-001/minutes");
     fireEvent.click(
-      await screen.findByRole("button", { name: "Stop sending" }),
+      await screen.findByRole("button", { name: "Mark review complete" }),
     );
-    await screen.findByText("Sending stopped. Nothing went out.");
-    expect((await getMeeting("meeting-001")).sendScheduledAt).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Send now" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Send" }));
     const receipt = await screen.findByRole(
       "link",
       {
@@ -208,7 +207,7 @@ describe("application flows", () => {
     });
     act(() => notifyUpdate());
     await waitFor(() =>
-      expect(screen.getAllByText("Sending soon").length).toBeGreaterThan(0),
+      expect(screen.getAllByText("Ready for review").length).toBeGreaterThan(0),
     );
   });
 });
@@ -345,15 +344,17 @@ describe("final Figma states", () => {
     await updateMeeting("meeting-001", {
       status: "ready",
       deliveryState: "stopped",
+      reviewState: "needs_review",
       sendScheduledAt: null,
     });
     let view = mount("/meetings/meeting-001/minutes");
-    await screen.findByText("Sending stopped. Nothing went out.");
+    await screen.findByText("Review before sending");
     expect(screen.queryByRole("progressbar")).toBeNull();
     view.unmount();
     await updateMeeting("meeting-001", {
       status: "ready",
       deliveryState: "failed",
+      reviewState: "reviewed",
     });
     view = mount("/meetings/meeting-001/minutes");
     await screen.findByRole("heading", {

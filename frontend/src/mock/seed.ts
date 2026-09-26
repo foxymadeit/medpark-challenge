@@ -138,6 +138,8 @@ export function seedMeetings(now = Date.now()): Meeting[] {
     distributionList: ["medical-board"],
     ...sampleMinutes(participants),
     demoGenerated: true,
+    sendMode: "manual",
+    reviewState: "needs_review",
   };
   return [
     base,

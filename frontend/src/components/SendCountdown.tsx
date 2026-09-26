@@ -104,7 +104,7 @@ export default function SendCountdown({ meeting }: { meeting: Meeting }) {
         </p>
       )}
       {meeting.status === "sending_soon" && (
-        <progress max={meeting.sendWindowSeconds ?? 300} value={seconds} />
+        <progress max={meeting.sendWindowSeconds ?? 30} value={seconds} />
       )}
     </section>
   );

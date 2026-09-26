@@ -6,12 +6,12 @@ The existing frontend was continued in place on `frontend-secure-mom`. The final
 
 The demo account is Administrator / AD. It is distinct from participants, including Elena Ciobanu. Versioned sessions discard legacy identities, and System requires the admin role. Credentials are environment-only; `.env.local` is ignored. The actual local password is absent from source files eligible for commit and from the production bundle. Production builds disable demo authentication.
 
-Delivery persists `ready/sending_soon → sending → sent`; content editing is locked during delivery. The intermediate phase lasts 800 ms in the prototype. The mobile account menu remains accessible. Unused v1 sidebar, empty components, compatibility mock module, starter assets and lucide dependency were removed.
+Manual delivery is now the default: processing ends in review, corrections are stored as honest feedback, participants are confirmed, and Send is explicit. Auto delivery is modeled behind `autoModeAvailable: false`; its dormant path uses a 30-second countdown and Stop moves the meeting into Manual review. Content editing is locked during delivery. The intermediate send phase lasts 800 ms in the prototype.
 
 ## Verification
 
 - `npm run build`: passed.
-- `npm test`: 40 passed, 4 files.
+- `npm test`: 48 passed, 6 files.
 - `npm run lint`: passed.
 - `git diff --check`: passed.
 - Auth: normalized login, rejection, logout, stale-session handling, Administrator identity, account/participant separation and non-admin System guard.
@@ -19,18 +19,16 @@ Delivery persists `ready/sending_soon → sending → sent`; content editing is 
 - Recorder: mocked MediaRecorder lifecycle, pause/resume/stop, Strict Mode, track cleanup, unsupported and denied states. Real hardware microphone capture was not reverified in this continuation.
 - Upload: drag/drop, remove/replace, filename/metadata, extension/MIME, nonzero size, maximum size and 3-hour limit.
 - Processing: timestamp persistence through reload and off-page reconciliation.
-- Delivery: configurable 15-second window, distinct stopped/failed states, manual retry, intermediate sending state, automatic expiry, idempotency, review validation and persistence.
+- Delivery: Manual review by default, participant validation, explicit send, distinct failed state, intermediate sending state, idempotency and persistence. Auto remains unavailable; its controlled store path verifies a 30-second countdown.
 - Final Figma states: X02 processing failed, X03 delivery failed, X04 upload problems, X05 service unavailable banner, X06 page not found, X07 signed out, X08 first day, X09 queued and X10 sending stopped.
 
-## Visual verification and remaining gate
+## Visual verification
 
 Desktop screenshots confirmed Meetings, History, People, System, New Meeting (Medical), Recording, Minutes and Transcript in this continuation; Action Items had already been visually checked in the preceding work. The account menu was inspected and showed Administrator, admin@medpark.local, System and Log out; AD was visible in the top bar. The mixed-language transcript remained unchanged.
 
 The initial retry failed because Vite was no longer listening on port 5173. Brave retained the previous rendered page in memory, so its URL changed while the content stayed stale. Restarting Vite outside the sandbox restored normal navigation. A separate Chrome attempt had also failed with ScreenCaptureKit error -3811 (audio/video capture failure), but Brave now captures correctly.
 
-Still to visually verify reliably: Login after a fresh logout, the Executive and Administrative variants, Upload, Processing, Sent, enrollment and mobile Meetings/Recording/Minutes/Action Items. Automated component/workflow checks cover their behavior but do not replace these remaining screenshots. Real microphone capture was not started because that would trigger a browser microphone permission prompt.
-
-Commit and push remain pending because the continuation request explicitly gates Git publication on completion of all verification. No merge into Coflazo-Branch was attempted.
+The latest Figma metadata and design context were re-read for the Screens root, S02 Meetings and S03 Start a Medical meeting. They confirm the Secure MOM wordmark, the three-item top navigation, shorter department doors, helper copy, simplified start screen and deferred participant confirmation. The current environment exposed no browser surface for a new screenshot pass; responsive behavior is covered by existing component tests and CSS review. Real microphone capture was not started because that requires hardware permission. No merge into Coflazo-Branch was attempted.
 
 ## Prototype and backend boundary
 

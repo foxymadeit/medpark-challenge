@@ -58,6 +58,17 @@ export default function SystemPage() {
           </div>
         ))}
       </div>
+      <section className="panel auto-mode-card">
+        <div>
+          <h2>{t("autoMode")}</h2>
+          <p>{t("autoModeDescription")}</p>
+        </div>
+        <span className="state-badge">
+          {t(
+            data.capabilities?.autoModeAvailable ? "available" : "comingLater",
+          )}
+        </span>
+      </section>
       <section className="panel minutes-card">
         <h2>{t("distribution")}</h2>
         <div className="distribution-grid">
