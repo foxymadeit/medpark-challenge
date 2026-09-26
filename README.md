@@ -41,7 +41,7 @@ them cannot follow a Moldovan meeting anyway:
 | Deepgram Nova-3, code-switching mode | [no](https://developers.deepgram.com/docs/models-languages-overview) (10 languages, Russian yes, Romanian no) | no | no | per minute |
 | Fireflies.ai Business | yes | multi-language mode, beta | no | $19 per seat per month, plus credits |
 | ElevenLabs Scribe + pyannoteAI | yes | automatic detection | no | $0.40 + €0.10 per hour of audio |
-| **Liminal** | **yes** | **yes, per utterance and per phrase** | **yes, with the network cable out** | **one server the hospital already owns** |
+| **Liminal** | **yes** | **yes, per utterance and per phrase** | **yes, with the network cable out** | **one on-site server, no per-seat fee** |
 
 Under the challenge's rules every cloud row is disqualified before scoring
 starts. Liminal passes that gate by construction: no part of it can open a
@@ -67,7 +67,7 @@ people who must act.
 | Decisions reaching owners | days later, or never | the same day, each action with a named owner and a date |
 | Language | the writer translates in their head between RO and RU | the same minutes in Romanian, Russian and English |
 | Data risk | a cloud note-taker makes a vendor a processor of patient-adjacent data | no third party ever holds the audio or text |
-| Cost | per seat, per month, forever | one server the hospital already runs |
+| Cost | per seat, per month, forever | one on-site server, no per-seat fee |
 
 **Time returned, with the assumptions on the table.** We have not measured
 Medpark's own meetings, so these are assumptions to replace with its numbers:
@@ -108,8 +108,8 @@ transcription vendor. Liminal has no vendor in the data path.
 
 | Jury criterion | Weight | What Liminal delivers | Proof |
 |---|---|---|---|
-| Linguistic accuracy | 30% | Every utterance decoded twice (as Romanian and as Russian) and the better one kept, because Whisper calls plain Moldovan Romanian "Russian" at 0.9 confidence; medical terms snapped back to an 892-term trilingual dictionary | [Transcription](#1-linguistic-accuracy-30) |
-| Output quality | 30% | **100% of decisions found, 100% correct**; 0 traps fallen for across 19 model runs; deadlines computed from the words, never guessed | [Minutes](#2-output-quality-30) |
+| Linguistic accuracy | 30% | Every utterance decoded twice (as Romanian and as Russian) and the better one kept, because Whisper calls plain Moldovan Romanian "Russian" with up to 0.94 confidence; medical terms snapped back to an 892-term trilingual dictionary | [Transcription](#1-linguistic-accuracy-30) |
+| Output quality | 30% | **100% of decisions found, 100% correct**; 0 traps fallen for across 19 model runs; deadlines computed by code from the words said | [Minutes](#2-output-quality-30) |
 | Security and architecture | 20%, pass/fail gate | Zero external calls, enforced in every process and proven by tests; runs on one 16 GB GPU, down to a 2017 laptop for speaker labels | [Security](#3-security-and-architecture-20) |
 | User experience | 10% | Upload or Rec, confirm the suggested meeting type, done; minutes send themselves after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
 | Presentation and domain | 10% | Minutes modelled on 41 published hospital and council minutes in three languages; GDPR, AI Act and MDR paperwork written | [Domain](#5-medical-and-legal-context-10) |
@@ -125,19 +125,19 @@ transcription vendor. Liminal has no vendor in the data path.
 | Automation and routing engine (e.g. n8n) that reads the meeting-type tag and emails a predefined list | self-hosted n8n 2.40.7 (free Community Edition): webhook → switch on the type tag → email to that type's list with the RO/RU/EN PDFs; the type itself is also detected from the first 3 minutes | [Routing](#routing-n8n) |
 | Minimal web app: upload or Rec, pick the type, wait | three steps, auto-send after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
 | Email without internet | local SMTP (Mailpit in the demo, the hospital's relay in production) | [Routing](#routing-n8n) |
-| Under 15 min for a 60-min recording, reported in the README | measured per stage on a T4 (the reference card) | [Speed](#4-user-experience-10) |
+| Under 15 min for a 60-min recording, reported in the README | measured per stage on a T4 (the reference card); the full hour test is running now | [Speed](#4-user-experience-10) |
 | Bonus: speaker diarization | live, 93% on mixed-language meetings, on a laptop CPU | [Who spoke when](#bonus-who-spoke-when) |
 
 ## Where every number comes from
 
-No number in this README comes from hospital audio sent anywhere, and none is
-an estimate. Each comes from one of these test sets, and each set's answer key
-or build script is in the repository.
+Every measured number below comes from one of these test sets, and each set's
+answer key or build script is in the repository. The business case above
+works from stated assumptions, and says so where it does.
 
 | Test set | What it is | Size | Languages | Measures | Source |
 |---|---|---|---|---|---|
-| Medpark sample | the challenge's only recording, anonymised by the organisers | 11 min 42 s, 4 speakers; first 181 s hand-corrected | Romanian with Russian, medical terms | transcription failures, language choice | challenge Drive folder, never uploaded anywhere |
-| Mixed meetings | synthetic meetings from real held-out voices | 24 meetings, 86.9 min, 654 turns, 3 to 7 people (18 scored, 6 to tune) | RO, RU, EN, 4 bilingual RO/RU voices | who spoke when | Common Voice 22, LibriSpeech; `diarization/eval/make_mix.py` |
+| Medpark sample | the challenge's only recording, anonymised by the organisers | 11 min 42 s, 4 speakers; first 181 s hand-corrected | Romanian with Russian, medical terms | transcription failures, language choice | challenge Drive folder; the transcription tests also ran it on Kaggle |
+| Mixed meetings | synthetic meetings from real held-out voices | 24 meetings, 87.3 min, 654 turns, 3 to 7 people (18 scored, 6 to tune) | RO, RU, EN, 4 bilingual RO/RU voices | who spoke when | Common Voice 22, LibriSpeech; `diarization/eval/make_mix.py` |
 | Large meetings | same, with many people | 4 × 30 min (120.5 min), 844 turns, 11 to 14 people | RO, RU, EN | who spoke when | same |
 | AMI far field | real meetings, one table microphone | 4 test meetings, 92 min, 1,443 turns, 16 speakers (8 more to tune; 22 meetings, 11.2 h in the repo) | English | who spoke when, the paid comparison | AMI Meeting Corpus, CC BY 4.0 |
 | Scripted minutes meetings | meetings written with traps and an answer key | 6 meetings, 16.4 min, 112 lines, 997 words; 15 decisions, 15 actions, 6 traps | RO with RU inside sentences, EN terms | the minutes model | `minutes/eval/meetings.py` |
@@ -183,10 +183,10 @@ What Liminal does instead:
   language. Every change is logged with before, after and score so a reviewer
   can undo it.
 - **An 892-term trilingual medical dictionary.** Built from 2,050 Harvard Health
-  entries: 806 whose Romanian and Russian names both come from Wikidata's human
-  labels, plus ICD-10, intensive-care and hospital terms. The 1,373 entries
-  without both human labels stay English only, rather than risk a machine
-  translation in a medical record.
+  entries and 115 intensive-care terms: the 806 whose Romanian and Russian names
+  both come from Wikidata's human labels, plus ICD-10 diagnoses and hospital
+  workflow terms. The 1,308 terms without both human labels stay English only,
+  so a machine translation never ends up in a medical record.
 - **Specialists for each language.** SpeD-RoASR (Romanian), GigaAM-v3 (Russian)
   and Parakeet-TDT-0.6B-v3 are combined per utterance and per span by how well
   each hypothesis fits the language's word list.
@@ -210,8 +210,8 @@ own scripted board meeting.
 ## 2. Output quality (30%)
 
 A language model will write a decision nobody made if you let it. Liminal lets
-the model do two jobs, finding facts and wording them, and **code decides what
-survives** (`minutes/mom/verify.py`):
+the model do two jobs, finding facts and wording them, and code decides what
+survives (`minutes/mom/verify.py`):
 
 | Check | What it stops |
 |---|---|
@@ -221,13 +221,14 @@ survives** (`minutes/mom/verify.py`):
 | Deadlines are computed from the words ("până vineri" on 26 September is 2 October); "early next week" is printed as said | invented dates |
 | A number or name not in the cited lines holds the item for a person | invented figures |
 | Patients become initials before the writing step; the final check fails on any name not in the evidence | patient names in an email |
-| The model's LaTeX may use 8 macros and 1 environment, nothing else (14 injection tests) | a transcript that runs commands through the PDF |
+| The model's LaTeX may use 9 macros and 1 environment, nothing else (14 injection tests) | a transcript that runs commands through the PDF |
 
 Anything that fails goes to "Needs confirmation", and those items always wait
 for a person. The PDF footer states how many items were checked against the
 transcript and that the text was drafted locally by AI (EU AI Act, Art. 50).
 
-**The bake-off.** 14 local models, on Kaggle T4 GPUs (16 GB, the reference
+**The bake-off.** 13 local models in 14 GPU setups (qwen3:8b ran with and
+without thinking), plus 5 CPU runs, on Kaggle T4 GPUs (16 GB, the reference
 card), over six scripted meetings that mix the three languages inside
 sentences: 2 medical, 2 executive, 2 administrative; 16.4 minutes of meeting,
 112 transcript lines, 997 words, 4 to 5 speakers each, Russian lines in every
@@ -237,7 +238,7 @@ later, owners known only by voice, relative deadlines, named patients. Round
 2 adds a 60-minute meeting: 878 lines, 8,773 words, 7 speakers, 12 decisions,
 12 actions and 5 traps.
 
-| Model | Decisions found / correct | Actions found / correct | Owner right | Trap errors | GPU memory |
+| Model | Decisions found / correct | Actions found / correct | Owner right | Trap errors | GPU memory (round 1 peak, two T4s) |
 |---|---|---|---|---|---|
 | **qwen3:8b (default)** | **100% / 100%** | **93% / 100%** | 86% | **0** | **7.2 GB** |
 | mistral-small3.2:24b | 100% / 94% | 100% / 100% | 93% | 0 | 19.5 GB |
@@ -247,17 +248,17 @@ later, owners known only by voice, relative deadlines, named patients. Round
 | gemma3:12b | 80% / 100% | 100% / 94% | 80% | 0 | 19.4 GB |
 | EuroLLM-22B | 53% / 100% | 87% / 100% | 92% | 0 | 16.9 GB |
 
-<p align="center"><img src="docs/readme/charts/minutes_models.png" alt="Minutes models: decisions and actions found vs GPU memory; qwen3:8b finds 96% in 7.2 GB" width="100%"></p>
+<p align="center"><img src="docs/readme/charts/minutes_models.png" alt="Minutes models: decisions and actions found vs GPU memory; qwen3:8b finds 29 of 30 in 7.2 GB" width="100%"></p>
 
 **Deadlines: 27 of 27** answer-key deadlines (15 in the six short meetings,
-12 in the 60-minute one) now resolve to the right date,
-after round 1 showed the resolver missing "today" and "within N days". Round 2,
+12 in the 60-minute one) now resolve correctly: 22 to the right date, and 5
+left empty because nobody said one. That came after round 1 showed the resolver missing "today" and "within N days". Round 2,
 running now, re-scores the top eight with that fix; its numbers replace these.
 
 **Against paid models.** On Vectara's grounded-summary hallucination
 leaderboard ([22 Sep 2026](https://github.com/vectara/hallucination-leaderboard)),
-the model we run locally invents content **less often than the flagship cloud
-models**. Every model summarises the same documents and Vectara's HHEM judge
+the model we run locally invents content less often than the flagship cloud
+models. Every model summarises the same documents and Vectara's HHEM judge
 scores each summary against its source:
 
 <p align="center"><img src="docs/readme/charts/hallucination.png" alt="Hallucination rate: qwen3-8b 4.8% vs Gemini 2.5 Pro 7.0%, GPT-5.4 Pro 8.3%, Claude Sonnet 4 10.3%, Claude Opus 4.5 10.9%" width="100%"></p>
@@ -275,14 +276,15 @@ transcript and as its first 3 minutes, so 16 variants:
 
 | | Correct | Administrative meetings | Time |
 |---|---|---|---|
-| **Local model, first 3 minutes** | **8 / 8** | 2 / 2 | **2 to 4 s on a CPU** |
+| **Local model, first 3 minutes** | **8 / 8** | 2 / 2 | **2 to 4 s on a CPU** for 7 of 8; 136 s for the eighth |
 | Local model, all 16 variants | 15 / 16 | 4 / 4 | the miss was a timeout on a 60-min transcript |
-| Laya zero-shot, all 16 | 10 / 16 | 0 / 4 | 1 to 4 s |
+| Laya zero-shot, all 16 | 10 / 16 | 0 / 4 | 1 to 4 s for 14 of 16; 55 s and 68 s on two full transcripts |
 
 <p align="center"><img src="docs/readme/charts/meeting_type.png" alt="Meeting type by category: local model 15/16, Laya 10/16 and 0/4 administrative" width="100%"></p>
 
-So Liminal reads the first 3 minutes, suggests the type, and the person
-confirms with one tap. It needs no extra model and no extra memory.
+The slow eighth was the 60-minute meeting's opening, which ran straight after
+the timed-out full transcript. So Liminal reads the first 3 minutes, suggests
+the type, and the person confirms with one tap. It needs no extra model and no extra memory.
 
 **Written like real minutes.** We collected and coded 41 published sets of
 minutes: 13 English (NHS trust and health boards), 18 Romanian (Moldovan
@@ -291,7 +293,7 @@ councils, hospital protocols). "NOTED" appears 682 times in 12 of the 13
 English sets, so most items are noted, not decided, and the extractor defaults
 to a note. None of the 41 quotes anyone or names a patient, so neither do
 ours. Moldovan votes read "S-a votat: pro-28, contra-0, abținut-0"; modern
-Russian protocols say "РЕШИЛИ", not "СЛУШАЛИ". Each language's formulas are in
+Russian protocols write "РЕШИЛИ", and "СЛУШАЛИ" turns up in only 1 of the 10. Each language's formulas are in
 the writing prompt.
 
 ## 3. Security and architecture (20%)
@@ -358,7 +360,7 @@ hospital's internal use.
 3. **Switch on the meeting type.** Medical, Executive or Administrative.
 4. **Email that list** through the hospital mail server, participants on copy.
 
-Hospital IT changes a distribution list in n8n's editor, with no code.
+Hospital IT changes a distribution list in n8n's editor without touching code.
 Telemetry, update checks, templates and community packages are switched off,
 and `offline_check.sh` fails if any comes back on. Tested against Mailpit:
 each type reached its own list with all three PDFs attached
@@ -378,12 +380,12 @@ test behind for each control.
 | Stolen or stale sessions | HttpOnly SameSite=Strict cookie, only its SHA-256 stored, 30 min idle, 12 h absolute | `test_session_cookie_flags…` |
 | Cross-site forgery | state changes need this server's Origin | `test_state_changes_from_another_origin…` |
 | Reading another person's meeting | creator and administrators only | `test_meetings_are_private…` |
-| A staff member adding a reader to others' meetings through a template | template writes need an administrator (**found and fixed in our review**) | `test_only_an_admin_writes_templates` |
-| Speaking under someone else's name | replacing a voiceprint needs an administrator (**found and fixed**) | `test_staff_enroll_a_voice_once…` |
+| A staff member adding a reader to others' meetings through a template | template writes need an administrator (found and fixed in our review) | `test_only_an_admin_writes_templates` |
+| Speaking under someone else's name | replacing a voiceprint needs an administrator (found and fixed) | `test_staff_enroll_a_voice_once…` |
 | A "recording" that makes ffmpeg read files or URLs | type checked by bytes, local files only, 500 MB and 3 h caps | `test_upload_checks_bytes_not_names` |
 | A transcript that runs commands through LaTeX | macro whitelist, shell escape off, paranoid file access | 14 injection tests |
 | Another account reading minutes or voiceprints | folders 0700, files 0600, `mom purge --days 30` | `test_voiceprints_and_sessions_are_private` |
-| Nobody can say who read or sent what | append-only audit trail: every change and every read of a recording, transcript or document, with user, time, route, meeting and result, never the content; SQLite triggers refuse edits and deletes; administrators only | `test_the_audit_trail_records_who_did_what…` |
+| Nobody can say who read or sent what | append-only audit trail: every change and every read of a recording, transcript or document, with user, time, route, meeting and result, but not the content; SQLite triggers refuse edits and deletes; administrators only | `test_the_audit_trail_records_who_did_what…` |
 | A swapped model or package | models pinned by SHA-256, CycloneDX SBOM | `minutes/compliance/sbom.json` |
 | Script injection in the browser | React escaping, CSP `default-src 'self'`, no framing | frontend security report |
 
@@ -407,11 +409,11 @@ type, Start recording, Stop and write the minutes.
 
 Manual review is one checkbox away: correct an owner or deadline, preview the
 email, send. The interface speaks English, Romanian and Russian, works on
-desktop, tablet and phone, meets WCAG 2.2 AA contrast, and never jumps
-instantly between states.
+desktop, tablet and phone, meets WCAG 2.2 AA contrast, and moves between
+states with short fades.
 
 We drove the whole flow in a headless browser, login to delivered email, 17
-routes at desktop and phone width in all three languages: 0 console errors, 0
+routes at desktop and phone width, switching between all three languages: 0 console errors, 0
 broken links. The first pass scored 89/100 and listed 13 issues; all 13 are
 fixed and under test.
 
@@ -420,8 +422,8 @@ fixed and under test.
 
 | Stage | Measured |
 |---|---|
-| Speaker labels, one hour | 7 to 13 min on a 2017 dual-core laptop CPU (0.12 to 0.21× real time over the 28 test meetings, 207 min); in parallel with transcription on the server |
-| Meeting type | 2 to 4 s on a CPU, first 3 minutes of each of 8 meetings |
+| Speaker labels, one hour | 7 to 13 min on a 2017 dual-core laptop CPU (0.12 to 0.21× real time over the 28 test meetings, 208 min); in parallel with transcription on the server |
+| Meeting type | 2 to 4 s on a CPU for the first 3 minutes of 7 of 8 meetings; 136 s for the eighth, run straight after a timeout |
 | PDF, per language | 4.3 s on the 2017 laptop for the sample minutes; the three languages in parallel |
 | Email | a local SMTP send, seconds |
 | **Upload to email, 60-minute recording, one T4** | **hour test running now** on four public hours (English meeting, Russian government meeting, Moldovan parliament, Romanian/Moldovan parliament); lands here tonight |
@@ -454,7 +456,7 @@ the right person.
 | Test | Measured on | Result |
 |---|---|---|
 | Mixed RO/RU/EN meetings, close microphone | 18 meetings, 65 min, 497 turns, 61 voices, 3 to 7 people each; 6 more meetings used only to tune | **93.0% accurate**, 96.3% of turns to the right person |
-| Large meetings | 4 meetings of 30 min (120.5 min), 844 turns, 49 voices, 11 to 14 people each | **93.6% accurate**, 95.9% of turns |
+| Large meetings | 4 meetings of 30 min (120.5 min), 844 turns, 46 voices, 11 to 14 people each | **93.6% accurate**, 95.9% of turns |
 | AMI, one far microphone | 4 AMI test meetings (ES2004a, IS1009a, TS3003a, EN2002a): 92 min, 1,443 turns, 16 speakers; tuned on 8 other AMI meetings | 66.5% accurate |
 | Live in a room | three people mixing RO, RU and EN at a laptop microphone | worked end to end, labels 1 s behind the voice |
 | Our team, one reader | 8 min 25 s, one voice reading the whole mock board | 1 speaker, in 70 s on the 2017 laptop |
@@ -491,13 +493,13 @@ not leave the building. Here is what was missing and what we did about it.
 
 | Missing | What we did |
 |---|---|
-| **Labelled Romanian/Russian meeting audio.** No public corpus has RO/RU meetings with who-spoke-when labels. | Built 28 test meetings (207 min, 1,498 turns, 100 distinct voices, 3 to 14 people) from held-out Common Voice Romanian and Russian voices plus LibriSpeech English, with answer keys committed. For training, 300 synthetic RO/RU meetings, each voice through its own room echo and noise. |
-| **Hour-long recordings in our languages.** The speed target is for 60 minutes; the sample is 11. | Found public hours: the Moldovan Parliament's plenary sessions (Romanian with Russian), the ROMPAR parliamentary corpus (643 Moldovan and 77 Romanian utterances), a Russian government meeting on medical graduates (kremlin.ru, CC BY 4.0, official transcript), and an ICSI research meeting in English. |
+| **Labelled Romanian/Russian meeting audio.** No public corpus has RO/RU meetings with who-spoke-when labels. | Built 28 test meetings (208 min, 1,498 turns, 100 distinct voices, 3 to 14 people) from held-out Common Voice Romanian and Russian voices plus LibriSpeech English, with answer keys committed. For training, 300 synthetic RO/RU meetings, each voice through its own room echo and noise. |
+| **Hour-long recordings in our languages.** The speed target is for 60 minutes; the sample is 11. | Found public hours: the Moldovan Parliament's plenary sessions (Moldovan Romanian; the seven latest held only one minute of Russian between them), the ROMPAR parliamentary corpus (643 Moldovan and 77 Romanian utterances), a Russian government meeting on medical graduates (kremlin.ru, CC BY 4.0, official transcript), and an ICSI research meeting in English. |
 | **Code-switched training speech.** There are hours of Romanian and hours of Russian, but almost none that switch mid-sentence. | Speech Collage: words force-aligned, then 1 to 4 words of a real sentence replaced by a phrase in the other language, 20 ms crossfades, loudness matched, and the same speaker used on both sides whenever Common Voice has them in both languages. |
-| **A medical dictionary in Romanian and Russian.** | Scraped 2,050 Harvard Health terms, kept the 806 whose RO and RU names are human-written Wikidata labels, added ICD-10, ICU and hospital terms: 892 rows. |
+| **A medical dictionary in Romanian and Russian.** | Scraped 2,050 Harvard Health terms and added 115 intensive-care terms, kept the 806 whose RO and RU names are human-written Wikidata labels, then added ICD-10 and hospital terms: 892 rows. |
 | **A reference transcript.** | A Romanian and Russian speaker corrected the first 3 minutes of the Medpark sample by hand. Then we wrote a 10-minute mock medical board in RO/RU/EN with an answer key (6 decisions, 9 actions, 4 traps, 2 patients) and recorded it twice: one voice reading every part, and three of us around a table. |
 | **Examples of good minutes.** | Read and coded 41 published minutes in three languages; every writing rule quotes its source. |
-| **A GPU that may see hospital audio.** | None. Every GPU job ran on Kaggle's free T4s with public or synthetic data only; the hospital sample never left our machines. |
+| **A GPU that may see hospital audio.** | None. Every training job ran on Kaggle's free T4s with public or synthetic data only. The one hospital recording we had, the organisers' anonymised challenge sample, was uploaded to Kaggle as a private dataset for the transcription tests; no other hospital audio was used anywhere. |
 | **Far-microphone rooms.** | The diarizer measures speech-to-noise in the first 10 s and switches settings. Choosing wrong costs 10 to 13 points, so it is automatic. |
 
 ## Training and data
@@ -565,21 +567,21 @@ Measured, then removed, so nobody has to try them again:
 | **Web app** | React 19, TypeScript 6, Vite 8, React Router 7, i18next (EN/RO/RU), react-icons, Onest, Golos Text and Geist Mono served locally |
 | **Quality** | pytest, Vitest 5, Testing Library, Playwright 1.59 with axe-core, oxlint, Prettier, gstack headless-browser QA |
 | **Training** | Kaggle 2× T4, PyTorch 2.10, CUDA 12.8, NVIDIA NeMo 3.0, Lightning 2.4, pyannote.audio 4.0.7, torchaudio MMS aligner, our strict DER and CER/WER scorers |
-| **Design** | Figma: 41 screens for desktop, tablet and phone, 10-section style guide, 12 text styles, 59 colour variables ([file](https://www.figma.com/design/5gmJObntS61v2ehrmh01j9)); tokens in [DESIGN.md](DESIGN.md) |
+| **Design** | Figma: 44 screens for desktop, tablet and phone, 10-section style guide, 12 text styles, 59 colour variables ([file](https://www.figma.com/design/5gmJObntS61v2ehrmh01j9)); tokens in [DESIGN.md](DESIGN.md) |
 | **Demo** | OpenScreen for screen capture, Kokoro-82M for offline narration, VHS for the terminal GIF |
 
-About 28,000 lines of Python and TypeScript: web app 9,500, transcription
-5,900, speaker labels 5,000, minutes 4,900, backend 2,900.
+About 31,000 lines of Python and TypeScript, tests included: web app 11,800,
+transcription 5,900, speaker labels 5,000, minutes 5,100, backend 3,100.
 
-## Tests: 396, all passing
+## Tests: 399 passing, 2 skipped
 
 | Part | Tests |
 |---|---|
-| Minutes | 115, including the full pipeline with sockets blocked and 14 LaTeX injection attempts |
+| Minutes | 117, including the full pipeline with sockets blocked and 14 LaTeX injection attempts |
 | Speaker labels | 79 |
-| Transcription | 81 (2 training-data tests skip unless the training extras are installed) |
-| Backend | 36: auth, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, permissions |
-| Web app | 67 unit, 18 end-to-end in a real browser |
+| Transcription | 81 passing; 2 training-data tests skip unless the training extras are installed |
+| Backend | 42: auth, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, permissions, hardware profiles, meeting-type check, audit trail |
+| Web app | 69 unit, 11 end-to-end in a real browser |
 
 ```bash
 cd minutes && pytest
@@ -625,8 +627,8 @@ Guides: [speaker labels](diarization/README.md) ·
 - Accuracy on real Medpark meetings is unmeasured until someone labels a few
   minutes of them. We trained on no hospital audio.
 - At most two people are recognised talking at the same moment.
-- A vague deadline ("early next week") is printed as said, never turned into a
-  made-up date. That is on purpose.
+- A vague deadline ("early next week") is printed as said instead of being
+  turned into a made-up date. That is on purpose.
 
 ## Team
 

@@ -115,7 +115,7 @@ footer says how many items were checked ("11/11 items checked against the
 transcript") and that the text was drafted locally by AI.
 
 **What the body check does** (`mom/latexcheck.py`, `mom/write.py`): the model
-can use eight macros (`\agendaitem`, `\topic`, `\presented`, `\noted`, `\decision`,
+can use nine macros (`\summary`, `\agendaitem`, `\topic`, `\presented`, `\noted`, `\decision`,
 `\action`, `\needsconfirmation`, `\nextmeeting`) and the `agenda` environment,
 each fact tagged with its ID, and nothing else: no `\input`, no `\write`, no
 catcodes, no text outside a macro, no unknown IDs.
