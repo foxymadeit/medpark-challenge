@@ -1,0 +1,28 @@
+[00:05] Speaker 1: Bună ziua, colegi. Începem Consiliul Medical. Avem trei subiecte: pacienta din salonul 12, paturile ATI și protocolul de sepsis.
+[00:14] Speaker 1: Primul subiect. Doctore, vă rog.
+[00:23] Speaker 2: Pacienta Maria Lungu, 67 de ani, salonul 12, internată cu suspiciune de infarct miocardic acut. Troponina a crescut, ecocardiografia arată fracția de ejecție 38 la sută.
+[00:32] Speaker 2: Я бы предложил сделать МРТ сердца до вмешательства, чтобы оценить жизнеспособность миокарда.
+[00:41] Speaker 3: Сколько времени займёт МРТ? У нас очередь.
+[00:50] Speaker 2: Dacă o programăm azi, avem rezultatul mâine dimineață.
+[00:59] Speaker 1: Bine. Suntem de acord cu RMN cardiac înainte de intervenție? Cine e pentru?
+[01:08] Speaker 3: Da, de acord.
+[01:17] Speaker 4: De acord.
+[01:26] Speaker 2: Mă ocup eu de programare, o fac până vineri.
+[01:35] Speaker 1: Intervenția rămâne luni la ora 9.
+[01:44] Speaker 4: Stop, la 9 dimineața nu avem anestezist liber, e la altă operație.
+[01:53] Speaker 1: Atunci o mutăm la ora 10. Toată lumea e ok cu ora 10?
+[02:02] Speaker 3: Ok, 10 e bine.
+[02:11] Speaker 1: Al doilea subiect, paturile ATI pentru luni.
+[02:20] Speaker 4: Avem două paturi libere, но только если переведём двух пациентов в терапию до воскресенья.
+[02:29] Speaker 1: Deci condiționat: dacă transferul se face până duminică, păstrăm cele două paturi pentru luni. Da?
+[02:38] Speaker 3: Da, aprobăm așa.
+[02:47] Speaker 4: Confirm eu transferul cu secția de terapie mâine.
+[02:56] Speaker 2: Apropo, poate ar trebui să schimbăm furnizorul de reactivi pentru troponină, sunt cam scumpi.
+[03:05] Speaker 1: Discutăm altă dată despre furnizori.
+[03:14] Speaker 1: Al treilea subiect, protocolul de sepsis. Where are we with the sepsis bundle?
+[03:23] Speaker 3: Am revizuit protocolul. Propun antibioticul în prima oră de la triaj, lactatul la 2 ore.
+[03:32] Speaker 2: Согласен, это по рекомендациям Surviving Sepsis.
+[03:41] Speaker 1: Aprobăm protocolul revizuit, cu antibiotic în prima oră și lactat la 2 ore.
+[03:50] Speaker 1: Cine face instruirea personalului de la UPU?
+[03:59] Speaker 3: Instruirea o fac eu, până la sfârșitul lunii.
+[04:08] Speaker 1: Mulțumesc. Ședința următoare joi, la aceeași oră.

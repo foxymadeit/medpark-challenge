@@ -36,6 +36,7 @@ class LocalLLM:
         self.backend = backend or ("ollama" if url.rstrip("/").endswith(":11434") else "openai")
         self.ctx = ctx
         self.stats = {"calls": 0, "prompt_tokens": 0, "output_tokens": 0, "seconds": 0.0}
+        self.cpu_only = False   # bake-off: measure CPU-only speed on a GPU machine
 
     def _post(self, path: str, body: dict) -> dict:
         req = urllib.request.Request(self.url + path, data=json.dumps(body).encode(),
@@ -53,6 +54,8 @@ class LocalLLM:
                 body["format"] = schema
             if think is not None:
                 body["think"] = think
+            if self.cpu_only:
+                body["options"]["num_gpu"] = 0
             out = self._post("/api/chat", body)
             text = out["message"]["content"]
             self.stats["prompt_tokens"] += out.get("prompt_eval_count", 0)

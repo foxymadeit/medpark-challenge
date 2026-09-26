@@ -1,0 +1,38 @@
+{
+ "id": "exe02",
+ "type": "executive",
+ "date": "2026-09-24",
+ "decisions": {
+  "insurer": [
+   "L0006"
+  ],
+  "rehab": [
+   "L0012"
+  ]
+ },
+ "actions": {
+  "counter": {
+   "lines": [
+    "L0007"
+   ],
+   "owner": "Speaker 2",
+   "deadline": "2026-09-28"
+  },
+  "schedule": {
+   "lines": [
+    "L0013"
+   ],
+   "owner": "Speaker 4",
+   "deadline": "2026-09-25"
+  }
+ },
+ "old": {
+  "rehab": [
+   "L0008"
+  ]
+ },
+ "not_decisions": [
+  "L0014"
+ ],
+ "patients": []
+}

@@ -1,0 +1,35 @@
+{
+ "id": "exe01",
+ "type": "executive",
+ "date": "2026-09-24",
+ "decisions": {
+  "budget": [
+   "L0005"
+  ],
+  "hiring": [
+   "L0008"
+  ]
+ },
+ "actions": {
+  "hiring_ad": {
+   "lines": [
+    "L0009"
+   ],
+   "owner": "Speaker 4",
+   "deadline": ""
+  },
+  "ct_negotiation": {
+   "lines": [
+    "L0015"
+   ],
+   "owner": "Speaker 5",
+   "deadline": "2026-10-05"
+  }
+ },
+ "old": {},
+ "not_decisions": [
+  "L0010",
+  "L0016"
+ ],
+ "patients": []
+}

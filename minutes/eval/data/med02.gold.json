@@ -1,0 +1,36 @@
+{
+ "id": "med02",
+ "type": "medical",
+ "date": "2026-09-24",
+ "decisions": {
+  "ct": [
+   "L0006"
+  ],
+  "preauth": [
+   "L0016"
+  ]
+ },
+ "actions": {
+  "ct_book": {
+   "lines": [
+    "L0007"
+   ],
+   "owner": "Speaker 4",
+   "deadline": "2026-09-24"
+  },
+  "form": {
+   "lines": [
+    "L0017"
+   ],
+   "owner": "Speaker 3",
+   "deadline": "2026-10-01"
+  }
+ },
+ "old": {},
+ "not_decisions": [
+  "L0018"
+ ],
+ "patients": [
+  "Ion Rusu"
+ ]
+}

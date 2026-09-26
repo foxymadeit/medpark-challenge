@@ -32,6 +32,9 @@ DECISION_ACTS = (
     "approv", "agree", "decid", "resolv", "accept", "go ahead", "let s do", "lets do", "carried", "vote",
     "reject", "unanim", "confirmed", "sign off", "signed off",
 )
+# Short agreements that settle a decision when a chair or member says them;
+# matched as whole words, since "ok" or "bine" inside other words means nothing.
+AGREEMENT_WORDS = ("ok", "okay", "bine", "facem", "aprobat", "хорошо", "ладно", "делаем", "fine", "done", "sure")
 HONORIFICS = {"dl", "dna", "dnei", "dlui", "dr", "domnul", "doamna", "prof", "mr", "mrs", "ms", "д", "р", "д-р", "господин", "госпожа"}
 _WORD = re.compile(r"\w+", re.UNICODE)
 
@@ -61,7 +64,8 @@ def _check(f, by_id, meeting_date, known):
         return replace(f, status="dropped", problems=problems + ["quote not found in the cited lines"])
 
     status, kind, owner, who = "ok", f.kind, f.owner, f.who
-    if kind == "decision" and not any(act in evidence for act in DECISION_ACTS):
+    words = set(evidence.split())
+    if kind == "decision" and not any(act in evidence for act in DECISION_ACTS) and not words & set(AGREEMENT_WORDS):
         kind = "note"
         problems.append("no decision act in the evidence: kept as a note")
 

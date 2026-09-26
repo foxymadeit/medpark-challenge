@@ -1,0 +1,44 @@
+{
+ "id": "adm02",
+ "type": "administrative",
+ "date": "2026-09-24",
+ "decisions": {
+  "rota": [
+   "L0006"
+  ],
+  "drill": [
+   "L0010"
+  ],
+  "gdpr": [
+   "L0014"
+  ]
+ },
+ "actions": {
+  "rota_publish": {
+   "lines": [
+    "L0007"
+   ],
+   "owner": "Speaker 2",
+   "deadline": "2026-09-24"
+  },
+  "drill_coord": {
+   "lines": [
+    "L0011"
+   ],
+   "owner": "Speaker 5",
+   "deadline": "2026-10-01"
+  },
+  "gdpr_material": {
+   "lines": [
+    "L0015"
+   ],
+   "owner": "Speaker 3",
+   "deadline": ""
+  }
+ },
+ "old": {},
+ "not_decisions": [
+  "L0016"
+ ],
+ "patients": []
+}

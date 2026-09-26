@@ -1,0 +1,53 @@
+{
+ "id": "med01",
+ "type": "medical",
+ "date": "2026-09-24",
+ "decisions": {
+  "mri": [
+   "L0009"
+  ],
+  "time": [
+   "L0014"
+  ],
+  "beds": [
+   "L0018"
+  ],
+  "sepsis": [
+   "L0025"
+  ]
+ },
+ "actions": {
+  "mri_book": {
+   "lines": [
+    "L0010"
+   ],
+   "owner": "Speaker 2",
+   "deadline": "2026-09-25"
+  },
+  "transfer": {
+   "lines": [
+    "L0019"
+   ],
+   "owner": "Speaker 4",
+   "deadline": "2026-09-25"
+  },
+  "training": {
+   "lines": [
+    "L0027"
+   ],
+   "owner": "Speaker 3",
+   "deadline": "2026-09-30"
+  }
+ },
+ "old": {
+  "time": [
+   "L0011"
+  ]
+ },
+ "not_decisions": [
+  "L0020"
+ ],
+ "patients": [
+  "Maria Lungu"
+ ]
+}

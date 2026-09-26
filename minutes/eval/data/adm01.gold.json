@@ -1,0 +1,39 @@
+{
+ "id": "adm01",
+ "type": "administrative",
+ "date": "2026-09-24",
+ "decisions": {
+  "catering": [
+   "L0007"
+  ],
+  "it_update": [
+   "L0016"
+  ]
+ },
+ "actions": {
+  "catering_sign": {
+   "lines": [
+    "L0008"
+   ],
+   "owner": "Speaker 2",
+   "deadline": "2026-09-30"
+  },
+  "parking_count": {
+   "lines": [
+    "L0013"
+   ],
+   "owner": "Speaker 4",
+   "deadline": ""
+  },
+  "it_notice": {
+   "lines": [
+    "L0017"
+   ],
+   "owner": "Speaker 5",
+   "deadline": "2026-09-25"
+  }
+ },
+ "old": {},
+ "not_decisions": [],
+ "patients": []
+}
