@@ -93,6 +93,7 @@ class WhisperAsr:
         order = sorted(rest)
         for i, got in zip(order, decoder.run([pieces[i] for i in order], {k: [rest[i]] for k, i in enumerate(order)}, self._languages, fallback)):
             found[i] = got
+        self.batch_stats = decoder.stats
         out = []
         for i in range(len(pieces)):
             text, language = _winner(found[i])

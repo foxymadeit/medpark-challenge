@@ -36,7 +36,7 @@ class FakeLLM:
     model = "fake-model"
     stats = {}
 
-    def chat_json(self, system, user, schema, max_tokens=0, think=None):
+    def chat_json(self, system, user, schema, max_tokens=0, think=None, retry=True):
         return EXTRACTION
 
     def chat(self, system, user, schema=None, max_tokens=0, think=None):

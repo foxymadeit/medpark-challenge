@@ -27,9 +27,10 @@ WORK = Path("/kaggle/working")
 OUT = WORK / "out"
 T0 = time.time()
 WHISPER = {"large-v3": "models/whisper"}
-BATCHES = [8, 16]
+BATCHES = [8]
+RETRIES = ["loops", "all"]   # run 1 (26 Sep, 01:41) measured "all": same accuracy, 13.8 min for the hour
 os.environ.setdefault("BENCH_N", "60")
-STEPS = ["setup", "smoke"] + [f"whisper:b{b}" for b in BATCHES[:1]] + [f"hour:b{b}" for b in BATCHES]
+STEPS = ["setup", "smoke", "whisper:loops"] + [f"hour:{r}" for r in RETRIES]
 STATE = {"step": "setup", "done": 0, "last": time.time(), "warnings": []}
 PEAK: dict[str, float] = {}
 
@@ -83,10 +84,10 @@ def step(name: str, fn, *args) -> None:
         STATE["last"] = time.time()
 
 
-def whisper_env(model: str, merge: bool, joint: bool = False, batch: int = 1) -> dict:
+def whisper_env(model: str, merge: bool, joint: bool = False, batch: int = 1, retry: str = "loops") -> dict:
     env = {**os.environ, "MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16",
            "MOM_ASR_MODEL_DIR": str(ASR / WHISPER[model]), "MOM_CS_MERGE": str(merge).lower(),
-           "MOM_CORRECT_TERMS": "false", "MOM_ASR_BATCH_SIZE": str(batch), "CUDA_VISIBLE_DEVICES": "0"}  # scored raw here; the corrector is measured separately below
+           "MOM_CORRECT_TERMS": "false", "MOM_ASR_BATCH_SIZE": str(batch), "MOM_ASR_RETRY": retry, "CUDA_VISIBLE_DEVICES": "0"}  # scored raw here; the corrector is measured separately below
     if joint:
         env["MOM_ASR_JOINT_LANGUAGES"] = '["ro", "ru"]'
     return env
@@ -109,20 +110,20 @@ BENCH = f"{sys.executable} -m asr_train.zeroshot --work {WORK} --sets gold --aud
         f"--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md {team_clips()}"
 
 
-def run_whisper(batch: int) -> None:
-    sh(f"{BENCH} --models whisper", env=whisper_env("large-v3", False, batch=batch))
-    (OUT / "result_whisper.json").rename(OUT / f"result_whisper-b{batch}.json")
+def run_whisper(retry: str) -> None:
+    sh(f"{BENCH} --models whisper", env=whisper_env("large-v3", False, batch=BATCHES[0], retry=retry))
+    (OUT / "result_whisper.json").rename(OUT / f"result_whisper-{retry}.json")
     for f in OUT.glob("hyp_whisper_*.json"):
-        f.rename(OUT / f.name.replace("hyp_whisper_", f"hyp_whisper-b{batch}_"))
+        f.rename(OUT / f.name.replace("hyp_whisper_", f"hyp_whisper-{retry}_"))
 
 
-def time_hour(batch: int) -> None:
+def time_hour(retry: str) -> None:
     code = ("import json,time,pathlib;from asr_llm.pipeline import transcribe_audio;"
             f"w=pathlib.Path('{WORK}/data/medpark_60min.wav');t=time.perf_counter();tr,tm=transcribe_audio(w);"
             "s=time.perf_counter()-t;"
-            f"pathlib.Path('{OUT}/result_hour-b{batch}.json').write_text(json.dumps("
+            f"pathlib.Path('{OUT}/result_hour-{retry}.json').write_text(json.dumps("
             "{'seconds':round(s,1),'rtfx':round(3600/s,1),'stages':{k:round(v,1) for k,v in tm.items()},'segments':len(tr.segments)}))")
-    sh(f"{sys.executable} -c \"{code}\"", env=whisper_env("large-v3", False, batch=batch))
+    sh(f"{sys.executable} -c \"{code}\"", env=whisper_env("large-v3", False, batch=BATCHES[0], retry=retry))
 
 
 def main() -> None:
@@ -140,9 +141,9 @@ def main() -> None:
                f"--transcript-out {OUT}/smoke_transcript.json", env=whisper_env("large-v3", False, batch=BATCHES[0]))
             log("smoke test passed: " + json.loads((OUT / "smoke_transcript.json").read_text())["text"][:200])
         step("smoke", smoke)
-        step(f"whisper:b{BATCHES[0]}", run_whisper, BATCHES[0])
-        for b in BATCHES:
-            step(f"hour:b{b}", time_hour, b)
+        step("whisper:loops", run_whisper, "loops")
+        for r in RETRIES:
+            step(f"hour:{r}", time_hour, r)
     finally:
         report = {"minutes": round((time.time() - T0) / 60, 1), "warnings": STATE["warnings"],
                   "peak_gpu_gb": {k: round(v, 1) for k, v in PEAK.items()}, "results": {}}

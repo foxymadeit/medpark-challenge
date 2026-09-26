@@ -7,6 +7,7 @@ the model server reuses its cache for that prefix. On a GPU several windows
 can run at once (MOM_PARALLEL).
 """
 
+import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -65,16 +66,30 @@ def format_lines(lines) -> str:
     return "\n".join(f"{l.id} [{l.speaker or '?'}] {l.text}" for l in lines)
 
 
+MIN_SPLIT = 12   # lines: below this a window that still breaks gets one retry with more room
+
+
 def extract(llm, lines, meeting_type: str, think=None) -> tuple:
     """-> (facts, patients). Facts are proposals; verify.verify decides what stands."""
     parts = windows(lines)
     user = lambda w: f"Meeting type: {meeting_type}.\n\nLines:\n{format_lines(w)}"  # noqa: E731
-    call = lambda w: llm.chat_json(PROMPT, user(w), SCHEMA, max_tokens=4096, think=think)  # noqa: E731
+
+    def call(w) -> list:
+        """A dense window can outrun the token budget and leave broken JSON. Then its two halves
+        are read separately (each needs half the output), rather than one longer, slower try."""
+        try:
+            return [llm.chat_json(PROMPT, user(w), SCHEMA, max_tokens=4096, think=think, retry=len(w) < MIN_SPLIT)]
+        except json.JSONDecodeError:
+            if len(w) < MIN_SPLIT:
+                raise
+            half = len(w) // 2
+            return call(w[:half]) + call(w[half:])
+
     if PARALLEL > 1 and len(parts) > 1:
         with ThreadPoolExecutor(PARALLEL) as pool:
-            results = list(pool.map(call, parts))
+            results = [r for rs in pool.map(call, parts) for r in rs]
     else:
-        results = [call(w) for w in parts]
+        results = [r for w in parts for r in call(w)]
     return merge(results)
 
 

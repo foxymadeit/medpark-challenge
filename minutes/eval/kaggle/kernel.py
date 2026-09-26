@@ -25,11 +25,11 @@ OUT.mkdir(parents=True, exist_ok=True)
 REPO = Path("/tmp/repo")
 # round 2 (2026-09-26 evening): the models that worked in round 1, plus the ones that
 # only failed on thinking or a cut-off answer, now fixed in mom/llm.py
-GPU_MODELS = [
-    "qwen3:8b", "qwen3:14b", "gpt-oss:20b|low", "mistral-small3.2:24b", "phi4:14b", "gemma3:12b",
-    "gemma4:12b", "qwen3:30b-a3b",
-]
-CPU_MODELS = ["qwen3:4b", "gpt-oss:20b|low", "qwen3:30b-a3b"]
+# round 3 (2026-09-27 night): round 2 lost the whole 60-minute meeting to one cut-off answer. Now a
+# broken window is read in halves, and the product's GPU settings are on: one GPU, 3 requests at once.
+GPU_MODELS = ["qwen3:8b", "gpt-oss:20b|low"]
+CPU_MODELS = []
+os.environ.update(CUDA_VISIBLE_DEVICES="0", MOM_PARALLEL="3")   # before mom is imported: extract reads MOM_PARALLEL
 STATE = {"step": "setup", "model": "", "note": "", "done": 0, "total": len(GPU_MODELS) + len(CPU_MODELS),
          "warnings": [], "results": {}, "progress": 0}
 
@@ -81,7 +81,8 @@ def heartbeat(every=60, stall=900):
 
 
 def serve():
-    env = {**os.environ, "OLLAMA_MODELS": "/tmp/ollama", "OLLAMA_KEEP_ALIVE": "10m", "OLLAMA_HOST": "127.0.0.1:11434"}
+    env = {**os.environ, "OLLAMA_MODELS": "/tmp/ollama", "OLLAMA_KEEP_ALIVE": "10m", "OLLAMA_HOST": "127.0.0.1:11434",
+           "OLLAMA_NUM_PARALLEL": "3"}
     subprocess.Popen("ollama serve > /tmp/ollama.log 2>&1", shell=True, env=env)
     for _ in range(60):
         if subprocess.run("curl -s 127.0.0.1:11434/api/version", shell=True, capture_output=True).returncode == 0:
@@ -106,15 +107,11 @@ def install_ollama():
 def run():
     threading.Thread(target=heartbeat, daemon=True).start()
     STATE["step"] = "setup"
-    sh("git clone -q --depth 1 -b Coflazo-Branch https://github.com/foxymadeit/medpark-challenge /tmp/repo")
+    sh("git clone -q --depth 1 -b liminal https://github.com/foxymadeit/medpark-challenge /tmp/repo")
     sh(f"{sys.executable} -m pip install -q -e /tmp/repo/minutes")
     install_ollama()
     serve()
-    try:  # grammar counts for fluency; optional
-        sh("apt-get -qq update && apt-get -qq install -y openjdk-17-jre-headless > /dev/null", timeout=600)
-        sh(f"{sys.executable} -m pip install -q language-tool-python")
-    except Exception as e:
-        log(f"LanguageTool setup failed, fluency uses script checks only: {e!r}")
+    # round 3 measures extraction and speed; fluency was measured in round 2 (LanguageTool skipped)
     sys.path.insert(0, "/tmp/repo/minutes")
     os.chdir("/tmp/repo/minutes")
     from eval import bakeoff
@@ -123,16 +120,16 @@ def run():
     data = Path("/tmp/repo/minutes/eval/data")
     build(data)
     build_long(data)
-    tools = bakeoff.language_tool()
+    tools = None
 
     def progress(i, n):
         STATE["note"] = f"meeting {i}/{n}"
         STATE["progress"] += 1
 
     STATE["step"] = "smoke"
-    sh("ollama pull gemma3:4b", timeout=1800)
+    sh("ollama pull qwen3:8b", timeout=1800)
     (OUT / "smoke").mkdir(exist_ok=True)
-    r = bakeoff.run_model("gemma3:4b", data, OUT / "smoke", tools, only=["med01"], progress=progress)  # extraction and writing
+    r = bakeoff.run_model("qwen3:8b", data, OUT / "smoke", tools, only=["med01"], progress=progress)  # extraction and writing
     log(f"smoke test OK: {json.dumps(r['score'])}")
 
     for cpu_only, models in ((False, GPU_MODELS), (True, CPU_MODELS)):

@@ -27,3 +27,28 @@ def test_merge_joins_continuing_topics_drops_overlap_duplicates_and_renumbers():
     assert [f.id for f in facts] == ["T1", "T2", "D1", "A1"]
     assert next(f for f in facts if f.id == "A1").topic == "T2"
     assert len(patients) == 1
+
+
+def test_a_window_whose_answer_breaks_is_read_in_halves():
+    import json
+    import re
+
+    from mom.extract import extract
+    from mom.schemas import Line
+
+    lines = [Line(f"L{i:04d}", float(i * 10), float(i * 10 + 5), "Speaker 1", f"fraza {i}") for i in range(1, 41)]
+    asked = []
+
+    class Llm:
+        def chat_json(self, system, user, schema, max_tokens=0, think=None, retry=True):
+            n = len(re.findall(r"\nL\d{4} ", user))
+            asked.append((n, retry))
+            if n > 20:   # too dense for one answer: the JSON comes back cut off
+                raise json.JSONDecodeError("cut off", "{", 1)
+            first = user.split("Lines:\n")[1].split(" ")[0]
+            return {"topics": [], "patients": [], "items": [{"id": "D1", "kind": "decision", "topic": "", "text": {"L0001": "Se aprobă bugetul anual.", "L0021": "Comisia de audit se reunește lunar."}[first],
+                    "owner": "", "deadline_phrase": "", "vote": "", "evidence": [first], "quote": "fraza", "why": first}]}
+
+    facts, _ = extract(Llm(), lines, "administrative")
+    assert [n for n, _ in asked] == [40, 20, 20] and not any(r for _, r in asked)
+    assert [f.evidence for f in facts if f.kind == "decision"] == [["L0001"], ["L0021"]]

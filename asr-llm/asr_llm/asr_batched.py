@@ -72,6 +72,12 @@ class BatchedDecoder:
             lang, Tokenizer(whisper.hf_tokenizer, whisper.model.is_multilingual, task="transcribe", language=lang))
         self.suppress = list(get_suppressed_tokens(self._tok("en"), [-1]))
         self.max_initial = int(round(MAX_INITIAL_TIMESTAMP_S / whisper.time_precision))
+        # "all": every decode faster-whisper would retry goes the old way (identical answers).
+        # "loops": only repetition loops do; a quiet, low-confidence decode is kept as it is,
+        # which is what faster-whisper's own batched pipeline does. Far-field audio is mostly
+        # low-confidence, and the old way decodes it up to five more times.
+        self.retry = settings.asr_retry
+        self.stats = {"decodes": 0, "retried": 0, "second_window": 0}
 
     def features(self, samples: np.ndarray) -> tuple[np.ndarray, int]:
         from faster_whisper.audio import pad_or_trim
@@ -111,8 +117,11 @@ class BatchedDecoder:
             tok = self._tok(lang)
             tokens = r.sequences_ids[0]
             avg = r.scores[0] * (len(tokens) ** LENGTH_PENALTY) / (len(tokens) + 1)
+            self.stats["decodes"] += 1
             silence = r.no_speech_prob > NO_SPEECH and avg < LOGPROB_MIN
-            if not silence and (self.compression(tok.decode(tokens).strip()) > COMPRESSION_MAX or avg < LOGPROB_MIN):
+            loop = self.compression(tok.decode(tokens).strip()) > COMPRESSION_MAX
+            if not silence and (loop or (avg < LOGPROB_MIN and self.retry == "all")):
+                self.stats["retried"] += 1
                 out.append(None)             # faster-whisper retries at a higher temperature
                 continue
             if r.no_speech_prob > NO_SPEECH and not avg > LOGPROB_MIN:
@@ -120,6 +129,7 @@ class BatchedDecoder:
                 continue
             segments, complete = split_window(tokens, tok.timestamp_begin, n_frames)
             if not complete:
+                self.stats["second_window"] += 1
                 out.append(None)             # faster-whisper decodes a second window
                 continue
             texts = [tok.decode(t) for s, e, t in segments if s != e]

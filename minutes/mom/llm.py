@@ -106,11 +106,13 @@ class LocalLLM:
             self.stats["seconds"] += time.perf_counter() - t0
         return text
 
-    def chat_json(self, system: str, user: str, schema: dict, max_tokens: int = 2048, think=None) -> dict:
+    def chat_json(self, system: str, user: str, schema: dict, max_tokens: int = 2048, think=None, retry: bool = True) -> dict:
         text = self.chat(system, user, schema, max_tokens, think)
         try:
             return _parse_json(text)
         except json.JSONDecodeError:
+            if not retry:
+                raise
             # usually the answer was cut off at the token limit: one retry with twice the room
             return _parse_json(self.chat(system, user, schema, max_tokens * 2, think))
 

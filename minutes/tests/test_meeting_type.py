@@ -6,7 +6,7 @@ class Answer:
     def __init__(self, answer):
         self.answer, self.seen = answer, []
 
-    def chat_json(self, system, user, schema, max_tokens=0, think=None):
+    def chat_json(self, system, user, schema, max_tokens=0, think=None, retry=True):
         self.seen.append(user)
         if isinstance(self.answer, Exception):
             raise self.answer
