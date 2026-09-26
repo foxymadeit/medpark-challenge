@@ -4,10 +4,6 @@ export default defineConfig({
   plugins: [react()],
   define: {
     "import.meta.env.VITE_DEMO_MODE": JSON.stringify("true"),
-    "import.meta.env.VITE_DEMO_EMAIL": JSON.stringify("admin@medpark.local"),
-    "import.meta.env.VITE_DEMO_PASSWORD": JSON.stringify(
-      "test-only-demo-password",
-    ),
     "import.meta.env.VITE_DEMO_SEND_COUNTDOWN_SECONDS": JSON.stringify("300"),
   },
   test: {

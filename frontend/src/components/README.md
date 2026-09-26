@@ -10,4 +10,4 @@ Components are grouped by the part of the interface that owns them:
 - **Voice enrollment:** `enrollment/EnrollmentParts` (`LanguageChoice`, `PersonCard`, `PersonHeader`, `SpeechProgress`, `EnrollmentMessage`)
 - **Routing adapters:** `routing/LegacyRoute`
 
-Route-level state containers remain in `src/pages`; authentication boundaries remain in `src/auth`. Icons come from `react-icons/fi`.
+Route-level state containers remain in `src/pages`. Icons come from `react-icons/fi`.

@@ -3,7 +3,7 @@
 // dialogs open, reduced motion, and a language switch that fades.
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { login, SHOTS, uploadMeeting } from "./helpers";
+import { SHOTS, uploadMeeting } from "./helpers";
 
 const WIDTHS = [360, 390, 768, 1024, 1440];
 
@@ -142,7 +142,7 @@ test("keyboard only: stop sending from the countdown", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("account menu and dialogs open and close without moving the page", async ({
+test("administration menu and dialogs open and close without moving the page", async ({
   page,
 }) => {
   await uploadMeeting(page, "executive");
@@ -153,15 +153,16 @@ test("account menu and dialogs open and close without moving the page", async ({
     heading.evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
   const before = await top();
 
-  const account = page.getByRole("button", { name: "Account" });
-  await account.focus();
+  const opener = page.getByRole("button", { name: "Administration" });
+  await opener.focus();
   await page.keyboard.press("Enter");
-  const menu = page.locator(".account-menu");
+  const menu = page.locator(".admin-menu");
   await expect(menu).toBeVisible();
+  await expect(menu.getByRole("link", { name: "System" })).toBeVisible();
   expect(await top()).toBe(before);
   await page.keyboard.press("Escape");
   await expect(menu).toHaveCount(0);
-  await expect(account).toBeFocused();
+  await expect(opener).toBeFocused();
 
   await page
     .getByRole("button", { name: /Edit|Action item/ })
@@ -188,7 +189,7 @@ test("the language switch crossfades instead of snapping", async ({ page }) => {
         return original(cb);
       };
   });
-  await login(page);
+  await page.goto("/meetings");
   await page.getByRole("button", { name: "Română" }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "ro");
   expect(
@@ -207,7 +208,7 @@ test("reduced motion: every change becomes a short fade, never instant", async (
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await login(page);
+  await page.goto("/meetings");
   expect(
     await page.evaluate(
       () => matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -225,4 +226,19 @@ test("reduced motion: every change becomes a short fade, never instant", async (
     .getByRole("button", { name: "English" })
     .evaluate((el) => getComputedStyle(el).transitionDuration);
   expect(transition).not.toMatch(/^0s(, 0s)*$/);
+});
+
+test("opening the app goes straight to the meetings, with nothing to sign in to", async ({
+  page,
+}) => {
+  for (const start of ["/", "/login"]) {
+    await page.goto(start);
+    await page.waitForURL("**/meetings");
+    await expect(page.locator("input[type=password]")).toHaveCount(0);
+  }
+  await page.getByRole("button", { name: "Administration" }).click();
+  await page.getByRole("link", { name: "System" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Audit trail" }),
+  ).toBeVisible();
 });

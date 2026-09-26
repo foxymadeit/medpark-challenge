@@ -6,7 +6,6 @@ import type {
   VoiceProfile,
   DetectedSpeakerCluster,
   MeetingTemplate,
-  UserAccount,
   StaffProfile,
   StaffRoleAssignment,
   DistributionList,
@@ -23,7 +22,6 @@ export interface DemoStore {
   voiceProfiles: VoiceProfile[];
   speakerClusters: DetectedSpeakerCluster[];
   templates: MeetingTemplate[];
-  accounts: UserAccount[];
   staffProfiles: StaffProfile[];
   staffRoles: StaffRoleAssignment[];
   distributionLists: DistributionList[];
@@ -38,7 +36,7 @@ function seedGovernance() {
       email: person.email ?? "",
       active: person.active !== false,
       createdAt,
-      createdBy: "demo-admin",
+      createdBy: "network",
     })),
     staffRoles: seedPeople.map((person) => ({
       id: `role-${person.id}-current`,
@@ -47,19 +45,8 @@ function seedGovernance() {
       department: person.department ?? "administrative",
       validFrom: "2026-01-01",
       validTo: null,
-      createdBy: "demo-admin",
+      createdBy: "network",
     })),
-    accounts: [
-      {
-        id: "demo-admin",
-        username: "admin@medpark.local",
-        email: "admin@medpark.local",
-        role: "admin" as const,
-        active: true,
-        createdAt,
-        createdBy: "system",
-      },
-    ],
     distributionLists: [
       {
         id: "medical-board",
@@ -82,7 +69,7 @@ function seedGovernance() {
     ],
   } satisfies Pick<
     DemoStore,
-    "accounts" | "staffProfiles" | "staffRoles" | "distributionLists"
+    "staffProfiles" | "staffRoles" | "distributionLists"
   >;
 }
 function seedTemplates(): MeetingTemplate[] {
@@ -107,7 +94,7 @@ function seedTemplates(): MeetingTemplate[] {
     })),
     recurrence: { type: "custom", label },
     active: true,
-    createdBy: "demo-admin",
+    createdBy: "network",
     createdAt: now,
     updatedAt: now,
   });
@@ -332,7 +319,8 @@ export function readStore(): DemoStore {
   store.templates ??= seedTemplates();
   store.feedback ??= [];
   const governance = seedGovernance();
-  store.accounts ??= governance.accounts;
+  // Demo stores from before sign-in was removed still carry an accounts list.
+  delete (store as { accounts?: unknown }).accounts;
   store.staffProfiles ??= governance.staffProfiles;
   store.staffRoles ??= governance.staffRoles;
   store.distributionLists ??= governance.distributionLists;

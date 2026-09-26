@@ -34,7 +34,6 @@ import { speakerColor } from "../src/utils";
 import {
   assignStaffRole,
   getAdminData,
-  saveAccount,
   saveStaffProfile,
 } from "../src/api/admin";
 const now = new Date("2026-09-25T12:00:00Z");
@@ -48,38 +47,23 @@ async function create() {
   });
 }
 describe("demo workflow with no network", () => {
-  it("enforces admin governance in the API adapter and preserves role history", async () => {
-    await expect(
-      saveStaffProfile(
-        { name: "Blocked", email: "blocked@medpark.local" },
-        "staff",
-      ),
-    ).rejects.toThrow("permissionDenied");
-    await expect(
-      saveAccount({ username: "blocked", role: "staff" }, "staff"),
-    ).rejects.toThrow("permissionDenied");
-    const person = await saveStaffProfile(
-      { name: "Dr. Maria Lungu", email: "maria.lungu@medpark.local" },
-      "admin",
-    );
-    const first = await assignStaffRole(
-      {
-        staffId: person.id,
-        title: "Resident",
-        department: "Cardiology",
-        validFrom: "2026-01-01",
-      },
-      "admin",
-    );
-    await assignStaffRole(
-      {
-        staffId: person.id,
-        title: "Cardiologist",
-        department: "Cardiology",
-        validFrom: "2026-09-01",
-      },
-      "admin",
-    );
+  it("preserves role history", async () => {
+    const person = await saveStaffProfile({
+      name: "Dr. Maria Lungu",
+      email: "maria.lungu@medpark.local",
+    });
+    const first = await assignStaffRole({
+      staffId: person.id,
+      title: "Resident",
+      department: "Cardiology",
+      validFrom: "2026-01-01",
+    });
+    await assignStaffRole({
+      staffId: person.id,
+      title: "Cardiologist",
+      department: "Cardiology",
+      validFrom: "2026-09-01",
+    });
     const data = await getAdminData();
     expect(data.staffRoles.find((role) => role.id === first.id)?.validTo).toBe(
       "2026-09-01",
@@ -101,12 +85,12 @@ describe("demo workflow with no network", () => {
       ),
     ).toEqual(original);
   });
-  it("saves only reusable meeting setup as an admin template", async () => {
+  it("saves only reusable meeting setup as a template", async () => {
     const meeting = await create();
     meeting.agendaTopics = [
       { id: "topic-1", text: "Reusable topic", order: 0 },
     ];
-    const template = await saveMeetingAsTemplate(meeting, "admin");
+    const template = await saveMeetingAsTemplate(meeting);
     expect(template).toMatchObject({
       meetingType: "medical",
       defaultTitle: "Test board",
@@ -114,9 +98,6 @@ describe("demo workflow with no network", () => {
       agendaTopics: [{ id: "topic-1", text: "Reusable topic", order: 0 }],
     });
     expect(template).not.toHaveProperty("transcript");
-    await expect(saveMeetingAsTemplate(meeting, "staff")).rejects.toThrow(
-      "unauthorized",
-    );
   });
   it("creates a meeting, persists processing, and waits for explicit review and send", async () => {
     vi.useFakeTimers();
@@ -189,18 +170,13 @@ describe("demo workflow with no network", () => {
       after: "Corrected",
     });
   });
-  it("enforces template write permissions and keeps meeting setup snapshots independent", async () => {
+  it("keeps meeting setup snapshots independent of later template edits", async () => {
     const template = (await getTemplates())[0];
-    await expect(
-      saveTemplate(
-        { ...template, id: template.id, name: "Forbidden" },
-        "staff",
-      ),
-    ).rejects.toThrow("unauthorized");
-    const updated = await saveTemplate(
-      { ...template, id: template.id, name: "Updated tumor board" },
-      "admin",
-    );
+    const updated = await saveTemplate({
+      ...template,
+      id: template.id,
+      name: "Updated tumor board",
+    });
     const people = await getPeople();
     const meeting = await createMeeting({
       title: updated.defaultTitle ?? updated.name,
@@ -212,10 +188,7 @@ describe("demo workflow with no network", () => {
       templateId: updated.id,
       agendaTopics: updated.agendaTopics,
     });
-    await saveTemplate(
-      { ...updated, id: updated.id, agendaTopics: [] },
-      "admin",
-    );
+    await saveTemplate({ ...updated, id: updated.id, agendaTopics: [] });
     expect(meeting.templateId).toBe(updated.id);
     expect(meeting.agendaTopics).toEqual(updated.agendaTopics);
   });
@@ -317,10 +290,10 @@ describe("demo workflow with no network", () => {
     const blob = new Blob(["audio fixture"], { type: "audio/webm" });
     await saveRecording(m.id, blob);
     expect(await getRecording(m.id)).toBeDefined();
-    const p = await saveStaffProfile(
-      { name: "Test staff member", email: "voice.test@medpark.local" },
-      "admin",
-    );
+    const p = await saveStaffProfile({
+      name: "Test staff member",
+      email: "voice.test@medpark.local",
+    });
     await enrollVoice(p.id, blob);
     expect((await getPeople()).find((x) => x.id === p.id)).toMatchObject({
       enrolled: true,

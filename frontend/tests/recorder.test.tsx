@@ -1,4 +1,3 @@
-import { saveDemoSession } from "../src/auth/demoSession";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { useRecorder } from "../src/hooks/useRecorder";
@@ -107,7 +106,6 @@ it("supports automatic recording inside React StrictMode and recovers after refr
     await import("../src/api/meetings");
   await i18n.changeLanguage("en");
   setup();
-  saveDemoSession();
   const m = await createMeeting({
     title: "Recorder test",
     type: "medical",

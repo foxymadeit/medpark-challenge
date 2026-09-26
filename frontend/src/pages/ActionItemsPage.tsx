@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../auth/useAuth";
 import { useData } from "../hooks/useData";
 import { getMeetings } from "../api/meetings";
 import ActionItemRow from "../components/ActionItemRow";
 import StatePanel from "../components/StatePanel";
 export default function ActionItemsPage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const { data, error, refresh } = useData(getMeetings);
-  const [filter, setFilter] = useState("mine");
+  const [filter, setFilter] = useState("open");
   if (!data) return <StatePanel error={error} retry={refresh} />;
   const today = new Date().toLocaleDateString("sv-SE");
   const soon = new Date(new Date().getTime() + 7 * 86400000).toLocaleDateString(
@@ -20,8 +18,8 @@ export default function ActionItemsPage() {
       (meeting.actionItems ?? []).map((item) => ({ meeting, item })),
     )
     .filter(({ item }) =>
-      filter === "mine"
-        ? item.ownerStaffId === user?.staffProfileId
+      filter === "open"
+        ? !item.completed
         : filter === "overdue"
           ? Boolean(!item.completed && item.deadline && item.deadline < today)
           : true,
@@ -31,7 +29,7 @@ export default function ActionItemsPage() {
     <>
       <h1>{t("actions")}</h1>
       <div className="filter-chips">
-        {["mine", "everyone", "overdue"].map((f) => (
+        {["open", "everyone", "overdue"].map((f) => (
           <button
             key={f}
             className={`chip ${filter === f ? "active" : ""}`}

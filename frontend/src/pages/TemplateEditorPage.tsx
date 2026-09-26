@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   deactivateTemplate,
@@ -8,7 +8,6 @@ import {
   saveTemplate,
 } from "../api/meetings";
 import { useData } from "../hooks/useData";
-import { useAuth } from "../auth/useAuth";
 import { departments } from "../api/config";
 import type { MeetingType } from "../types/meeting";
 import StatePanel from "../components/StatePanel";
@@ -17,7 +16,6 @@ import InputField from "../components/InputField";
 
 export default function TemplateEditorPage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const people = useData(getPeople);
@@ -51,7 +49,6 @@ export default function TemplateEditorPage() {
       setRecurrence(template.data.recurrence?.label ?? "");
     }
   }, [template.data]);
-  if (user?.role !== "admin") return <Navigate to="/templates" replace />;
   if (!people.data || (id && !template.data))
     return (
       <StatePanel
@@ -132,28 +129,25 @@ export default function TemplateEditorPage() {
               setBusy(true);
               setActionError("");
               try {
-                const saved = await saveTemplate(
-                  {
-                    id,
-                    name,
-                    meetingType: type,
-                    defaultTitle: title,
-                    participantStaffIds: participants,
-                    agendaTopics: topics
-                      .split("\n")
-                      .filter(Boolean)
-                      .map((text, order) => ({
-                        id: crypto.randomUUID(),
-                        text: text.trim(),
-                        order,
-                      })),
-                    recurrence: recurrence
-                      ? { type: "custom", label: recurrence }
-                      : undefined,
-                    active: true,
-                  },
-                  user.role,
-                );
+                const saved = await saveTemplate({
+                  id,
+                  name,
+                  meetingType: type,
+                  defaultTitle: title,
+                  participantStaffIds: participants,
+                  agendaTopics: topics
+                    .split("\n")
+                    .filter(Boolean)
+                    .map((text, order) => ({
+                      id: crypto.randomUUID(),
+                      text: text.trim(),
+                      order,
+                    })),
+                  recurrence: recurrence
+                    ? { type: "custom", label: recurrence }
+                    : undefined,
+                  active: true,
+                });
                 navigate(`/templates/${saved.id}/edit`);
               } catch (reason) {
                 setActionError(
@@ -176,7 +170,7 @@ export default function TemplateEditorPage() {
               onClick={() => {
                 setBusy(true);
                 setActionError("");
-                void deactivateTemplate(id, user.role)
+                void deactivateTemplate(id)
                   .then(() => navigate("/templates"))
                   .catch((reason: unknown) =>
                     setActionError(

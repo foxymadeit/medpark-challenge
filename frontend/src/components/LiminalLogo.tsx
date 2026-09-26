@@ -1,12 +1,8 @@
 import { Link } from "react-router-dom";
 
-export default function LiminalLogo({
-  publicOnly = false,
-}: {
-  publicOnly?: boolean;
-}) {
+export default function LiminalLogo() {
   return (
-    <Link className="liminal-logo" to={publicOnly ? "/login" : "/meetings"}>
+    <Link className="liminal-logo" to="/meetings">
       <img
         src="/assets/liminal-logo.svg"
         alt="Liminal"

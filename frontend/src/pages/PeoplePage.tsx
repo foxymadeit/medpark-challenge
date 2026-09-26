@@ -202,9 +202,7 @@ export default function PeoplePage() {
               </button>
             ))}
           </div>
-          {!choices.length && (
-            <p className="muted">{t("personNotFoundAdmin")}</p>
-          )}
+          {!choices.length && <p className="muted">{t("personNotFoundAdd")}</p>}
         </Modal>
       )}
       {actionError && (
