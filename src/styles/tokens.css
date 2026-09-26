@@ -13,9 +13,11 @@
 
   /* signal — errors only */
   --sm-signal-danger: #b3261e;
-  /* Record tile only (user request): warm red, AA with white and hairline text. Not for errors. */
-  --sm-record: #b83a2e;
-  --sm-record-hover: #a8322a;
+  /* Start tiles, Figma "01 New meeting · Cards A · Soft tint" (2042:2215). Tints only, never for errors. */
+  --sm-tint-record: #ffe1de;
+  --sm-tint-record-line: #f5b5ae;
+  --sm-tint-upload: #ddebff;
+  --sm-tint-upload-line: #a9c8f5;
 
   /* speaker — speaker dots + waveform only.
      Figma defines 01–04; add more here as the file grows. */

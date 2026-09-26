@@ -103,7 +103,7 @@ export function NewMeeting() {
               {t('newMeeting.micOk')}
             </span>
           </button>
-          <button type="button" className="start-tile" onClick={() => navigate('/upload')}>
+          <button type="button" className="start-tile start-tile--upload" onClick={() => navigate('/upload')}>
             <UploadSimpleIcon size={32} aria-hidden />
             <span className="start-tile__spacer" />
             <span className="t-h2">{t('newMeeting.upload')}</span>
