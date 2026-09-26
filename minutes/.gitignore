@@ -11,3 +11,5 @@ examples/build*.log
 template/logo-standalone.aux
 template/logo-standalone.log
 out/
+examples/*.xdv
+*.xdv
