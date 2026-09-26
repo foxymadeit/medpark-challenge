@@ -43,6 +43,10 @@ test("medical: flagged item, then confirm, then sent with the PDFs", async ({
   }
 
   await next.click();
+  // Settling the items opens the promised window; it does not send at once.
+  await expect(
+    page.getByRole("button", { name: "Stop sending" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Delivery confirmed" }),
   ).toBeVisible({ timeout: 30_000 });
@@ -56,7 +60,7 @@ test("medical: flagged item, then confirm, then sent with the PDFs", async ({
   }
 });
 
-test("executive: nothing flagged, the send window opens, stop returns it to review", async ({
+test("executive: nothing flagged, the send window opens, stop leaves one button to send", async ({
   page,
 }) => {
   await uploadMeeting(page, "executive");
@@ -71,7 +75,10 @@ test("executive: nothing flagged, the send window opens, stop returns it to revi
   await expect(
     page.getByText("Sending stopped. Nothing went out."),
   ).toBeVisible();
-  await expect(page.getByText("Review before sending")).toBeVisible();
+  await page.getByRole("button", { name: "Send now" }).click();
+  await expect(
+    page.getByRole("link", { name: "Delivery confirmed" }),
+  ).toBeVisible({ timeout: 30_000 });
 });
 
 test("executive: the window runs out and the minutes go by themselves", async ({

@@ -347,7 +347,8 @@ describe("final Figma states", () => {
       sendScheduledAt: null,
     });
     let view = mount("/meetings/meeting-001/minutes");
-    await screen.findByText("Review before sending");
+    await screen.findByText("Sending stopped. Nothing went out.");
+    expect(screen.getByRole("button", { name: "Send now" })).toBeTruthy();
     expect(screen.queryByRole("progressbar")).toBeNull();
     view.unmount();
     await updateMeeting("meeting-001", {

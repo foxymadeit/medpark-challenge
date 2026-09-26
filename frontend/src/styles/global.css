@@ -140,9 +140,17 @@
 .recipient-line {
   display: block;
 }
-.email-body-field textarea {
-  resize: vertical;
-  min-height: 180px;
+/* the email as the server writes it; read-only, because the server
+   builds the message itself */
+.email-body {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--sm-surface-hairline);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.6;
 }
 .email-preview-actions {
   justify-content: flex-end;

@@ -69,6 +69,13 @@ a {
   box-shadow: var(--sm-lift);
   animation: sm-fade-in 200ms ease-out both;
 }
+/* The panels that take the countdown's place (review, sending, sent,
+   failed) fade in the same way, so the change of state never snaps. */
+.manual-review-bar,
+.delivery-banner,
+.delivery-failed {
+  animation: sm-fade-in 200ms ease-out both;
+}
 
 /* Send countdown bar: empties linearly over the real window. */
 .countdown-bar {
@@ -297,6 +304,9 @@ input[type="checkbox"]:disabled {
   .page-enter,
   .send-countdown,
   .needs-confirmation,
+  .manual-review-bar,
+  .delivery-banner,
+  .delivery-failed,
   .offline-toast,
   .toast,
   .expand-in,

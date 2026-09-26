@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
 import {
   FiDownload as DownloadSimple,
@@ -23,6 +23,7 @@ import { crossfade } from "../motion";
 import { formatTime, LANGUAGE_NAMES } from "../utils";
 import { sendNow } from "../api/meetings";
 import { downloadMinutesPdf } from "../api/pdf";
+import { readSendWindow, stopSendWindow } from "../api/sendWindow";
 export default function MomPage() {
   const { t, i18n } = useTranslation();
   const { data: m, error, refresh } = useMeeting();
@@ -32,6 +33,8 @@ export default function MomPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const flagged = !!m?.confirmItems?.length && m.status === "ready";
   const [wasFlagged, setWasFlagged] = useState(false);
+  // re-reads the tab's send window after Continue or Stop
+  const [, windowChanged] = useReducer((n: number) => n + 1, 0);
   if (flagged !== wasFlagged) {
     setWasFlagged(flagged);
     if (flagged) setConfirmOpen(true);
@@ -48,6 +51,15 @@ export default function MomPage() {
   const confirming = confirmOpen && m.status === "ready";
   if (m.status === "processing")
     return <Navigate to={`/meetings/${m.id}/processing`} replace />;
+  const sendWindow = readSendWindow(m.id);
+  const ready = m.status === "ready" && m.deliveryState !== "failed";
+  const windowOpen =
+    ready &&
+    m.reviewState === "reviewed" &&
+    !!sendWindow &&
+    sendWindow !== "stopped";
+  const stopped =
+    ready && (m.deliveryState === "stopped" || sendWindow === "stopped");
   const total = m.participants.reduce(
     (sum, p) => sum + (p.speakingSeconds ?? 0),
     0,
@@ -96,10 +108,44 @@ export default function MomPage() {
           ) : confirming ? (
             <NeedsConfirmation
               meeting={m}
-              onDone={() => setConfirmOpen(false)}
+              onDone={() => {
+                setConfirmOpen(false);
+                windowChanged();
+              }}
+            />
+          ) : m.status === "sending" ? (
+            <section className="panel send-countdown" role="status">
+              <div className="send-line">
+                <EnvelopeSimple size={24} />
+                <div>
+                  <strong>
+                    {t("sendingToNow", { list: listName(m.type, t) })}
+                  </strong>
+                </div>
+                <span className="loader-dots" aria-hidden>
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              </div>
+            </section>
+          ) : windowOpen ? (
+            <SendCountdown
+              meeting={{
+                ...m,
+                status: "sending_soon",
+                sendScheduledAt: sendWindow,
+                sendWindowSeconds: m.sendWindowSeconds ?? 60,
+              }}
+              onStop={() => {
+                stopSendWindow(m.id);
+                windowChanged();
+              }}
             />
           ) : m.sendMode === "auto" && m.status === "sending_soon" ? (
             <SendCountdown meeting={m} />
+          ) : stopped ? (
+            <SendCountdown meeting={{ ...m, deliveryState: "stopped" }} />
           ) : (
             <ManualReviewBar meeting={m} />
           )}
