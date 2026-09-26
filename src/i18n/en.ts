@@ -127,6 +127,9 @@ export const en = {
     removeTitle: 'Remove participant?',
     removeLead: 'Are you sure you want to remove {name}? They will no longer get the minutes or appear in templates.',
     removeConfirm: 'Remove',
+    accessTitle: 'Give {access} access?',
+    accessLead: 'Are you sure you want to make {name} an {access}?',
+    accessConfirm: 'Yes, change access',
     soleAdmin: 'You are the only Admin. Make someone else Admin first.',
   },
   access: {

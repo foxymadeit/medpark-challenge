@@ -124,6 +124,9 @@
     "removeTitle": "Eliminați participantul?",
     "removeLead": "Sigur doriți să eliminați pe {name}? Nu va mai primi procesele-verbale și nu va mai apărea în șabloane.",
     "removeConfirm": "Elimină",
+    "accessTitle": "Acordați acces de {access}?",
+    "accessLead": "Sigur doriți ca {name} să devină {access}?",
+    "accessConfirm": "Da, schimbă accesul",
     "soleAdmin": "Sunteți singurul Administrator. Numiți mai întâi pe altcineva Administrator."
   },
   "access": {

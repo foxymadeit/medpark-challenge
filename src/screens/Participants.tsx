@@ -82,6 +82,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
   const isYou = person.id === account?.personId;
   const [confirming, setConfirming] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [pendingAccess, setPendingAccess] = useState<Access | null>(null);
   const displayName = isYou ? t('common.meName', { name: person.name }) : person.name;
 
   const roles = [person.role, ...roleSuggestions].filter((r, i, a) => r && a.indexOf(r) === i);
@@ -117,7 +118,8 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
             label={t('participants.accessFor', { name: person.name })}
             value={person.access}
             options={ACCESS_LEVELS.map((a) => ({ value: a, label: t(`access.${a}`) }))}
-            onChange={(v) => updatePerson(person.id, { access: v as Access })}
+            // Giving Organizer or Admin rights asks first; lowering to Participant applies at once.
+            onChange={(v) => (v === 'receives' ? updatePerson(person.id, { access: 'receives' }) : setPendingAccess(v as Access))}
             width={200}
             disabled={isYou && soleAdmin} // the only Admin cannot demote themselves
             disabledReason={t('participants.soleAdmin')}
@@ -131,6 +133,20 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
           <button type="button" className="icon-btn" aria-label={t('participants.remove', { name: person.name })} onClick={() => setConfirming(true)}>
             <XIcon size={16} aria-hidden />
           </button>
+        )}
+        {pendingAccess && (
+          <Dialog title={t('participants.accessTitle', { access: t(`accessTitle.${pendingAccess}`) })} onClose={() => setPendingAccess(null)}>
+            <p className="lead">{t('participants.accessLead', { name: person.name, access: t(`accessTitle.${pendingAccess}`) })}</p>
+            <p className="note">{t(`access.${pendingAccess}Desc`)}</p>
+            <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+              <Button variant="ghost" onClick={() => setPendingAccess(null)}>
+                {t('common.cancel')}
+              </Button>
+              <Button variant="ink" onClick={() => (updatePerson(person.id, { access: pendingAccess }), setPendingAccess(null))}>
+                {t('participants.accessConfirm')}
+              </Button>
+            </div>
+          </Dialog>
         )}
         {confirming && (
           <Dialog title={t('participants.removeTitle')} onClose={() => setConfirming(false)}>
