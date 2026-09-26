@@ -96,6 +96,21 @@ def after_processing(m: dict) -> None:
         m.update(status="ready", reviewState="needs_review", sendScheduledAt=None)
 
 
+def open_window(meeting_id: str) -> dict:
+    """Settled minutes get the same stop window as automatic ones: anyone can
+    stop them for WINDOW_S seconds, then the scheduler sends them. It lives on
+    the server, so closing the page does not lose it."""
+    def change(m):
+        if m["status"] not in ("ready", "sending_soon"):
+            raise NotSendable("the minutes are not ready")
+        issues = problems(m, manual=False)
+        if issues:
+            raise NotSendable("; ".join(issues))
+        m.update(status="sending_soon", deliveryState="scheduled", reviewState="reviewed", sendMode="auto",
+                 sendScheduledAt=_iso(datetime.now(timezone.utc) + timedelta(seconds=WINDOW_S)))
+    return store.update("meetings", meeting_id, change)
+
+
 def stop(meeting_id: str) -> dict | None:
     def change(m):
         if m["status"] == "sending_soon":

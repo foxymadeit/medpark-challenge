@@ -1,3 +1,4 @@
+import { openSendWindow } from "./sendWindow";
 import { invalidMinutes } from "./validation";
 import type {
   MeetingType,
@@ -374,6 +375,18 @@ export async function sendNow(id: string): Promise<Meeting> {
     m.reviewState = "reviewed";
     return m;
   });
+}
+/** Reopen the 60-second stop window on the server once the flagged items are
+ * settled; the server then sends when it runs out, even if this page closes.
+ * The demo store has no scheduler, so there the tab keeps the window. */
+export async function reopenSendWindow(
+  id: string,
+  seconds: number,
+): Promise<Meeting | undefined> {
+  if (!DEMO_MODE)
+    return meetingRequest(`${path(id)}/send-window`, { method: "POST" });
+  openSendWindow(id, seconds);
+  return undefined;
 }
 export async function markReviewed(id: string): Promise<Meeting> {
   if (!DEMO_MODE)

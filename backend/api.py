@@ -425,6 +425,16 @@ def send(meeting_id: str, request: Request, idempotency_key: str | None = Header
     return m
 
 
+@router.post("/meetings/{meeting_id}/send-window")
+def send_window(meeting_id: str):
+    """Reopen the 60-second stop window, e.g. once a person has settled the flagged items."""
+    meeting_for(meeting_id)
+    try:
+        return delivery.open_window(meeting_id)
+    except delivery.NotSendable as e:
+        raise HTTPException(409, str(e))
+
+
 @router.post("/meetings/{meeting_id}/stop-send")
 def stop_send(meeting_id: str):
     meeting_for(meeting_id)

@@ -298,6 +298,23 @@ const routes = [
   ],
   [
     "POST",
+    /^\/api\/meetings\/([^/]+)\/send-window$/,
+    (req, res, id) => {
+      const m = meetings.get(id);
+      if ((m.needsConfirmation ?? []).length)
+        return send(res, 409, { detail: "items need confirmation" });
+      Object.assign(m, {
+        status: "sending_soon",
+        sendMode: "auto",
+        deliveryState: "scheduled",
+        reviewState: "reviewed",
+        sendScheduledAt: iso(SEND_WINDOW * 1000),
+      });
+      send(res, 200, m);
+    },
+  ],
+  [
+    "POST",
     /^\/api\/meetings\/([^/]+)\/stop-send$/,
     (req, res, id) => {
       const m = meetings.get(id);

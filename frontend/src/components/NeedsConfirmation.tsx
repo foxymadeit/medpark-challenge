@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { decideConfirmation, markReviewed } from "../api/meetings";
-import { openSendWindow } from "../api/sendWindow";
+import {
+  decideConfirmation,
+  markReviewed,
+  reopenSendWindow,
+} from "../api/meetings";
 import { notifyUpdate } from "../hooks/useData";
 import type { ConfirmItem, Meeting } from "../types/meeting";
 import Button from "./Button";
@@ -73,11 +76,13 @@ export default function NeedsConfirmation({
       });
   }
   async function finish() {
-    const ok = await run("continue", () => markReviewed(meeting.id));
     // Automatic sending promised a window in which anyone can stop it; the
-    // settled minutes get that window rather than going at once.
-    if (ok && meeting.sendMode === "auto")
-      openSendWindow(meeting.id, meeting.sendWindowSeconds ?? 60);
+    // settled minutes get that window (kept by the server) rather than going at once.
+    const ok = await run("continue", async () => {
+      await markReviewed(meeting.id);
+      if (meeting.sendMode === "auto")
+        await reopenSendWindow(meeting.id, meeting.sendWindowSeconds ?? 60);
+    });
     if (ok) onDone?.();
   }
   const typeItem = items.find((i) => i.detectedType);

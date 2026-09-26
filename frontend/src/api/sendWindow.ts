@@ -1,10 +1,8 @@
 /** After a person settles the flagged items, automatic sending still gets
  * its stop window: "Send automatically when ready" promised that anyone can
- * stop it. The server opens a window only when processing ends and has no
- * call to reopen one, so this tab keeps it and sends when it runs out.
- * ponytail: per tab (sessionStorage); closing the tab before the end leaves
- * the minutes reviewed and waiting for Send now. A server endpoint that
- * reopens the window would make it survive that. */
+ * stop it. With the Liminal backend the server keeps that window
+ * (POST /meetings/{id}/send-window); this per-tab copy serves the demo store,
+ * which has no scheduler. */
 const key = (id: string) => `liminal-send-window-${id}`;
 
 function write(id: string, value: string) {

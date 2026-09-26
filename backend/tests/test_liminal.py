@@ -524,3 +524,15 @@ def test_the_fallback_summary_counts_in_the_minutes_language():
 def test_processed_minutes_name_their_language_and_summarise_in_it(client):
     m = processed(client)   # the fake transcript is mostly Romanian and has no exported summary
     assert m["minutesLanguage"] == "ro" and m["summary"] == "Subiecte: Protocolul ATI. 1 decizie, 1 acțiune."
+
+
+def test_settled_minutes_get_their_stop_window_on_the_server(client, monkeypatch):
+    monkeypatch.setenv("FAKE_CONFIRM", "1")
+    m = processed(client)
+    assert client.post(f"/api/meetings/{m['id']}/send-window").status_code == 409   # an item still waits
+    client.post(f"/api/meetings/{m['id']}/confirmations/A2", json={"action": "keep"})
+    r = client.post(f"/api/meetings/{m['id']}/send-window")
+    assert r.status_code == 200
+    w = r.json()
+    assert w["status"] == "sending_soon" and w["sendScheduledAt"] and w["reviewState"] == "reviewed"
+    assert client.post(f"/api/meetings/{m['id']}/stop-send").json()["status"] == "ready"
