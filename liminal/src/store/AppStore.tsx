@@ -160,7 +160,8 @@ function useStoreValue() {
       }
       // Meetings can't be dated ahead (the picker also blocks it); an older saved future date falls back to today.
       const date = draft.date && draft.date < todayISO() ? draft.date : todayISO();
-      const title = draft.title?.trim() || template?.name || fileName || fallbackTitle;
+      // The name shown on New meeting (typed, template, or the type's default) wins; the file name is a last resort.
+      const title = draft.title?.trim() || template?.name || fallbackTitle || fileName || '';
       const meeting: Meeting = {
         id,
         title,
