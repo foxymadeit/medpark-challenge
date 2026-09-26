@@ -14,6 +14,7 @@ a frame.
 | 2 | Style guide | `1:50` | SG/01 to SG/10: colour, type, space, components, motion, accessibility, words, handoff, states |
 | 3 | Components | `1:51` | Five category frames: Icons, Atoms, Wayfinding, Feedback, Minutes |
 | 4 | Screens | `0:1` | Eight sections, one per flow (below) |
+| 5 | README | `136:2` | README hero (`136:3`) and headline numbers (`136:64`), exported to `docs/readme/` at 2x |
 
 Colour variables live in the collection **Liminal v2** (`VariableCollectionId:1:2`).
 Text styles: `v2/sign/{display,h1,h2,h3,plate}`, `v2/body/{lg,md,sm}`,

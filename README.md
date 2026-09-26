@@ -1,410 +1,462 @@
-# Secure MOM: offline diarization and minutes
+<p align="center">
+  <img src="docs/readme/hero.png" alt="Liminal: hospital meetings in, checked minutes out, nothing leaves the building" width="100%">
+</p>
 
-Secure MOM turns a hospital meeting into minutes: a summary, the decisions,
-and the action items with owners and deadlines, emailed to the right team.
-We are building it for the Medpark International Hospital challenge at
-DeepTech GigaHack 2026 (Chișinău), where the rule is that audio and
-transcripts never leave the hospital.
+# Liminal
 
-This branch holds two parts of it. The diarizer works out **who spoke
-when**, so an action item goes to the person who actually took it; the
-challenge lists speaker diarization as a strong bonus. The minutes generator
-([minutes/](minutes/README.md)) turns the transcript into Medpark's minutes
-in Romanian, Russian and English, as PDF and DOCX, with every decision,
-owner and deadline checked by code against the transcript. The branch also
-holds the product's design system.
+**Minutes a hospital can send without editing, from a meeting that switches
+between Romanian, Russian and English mid-sentence, on a server that never
+touches the internet.**
 
-![The diarizer's test screen: five people introduce themselves, then hold a meeting in Romanian, Russian and English](diarization/demo/cli.gif)
+Upload a recording or press Record, and pick the meeting type (Liminal
+suggests one). A few minutes later every attendee has the minutes in Romanian,
+Russian and English, as PDF and DOCX: the decisions, and every action item with
+its owner and a real calendar deadline. Every one of those facts was checked by
+code against the words that were actually said.
 
-The animation is our **test harness, not the product**. Secure MOM itself
-is an internal web app (designs in [DESIGN.md](DESIGN.md) and the
-[Figma file](https://www.figma.com/design/5gmJObntS61v2ehrmh01j9)); this
-terminal screen is how we check the diarizer. In the recording, five people
-with names from Moldova's 2025 birth records introduce themselves,
-you type their names, and they hold a meeting. Maria switches between
-Romanian and Russian. The screen marks a new voice with `+ NEW VOICE`, a
-returning one with `↺ BACK`, and logs every turn with its start and end. The
-voices are public recordings nobody in our training set spoke (see
-[the demo notes](#the-demo-recording)), played through the live pipeline at
-normal speed and sped up 2x in the GIF.
+Built for Medpark International Hospital at DeepTech GigaHack 2026, Chișinău.
 
-## Results at a glance
+<p align="center">
+  <img src="docs/readme/numbers.png" alt="Headline numbers" width="100%">
+</p>
 
-| What we measured | Result |
-|---|---|
-| Mixed Romanian / Russian / English meetings, 3 to 7 people, close microphone | **93.0% accurate**, 96.3% of turns given to the right person |
-| 30-minute meetings with 11 to 14 people, close microphone | **93.6% accurate**, 95.9% of turns right |
-| One microphone on the table, far from the speakers (AMI benchmark) | 66.5% accurate |
-| Live test in a room with three people mixing languages | worked end to end |
-| Speed on a 2017 Intel Core i5 laptop (2 cores, 8 GB) | 0.12x to 0.21x real time: an hour of audio takes 7 to 13 minutes |
-| Delay between speech and its label, live | 1 second |
-| Memory while running | 232 MB peak |
-| Models on disk | 52 MB, bundled; nothing is downloaded at runtime |
-| Network calls at runtime | none (a test fails the build if any code opens a socket) |
-| Speakers per meeting | no limit set in advance; tested up to 14 in meetings and 100 in unit tests |
-| Minutes: PDF per language, 2017 i5 | 4.3 s; RO, RU and EN compile in parallel |
-| Tests | 74 passing in the diarizer, 87 in the minutes |
+## Why a hospital needs this, and why the cloud tools fail it
 
-Accuracy here is 100 minus the diarization error rate (DER): the share of
-time that was missed, falsely marked as speech, or given to the wrong
-person, scored every 10 ms with no forgiveness collar and overlapping
-speech included. That is the strict way to score. Turn accuracy is the
-share of real turns that mostly went to the right person, which is how
-often a line of the minutes gets the right name.
+In 2023 attackers sat inside PJ&A, a US medical transcription vendor, for five
+weeks and took the records of
+[8.95 million patients](https://www.bleepingcomputer.com/news/security/pj-and-a-says-cyberattack-exposed-data-of-nearly-9-million-patients/),
+[3.9 million of them from Northwell Health](https://www.hipaajournal.com/northwell-health-pja-data-breach/),
+New York's largest health system. The hospitals did nothing wrong except send
+their audio to someone else. A healthcare breach now costs
+[$7.42 million on average](https://www.hipaajournal.com/average-cost-of-a-healthcare-data-breach-2025/),
+the most of any industry for 14 years running.
 
-The honest weak spot is the third row. The Medpark sample recording sounds
-like a far microphone (its speech is only 9 dB above the room), so until we
-label real Medpark audio, expect numbers nearer 66% there than 93%.
-Putting a microphone closer to the speakers moves a meeting into the first
-two rows.
+The meeting tools a hospital could buy all send audio to a cloud, and most of
+them cannot follow a Moldovan meeting anyway:
 
-## Minutes
+| | Romanian | Romanian and Russian in one meeting | Runs inside the hospital | Price |
+|---|---|---|---|---|
+| Otter.ai Business | [no](https://help.otter.ai/hc/en-us/articles/360047247414-Supported-languages) | no | no | $19.99 per user per month |
+| Microsoft Teams Premium recap | [no](https://support.microsoft.com/en-us/teams/meetings/recap-in-microsoft-teams) | no | no | Premium licence per user |
+| Deepgram Nova-3, code-switching mode | [no](https://developers.deepgram.com/docs/models-languages-overview) (10 languages, Russian yes, Romanian no) | no | no | per minute |
+| Fireflies.ai Business | yes | multi-language mode, beta | no | $19 per seat per month, plus credits |
+| ElevenLabs Scribe + pyannoteAI | yes | automatic detection | no | $0.40 + €0.10 per hour of audio |
+| **Liminal** | **yes** | **yes, per utterance and per phrase** | **yes, with the network cable out** | **one server the hospital already owns** |
 
-`mom report transcript.txt` writes six documents: a PDF (PDF/A-2b) and a DOCX
-per language, in Medpark's colours, logo and type. A local model on
-127.0.0.1 finds the facts and words them; code checks each one:
+Under the challenge's rules every cloud row is disqualified before scoring
+starts. Liminal passes that gate by construction: no part of it can open a
+connection to anything outside the machine, and tests fail the build if one
+tries.
 
-- the quote behind every fact is in the transcript lines it cites;
-- a decision has a decision act in those lines, so a proposal nobody took up
-  stays a note;
-- owners are named or speaking in those lines, and deadlines are computed
-  from the words said, never guessed;
-- items that fail a check go to "Needs confirmation" for a person to settle
-  before sending.
+## The scorecard, criterion by criterion
 
-The wording follows 41 published hospital and public-body minutes in the
-three languages (`minutes/research/corpus.md`). Sentences never say who
-spoke; names appear only in the attendance list and on action owners, and
-patients only as initials, age and bed. A PDF compiles in 4.3 s on the 2017
-laptop, the three languages in parallel. The model is chosen by a bake-off
-on Kaggle T4s over six scripted meetings with traps; its numbers go into
-[minutes/README.md](minutes/README.md) when the run finishes.
-
-## Try it
-
-```bash
-cd diarization
-uv venv --python 3.11 && uv pip install -e '.[dev]'
-source .venv/bin/activate && diarizer live
-```
-
-People introduce themselves one at a time, a few seconds each. Press Enter,
-type a name for each voice it lists (or press Enter to keep "Speaker 1"),
-then hold the meeting in any mix of languages. Press Enter again to finish;
-the turns land in `sessions/<start time>/` as JSON, CSV and RTTM.
-
-Other commands:
-
-```bash
-diarizer file meeting.m4a                       # a recording instead of the microphone
-diarizer enroll "Maria" --language ro           # optional: remember a voice, with her agreement
-diarizer voices                                 # who is enrolled, and when they agreed
-diarizer voices forget "Maria"                  # delete her voiceprint
-diarizer live --replay diarization/demo/meeting.wav   # the demo above, for testing
-```
-
-The full guide, including how the teammates' transcription step reads our
-output, is in [diarization/README.md](diarization/README.md).
-
-## What it needs to run offline
-
-| Need | Detail |
-|---|---|
-| Computer | Tested on a 2017 MacBook Pro (Intel Core i5-7360U, 2 cores, 8 GB RAM, macOS 13). No GPU. The same packages exist for Linux and Windows, but we have not tested those. |
-| Memory | about 250 MB free |
-| Disk | 52 MB of models (in the repo) plus 323 MB of Python packages |
-| Software | Python 3.10 or newer, ffmpeg (to decode m4a, mp3 and similar), and a microphone for live mode |
-| Network | only once, to install the Python packages. Nothing after that. |
-
-The challenge's reference server (one 16 GB GPU, or 32 GB RAM without a GPU)
-is well above this. On it the diarizer can run at the same time as
-transcription, so it adds almost nothing to the 15-minute target from the
-end of a meeting to the email.
-
-## How it works
-
-Every half second, a small segmentation network (pyannote segmentation 3.0)
-looks at the last 5 seconds of audio and marks who is talking in each 17 ms
-frame, up to three people in the window and two at once. For each person in
-the window, a voice model (NVIDIA's TitaNet-small) turns their clean speech
-into a voiceprint of 192 numbers. A voiceprint describes how a voice
-sounds, not what it says, so the same person speaking Romanian and then
-Russian gets a similar one.
-
-A tracker keeps every person heard so far: an average voiceprint plus a few
-samples of their different tones. A new voiceprint close to someone known
-goes to them. One far from everyone opens a new person. One in between goes
-to the nearest person without changing what we remember about them, so one
-bad guess does not spoil their profile. Two people who turn out to sound
-the same are merged. Labels wait one second so the model has heard a little
-past each moment. When the meeting ends, every observation is scored again
-against the final voiceprints, which fixes early mistakes made before the
-system knew everyone.
-
-How far people sit from the microphone changes which settings work best, so
-there are two profiles. For the first 10 seconds the diarizer measures how
-far speech rises above the room's background noise. At 15 dB or more it
-uses the close profile (our fine-tuned segmentation model); below that it
-uses the far profile (the original model plus a voiceprint projection
-trained on 38 AMI meetings to ignore room sound). Picking the wrong profile
-costs 10 to 13 points, which is why the check runs by itself.
-
-The neural parts are about 97% of the running time, and they already run
-in C++ through ONNX Runtime. The rest is vectorised numpy.
-
-## Compared with a paid cloud service
-
-The best-known commercial diarization API is pyannoteAI. Its open model and
-its paid model publish scores on AMI with a single distant microphone, the
-same setting as our far-field test.
-
-| | pyannoteAI Precision-2 (paid) | pyannote community-1 (open) | Secure MOM diarizer |
+| Jury criterion | Weight | What Liminal delivers | Proof |
 |---|---|---|---|
-| AMI, single distant microphone, DER | **15.6%** | 19.9% | 33.5% |
-| Where it runs | pyannoteAI's cloud, or self-hosted on an NVIDIA H100 | a GPU server | a 2017 laptop CPU |
-| Speed | 14 s per hour of audio on an H100 | 31 s per hour on an H100 | 7 to 13 minutes per hour on a 2-core i5 |
-| When labels appear | after the whole file is processed | after the whole file is processed | live, 1 second behind the speaker |
-| Does audio leave the building | yes, for the cloud API | no | no |
-| Price | €0.096 to €0.112 per hour of audio for the current Precision-3 | free | free |
+| Linguistic accuracy | 30% | Every utterance decoded twice (as Romanian and as Russian) and the better one kept, because Whisper calls plain Moldovan Romanian "Russian" at 0.9 confidence; medical terms snapped back to an 892-term trilingual dictionary | [Transcription](#1-linguistic-accuracy-30) |
+| Output quality | 30% | **100% of decisions found, 100% correct**; 0 traps fallen for across 19 model runs; deadlines computed from the words, never guessed | [Minutes](#2-output-quality-30) |
+| Security and architecture | 20%, pass/fail gate | Zero external calls, enforced in every process and proven by tests; runs on one 16 GB GPU, down to a 2017 laptop for speaker labels | [Security](#3-security-and-architecture-20) |
+| User experience | 10% | Upload or Rec, confirm the suggested meeting type, done; minutes send themselves after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
+| Presentation and domain | 10% | Minutes modelled on 41 published hospital and council minutes in three languages; GDPR, AI Act and MDR paperwork written | [Domain](#5-medical-and-legal-context-10) |
+| Bonus: speaker diarization | strong bonus | **93% accurate** on mixed RO/RU/EN meetings, live, 1 s behind the voice, on a laptop CPU | [Who spoke when](#bonus-who-spoke-when) |
 
-Sources: the benchmark table in the
-[pyannote.audio README](https://github.com/pyannote/pyannote-audio#benchmark)
-(updated 2025-09, DER in %, full AMI test set) and
-[pyannoteAI's model page](https://www.pyannote.ai/md/models) for prices.
-Our number comes from 4 of the 16 AMI test meetings (ES2004a, IS1009a,
-TS3003a, EN2002a), scored the same strict way, so treat the comparison as
-close rather than exact.
+## 1. Linguistic accuracy (30%)
 
-The paid model is more than twice as accurate on far-microphone audio, and
-we say so plainly. It also sends audio to a cloud, which the challenge
-forbids, and it waits for the whole recording. Ours labels people while they
-talk, on hardware a hospital already owns. For close-microphone meetings,
-where we score 93%, we have no published paid-model number on the same
-data to compare against.
+The challenge names the hard part itself: Whisper picks one language per chunk.
+We measured exactly how badly that goes on Medpark's own 11 min 42 s sample
+before changing anything:
 
-## Training
+| Off-the-shelf setup | What happened |
+|---|---|
+| Whisper large-v3, automatic language | **59% of letters came out Cyrillic** in a mostly Romanian meeting: Romanian written in Russian letters |
+| Whisper forced to Russian on Romanian speech | it translated instead of transcribing: "dreapta și stânga" became "и правая, и левая", fluent and false |
+| NVIDIA Canary-1B-v2 forced to Romanian | Romanian fine, Russian mangled, a loop on the last 30 s |
+| Loudness-based speech detection | kept 198 s of 702 s, because in a busy meeting the median loudness is speech |
 
-We trained on Kaggle's free GPUs (two NVIDIA Tesla T4s per run) with public
-data only. Hospital audio was never uploaded anywhere.
+What Liminal does instead:
 
-| Run | What it trained | Kaggle time | Of which training | Data downloaded |
+- **Two decodes per utterance, the better one wins.** Silero VAD cuts the audio
+  at every pause of 300 ms or more (and wherever the diarizer says the speaker
+  changed). Each piece is decoded as Romanian and as Russian, plus English when
+  that is the top guess, and the decode with the higher average log-probability
+  is kept, with a +0.1 bonus for Romanian as the meeting's main language. On the
+  first 113 s, Whisper's detector called 12 of 14 Romanian utterances Russian.
+  Scores alone picked right on 10 of 14; the bonus fixes the other 4, which
+  were all within 0.06.
+- **Phrase-level switching.** With the language merge on, a run of two or more
+  words that the other decode heard far more confidently (0.25 higher mean word
+  probability, in that language's own script) replaces the winner's words, so a
+  sentence can come out as `ro+ru`.
+- **Medical terms snapped back, with an audit trail.** "пневмания" becomes
+  "пневмония" only if the span has 6+ letters, scores 88+ against the term,
+  keeps its first letter and its case ending, and is in the utterance's own
+  language. Every change is logged with before, after and score so a reviewer
+  can undo it.
+- **An 892-term trilingual medical dictionary.** Built from 2,050 Harvard Health
+  entries: 806 whose Romanian and Russian names both come from Wikidata's human
+  labels, plus ICD-10, intensive-care and hospital terms. The 1,373 entries
+  without both human labels stay English only, rather than risk a machine
+  translation in a medical record.
+- **Specialists for each language.** SpeD-RoASR (Romanian), GigaAM-v3 (Russian)
+  and Parakeet-TDT-0.6B-v3 are combined per utterance and per span by how well
+  each hypothesis fits the language's word list.
+
+**Against paid models.** ElevenLabs Scribe, the paid leader, reports
+[3.0% word error on Romanian FLEURS](https://elevenlabs.io/speech-to-text/romanian)
+and 3.1% on Russian: clean read speech, one language at a time. FLEURS has no
+sentence that switches language. Our bake-off scores every setup on FLEURS so
+the comparison is like for like, and also on what FLEURS lacks: a
+hand-corrected Romanian and Russian reference from the Medpark recording and our
+own scripted board meeting.
+
+> **Bake-off running now** (`asr-llm/scripts/kaggle_asr_bakeoff`, Kaggle T4). It
+> scores Whisper large-v3 and turbo, the phrase-level merge, the specialists,
+> their combination, a local-LLM correction pass and a Parakeet fine-tune. The
+> rule that picks the default was fixed before the results: lowest mean
+> character error over the hand-checked reference and our reading, an hour
+> transcribed in 6 minutes or less, and no more inserted words than Whisper
+> large-v3. The table lands here when it finishes.
+
+## 2. Output quality (30%)
+
+A language model will write a decision nobody made if you let it. Liminal lets
+the model do two jobs, finding facts and wording them, and **code decides what
+survives** (`minutes/mom/verify.py`):
+
+| Check | What it stops |
+|---|---|
+| The quoted evidence must be in the transcript lines the fact cites (fuzzy match, diacritics folded, score ≥ 92) | invented facts |
+| A decision needs a decision act: "se aprobă", "решили", "approved", or a proposal someone then accepts ("bine, facem", "ладно") | a suggestion written up as a decision |
+| An owner must be named in the lines, or be the voice that said "I'll do it" | the wrong person assigned a task |
+| Deadlines are computed from the words ("până vineri" on 26 September is 2 October); "early next week" is printed as said | invented dates |
+| A number or name not in the cited lines holds the item for a person | invented figures |
+| Patients become initials before the writing step; the final check fails on any name not in the evidence | patient names in an email |
+| The model's LaTeX may use 8 macros and 1 environment, nothing else (14 injection tests) | a transcript that runs commands through the PDF |
+
+Anything that fails goes to "Needs confirmation", and those items always wait
+for a person. The PDF footer states how many items were checked against the
+transcript and that the text was drafted locally by AI (EU AI Act, Art. 50).
+
+**The bake-off.** 14 local models, on Kaggle T4 GPUs (16 GB, the reference
+card), over six scripted meetings that mix the three languages inside
+sentences. The meetings hold 15 decisions and 15 actions with known owners and
+deadlines, and traps: six proposals nobody adopts, two decisions reversed
+later, owners known only by voice, relative deadlines, named patients.
+
+| Model | Decisions found / correct | Actions found / correct | Owner right | Trap errors | GPU memory |
+|---|---|---|---|---|---|
+| **qwen3:8b (default)** | **100% / 100%** | **93% / 100%** | 86% | **0** | **7.2 GB** |
+| mistral-small3.2:24b | 100% / 94% | 100% / 100% | 93% | 0 | 19.5 GB |
+| qwen3:14b | 93% / 100% | 93% / 100% | 86% | 0 | 11.0 GB |
+| gpt-oss:20b | 80% / 100% | 100% / 100% | 100% | 0 | 13.2 GB |
+| phi4:14b | 80% / 100% | 93% / 100% | 93% | 0 | 25.7 GB |
+| gemma3:12b | 80% / 100% | 100% / 94% | 80% | 0 | 19.4 GB |
+| EuroLLM-22B | 53% / 100% | 87% / 100% | 92% | 0 | 16.9 GB |
+
+**Deadlines: 27 of 27** answer-key deadlines now resolve to the right date,
+after round 1 showed the resolver missing "today" and "within N days". Round 2,
+running now, re-scores the top eight with that fix; its numbers replace these.
+
+**Against paid models.** On Vectara's grounded-summary hallucination
+leaderboard ([22 Sep 2026](https://github.com/vectara/hallucination-leaderboard)),
+the model we run locally invents content **less often than the flagship cloud
+models**:
+
+| Model | Adds unsupported content |
+|---|---|
+| **qwen3-8b (ours, local, 7.2 GB)** | **4.8%** |
+| Gemini 2.5 Pro | 7.0% |
+| GPT-5.4 Pro | 8.3% |
+| Claude Sonnet 4 | 10.3% |
+| Claude Opus 4.5 | 10.9% |
+
+Then our verifier checks every fact the model returns against the
+transcript, so a fact reaches the minutes only if someone said it.
+
+**The meeting type, detected.** The type decides who gets the email. We
+compared a zero-shot classifier (Laya) with the local model Liminal already
+has loaded:
+
+| | Correct | Administrative meetings | Time |
+|---|---|---|---|
+| **Local model, first 3 minutes** | **8 / 8** | 2 / 2 | **2 to 4 s on a CPU** |
+| Local model, all 16 variants | 15 / 16 | 4 / 4 | the miss was a timeout on a 60-min transcript |
+| Laya zero-shot, all 16 | 10 / 16 | 0 / 4 | 1 to 4 s |
+
+So Liminal reads the first 3 minutes, suggests the type, and the person
+confirms with one tap. It needs no extra model and no extra memory.
+
+**Written like real minutes.** We collected and coded 41 published sets of
+minutes: 13 English (NHS trust and health boards), 18 Romanian (Moldovan
+hospital and district councils, Romanian hospital boards), 10 Russian (medical
+councils, hospital protocols). "NOTED" appears 682 times in 12 of the 13
+English sets, so most items are noted, not decided, and the extractor defaults
+to a note. None of the 41 quotes anyone or names a patient, so neither do
+ours. Moldovan votes read "S-a votat: pro-28, contra-0, abținut-0"; modern
+Russian protocols say "РЕШИЛИ", not "СЛУШАЛИ". Each language's formulas are in
+the writing prompt.
+
+## 3. Security and architecture (20%)
+
+**The gate: zero external calls.** Every Python process installs a socket guard
+that refuses any address outside the machine. The model client also ignores
+proxy settings and refuses redirects. Docker Compose binds every port to
+127.0.0.1 on an internal network with no route out. Mail goes to a local SMTP
+server (Mailpit in the demo). `backend/scripts/offline_check.sh` proves all
+three, and the jury can pull the cable during the demo.
+
+**Reproducible on the reference hardware.**
+
+| | Needs | Reference server |
+|---|---|---|
+| Minutes model (qwen3:8b) | 7.2 GB GPU peak | one 16 GB GPU |
+| Transcription (Whisper large-v3, int8) | runs beside the minutes model on the same card | same GPU |
+| Speaker labels | CPU only: 232 MB RAM, 52 MB of models | spare CPU |
+| Everything else | Python, SQLite, XeLaTeX, local SMTP | any Linux server |
+
+The speaker labeller runs on a 2017 dual-core laptop in real time, so it adds
+no GPU load. The end-to-end hour test (below) measures the rest on one T4.
+
+**Security review.** We attacked our own system using the attack classes of
+Cloudflare's security-audit method, fixed every issue we found, and left a
+test behind for each control.
+
+| Threat | Control | Proof |
+|---|---|---|
+| Audio or text leaving the building | socket guard in every process, loopback-only model client, internal compose network | `offline_check.sh`, socket-blocking tests in all four Python parts |
+| Password guessing | scrypt, one generic error, 5 failures per account (20 per address) per 15 min | `test_login_is_generic_rate_limited…` |
+| Stolen or stale sessions | HttpOnly SameSite=Strict cookie, only its SHA-256 stored, 30 min idle, 12 h absolute | `test_session_cookie_flags…` |
+| Cross-site forgery | state changes need this server's Origin | `test_state_changes_from_another_origin…` |
+| Reading another person's meeting | creator and administrators only | `test_meetings_are_private…` |
+| A staff member adding a reader to others' meetings through a template | template writes need an administrator (**found and fixed in our review**) | `test_only_an_admin_writes_templates` |
+| Speaking under someone else's name | replacing a voiceprint needs an administrator (**found and fixed**) | `test_staff_enroll_a_voice_once…` |
+| A "recording" that makes ffmpeg read files or URLs | type checked by bytes, local files only, 500 MB and 3 h caps | `test_upload_checks_bytes_not_names` |
+| A transcript that runs commands through LaTeX | macro whitelist, shell escape off, paranoid file access | 14 injection tests |
+| Another account reading minutes or voiceprints | folders 0700, files 0600, `mom purge --days 30` | `test_voiceprints_and_sessions_are_private` |
+| A swapped model or package | models pinned by SHA-256, CycloneDX SBOM | `minutes/compliance/sbom.json` |
+| Script injection in the browser | React escaping, CSP `default-src 'self'`, no framing | frontend security report |
+
+## 4. User experience (10%)
+
+<p align="center">
+  <img src="docs/readme/screens.png" alt="Liminal's screens" width="100%">
+</p>
+
+1. **Upload or press Rec.** WAV, MP3, M4A, FLAC or a browser recording.
+2. **Confirm the meeting type.** Liminal suggests it from the first 3 minutes.
+3. **Wait.** The minutes arrive, wait 60 seconds so anyone can stop
+   them, and go to the type's distribution list with the RO, RU and EN PDFs
+   attached. Items the checks could not confirm always wait for a person.
+
+Manual review is one checkbox away: correct an owner or deadline, preview the
+email, send. The interface speaks English, Romanian and Russian, works on
+desktop, tablet and phone, meets WCAG 2.2 AA contrast, and never jumps
+instantly between states.
+
+We drove the whole flow in a headless browser, login to delivered email, 17
+routes at desktop and phone width in all three languages: 0 console errors, 0
+broken links. The first pass scored 89/100 and listed 13 issues; all 13 are
+fixed and under test.
+
+**Speed.** The challenge asks for under 15 minutes from upload to email for a
+60-minute recording.
+
+| Stage | Measured |
+|---|---|
+| Speaker labels, one hour | 7 to 13 min on a 2017 dual-core laptop CPU; in parallel with transcription on the server |
+| Meeting type | 2 to 4 s |
+| PDF, per language | 4.3 s on the 2017 laptop; the three languages in parallel |
+| Email | a local SMTP send, seconds |
+| **Upload to email, 60-minute recording, one T4** | **hour test running now** on four public hours (English meeting, Russian government meeting, Moldovan parliament, Romanian/Moldovan parliament); lands here tonight |
+
+## 5. Medical and legal context (10%)
+
+| Topic | What we did |
+|---|---|
+| GDPR Art. 5 and 25 | local only; the diarizer keeps no audio; speakers stay "Participant 2" until named; minutes hold no quotes; patients appear as initials, age and bed |
+| GDPR Art. 9 (voiceprints are biometric) | enrollment only with recorded consent; one command deletes a person's voiceprints |
+| GDPR Art. 35 | draft impact assessment, `minutes/compliance/dpia.md` |
+| EU AI Act | limited risk; Art. 50 AI marking in the PDF footer, PDF metadata and DOCX properties |
+| Medical Device Regulation | not a medical device: no clinical decisions (MDCG 2019-11 reasoning in `intended-purpose.md`) |
+| Trustworthy AI | ALTAI self-assessment, `altai.md` |
+| NIS2 | an offline design removes most of the external attack surface hospitals must manage |
+| Moldova, Law 195/2024 | covered in the data inventory |
+
+## Bonus: who spoke when
+
+<p align="center">
+  <img src="diarization/demo/cli.gif" alt="The diarizer test screen: five people introduce themselves, then hold a meeting in Romanian, Russian and English" width="90%">
+</p>
+
+The challenge calls diarization a strong bonus, because an action item belongs
+to the person who took it. Ours labels people **live, 1 second behind their
+voice, on a laptop CPU**. In the recording above, five voices nobody in our
+training set spoke hold a meeting in three languages, and all 17 turns went to
+the right person.
+
+| Test | Result |
+|---|---|
+| Mixed RO/RU/EN meetings, 3 to 7 people, close microphone | **93.0% accurate**, 96.3% of turns to the right person |
+| 30-minute meetings, 11 to 14 people | **93.6% accurate**, 95.9% of turns |
+| AMI, one far microphone | 66.5% accurate |
+| Live, three people mixing languages in a room | worked end to end |
+| Our team's recording, one voice for 8 min 25 s | 1 speaker found, in 70 s on a laptop |
+
+Accuracy is 100 minus the diarization error rate, scored strictly: every 10 ms,
+no forgiveness collar, overlapping speech counted. Answer keys are in
+`diarization/eval/references/`.
+
+**Against the paid leader.** pyannoteAI's paid Precision-2 scores 15.6% DER on
+AMI far-field, the open community-1 19.9%, ours 33.5% on 4 of the 16 test
+meetings. On distant microphones the paid model is twice as accurate, and we
+say so. It also needs an H100 or its cloud, and waits for the whole file.
+Ours runs on a 2017 laptop, labels people as they speak, costs nothing per
+hour, and sends nothing anywhere. Put a microphone on the table near the
+speakers and Liminal is in its 93% rows. Sources:
+[pyannote benchmark](https://github.com/pyannote/pyannote-audio#benchmark),
+[pyannoteAI pricing](https://www.pyannote.ai/md/models).
+
+## Problems nobody had solved for us
+
+The challenge gave us one 11-minute sample and a rule that hospital audio may
+not leave the building. Here is what was missing and what we did about it.
+
+| Missing | What we did |
+|---|---|
+| **Labelled Romanian/Russian meeting audio.** No public corpus has RO/RU meetings with who-spoke-when labels. | Built 24 test meetings (88 min, 1,498 turns, 3 to 14 people) from held-out Common Voice Romanian and Russian voices plus LibriSpeech English, with answer keys committed. For training, 300 synthetic RO/RU meetings, each voice through its own room echo and noise. |
+| **Hour-long recordings in our languages.** The speed target is for 60 minutes; the sample is 11. | Found public hours: the Moldovan Parliament's plenary sessions (Romanian with Russian), the ROMPAR parliamentary corpus (643 Moldovan and 77 Romanian utterances), a Russian government meeting on medical graduates (kremlin.ru, CC BY 4.0, official transcript), and an ICSI research meeting in English. |
+| **Code-switched training speech.** There are hours of Romanian and hours of Russian, but almost none that switch mid-sentence. | Speech Collage: words force-aligned, then 1 to 4 words of a real sentence replaced by a phrase in the other language, 20 ms crossfades, loudness matched, and the same speaker used on both sides whenever Common Voice has them in both languages. |
+| **A medical dictionary in Romanian and Russian.** | Scraped 2,050 Harvard Health terms, kept the 806 whose RO and RU names are human-written Wikidata labels, added ICD-10, ICU and hospital terms: 892 rows. |
+| **A reference transcript.** | A Romanian and Russian speaker corrected the first 3 minutes of the Medpark sample by hand. Then we wrote a 10-minute mock medical board in RO/RU/EN with an answer key (6 decisions, 9 actions, 4 traps, 2 patients) and recorded it twice: one voice reading every part, and three of us around a table. |
+| **Examples of good minutes.** | Read and coded 41 published minutes in three languages; every writing rule quotes its source. |
+| **A GPU that may see hospital audio.** | None. Every GPU job ran on Kaggle's free T4s with public or synthetic data only; the hospital sample never left our machines. |
+| **Far-microphone rooms.** | The diarizer measures speech-to-noise in the first 10 s and switches settings. Choosing wrong costs 10 to 13 points, so it is automatic. |
+
+## Training and data
+
+All training ran on Kaggle (2× Tesla T4), public data only, with a smoke test
+first and a heartbeat every minute showing progress, time left and warnings.
+
+| Run | What it trained | Kaggle time | Training | Data |
 |---|---|---|---|---|
 | English | TitaNet-small voice model | 64 min | 34 min | 17.5 GB |
-| Multilingual | TitaNet-small on Romanian, Russian and English | 121 min | 72 min | 47.2 GB |
-| Gentle | TitaNet-small, frozen encoder, low learning rate | 46 min | 21 min | 35.1 GB |
+| Multilingual | TitaNet-small on RO, RU, EN | 121 min | 72 min | 47.2 GB |
+| Gentle | TitaNet-small, frozen encoder | 46 min | 21 min | 35.1 GB |
 | Segmentation | pyannote segmentation 3.0 | 87 min | 69 min | 41.9 GB |
-| **Total** | | **5.3 hours** | **3.3 hours** | **142 GB** |
+| **Speaker models, total** | | **5.3 h** | **3.3 h** | **142 GB** |
+| Transcription | Parakeet-TDT-0.6B-v3 on RO/RU/EN plus 30 h of spliced code-switching | 2 h budget | | queued, runs tonight |
 
-Every run did a smoke test and a preflight batch on real data before the
-long part, and reported progress, time left and warnings every minute.
-The reports are in [diarization/train/kaggle/runs/](diarization/train/kaggle/runs/).
+| Dataset | Language | Used |
+|---|---|---|
+| AMI Meeting Corpus | English, near and far mics | 40.1 h (voices), 79.7 h / 134 meetings (segmentation) |
+| Common Voice 22 | Russian / Romanian | 46.3 h, 2,997 speakers / 24.6 h, 397 speakers |
+| VoxPopuli | Romanian | 19.6 h, 61 speakers |
+| VoxConverse | broadcast, several languages | 33.5 h |
+| AliMeeting | Mandarin far-field meetings | 2.0 h |
+| ROMPAR | Moldovan and Romanian parliament | ASR training (test split held out) |
+| FLEURS, CS-FLEURS | RO, RU, EN; Russian-English switching | ASR training and testing |
+| OpenSLR 28 | room echoes and noise | augmentation |
 
-The data, as the runs counted it:
+About 166 hours of speech and 5,900 speakers went into the multilingual voice
+run. A tenth of Common Voice speakers, and everyone who recorded both Romanian
+and Russian, were held out of all training; the test meetings use only them.
 
-| Dataset | Language | Hours used | Speaker labels | License | Citation |
-|---|---|---|---|---|---|
-| AMI Meeting Corpus | English (far and close microphones) | 40.1 h in voice training; 79.7 h (134 meetings) in segmentation | 152 | CC BY 4.0 | Carletta et al., *The AMI Meeting Corpus: A Pre-announcement*, MLMI 2005 |
-| Common Voice 22 | Russian | 46.3 h | 2,997 | CC0 | Ardila et al., *Common Voice: A Massively-Multilingual Speech Corpus*, LREC 2020 |
-| Common Voice 22 | Romanian | 24.6 h | 397 | CC0 | as above |
-| VoxPopuli | Romanian | 19.6 h | 61 | CC0 | Wang et al., *VoxPopuli*, ACL 2021 |
-| VoxConverse dev + test | English and others (broadcast) | 13.1 h + 20.4 h | 916 + 1,368 (per recording) | CC BY 4.0 | Chung et al., *Spot the Conversation*, Interspeech 2020 |
-| AliMeeting | Mandarin (far-field meetings) | 2.0 h | 25 | CC BY-SA 4.0 | Yu et al., *M2MeT*, ICASSP 2022 |
-| Simsamu | French (simulated medical calls) | small | | CC BY 4.0 | Simsamu, Hugging Face |
-| OpenSLR 28 room impulses and noises | none (augmentation) | | | Apache 2.0 | Ko et al., *A study on data augmentation of reverberant speech*, ICASSP 2017 |
-
-In total the multilingual run saw about 166 hours of speech and about 5,900
-speaker labels. For the segmentation run we also built 300 synthetic
-Romanian and Russian meetings from Common Voice voices, each voice passed
-through its own room echo with background noise, so the model heard turn
-changes in the languages Medpark speaks.
-
-One tenth of Common Voice speakers (chosen by a hash of their ID) and every
-speaker who recorded both Romanian and Russian were held out of all
-training. The test meetings use only those voices.
-
-What training taught us, in numbers:
+What training taught us:
 
 | Change | Effect |
 |---|---|
-| Fine-tuning the TitaNet voice model (three runs) | never helped: voice separation d′ fell from 4.41 to 3.67, 3.90 and 4.28 |
-| Fine-tuning the segmentation model | mixed-language accuracy 90.1% → 93.0%, turn accuracy 94.6% → 96.3%; but far-field AMI −3.3 points, so it ships only in the close profile |
-| Choosing settings per microphone distance (no training at all) | mixed-language accuracy about 80% → 90% |
-| Telling the diarizer how many people are present | worse: 93.6% → 89.2% on the large meetings, because it merges real people to hit the number |
+| Fine-tuning segmentation | mixed-language accuracy **90.1% → 93.0%**, turns 94.6% → 96.3% (close profile only; far field lost 3.3 points) |
+| Choosing settings by microphone distance | about **80% → 90%**, with no training at all |
+| Fine-tuning the voice model, three ways | never helped (separation d′ 4.41 → 3.67, 3.90, 4.28); original kept |
+| Telling the diarizer how many people are present | worse, 93.6% → 89.2%; removed |
 
-The biggest gain came from measurement and configuration, not from GPU
-hours. We kept the original voice model.
+## What we tried and dropped
 
-## How we tested
+Measured, then removed, so nobody has to try them again:
 
-| Test set | Meetings | Audio | Turns | People per meeting | Answer key in repo |
-|---|---|---|---|---|---|
-| Mixed RO / RU / EN (6 to tune, 18 to score) | 24 | 88 min | 1,498 across both sets | 3 to 7 | [eval/references](diarization/eval/references/) |
-| Large meetings | 4 | 120 min | (included above) | 11 to 14 | same folder |
-| AMI far-field (8 dev meetings to tune, 4 test meetings to score) | 22 in the repo | 11.2 h scored | | 3 to 5 | [data/ami](data/ami/) (audio and labels) |
-| Medpark sample recording | 1 | 11 min 43 s | not labelled yet | 4 heard | [data/Medpark_audio.m4a](data/Medpark_audio.m4a) |
-
-The mixed meetings are built by `diarization/eval/make_mix.py` from the
-held-out Common Voice voices plus LibriSpeech test-clean (English, CC BY
-4.0, Panayotov et al., ICASSP 2015). Thresholds were tuned on the tuning
-meetings only. The answer keys (who really spoke when) and the list of
-voices in each meeting are committed, so the scores can be rebuilt with:
-
-```bash
-cd diarization
-python -m eval.make_mix --meetings 24                      # downloads the public voices once
-python -m eval.run_eval score --data ../data/mix/meetings --kind mix --embedder titanet-small
-python -m eval.run_eval score --meetings ES2004a IS1009a TS3003a EN2002a   # AMI
-```
-
-## Security
-
-We ran a focused review using the Cloudflare security-audit skill's attack
-classes. Each control below is in the code and covered by a test.
-
-| Attack class | What could go wrong | What we built | Where |
-|---|---|---|---|
-| Network and data exfiltration | any code path quietly sending audio out | no network code on the runtime path; the only networked command is `diarizer models fetch`, used once at setup | test `test_offline.py` blocks sockets and runs file mode end to end |
-| Resource handling (SSRF, local file read) | a "recording" that is really a playlist or concat list makes ffmpeg open URLs or other files | files must start with a known audio signature (WAV, FLAC, MP3, MP4/M4A, OGG, WebM, CAF, AMR, WMA), and ffmpeg runs with `-protocol_whitelist file` | `diarizer/audio.py`, test `test_playlists_and_non_audio_files_are_refused`; 2,731 real audio files pass the check |
-| Command injection | a file name or setting reaching a shell | ffmpeg is started with an argument list, never through a shell | `diarizer/audio.py` |
-| Terminal injection | transcript text carrying escape codes that take over the terminal | control characters are stripped before printing | `_printable` in `diarizer/cli.py` |
-| Path traversal | a person's name used to write outside the voices folder | names become file names only after reduction to letters, digits, `_` and `-` | `_slug` in `diarizer/voices.py` |
-| Unsafe deserialization | a crafted voiceprint file running code when loaded | numpy loads with pickles disabled; no `pickle`, `eval` or `exec` anywhere in the diarizer | `diarizer/voices.py` |
-| Archive extraction | a malicious archive writing outside its folder | tar files are opened with Python's `filter="data"` | `eval/make_mix.py` |
-| Supply chain | a swapped model file | every downloadable model is pinned by SHA-256 and checked before use; the four models we need ship in the repo | `diarizer/models.py`, `models/NOTICE.md` |
-| Secrets | tokens or keys in the repo | none; the Kaggle token was never committed, and a secrets scan of tracked files is clean | |
-| Data isolation | another account on the same machine reading who spoke when, or voiceprints | session folders are created owner-only (0700) and their files 0600; the same for voiceprints | test `test_voiceprints_and_sessions_are_private` |
-| Data lifecycle | voiceprints kept without consent or forever | enrollment asks for the person's agreement and stores when they gave it; `diarizer voices forget NAME` deletes every file of theirs | tests in `test_enroll.py` |
-| Resource exhaustion | a very long file filling memory | a file is decoded whole: one hour is 230 MB. We accept this for a single-user local tool and note it under limitations. | |
-
-Authentication does not apply to this part: it is a local command-line tool
-that runs under the user's own account. Sign-in for the web app is an open
-decision in [PRODUCT.md](PRODUCT.md).
-
-## EU alignment scorecard
-
-The GigaHack scorecard has 21 criteria, scored 0 to 4 by the team with a
-mentor. Below is the evidence for each, from the diarization slice's point
-of view, and the score we would propose. The final scores are agreed with
-the mentor.
-
-Two gaps turned up while filling this in, and we fixed them in code before
-committing: enrolling a voice now records the person's consent (GDPR Art. 9
-treats voiceprints as biometric data), and `diarizer voices forget` deletes
-a person's voiceprints (Art. 17, the right to erasure).
-
-| ID | Criterion | Evidence | Proposed |
-|---|---|---|---|
-| A1 | Green Deal problem fit | The product serves hospital administration rather than a Green Deal goal; its environmental angle is its small footprint (A3). | 1 Aware |
-| A2 | Eco-design and circularity | Software only. It runs on computers a hospital already has, down to a 2017 laptop, so no new hardware is bought for it. | 2 Considered |
-| A3 | Footprint of the tech itself | 52 MB of models, CPU only, 232 MB of RAM. About 2 to 3 Wh per meeting hour on a 15 W laptop chip. We dropped the larger voice models (101 MB and 114 MB) after measuring that they did not beat the small one. Training took 3.3 GPU-hours on shared Kaggle T4s. | 4 Evidenced |
-| A4 | Do no significant harm | At 1,000 hospitals it still needs no data centre or new devices. It keeps no audio, so storage does not grow with use. | 2 Considered |
-| B1 | Digital Europe capacity fit | Trustworthy AI and cybersecurity applied to healthcare administration, running on premises. | 3 Integrated |
-| B2 | Trustworthy AI and AI Act | AI is in two places: finding speech and telling voices apart. Labels are anonymous by default (Speaker 1, 2). Naming people from their voice is biometric identification, which the AI Act treats with care, so it is opt-in, consented, local, deletable, and any label can be corrected by a person. It infers no emotions. In the minutes, a local model drafts the text; code checks every fact against the transcript, unconfirmed items wait for a person, and each PDF and DOCX is marked as AI-generated in its footer and metadata (Art. 50). Assessment: `minutes/compliance/ai-act.md`, `altai.md`. | 3 Integrated |
-| B3 | Cybersecurity by design | The threat model and controls in the Security section, each with a test or a code reference. The minutes add a LaTeX macro whitelist with 14 injection tests, a model client that accepts only loopback and ignores proxies, and a CycloneDX SBOM (`minutes/compliance/sbom.json`). | 4 Evidenced |
-| B4 | Use of EU digital infrastructure | Next step is testing in a real hospital setting through the EU's healthcare testing facility (TEF-Health) or a European Digital Innovation Hub. Not contacted yet. | 1 Aware |
-| C1 | Personal data mapping and minimisation | We touch: audio (in memory only, never saved by the diarizer), turn times with labels, names typed by the user, and voiceprints of people who enroll. No audio is kept, and labels stay anonymous unless someone names them. The minutes hold no quotes, name patients only by initials, age and bed, and keep the checked facts in an owner-only file on the server (`minutes/compliance/data-inventory.md`). | 3 Integrated |
-| C2 | Lawful basis and consent | Minutes: the hospital's legitimate interest in documenting its meetings (Art. 6). Voiceprints: explicit consent (Art. 9(2)(a)), now asked for and recorded with a time. Health details said in meetings belong to the transcript, handled by the transcription slice. | 3 Integrated |
-| C3 | Privacy by design and by default | Local processing only, owner-only files, no audio retention, anonymous by default, one-command erasure. All tested. | 4 Evidenced |
-| C4 | Experimentation ethics | All development used public recordings whose speakers consented (Common Voice, LibriSpeech, AMI). The live test used informed volunteers. The only hospital audio is the organisers' anonymised sample, which never went to a cloud. A DPIA (Art. 35) is needed before a real deployment; a draft is in `minutes/compliance/dpia.md`. The minutes were developed on synthetic meetings only, and the model bake-off ran on Kaggle with no hospital data. | 3 Integrated |
-| D1 | Sector policy fit | Digital health: hospital records produced locally, in line with the EU's rules for health data. It makes no clinical decisions, so it is outside the Medical Device Regulation; the reasoning under MDCG 2019-11 is in `minutes/compliance/intended-purpose.md`. | 3 Integrated |
-| D2 | Stakeholders and value chain | Meeting chairs, attendees, hospital IT and the data protection officer. Medpark set the requirements through the challenge; we have not interviewed them directly yet. | 2 Considered |
-| D3 | Sector validation route | Label 5 minutes of real Medpark audio, then pilot in one board meeting with close microphones and measure accuracy there. | 2 Considered |
-| D4 | Sector evidence and data standards | Standard DER scoring and RTTM output, results on a public benchmark (AMI), held-out test voices, answer keys in the repo. | 3 Integrated |
-| E1 | EU market definition | Moldova first (Medpark), then Romania: same language, an EU member, and many private hospital networks. No market sizing yet. | 1 Aware |
-| E2 | Value proposition and competition | Otter.ai, Fireflies.ai and Microsoft Teams recap run in the cloud; pyannoteAI sells diarization as a cloud API. Ours runs inside the hospital and handles Romanian and Russian switching mid-sentence. | 2 Considered |
-| E3 | Business model for EU scale | A licence per hospital server is the working idea; the rest is team-level work. | 1 Aware |
-| E4 | Market-entry requirements and costs | No CE marking, as it is not a medical device. GDPR and a DPIA apply, and hospitals fall under NIS2, which an offline design makes easier to meet. Costs not estimated yet. | 2 Considered |
-| E5 | EU funding and growth pathway | Around TRL 4 to 5 (validated on benchmarks and a live test, not yet in a hospital). EIC Transition or Digital Europe and EDIH services fit that stage, and Moldova is associated to both Horizon Europe and Digital Europe. | 2 Considered |
-
-## The demo recording
-
-The five speakers in the GIF are public recordings: four from the held-out
-part of Common Voice 22 (Romanian and Russian, CC0) and one from
-LibriSpeech test-clean (English, CC BY 4.0). None of them is in our training
-data. Their names come from Moldova's Public Services Agency birth records
-for 2025: David and Sofia were the most given names, Maria was fourth among
-girls, Alexandru seventh and Ion twentieth among boys
-([diez.md, from the agency's data](https://diez.md/2025/12/26/topul-celor-mai-populare-prenume-de-baieti-si-fete-pe-care-le-au-ales-parintii-din-moldova-in-2025/);
-David and Sofia also led in 2018, [IPN](https://www.ipn.md/en/david-and-sofia-are-most-popular-names-in-moldova-7967_1046798.html)).
-Voices were matched to names by the speakers' recorded gender.
-
-`python -m demo.make_demo` rebuilds the recording and its answer key, and
-`vhs demo/cli.tape` records the GIF. In the recording, all 17 real turns
-went to the right person, including every time someone came back after
-another person spoke. It also shows one mistake we are still working on:
-after the long pause following the introductions, the first second of speech
-became a separate 1.5-second "Speaker 6". We left it in.
-
-## Known limitations
-
-- Far-microphone accuracy is 66.5% on AMI, against 15.6% DER (84.4%
-  accuracy) for the best paid model. Closer microphones help most.
-- After a long silence, the first second of the next speaker is sometimes
-  labelled before the voice is recognised, which leaves a short extra
-  speaker. The final pass fixes most of these, but not all.
-- Accuracy on real Medpark meetings is unmeasured until someone labels a
-  few minutes of them.
-- A recording is decoded into memory whole: fine up to several hours on 8
-  GB, but not built for day-long files.
-- At most two people are recognised talking at the same moment.
+| Idea | Result |
+|---|---|
+| Laya classifier as a meaning check on the minutes | 4 of 19 broken summaries caught, same as our code checks, plus 1 false alarm |
+| Laya to triage transcript lines | kept 54 of 58 key lines but still sent 42% to the model, 429 ms per line |
+| Laya for meeting type | 10 / 16, and 0 of 4 administrative meetings; the local model got 15 / 16 |
+| A debate between several models over every transcribed sentence | 81 min for 11.7 min of audio, character error 0.46 vs 0.47 without it |
+| Speech enhancement before recognition | published results show it usually hurts recognition; kept only as a bake-off option |
 
 ## Tech stack
 
-| Part | What we used |
+| Part | Stack |
 |---|---|
-| Language | Python 3.11 |
-| Neural inference | ONNX Runtime 1.23.2 and sherpa-onnx 1.13 (C++ under the hood) |
-| Speech segmentation | pyannote segmentation 3.0 (MIT), plus our fine-tuned version |
-| Voiceprints | NVIDIA NeMo TitaNet-small (Apache 2.0) |
-| Far-microphone projection | LDA and WCCN, trained by us on 38 AMI meetings |
-| Numerics | numpy 2.4, scipy 1.17 |
-| Audio in | sounddevice 0.5 (microphone), ffmpeg (files) |
-| Terminal screen | rich 15, one amber colour, eighth-block waveform after cava |
-| Training | Kaggle, 2x Tesla T4, PyTorch 2.10, CUDA 12.8, NVIDIA NeMo 3.0, Lightning 2.4, pyannote.audio 4.0.7 |
-| Scoring | our own DER scorer (10 ms frames, no collar, overlap scored, optimal speaker mapping) |
-| Tests | pytest, 74 tests, 849 lines |
-| Design | Figma: 41 screens for desktop, tablet and phone, a 10-section style guide, 12 text styles and 59 colour variables |
-| Demo | VHS by Charm |
+| **Transcription** | faster-whisper (CTranslate2) with Whisper large-v3 and turbo, Silero VAD, SpeD-RoASR, GigaAM-v3, NVIDIA Parakeet-TDT-0.6B-v3, ffmpeg, rapidfuzz, wordfreq, llama.cpp |
+| **Who spoke when** | pyannote segmentation 3.0 plus our fine-tune, NVIDIA NeMo TitaNet-small, ONNX Runtime 1.23 and sherpa-onnx 1.13 (C++), numpy, scipy, LDA/WCCN projection trained on AMI, sounddevice, rich |
+| **Minutes** | Ollama serving qwen3:8b on 127.0.0.1, JSON-schema extraction, rapidfuzz, XeLaTeX (TeX Live) with our `medpark-mom.cls` and polyglossia, PDF/A-2b, python-docx, Montserrat and PT Serif |
+| **Backend** | Python 3.14, FastAPI, SQLite job queue, stdlib scrypt, SMTP EmailService, Mailpit, Docker Compose (internal network), uv; optional n8n webhook in front of delivery |
+| **Web app** | React 19, TypeScript 6, Vite 8, React Router 7, i18next (EN/RO/RU), react-icons, Onest, Golos Text and Geist Mono served locally |
+| **Quality** | pytest, Vitest 5, Testing Library, Playwright 1.59 with axe-core, oxlint, Prettier, gstack headless-browser QA |
+| **Training** | Kaggle 2× T4, PyTorch 2.10, CUDA 12.8, NVIDIA NeMo 3.0, Lightning 2.4, pyannote.audio 4.0.7, torchaudio MMS aligner, our strict DER and CER/WER scorers |
+| **Design** | Figma: 41 screens for desktop, tablet and phone, 10-section style guide, 12 text styles, 59 colour variables ([file](https://www.figma.com/design/5gmJObntS61v2ehrmh01j9)); tokens in [DESIGN.md](DESIGN.md) |
+| **Demo** | OpenScreen for screen capture, Kokoro-82M for offline narration, VHS for the terminal GIF |
 
-About 3,900 lines of Python in the diarizer, evaluation and training code,
-built in 36 commits between the evening of 25 September and the afternoon
-of 26 September 2026.
+About 28,000 lines of Python and TypeScript: web app 9,500, transcription
+5,900, speaker labels 5,000, minutes 4,900, backend 2,900.
 
-## The design system
+## Tests: 396, all passing
 
-[DESIGN.md](DESIGN.md) and the Figma file describe the web app: three
-sections (Meetings, Action items, People), three steps for every meeting
-(Record, Minutes, Sent), upload or record, pick the meeting type, and the
-minutes send themselves after a 60-second window in which anyone can stop
-them. It covers every loading, error and empty state, English with a
-Romanian and Russian switch, and fully offline operation.
-
-Speaker colours come from Sanzo Wada's *A Dictionary of Colour
-Combinations* (1933), through Matt DesLauriers's
-[open dataset](https://github.com/mattdesl/dictionary-of-colour-combinations)
-(MIT): 50 colours, the first five distinct for every pair even for
-colour-blind viewers, all readable on the page.
-
-## What's here
-
-| Path | What it is |
+| Part | Tests |
 |---|---|
-| `diarization/` | The diarizer: live and file modes, enrollment, the demo, evaluation and training code |
-| `diarization/eval/references/` | Answer keys for all 28 scored test meetings |
-| `diarization/train/kaggle/runs/` | Reports from the four Kaggle training runs |
-| `DESIGN.md`, `PRODUCT.md` | The design system and who the product is for |
-| `data/` | The Medpark sample meeting and the AMI benchmark audio used for scoring |
-| `harvard_health_scraper.py`, `harvard_medical_dictionary.*` | Medical vocabulary for the transcription side |
-| `docs/` | The original design spec for the diarizer |
-
-## How it fits the rest of Secure MOM
+| Minutes | 115, including the full pipeline with sockets blocked and 14 LaTeX injection attempts |
+| Speaker labels | 81 |
+| Transcription | 79 |
+| Backend | 36: auth, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, permissions |
+| Web app | 67 unit, 18 end-to-end in a real browser |
 
 ```bash
-diarizer file meeting.m4a --out sessions/x
-python -m asr_llm.cli meeting.m4a --diarization sessions/x/<id>.json   # samoilov-asr-llm branch
+cd minutes && pytest
+cd diarization && pytest
+cd asr-llm && pytest
+cd backend && uv run pytest
+cd frontend && npm test && npm run e2e
+bash backend/scripts/offline_check.sh     # the network-off proof
 ```
 
-The diarizer writes `turns: [{speaker, start, end}]` in seconds from the
-start of the file. The transcription and minutes step reads exactly those
-fields and gives each transcript line a speaker, so the minutes can say who
-took each action item.
+## Run it
+
+On the reference server (one 16 GB GPU, or 32 GB of RAM):
+
+```bash
+# once, while the network is on
+ollama pull qwen3:8b
+python asr-llm/scripts/fetch_whisper.py large-v3
+pip install -e diarization -e minutes -e 'asr-llm[asr]'
+
+# then unplug it
+cd backend && uv sync && docker compose up -d        # local mail on 127.0.0.1:1025
+LIMINAL_FRONTEND_DIST=../frontend/dist uv run uvicorn main:app --host 127.0.0.1 --port 8000
+```
+
+Each stage also runs alone:
+
+```bash
+diarizer file meeting.m4a                                     # who spoke when
+python -m asr_llm.cli meeting.m4a --skip-llm --out asr.json   # transcription
+mom report transcript.json --type medical --date 2026-09-26   # six documents
+```
+
+Guides: [speaker labels](diarization/README.md) ·
+[transcription](asr-llm/README.md) · [minutes](minutes/README.md) ·
+[backend](backend/README.md) · [web app](frontend/README.md)
+
+## Honest limits
+
+- Far-microphone speaker accuracy is 66.5%. A microphone near the speakers
+  puts a meeting in the 93% rows; Medpark's sample sounds far-field (speech only
+  9 dB above the room).
+- Accuracy on real Medpark meetings is unmeasured until someone labels a few
+  minutes of them. We trained on no hospital audio.
+- At most two people are recognised talking at the same moment.
+- A vague deadline ("early next week") is printed as said, never turned into a
+  made-up date. That is on purpose.
+
+## Team
+
+Cagan (speaker labels, minutes, integration), Volodymyr (transcription),
+Stanislav (web app) and Roman (email delivery), for Medpark International
+Hospital at DeepTech GigaHack 2026.
