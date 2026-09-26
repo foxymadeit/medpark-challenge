@@ -17,16 +17,16 @@ upload / record ─► queue (SQLite) ─► transcription ┐
 cd backend
 uv sync
 docker compose up -d                 # Mailpit: SMTP on 127.0.0.1:1025, inbox at http://127.0.0.1:8025
-cp .env.example .env                 # then set LIMINAL_ADMIN_PASSWORD and the three stage commands
+cp .env.example .env                 # then set the three stage commands
 uv run uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
 Serve the built web app from the same origin with
 `LIMINAL_FRONTEND_DIST=../frontend/dist`, or run Vite with
-`API_PROXY_TARGET=http://127.0.0.1:8000`. On first start the administrator is
-created from `LIMINAL_ADMIN_EMAIL` and `LIMINAL_ADMIN_PASSWORD`; without a
-password a random one is written once to `data/initial-admin-password.txt`
-(mode 0600).
+`API_PROXY_TARGET=http://127.0.0.1:8000`. There is nothing to sign in to:
+opening the app goes straight to the Meetings page, and every page (meetings,
+action items, people, templates, System and administration) is open to anyone
+who can reach the server. Keep it on 127.0.0.1 or on the hospital network only.
 
 On the Linux reference server, `docker compose --profile server up -d` adds
 the backend and Ollama on an internal network with no route out.
@@ -83,7 +83,7 @@ next start.
 
 When someone edits the minutes (the summary, a decision, or an action's text,
 owner or deadline), the server keeps a `corrections` record: meeting, item,
-field, the value before and after, who and when. Nothing else is stored.
+field, the value before and after, and when. Nothing else is stored.
 
 Word swaps inside those edits become glossary candidates: a replaced span of
 one to three words, every word at least four letters on both sides, that
@@ -91,10 +91,10 @@ differs by more than case or punctuation and still looks like the same word
 (similarity 0.6 or more, so "pneumania" to "pneumonia" counts and "aprobat" to
 "respins" does not).
 
-- `GET /api/admin/glossary-candidates` (admin): `[{heard, corrected, count,
+- `GET /api/admin/glossary-candidates`: `[{heard, corrected, count,
   meetingIds, lang, approved}]`, most frequent first. `lang` is a guess
-  (Cyrillic is `ru`, anything else `ro`); the administrator can change it.
-- `POST /api/admin/glossary-candidates/approve` (admin) with
+  (Cyrillic is `ru`, anything else `ro`); whoever approves can change it.
+- `POST /api/admin/glossary-candidates/approve` with
   `{heard, corrected, lang}` appends `{"source": "site", "<lang>": corrected,
   "heard": heard}` to `LIMINAL_DATA/site_glossary.json` (mode 0600), in the
   same `aligned` row shape as `medical_ro_ru_en.json`. Approving twice adds
@@ -118,10 +118,9 @@ retrained. To take a term back out, delete its row from the file.
 | Area | What the server does |
 |---|---|
 | Network | `offline.block_outbound()` refuses every non-loopback connection in-process; compose publishes ports on 127.0.0.1 only; the service network is `internal` |
-| Accounts | scrypt password hashes, generic login errors, 5 failures per account and address (20 per address) in 15 minutes |
-| Sessions | random token in an HttpOnly, SameSite=Strict cookie (`Secure` with `LIMINAL_SECURE_COOKIES=1`), only its SHA-256 stored, 30 min idle, 12 h absolute |
+| Access | no accounts, no passwords, no sessions: anyone who can reach the server uses every page and every meeting, so access is limited by where it runs (127.0.0.1, or the hospital network only) |
+| Audit | every change, and every read of a recording, transcript or document, is kept with the time, the network address, the route, the meeting and the result, never the content; the table is append-only |
 | CSRF | state-changing `/api` requests need an Origin or Referer from this server or `LIMINAL_ALLOWED_ORIGINS` |
-| Access | meetings visible to their creator and administrators; System and admin routes need the admin role |
 | Uploads | streamed to a random name, type checked by its bytes, decoded by ffprobe (files only, no protocols), 500 MB and 3 h limits, stored 0600 |
 | Files | documents are served only from the meeting's own minutes folder |
 | Headers | CSP `default-src 'self'`, no framing, `nosniff`, `no-store` on the API |
@@ -139,7 +138,7 @@ receives a structured `minutes` payload and sends it through SMTP.
 
 ## Workflow
 
-1. An administrator (or a script signed in as one) sends a `minutes` object to `POST /api/email/send`; it passes the same origin check and audit trail as every other `/api` route.
+1. A page or script on the hospital network sends a `minutes` object to `POST /api/email/send`; it passes the same origin check and audit trail as every other `/api` route.
 2. The backend selects the configured recipient list for that meeting type.
 3. It sends one email to the meeting distribution list and separate copies to unique participant addresses.
 4. In local development, Mailpit captures the outgoing messages instead of delivering them externally.
@@ -235,6 +234,6 @@ uv run python -m pytest
 The email tests use mocked SMTP; `tests/test_mail_roundtrip.py` sends a real
 message with three PDFs to an in-process SMTP server on loopback.
 `tests/test_liminal.py` runs the whole API with fake pipeline stages
-(`tests/fake_stages/`): auth, CSRF, uploads, the queue and its restart
+(`tests/fake_stages/`): open access with no cookie, CSRF, uploads, the queue and its restart
 recovery, auto send, stop-send, confirmations, failed delivery and the
 network guard.

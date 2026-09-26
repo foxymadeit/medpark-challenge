@@ -3,7 +3,6 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-import security
 from main import app
 from schemas import Minutes
 from services.EmailService import (
@@ -14,8 +13,6 @@ from services.EmailService import (
 
 class EmailEndpointTests(unittest.TestCase):
 	def setUp(self) -> None:
-		app.dependency_overrides[security.require_admin] = lambda: {"id": "admin", "role": "admin"}
-		self.addCleanup(app.dependency_overrides.clear)
 		self.client = TestClient(app, headers={"Origin": "http://testserver"})
 
 	def _payload(self) -> dict:
@@ -115,6 +112,6 @@ class EmailEndpointTests(unittest.TestCase):
 if __name__ == "__main__":
 	unittest.main()
 
-def test_nobody_signed_out_can_send_mail():
-	client = TestClient(app, headers={"Origin": "http://testserver"})
-	assert client.post("/api/email/send", json={"minutes": {}}).status_code == 401
+def test_a_page_from_another_site_cannot_send_mail():
+	client = TestClient(app, headers={"Origin": "http://evil.example"})
+	assert client.post("/api/email/send", json={"minutes": {}}).status_code == 403
