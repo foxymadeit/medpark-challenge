@@ -404,7 +404,7 @@ About 28,000 lines of Python and TypeScript: web app 9,500, transcription
 |---|---|
 | Minutes | 115, including the full pipeline with sockets blocked and 14 LaTeX injection attempts |
 | Speaker labels | 79 |
-| Transcription | 81 (2 more skip without model files) |
+| Transcription | 81 (2 training-data tests skip unless the training extras are installed) |
 | Backend | 36: auth, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, permissions |
 | Web app | 67 unit, 18 end-to-end in a real browser |
 
