@@ -68,6 +68,8 @@ def test_transcript_to_six_documents_offline(tmp_path, no_network):
     assert a1["deadline"] == "2026-09-30" and a1["status"] == "ok"
     a2 = next(f for f in facts["facts"] if f["id"] == "A2")
     assert a2["status"] == "confirm"
+    app = json.loads(open(result["meeting"], encoding="utf-8").read())
+    assert app["actionItems"][0]["deadline"] == "2026-09-30" and app["reviewFlags"]
 
 
 def test_purge_deletes_only_old_minutes_files(tmp_path):

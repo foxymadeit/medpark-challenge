@@ -1,0 +1,114 @@
+{
+ "session_start": "2026-09-24T14:10:00.000",
+ "source": "diarization/demo/meeting.wav (reference turns)",
+ "model": "titanet_small",
+ "speakers": {
+  "Ion Rusu": {
+   "talk_time": 10.4,
+   "turns": 2
+  },
+  "Maria Ciobanu": {
+   "talk_time": 15.7,
+   "turns": 4
+  },
+  "Speaker 1": {
+   "talk_time": 18.92,
+   "turns": 3
+  },
+  "Speaker 2": {
+   "talk_time": 31.54,
+   "turns": 4
+  },
+  "Speaker 3": {
+   "talk_time": 15.94,
+   "turns": 4
+  }
+ },
+ "turns": [
+  {
+   "speaker": "Ion Rusu",
+   "start": 1.0,
+   "end": 4.26
+  },
+  {
+   "speaker": "Maria Ciobanu",
+   "start": 5.46,
+   "end": 8.56
+  },
+  {
+   "speaker": "Speaker 1",
+   "start": 9.76,
+   "end": 14.94
+  },
+  {
+   "speaker": "Speaker 2",
+   "start": 16.14,
+   "end": 19.4
+  },
+  {
+   "speaker": "Speaker 3",
+   "start": 20.6,
+   "end": 25.54
+  },
+  {
+   "speaker": "Speaker 1",
+   "start": 33.944,
+   "end": 43.684
+  },
+  {
+   "speaker": "Maria Ciobanu",
+   "start": 44.107,
+   "end": 48.707
+  },
+  {
+   "speaker": "Speaker 3",
+   "start": 49.703,
+   "end": 56.823
+  },
+  {
+   "speaker": "Speaker 2",
+   "start": 56.095,
+   "end": 66.755
+  },
+  {
+   "speaker": "Speaker 3",
+   "start": 67.328,
+   "end": 69.188
+  },
+  {
+   "speaker": "Speaker 2",
+   "start": 69.397,
+   "end": 80.737
+  },
+  {
+   "speaker": "Speaker 1",
+   "start": 81.233,
+   "end": 85.233
+  },
+  {
+   "speaker": "Maria Ciobanu",
+   "start": 86.137,
+   "end": 90.137
+  },
+  {
+   "speaker": "Speaker 3",
+   "start": 90.93,
+   "end": 92.95
+  },
+  {
+   "speaker": "Maria Ciobanu",
+   "start": 93.439,
+   "end": 97.439
+  },
+  {
+   "speaker": "Speaker 2",
+   "start": 97.759,
+   "end": 104.039
+  },
+  {
+   "speaker": "Ion Rusu",
+   "start": 104.724,
+   "end": 111.864
+  }
+ ]
+}

@@ -107,14 +107,23 @@ def _json_rows(data) -> list:
     return rows
 
 
+MAX_GAP = 2.0   # same as `diarizer attach`: a line in a pause goes to the nearest turn this close
+
+
 def _attach(rows, turns) -> list:
+    """The diarizer's speakers win over any label the ASR wrote: each line goes
+    to the speaker with the most overlapping time (summed over their turns),
+    else to the nearest turn within MAX_GAP s, else keeps what it had.
+    Same rule as diarization/diarizer/attach.py."""
+    # ponytail: O(lines x turns), about 0.5 M steps for an hour; bisect like attach.py if it ever shows up in a profile
     for row in rows:
-        if row[2]:
-            continue
-        best, overlap = "", 0.0
+        overlap, nearest, gap = {}, "", MAX_GAP
         for t in turns:
+            who = str(t.get("speaker") or "")
             o = min(row[1], float(t.get("end", 0))) - max(row[0], float(t.get("start", 0)))
-            if o > overlap:
-                best, overlap = str(t.get("speaker", "")), o
-        row[2] = best
+            if o > 0:
+                overlap[who] = overlap.get(who, 0.0) + o
+            elif -o <= gap:
+                nearest, gap = who, -o
+        row[2] = max(overlap, key=overlap.get) if overlap else (nearest or row[2])
     return rows

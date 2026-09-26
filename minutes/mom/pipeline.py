@@ -10,6 +10,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from . import latexcheck, render_docx, render_pdf
+from .export import meeting_json
 from .anonymize import anonymize_text
 from .extract import extract
 from .normalize import load_transcript
@@ -98,7 +99,11 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
     fresh(facts_path).write_text(json.dumps({"meeting": to_dict(meeting), "patients": [{"initials": anonymize_text(p["name"], [p]), "age": p["age"], "bed": p["bed"]} for p in patients],
                                       "facts": [to_dict(f) for f in facts]}, ensure_ascii=False, indent=1), encoding="utf-8")
     os.chmod(facts_path, 0o600)
-    result = {"files": files, "facts": str(facts_path), "checks": counts, "writing": write_reports,
+    app_path = out_dir / f"{stem}.meeting.json"   # the web app's Meeting shape, in the first language
+    fresh(app_path).write_text(json.dumps(meeting_json(meeting, facts, lines, bodies[langs[0]], langs[0], patients),
+                                          ensure_ascii=False, indent=1), encoding="utf-8")
+    os.chmod(app_path, 0o600)
+    result = {"files": files, "facts": str(facts_path), "meeting": str(app_path), "checks": counts, "writing": write_reports,
               "timings_s": {k: round(v, 1) for k, v in timings.items()}, "llm": dict(getattr(llm, "stats", {})),
               "lines": len(lines), "model": model,
               "model_digest": llm.digest() if hasattr(llm, "digest") else ""}
