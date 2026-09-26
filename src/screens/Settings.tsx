@@ -6,6 +6,7 @@ import { Dialog } from '../components/Dialog';
 import { Segmented } from '../components/Segmented';
 import { TextField } from '../components/TextField';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
+import { isEmail } from '../lib/format';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES, type MeetingType, type Preferences } from '../types';
 
@@ -17,6 +18,7 @@ export function Settings() {
   const { t, lang, setLang } = useI18n();
   const navigate = useNavigate();
   const { account, draft, preferences, updateAccount, updatePreferences, resetDemo } = useStore();
+  const [email, setEmail] = useState(account?.email ?? '');
   const [name, setName] = useState(account?.name ?? '');
   const [role, setRole] = useState(account?.role ?? '');
   const [department, setDepartment] = useState(account?.department ?? '');
@@ -24,19 +26,35 @@ export function Settings() {
   const [type, setType] = useState<MeetingType>(account?.meetingTypes[0] ?? draft.type);
   const [prefs, setPrefs] = useState<Preferences>(preferences);
   const [error, setError] = useState<string>();
+  const [emailError, setEmailError] = useState<string>();
   const [saved, setSaved] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
   if (!account) return null;
   const touch = () => setSaved(false);
+  const savedType = account.meetingTypes[0] ?? draft.type;
+  // The Save button only appears once something differs from what is stored.
+  const dirty =
+    name !== account.name ||
+    role !== (account.role ?? '') ||
+    department !== (account.department ?? '') ||
+    email !== account.email ||
+    uiLang !== lang ||
+    type !== savedType ||
+    prefs.reviewMode !== preferences.reviewMode ||
+    prefs.notifyReady !== preferences.notifyReady;
 
   const save = () => {
-    if (!name.trim()) return setError(t('common.required'));
-    setError(undefined);
+    const nameErr = name.trim() ? undefined : t('common.required');
+    const mailErr = isEmail(email.trim()) ? undefined : t('common.emailInvalid');
+    setError(nameErr);
+    setEmailError(mailErr);
+    if (nameErr || mailErr) return;
     updateAccount({
       name: name.trim(),
       role: role.trim(),
       department: department.trim(),
+      email: email.trim(),
       meetingTypes: [type, ...account.meetingTypes.filter((m) => m !== type)],
     });
     updatePreferences(prefs);
@@ -53,14 +71,23 @@ export function Settings() {
 
       <div className="settings__cols">
         <section className="card card--pad settings__section" aria-labelledby="set-profile">
-          <h2 id="set-profile" className="t-h3">
+          <h2 id="set-profile" className="section-title">
             {t('settings.profile')}
           </h2>
-          <TextField label={t('signup.fullName')} value={name} onChange={(e) => (setName(e.target.value), touch())} error={error} autoComplete="name" />
-          <TextField label={t('onboarding.about.role')} placeholder={t('onboarding.about.rolePh')} value={role} onChange={(e) => (setRole(e.target.value), touch())} />
-          <TextField label={t('onboarding.about.department')} placeholder={t('onboarding.about.departmentPh')} value={department} onChange={(e) => (setDepartment(e.target.value), touch())} />
+          <TextField editable label={t('signup.fullName')} value={name} onChange={(e) => (setName(e.target.value), touch())} error={error} autoComplete="name" />
+          <TextField editable label={t('onboarding.about.role')} placeholder={t('onboarding.about.rolePh')} value={role} onChange={(e) => (setRole(e.target.value), touch())} />
+          <TextField editable label={t('onboarding.about.department')} placeholder={t('onboarding.about.departmentPh')} value={department} onChange={(e) => (setDepartment(e.target.value), touch())} />
           <div className="stack" style={{ gap: 8 }}>
-            <TextField label={t('signup.email')} value={account.email} readOnly aria-describedby="set-email-note" className="settings__readonly" />
+            <TextField
+              editable
+              type="email"
+              autoComplete="email"
+              label={t('settings.workEmail')}
+              value={email}
+              onChange={(e) => (setEmail(e.target.value), setEmailError(undefined), touch())}
+              error={emailError}
+              aria-describedby="set-email-note"
+            />
             <p id="set-email-note" className="note">
               {t('settings.emailNote')}
             </p>
@@ -69,7 +96,7 @@ export function Settings() {
 
         <div className="stack" style={{ gap: 16 }}>
           <section className="card card--pad settings__section" aria-labelledby="set-prefs">
-            <h2 id="set-prefs" className="t-h3">
+            <h2 id="set-prefs" className="section-title">
               {t('settings.preferences')}
             </h2>
             <div className="field">
@@ -104,20 +131,10 @@ export function Settings() {
               />
               <p className="note">{t('settings.reviewModeHint')}</p>
             </div>
-            <div className="field">
-              <span className="field__label">{t('settings.countdown')}</span>
-              <Segmented<string>
-                label={t('settings.countdown')}
-                variant="fill"
-                value={String(prefs.autoSendSeconds)}
-                onChange={(v) => (setPrefs((p) => ({ ...p, autoSendSeconds: Number(v) })), touch())}
-                options={['15', '30', '60'].map((n) => ({ value: n, label: t('settings.seconds', { n }) }))}
-              />
-            </div>
           </section>
 
           <section className="card card--pad settings__section" aria-labelledby="set-notif">
-            <h2 id="set-notif" className="t-h3">
+            <h2 id="set-notif" className="section-title">
               {t('settings.notifications')}
             </h2>
             <label className="settings__check">
@@ -129,9 +146,9 @@ export function Settings() {
             </label>
           </section>
 
-          <section className="tile settings__section settings__demo" aria-labelledby="set-demo">
+          <section className="settings__demo" aria-labelledby="set-demo">
             <div className="stack" style={{ gap: 4, flex: 1 }}>
-              <h2 id="set-demo" className="t-h3">
+              <h2 id="set-demo" className="section-title">
                 {t('settings.demo')}
               </h2>
               <p className="note">{t('settings.demoLead')}</p>
@@ -148,7 +165,8 @@ export function Settings() {
             {t('settings.saved')}
           </p>
         )}
-        <Button variant="primary" onClick={save}>
+        {/* Dimmed until something differs from what is saved. */}
+        <Button variant="primary" icon={<CheckIcon size={20} aria-hidden />} onClick={save} disabled={!dirty}>
           {t('settings.save')}
         </Button>
       </div>

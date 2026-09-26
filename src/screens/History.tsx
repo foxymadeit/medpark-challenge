@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
-import { groupTasks, TranscriptLines } from '../components/Minutes';
+import { Avatar } from '../components/Avatar';
+import { TranscriptLines } from '../components/Minutes';
 import { StatusTag } from '../components/StatusTag';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatDayMonth, formatFullDate } from '../lib/format';
@@ -170,7 +171,7 @@ export function HistoryRecord() {
 
       <div className="record__panes">
         <section className="card record__people" aria-labelledby="rec-people">
-          <h2 id="rec-people" className="t-h3 record__people-head">
+          <h2 id="rec-people" className="section-title record__people-head">
             {t('record.participants')}
           </h2>
           <ul className="record__list">
@@ -191,25 +192,39 @@ export function HistoryRecord() {
         </section>
 
         <section className="card card--pad record__minutes" aria-labelledby="rec-minutes">
-          <h2 id="rec-minutes" className="t-h3">
+          <h2 id="rec-minutes" className="section-title">
             {t('record.minutes')}
           </h2>
-          {groupTasks(meeting.tasks).map((g) => (
-            <div key={g.ownerId} className="stack" style={{ gap: 8 }}>
-              <p className="t-strong">{nameOf(g.ownerId)}</p>
-              {g.patients.map((p) => (
-                <div key={p.patient} className="stack" style={{ gap: 8 }}>
-                  <p className="t-plate c-secondary">{t('review.patient', { name: p.patient })}</p>
-                  {p.tasks.map((task) => (
-                    <div key={task.id} className="task">
+          <table className="summary-table">
+            <thead>
+              <tr>
+                <th scope="col">{t('review.task')}</th>
+                <th scope="col">{t('review.owner')}</th>
+                <th scope="col">{t('review.due')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...meeting.tasks]
+                .sort((a, b) => a.due.localeCompare(b.due))
+                .map((task) => (
+                  <tr key={task.id}>
+                    <td>
+                      <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>
                       <span className="t-body-md">{task.title}</span>
-                      <span className="t-data-sm">{formatDayMonth(task.due, lang)}</span>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-          ))}
+                    </td>
+                    <td>
+                      <span className="summary-table__owner">
+                        <Avatar name={nameOf(task.ownerId)} />
+                        <span className="who__name truncate" style={{ paddingTop: 5 }}>
+                          {nameOf(task.ownerId)}
+                        </span>
+                      </span>
+                    </td>
+                    <td className="t-data-sm">{formatDayMonth(task.due, lang)}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
           <button type="button" className="link-btn no-print" onClick={() => setTranscriptOpen(true)}>
             <FileAudioIcon size={16} aria-hidden />
             {t('record.openTranscript')}

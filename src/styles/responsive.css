@@ -81,11 +81,13 @@
 /* ── ≤640: phone ── */
 @media (max-width: 640px) {
   .topbar__right { gap: var(--sm-space-2); }
-  .account__button .t-button, .account__button > svg { display: none; }
+  .account__button .account__text, .account__button > svg { display: none; }
   .account__button { padding: 0 4px; }
   .brand__name { display: none; }
 
   .page { padding: 24px 16px; }
+  .page__head--row { flex-wrap: wrap; gap: var(--sm-space-4); }
+  .type-options { grid-template-columns: 1fr; }
   .review { padding: 20px 16px 0; }
   .onb { padding: 32px 16px; }
   .recording { padding: 24px 16px; }
@@ -137,9 +139,19 @@
   .action-bar__left { position: static; transform: none; flex: 1 1 100%; justify-content: center; text-align: center; }
   .review__panes { padding-bottom: 168px; }
   .owner-group__head { row-gap: 0; }
+  .summary-table thead { display: none; }
+  .summary-table, .summary-table tbody { display: block; }
+  .summary-table tr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 0; border-bottom: 1px solid var(--sm-surface-hairline); }
+  .summary-table tbody tr:last-child { border-bottom: 0; }
+  .summary-table td, .summary-table td:first-child, .summary-table td:last-child { display: block; width: auto; padding: 0; border: 0; }
+  .summary-table td:first-child { flex: 1 1 calc(100% - 44px); }
+  .summary-table td:nth-child(2) { flex: 1 1 60%; min-width: 0; }
+  .summary-table td:nth-child(3) { padding: 0; }
+  .summary-table tr.is-editing { padding: 12px; border-radius: 10px; background: var(--sm-surface-ground); }
+  .summary-table tr.is-editing td { background: none; flex: 1 1 100%; }
 
   .tpl-card__actions { flex-wrap: wrap; }
-  .tpl-people-preview { flex: 1 1 100%; }
+  .tpl-card__actions .people-stack { flex: 1 1 100%; }
   .settings__demo { flex-direction: column; align-items: stretch; }
   .frozen-banner { align-items: flex-start; }
 

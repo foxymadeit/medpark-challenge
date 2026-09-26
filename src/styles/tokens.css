@@ -6,10 +6,22 @@
   --sm-surface-panel: #ffffff;
   --sm-surface-hairline: #eae6df;
 
-  /* ink — ink-primary is the ONLY accent */
+  /* ink — text colours */
   --sm-ink-primary: #101010;
   --sm-ink-secondary: #5b544b;
   --sm-ink-tertiary: #6f685f;
+
+  /* Controls (user feedback 26 Sep): calm graphite for selected chips / segmented / checkboxes,
+     one action colour for the main call to action on each screen. */
+  --sm-control: #4a4f57;
+  --sm-control-hover: #3e424a;
+  --sm-action: #1f5fd1;
+  --sm-action-hover: #1a50b3;
+  --sm-action-tint: #eaf1fd;
+  --sm-success: #1e7f4f; /* completed milestones only */
+  --sm-success-tint: #e3f3ea;
+  /* Container titles sit a step quieter than the content inside them. */
+  --sm-title-muted: var(--sm-ink-secondary);
 
   /* signal — errors only */
   --sm-signal-danger: #b3261e;

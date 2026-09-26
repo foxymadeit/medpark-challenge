@@ -87,16 +87,16 @@ function useStoreValue() {
     setState((s) => {
       if (!s.account) return s;
       const account = { ...s.account, ...patch };
-      const people = s.people.map((p) => (p.id === account.personId ? { ...p, name: account.name, role: account.role } : p));
+      const people = s.people.map((p) => (p.id === account.personId ? { ...p, name: account.name, role: account.role, email: account.email } : p));
       const draft = patch.meetingTypes?.length ? { ...s.draft, type: patch.meetingTypes[0] } : s.draft;
       return { ...s, account, people, draft };
     });
   }, []);
 
-  const preferences: Preferences = { reviewMode: 'manual', autoSendSeconds: 30, notifyReady: true, ...state.account?.preferences };
+  const preferences: Preferences = { reviewMode: 'manual', notifyReady: true, ...state.account?.preferences };
 
   const updatePreferences = useCallback((patch: Partial<Preferences>) => {
-    setState((s) => (s.account ? { ...s, account: { ...s.account, preferences: { reviewMode: 'manual', autoSendSeconds: 30, notifyReady: true, ...s.account.preferences, ...patch } } } : s));
+    setState((s) => (s.account ? { ...s, account: { ...s.account, preferences: { reviewMode: 'manual', notifyReady: true, ...s.account.preferences, ...patch } } } : s));
   }, []);
 
   const logOut = useCallback(() => setState((s) => ({ ...s, signedIn: false })), []);
@@ -120,7 +120,12 @@ function useStoreValue() {
   }, []);
 
   const removePerson = useCallback((id: string) => {
-    setState((s) => ({ ...s, people: s.people.filter((p) => p.id !== id) }));
+    // Also drop them from templates; sent meetings keep their frozen participant snapshot.
+    setState((s) => ({
+      ...s,
+      people: s.people.filter((p) => p.id !== id),
+      templates: s.templates.map((tpl) => (tpl.participantIds.includes(id) ? { ...tpl, participantIds: tpl.participantIds.filter((x) => x !== id) } : tpl)),
+    }));
   }, []);
 
   const setDraft = useCallback((patch: Partial<Draft>) => setState((s) => ({ ...s, draft: { ...s.draft, ...patch } })), []);

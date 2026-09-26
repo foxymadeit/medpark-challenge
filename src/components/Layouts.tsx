@@ -23,7 +23,7 @@ function LanguageSwitch() {
 /** Avatar + name → menu with the user's details, Settings and Log out. */
 function AccountMenu() {
   const { t } = useI18n();
-  const { account, logOut } = useStore();
+  const { account, logOut, resolvePerson } = useStore();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
@@ -38,6 +38,7 @@ function AccountMenu() {
   }, [open]);
 
   if (!account) return null;
+  const access = resolvePerson(account.personId)?.access;
 
   const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -61,7 +62,10 @@ function AccountMenu() {
     <div className="account" ref={wrap} onKeyDown={onKey}>
       <button ref={button} type="button" className="account__button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <Avatar name={account.name} strong />
-        <span className="t-button">{account.name}</span>
+        <span className="account__text">
+          <span className="t-button">{account.name}</span>
+          {access && <span className="account__status">{t(`accessTitle.${access}`)}</span>}
+        </span>
         <CaretDownIcon size={16} aria-hidden />
       </button>
       {open && (

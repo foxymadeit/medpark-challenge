@@ -32,7 +32,7 @@
   display: flex;
   align-items: center;
   gap: var(--sm-space-2);
-  height: 40px;
+  height: 44px;
   padding: 0 var(--sm-space-2) 0 4px;
   border: 0;
   border-radius: var(--sm-radius-tile);
@@ -41,6 +41,9 @@
 }
 .account__button:hover, .account__button[aria-expanded='true'] { background: var(--sm-surface-ground); }
 .account__button svg { color: var(--sm-ink-secondary); }
+.account__text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+.account__text .t-button { line-height: 18px; }
+.account__status { color: var(--sm-ink-secondary); font: 400 12px/16px var(--sm-font-body); }
 .account__menu {
   position: absolute;
   top: calc(100% + 8px);
@@ -109,6 +112,8 @@
   padding: var(--sm-space-12);
 }
 .page__head { display: flex; flex-direction: column; gap: var(--sm-space-2); }
+/* Title on the left, the page's main action top right. */
+.page__head--row { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: var(--sm-space-6); }
 .page__actions {
   display: flex;
   align-items: center;

@@ -25,8 +25,8 @@ export interface Account {
 }
 
 export interface Preferences {
+  /** auto = minutes are sent as soon as processing finishes, without review. */
   reviewMode: 'manual' | 'auto';
-  autoSendSeconds: number;
   notifyReady: boolean;
 }
 

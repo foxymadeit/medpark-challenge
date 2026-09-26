@@ -1,10 +1,10 @@
-import { ArrowsLeftRightIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, PlusIcon, UserPlusIcon } from '@phosphor-icons/react';
+import { ArrowsLeftRightIcon, CheckIcon, MicrophoneIcon, PencilSimpleIcon, PlusIcon, UserPlusIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
-import { PersonProfileDialog } from '../components/PersonProfile';
+import { PeopleStack } from '../components/PeopleStack';
 import { Segmented } from '../components/Segmented';
 import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
@@ -43,7 +43,8 @@ function ReplacePersonDialog({ person, options, onPick, onNew, onClose }: { pers
 /** T02 — template editor, shown as a centred modal. */
 function EditTemplatePanel({ template, onClose }: { template?: Template; onClose: () => void }) {
   const { t } = useI18n();
-  const { account, people, resolvePerson, saveTemplate } = useStore();
+  const { account, people, resolvePerson, saveTemplate, addPerson } = useStore();
+  const [newName, setNewName] = useState('');
   const [name, setName] = useState(template?.name ?? '');
   const [type, setType] = useState<MeetingType>(template?.type ?? 'medical');
   const [selected, setSelected] = useState<string[]>(template?.participantIds ?? people.map((p) => p.id));
@@ -64,6 +65,21 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
   const replace = (oldId: string, newId: string) =>
     setSelected((s) => (s.includes(newId) ? s.filter((x) => x !== oldId) : s.includes(oldId) ? s.map((x) => (x === oldId ? newId : x)) : [...s, newId]));
 
+  // Placeholder row at the bottom: type a name, Enter adds and ticks them. Details can be filled on Participants.
+  const addByName = () => {
+    const n = newName.trim();
+    if (!n) return;
+    add(addPerson({ name: n, role: '', access: 'receives' }));
+    setNewName('');
+  };
+
+  const initial = template?.participantIds ?? people.map((p) => p.id);
+  const dirty =
+    name.trim() !== (template?.name ?? '') ||
+    type !== (template?.type ?? 'medical') ||
+    selected.length !== initial.length ||
+    selected.some((id, i) => id !== initial[i]);
+
   const save = () => {
     if (!name.trim()) return setError(t('common.required'));
     saveTemplate({ id: template?.id, name: name.trim(), type, participantIds: selected });
@@ -72,25 +88,24 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
 
   return (
     <Dialog title={template ? t('templates.panelTitle') : t('templates.new')} onClose={onClose} wide>
-      <TextField label={t('templates.name')} value={name} onChange={(e) => setName(e.target.value)} error={error} />
+      <TextField editable label={t('templates.name')} value={name} onChange={(e) => (setName(e.target.value), setError(undefined))} error={error} />
       <div className="field">
         <span className="field__label">{t('templates.type')}</span>
         <Segmented<MeetingType> label={t('templates.type')} variant="fill" value={type} onChange={setType} options={MEETING_TYPES.map((m) => ({ value: m, label: t(`typesShort.${m}`) }))} />
       </div>
       <fieldset className="tpl-people">
         <legend className="tpl-people__head">
-          <span className="t-strong">{t('templates.participants')}</span>
-          <span className="tpl-people__tools">
-            <span className="note">{t('templates.selected', { n: selected.length, total: candidates.length })}</span>
-            <button type="button" className="icon-btn" aria-label={t('templates.addPerson')} title={t('templates.addPerson')} onClick={() => setCreating('add')}>
-              <PlusIcon size={20} aria-hidden />
-            </button>
+          <span className="row" style={{ gap: 8 }}>
+            <UsersThreeIcon size={20} aria-hidden />
+            <span className="t-strong">{t('templates.participants')}</span>
           </span>
+          <span className="note">{t('templates.selected', { n: selected.length, total: candidates.length })}</span>
         </legend>
         {candidates.map((p) => (
           <div key={p.id} className="tpl-person">
             <label className="tpl-person__main">
               <input type="checkbox" className="checkbox" checked={selected.includes(p.id)} onChange={() => toggle(p.id)} />
+              <Avatar name={p.name} />
               <span className="t-strong">{p.name}</span>
               {p.id === account?.personId && <span className="tag tag--me">{t('common.me')}</span>}
               <span className="note truncate">{p.role}</span>
@@ -100,9 +115,31 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
             </button>
           </div>
         ))}
+        <div className="tpl-person tpl-person--new">
+          <span className="tpl-person__plus" aria-hidden>
+            <PlusIcon size={16} weight="bold" />
+          </span>
+          <input
+            className="tpl-person__input"
+            placeholder={t('templates.newParticipantPh')}
+            aria-label={t('templates.addPerson')}
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addByName())}
+          />
+          {newName.trim() ? (
+            <Button variant="ghost" icon={<CheckIcon size={16} aria-hidden />} onClick={addByName}>
+              {t('templates.add')}
+            </Button>
+          ) : (
+            <button type="button" className="link-btn tpl-person__details" onClick={() => setCreating('add')}>
+              {t('templates.withDetails')}
+            </button>
+          )}
+        </div>
       </fieldset>
-      <Button variant="primary" block onClick={save}>
-        {t('templates.save')}
+      <Button variant="primary" disabled={!dirty} block onClick={save}>
+        {template ? t('templates.saveChanges') : t('templates.save')}
       </Button>
 
       {replacing && (
@@ -125,34 +162,6 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
   );
 }
 
-/** Overlapping avatars + first names, so each template shows who it invites. */
-function TemplatePeople({ ids }: { ids: string[] }) {
-  const { t } = useI18n();
-  const { account, resolvePerson } = useStore();
-  const [profileId, setProfileId] = useState<string | null>(null);
-  const people = ids.map(resolvePerson).filter((p): p is Person => !!p);
-  const label = (p: Person) => (p.id === account?.personId ? t('common.meName', { name: p.name }) : p.name);
-  const shown = people.slice(0, 2).map(label);
-  const rest = people.length - shown.length;
-  return (
-    <div className="tpl-people-preview">
-      {/* Hover or focus an avatar for the name; click opens the profile. */}
-      <span className="avatar-stack">
-        {people.slice(0, 5).map((p) => (
-          <button key={p.id} type="button" className="avatar-tip" data-name={label(p)} aria-label={t('profile.open', { name: label(p) })} onClick={() => setProfileId(p.id)}>
-            <Avatar name={p.name} />
-          </button>
-        ))}
-      </span>
-      <span className="note truncate">
-        {shown.join(', ')}
-        {rest > 0 && ` ${t('templates.more', { n: rest })}`}
-      </span>
-      {profileId && <PersonProfileDialog personId={profileId} onClose={() => setProfileId(null)} />}
-    </div>
-  );
-}
-
 /** T01 — Templates grid + T02 edit modal. */
 export function Templates() {
   const { t } = useI18n();
@@ -162,9 +171,14 @@ export function Templates() {
 
   return (
     <div className="page">
-      <div className="page__head" style={{ marginBottom: 40 }}>
-        <h1 className="t-h1">{t('templates.title')}</h1>
-        <p className="lead">{t('templates.lead')}</p>
+      <div className="page__head page__head--row" style={{ marginBottom: 40 }}>
+        <div className="page__head">
+          <h1 className="t-h1">{t('templates.title')}</h1>
+          <p className="lead">{t('templates.lead')}</p>
+        </div>
+        <Button variant="primary" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setEditing('new')}>
+          {t('templates.new')}
+        </Button>
       </div>
       <ul className="tpl-grid">
         {templates.map((tpl) => (
@@ -174,7 +188,7 @@ export function Templates() {
               <p className="note">{t('templates.meta', { type: t(`typesShort.${tpl.type}`), count: tpl.participantIds.length })}</p>
             </div>
             <div className="tpl-card__actions">
-              <TemplatePeople ids={tpl.participantIds} />
+              <PeopleStack ids={tpl.participantIds} />
               <Button variant="ghost" icon={<PencilSimpleIcon size={20} aria-hidden />} aria-label={t('templates.editLabel', { name: tpl.name })} onClick={() => setEditing(tpl)}>
                 {t('templates.edit')}
               </Button>
@@ -192,11 +206,6 @@ export function Templates() {
           </li>
         ))}
       </ul>
-      <div className="page__actions">
-        <Button variant="primary" icon={<ListChecksIcon size={20} aria-hidden />} onClick={() => setEditing('new')}>
-          {t('templates.new')}
-        </Button>
-      </div>
       {editing && <EditTemplatePanel template={editing === 'new' ? undefined : editing} onClose={() => setEditing(null)} />}
     </div>
   );

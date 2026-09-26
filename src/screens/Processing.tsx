@@ -8,12 +8,12 @@ import { useStore } from '../store/AppStore';
 
 const STEPS = ['processing.step1', 'processing.step2', 'processing.step3'];
 
-/** 04 — MOCKED processing: 3 timed steps, then the review screen. */
+/** 04 — MOCKED processing: 3 timed steps, then review (manual) or straight to sent (auto). */
 export function Processing() {
   const { t } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { meetings, updateMeeting } = useStore();
+  const { meetings, updateMeeting, sendMeeting, preferences } = useStore();
   const meeting = meetings.find((m) => m.id === id);
   const [elapsed, setElapsed] = useState(0);
   const total = STEPS.length * processingStepMs;
@@ -28,9 +28,15 @@ export function Processing() {
   useEffect(() => {
     if (!meeting || elapsed < total || done.current) return;
     done.current = true; // one-shot: updateMeeting changes `meeting`, which re-runs this effect
+    // Auto mode (Settings): the minutes go out as soon as they are written, no review, no countdown.
+    if (preferences.reviewMode === 'auto') {
+      sendMeeting(meeting.id);
+      navigate(`/sent/${meeting.id}`, { replace: true });
+      return;
+    }
     updateMeeting(meeting.id, { status: 'needs_review' });
     navigate(`/review/${meeting.id}`, { replace: true });
-  }, [elapsed, total, meeting, updateMeeting, navigate]);
+  }, [elapsed, total, meeting, updateMeeting, sendMeeting, preferences.reviewMode, navigate]);
 
   if (!meeting) return <Navigate to="/new" replace />;
   const current = Math.min(STEPS.length - 1, Math.floor(elapsed / processingStepMs));
@@ -46,8 +52,15 @@ export function Processing() {
         <ol className="steps" aria-live="polite">
           {STEPS.map((key, i) => (
             <li key={key} className={`step${i < current ? ' is-done' : i === current ? ' is-active' : ''}`} aria-current={i === current ? 'step' : undefined}>
-              {i < current ? <CheckIcon size={16} aria-hidden /> : <span className="step__dot" aria-hidden />}
+              {i < current ? (
+                <span className="step__check" aria-hidden>
+                  <CheckIcon size={12} weight="bold" />
+                </span>
+              ) : (
+                <span className="step__dot" aria-hidden />
+              )}
               {t(key)}
+              {i < current && <span className="sr-only"> — {t('processing.done')}</span>}
             </li>
           ))}
         </ol>

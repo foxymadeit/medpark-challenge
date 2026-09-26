@@ -63,14 +63,14 @@ export function Sent() {
         </div>
         <form className="card card--pad stack" style={{ gap: 16, width: '100%' }} onSubmit={(e) => (e.preventDefault(), save())}>
           <div className="stack" style={{ gap: 4 }}>
-            <h2 className="t-h3">{t('sent.saveTitle')}</h2>
+            <h2 className="section-title">{t('sent.saveTitle')}</h2>
             <p className="note">{t('sent.saveLead')}</p>
           </div>
-          <TextField label={t('sent.name')} value={name} onChange={(e) => setName(e.target.value)} error={error} />
+          <TextField editable label={t('sent.name')} value={name} onChange={(e) => setName(e.target.value)} error={error} />
         </form>
       </div>
       <div className="page__actions page__actions--stack">
-        <Button variant="primary" icon={<ListChecksIcon size={20} aria-hidden />} onClick={save}>
+        <Button variant="primary" icon={<ListChecksIcon size={20} aria-hidden />} onClick={save} disabled={!name.trim()}>
           {t('sent.save')}
         </Button>
         <Button variant="ghost" onClick={() => navigate('/history')}>

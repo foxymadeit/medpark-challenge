@@ -145,7 +145,7 @@ export function Recording() {
 
       <aside className="card live-details" aria-label={t('recording.voices')}>
         <div className="stack" style={{ gap: 12 }}>
-          <h2 className="t-plate c-secondary">{t('recording.languages')}</h2>
+          <h2 className="section-title">{t('recording.languages')}</h2>
           <div className="chips">
             {detectedLanguages.map((l, i) => (
               <span key={l} className={`chip chip--lang${i === 0 ? ' is-active' : ''}`}>
@@ -159,7 +159,7 @@ export function Recording() {
         </div>
         <div className="stack" style={{ gap: 16 }}>
           <div className="row" style={{ justifyContent: 'space-between' }}>
-            <h2 className="t-plate c-secondary">{t('recording.voices')}</h2>
+            <h2 className="section-title">{t('recording.voices')}</h2>
             <span className="t-data-sm c-secondary">{t('recording.ofTotal', { n: heard.length, total: people.length })}</span>
           </div>
           <ul className="voices">

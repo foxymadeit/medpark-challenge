@@ -42,13 +42,16 @@ export function NewMeeting() {
           <p className="t-strong" id="nm-type">
             {t('newMeeting.type')}
           </p>
-          <div className="chips" role="radiogroup" aria-labelledby="nm-type" aria-describedby="nm-type-hint">
+          <div className="type-options" role="radiogroup" aria-labelledby="nm-type" aria-describedby="nm-type-hint">
             {MEETING_TYPES.map((type) => {
               const on = draft.type === type;
               return (
-                <button key={type} type="button" role="radio" aria-checked={on} className="chip" onClick={() => setDraft({ type })}>
-                  {on && <CheckIcon size={16} aria-hidden />}
-                  {t(`types.${type}`)}
+                <button key={type} type="button" role="radio" aria-checked={on} className="type-option" onClick={() => setDraft({ type })}>
+                  <span className="type-option__label">
+                    {on && <CheckIcon size={16} aria-hidden />}
+                    {t(`types.${type}`)}
+                  </span>
+                  <span className="type-option__desc">{t(`newMeeting.typeDesc.${type}`)}</span>
                 </button>
               );
             })}
@@ -114,7 +117,7 @@ export function NewMeeting() {
 
       <aside className="tile templates-side" aria-labelledby="nm-tpl">
         <div className="stack" style={{ gap: 4 }}>
-          <h2 id="nm-tpl" className="t-h3">
+          <h2 id="nm-tpl" className="section-title">
             {t('newMeeting.templatesTitle')}
           </h2>
           <p className="note">{t('newMeeting.templatesLead')}</p>
@@ -128,16 +131,23 @@ export function NewMeeting() {
                   type="button"
                   className="templates-side__item"
                   aria-pressed={on}
+                  title={on ? t('newMeeting.templateClear') : undefined}
                   onClick={() => setDraft(on ? { templateId: undefined } : { templateId: tpl.id, type: tpl.type })}
                 >
-                  <ListChecksIcon size={20} aria-hidden />
+                  {on ? (
+                    <span className="templates-side__check" aria-hidden>
+                      <CheckIcon size={12} weight="bold" />
+                    </span>
+                  ) : (
+                    <ListChecksIcon size={20} aria-hidden />
+                  )}
                   <span className="who__text" style={{ flex: 1 }}>
                     <span className="who__name">{tpl.name}</span>
                     <span className="who__sub">
-                      {t(`types.${tpl.type}`)} · {t('common.participantsCount', { count: tpl.participantIds.length })}
+                      {on ? t('newMeeting.templateSelected') : `${t(`types.${tpl.type}`)} · ${t('common.participantsCount', { count: tpl.participantIds.length })}`}
                     </span>
                   </span>
-                  {on ? <CheckIcon size={16} aria-hidden /> : <ArrowRightIcon size={16} aria-hidden />}
+                  {on ? <XIcon size={16} aria-hidden /> : <ArrowRightIcon size={16} aria-hidden />}
                 </button>
               </li>
             );

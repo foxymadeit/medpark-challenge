@@ -33,11 +33,6 @@ export function AddParticipantModal({ onClose, onAdded, title }: { onClose: () =
     onClose();
   };
 
-  const accessLabel: Record<Access, [string, string]> = {
-    receives: ['access.receivesOnly', 'access.receivesDesc'],
-    organizer: ['access.organizer', 'access.organizerDesc'],
-    admin: ['access.admin', 'access.adminDesc'],
-  };
 
   return (
     <Dialog title={title ?? t('addParticipant.title')} onClose={onClose}>
@@ -49,17 +44,30 @@ export function AddParticipantModal({ onClose, onAdded, title }: { onClose: () =
         </div>
         <fieldset className="stack access-options">
           <legend className="field__label">{t('addParticipant.access')}</legend>
-          {ACCESS_LEVELS.map((a) => (
-            <label key={a} className="radio-card">
-              <input type="radio" className="radio" name="access" value={a} checked={access === a} onChange={() => setAccess(a)} />
-              <span className="who__text">
-                <span className="who__name">{t(accessLabel[a][0])}</span>
-                <span className="who__sub">{t(accessLabel[a][1])}</span>
-              </span>
-            </label>
-          ))}
+          {/* Everyone gets the minutes; Organizer and Admin add rights on top. Admin includes Organizer. */}
+          <label className="access-check is-fixed">
+            <input type="checkbox" className="checkbox" checked disabled />
+            <span className="who__text">
+              <span className="who__name">{t('accessTitle.receives')}</span>
+              <span className="who__sub">{t('access.receivesDesc')}</span>
+            </span>
+          </label>
+          <label className="access-check">
+            <input type="checkbox" className="checkbox" checked={access !== 'receives'} disabled={access === 'admin'} onChange={(e) => setAccess(e.target.checked ? 'organizer' : 'receives')} />
+            <span className="who__text">
+              <span className="who__name">{t('accessTitle.organizer')}</span>
+              <span className="who__sub">{t('access.organizerDesc')}</span>
+            </span>
+          </label>
+          <label className="access-check">
+            <input type="checkbox" className="checkbox" checked={access === 'admin'} onChange={(e) => setAccess(e.target.checked ? 'admin' : 'organizer')} />
+            <span className="who__text">
+              <span className="who__name">{t('accessTitle.admin')}</span>
+              <span className="who__sub">{t('access.adminDesc')}</span>
+            </span>
+          </label>
         </fieldset>
-        <Button type="submit" variant="primary" block>
+        <Button type="submit" variant="primary" block disabled={!name.trim()}>
           {t('addParticipant.submit')}
         </Button>
       </form>
@@ -71,7 +79,8 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
   const { t } = useI18n();
   const { updatePerson, removePerson, updateAccount, account } = useStore();
   const isYou = person.id === account?.personId;
-  const displayName = isYou ? t('participants.you', { name: person.name }) : person.name;
+  const [confirming, setConfirming] = useState(false);
+  const displayName = isYou ? t('common.meName', { name: person.name }) : person.name;
 
   const roles = [person.role, ...roleSuggestions].filter((r, i, a) => r && a.indexOf(r) === i);
 
@@ -115,9 +124,22 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
       </td>
       <td>
         {!isYou && (
-          <button type="button" className="icon-btn icon-btn--lg" aria-label={t('participants.remove', { name: person.name })} onClick={() => removePerson(person.id)}>
+          <button type="button" className="icon-btn icon-btn--lg" aria-label={t('participants.remove', { name: person.name })} onClick={() => setConfirming(true)}>
             <XIcon size={16} aria-hidden />
           </button>
+        )}
+        {confirming && (
+          <Dialog title={t('participants.removeTitle')} onClose={() => setConfirming(false)}>
+            <p className="lead">{t('participants.removeLead', { name: person.name })}</p>
+            <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+              <Button variant="ghost" onClick={() => setConfirming(false)}>
+                {t('common.cancel')}
+              </Button>
+              <Button variant="danger" onClick={() => (removePerson(person.id), setConfirming(false))}>
+                {t('participants.removeConfirm')}
+              </Button>
+            </div>
+          </Dialog>
         )}
       </td>
     </tr>
@@ -134,9 +156,16 @@ export function Participants() {
 
   return (
     <div className="page">
-      <div className={`page__head ${onlyYou ? 'participants__head--bare' : 'participants__head'}`}>
-        <h1 className="t-h1">{t('participants.title')}</h1>
-        {!onlyYou && <p className="lead">{t('participants.lead')}</p>}
+      <div className={`page__head page__head--row ${onlyYou ? 'participants__head--bare' : 'participants__head'}`}>
+        <div className="page__head">
+          <h1 className="t-h1">{t('participants.title')}</h1>
+          {!onlyYou && <p className="lead">{t('participants.lead')}</p>}
+        </div>
+        {!onlyYou && (
+          <Button variant="primary" icon={<UserPlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
+            {t('participants.add')}
+          </Button>
+        )}
       </div>
 
       <div className="table-card">
@@ -174,13 +203,7 @@ export function Participants() {
             {t('participants.add')}
           </Button>
         </div>
-      ) : (
-        <div className="page__actions">
-          <Button variant="primary" icon={<UserPlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
-            {t('participants.add')}
-          </Button>
-        </div>
-      )}
+      ) : null}
 
       {adding && <AddParticipantModal onClose={() => setAdding(false)} />}
     </div>
