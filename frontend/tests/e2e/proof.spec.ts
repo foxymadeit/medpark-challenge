@@ -32,6 +32,36 @@ async function noNestedCards(page: Page) {
   expect(await page.locator(".panel .panel").count()).toBe(0);
 }
 
+/** Phones: the bottom bar is there and never covers the last card, and an
+ * action item reads task first, then owner and date. */
+async function phoneChecks(page: Page, name: string, width: number) {
+  const bar = page.locator("nav.mobile-tabs");
+  await expect(bar).toBeVisible();
+  await expect(bar.getByRole("link")).toHaveCount(3);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(100);
+  // A full-page shot draws the fixed bar where the first screen ends; this
+  // one shows it where a person sees it, under the last card.
+  if (SHOTS)
+    await page.screenshot({ path: `${SHOTS}/w${width}-${name}-bottom.png` });
+  const barTop = (await bar.boundingBox())!.y;
+  const cards = page.locator("main .panel:visible");
+  const last = await cards.nth((await cards.count()) - 1).boundingBox();
+  expect(
+    last!.y + last!.height,
+    "bottom bar covers the last card",
+  ).toBeLessThanOrEqual(barTop);
+  if (name === "minutes") {
+    const row = page.locator(".minutes-main .action-row").first();
+    const task = (await row.locator(".action-task > span").boundingBox())!;
+    const owner = (await row.locator(".speaker-label").boundingBox())!;
+    const said = (await row.locator(".action-task small").boundingBox())!;
+    expect(task.y).toBeLessThan(owner.y);
+    expect(owner.y).toBeLessThan(said.y);
+  }
+  await page.evaluate(() => window.scrollTo(0, 0));
+}
+
 test("main screens at five widths: no sideways scroll, no serious axe issues, no nested cards", async ({
   page,
 }) => {
@@ -64,6 +94,7 @@ test("main screens at five widths: no sideways scroll, no serious axe issues, no
           fullPage: true,
         });
       if (width === 390 || width === 1440) await axe(page);
+      if (width < 768) await phoneChecks(page, name, width);
     }
   }
 });

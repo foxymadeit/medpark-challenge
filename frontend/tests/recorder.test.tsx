@@ -137,7 +137,9 @@ it("supports automatic recording inside React StrictMode and recovers after refr
   fireEvent.click(
     screen.getByRole("button", { name: "Stop and write minutes" }),
   );
-  await screen.findByText("Audio prepared");
+  // Saving the audio and opening the processing page can take over the
+  // default 1 s when the whole suite runs in parallel.
+  await screen.findByText("Audio prepared", undefined, { timeout: 5000 });
   expect((await getMeeting(m.id)).durationSeconds).toBeGreaterThan(0);
   expect((await getMeeting(m.id)).status).toBe("processing");
   view.unmount();
