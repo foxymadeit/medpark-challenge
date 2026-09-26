@@ -44,7 +44,10 @@ class Settings(BaseSettings):
     llm_model: str = ""
     ollama_url: str = "http://127.0.0.1:11434"
     ollama_timeout_s: float = 600.0
-    ollama_think: bool | str = False  # gpt-oss wants "low" | "medium" | "high"
+    ollama_think: bool | str = False
+    # Models that always reason (gpt-oss cannot turn it off) get a level and extra tokens for it.
+    ollama_think_by_prefix: dict[str, str] = {"gpt-oss": "low"}
+    ollama_think_budget: int = 1500
     llm_language: str = "ro"
     # 12 min of mixed RO/RU/EN plus the glossary does not fit in 4096.
     llm_ctx: int = 8192

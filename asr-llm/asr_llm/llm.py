@@ -154,12 +154,18 @@ class OllamaLlm(LocalLlm):
             return json.loads(resp.read())
 
     def chat_json(self, system: str, user: str, max_tokens: int) -> dict:
+        think = next(
+            (level for prefix, level in settings.ollama_think_by_prefix.items() if self._model.startswith(prefix)),
+            settings.ollama_think,
+        )
+        if think:
+            max_tokens += settings.ollama_think_budget
         body = {
             "model": self._model,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "stream": False,
             "format": "json",
-            "think": settings.ollama_think,
+            "think": think,
             "options": {"temperature": 0.1, "num_predict": max_tokens, "num_ctx": settings.llm_ctx},
         }
         content = self._post("/api/chat", body)["message"]["content"]
