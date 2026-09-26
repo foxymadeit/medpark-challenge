@@ -142,6 +142,16 @@ export const en = {
     prevMonth: 'Previous month',
     nextMonth: 'Next month',
   },
+  colors: {
+    rose: 'Rose',
+    peach: 'Peach',
+    amber: 'Amber',
+    green: 'Green',
+    teal: 'Teal',
+    blue: 'Blue',
+    violet: 'Violet',
+    stone: 'Stone',
+  },
   accessTitle: {
     receives: 'Participant',
     organizer: 'Organizer',
@@ -339,7 +349,9 @@ export const en = {
     newParticipantPh: 'New participant: type a name',
     add: 'Add',
     withDetails: 'Add with details',
+    createNamed: 'Create “{name}” as new participant',
     saveChanges: 'Save changes',
+    color: 'Colour',
   },
   profile: {
     title: 'Profile',

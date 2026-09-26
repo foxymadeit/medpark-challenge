@@ -4,6 +4,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { ProgressBar } from '../components/ProgressBar';
 import { TextField } from '../components/TextField';
+import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
 import { demoPeople, onboardingSuggestions } from '../mocks';
@@ -81,7 +82,7 @@ function YourMeetings() {
           <div className="chips" role="group" aria-labelledby="meet-q">
             {MEETING_TYPES.map((type) => (
               <button key={type} type="button" className="chip" aria-pressed={picked.includes(type)} onClick={() => toggle(type)}>
-                {picked.includes(type) && <CheckIcon size={16} aria-hidden />}
+                {picked.includes(type) ? <CheckIcon size={16} aria-hidden /> : <MeetingTypeIcon type={type} />}
                 {t(`types.${type}`)}
               </button>
             ))}

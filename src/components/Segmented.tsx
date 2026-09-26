@@ -1,8 +1,9 @@
-import { useRef, type KeyboardEvent } from 'react';
+import { useRef, type KeyboardEvent, type ReactNode } from 'react';
 
 interface Option<T extends string> {
   value: T;
   label: string;
+  icon?: ReactNode;
 }
 
 interface Props<T extends string> {
@@ -45,6 +46,7 @@ export function Segmented<T extends string>({ label, options, value, onChange, v
             onClick={() => onChange(o.value)}
             onKeyDown={(e) => move(e, i)}
           >
+            {o.icon}
             {o.label}
           </button>
         );

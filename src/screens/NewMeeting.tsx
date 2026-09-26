@@ -1,9 +1,12 @@
-import { CheckIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { CheckIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DatePicker } from '../components/DatePicker';
 import { EmailsField } from '../components/EmailsField';
+import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { Segmented } from '../components/Segmented';
+import { TemplateBadge } from '../components/TemplateBadge';
+import { templateColor } from '../lib/colors';
 import { useI18n } from '../i18n/I18nProvider';
 import { todayISO } from '../lib/format';
 import { useStore } from '../store/AppStore';
@@ -66,7 +69,7 @@ export function NewMeeting() {
           {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
           {selectedTemplate && (
             <span className="tag template-tag">
-              <ListChecksIcon size={14} aria-hidden />
+              <TemplateBadge color={templateColor(selectedTemplate)} type={selectedTemplate.type} size={20} />
               {t('newMeeting.fromTemplate', { name: selectedTemplate.name })}
               <button type="button" className="emails-field__remove" aria-label={t('newMeeting.templateClear')} title={t('newMeeting.templateClear')} onClick={() => setDraft({ templateId: undefined })}>
                 <XIcon size={12} aria-hidden />
@@ -84,7 +87,7 @@ export function NewMeeting() {
             variant="auto"
             value={draft.type}
             onChange={(type) => setDraft({ type })}
-            options={MEETING_TYPES.map((type) => ({ value: type, label: t(`types.${type}`) }))}
+            options={MEETING_TYPES.map((type) => ({ value: type, label: t(`types.${type}`), icon: <MeetingTypeIcon type={type} /> }))}
           />
           {/* What the selected type changes: the vocabulary the minutes are written in. */}
           <p className="note" id="nm-type-hint" aria-live="polite">

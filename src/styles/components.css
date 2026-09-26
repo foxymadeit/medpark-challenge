@@ -171,6 +171,7 @@
 .segmented--fill { display: flex; width: 100%; }
 .segmented--fill .segmented__item { flex: 1; width: auto; }
 .segmented--lang .segmented__item { width: 40px; height: 30px; }
+.segmented__item { gap: 6px; }
 .segmented--auto { align-self: flex-start; }
 .segmented--auto .segmented__item { width: auto; padding: 0 var(--sm-space-4); }
 

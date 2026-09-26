@@ -5,9 +5,12 @@ import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
 import { PeopleStack } from '../components/PeopleStack';
+import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { Segmented } from '../components/Segmented';
+import { TemplateBadge } from '../components/TemplateBadge';
 import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
+import { COLOR_KEYS, PALETTE, templateColor, type ColorKey } from '../lib/colors';
 import { AddParticipantModal } from './Participants';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES, type MeetingType, type Person, type Template } from '../types';
@@ -47,6 +50,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
   const [newName, setNewName] = useState('');
   const [name, setName] = useState(template?.name ?? '');
   const [type, setType] = useState<MeetingType>(template?.type ?? 'medical');
+  const [color, setColor] = useState<ColorKey>(template ? templateColor(template) : 'blue');
   const [selected, setSelected] = useState<string[]>(template?.participantIds ?? people.map((p) => p.id));
   const [error, setError] = useState<string>();
   const [replacing, setReplacing] = useState<Person | null>(null);
@@ -66,6 +70,12 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
     setSelected((s) => (s.includes(newId) ? s.filter((x) => x !== oldId) : s.includes(oldId) ? s.map((x) => (x === oldId ? newId : x)) : [...s, newId]));
 
   // Placeholder row at the bottom: type a name, Enter adds and ticks them. Details can be filled on Participants.
+  // Predictive: unticked people whose name, role or email contains what's typed.
+  const [active, setActive] = useState(0);
+  const q = newName.trim().toLowerCase();
+  const matches = q ? candidates.filter((p) => !selected.includes(p.id) && [p.name, p.role, p.email].some((v) => v?.toLowerCase().includes(q))).slice(0, 5) : [];
+  const pickExisting = (id: string) => (add(id), setNewName(''), setActive(0));
+
   const addByName = () => {
     const n = newName.trim();
     if (!n) return;
@@ -77,12 +87,13 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
   const dirty =
     name.trim() !== (template?.name ?? '') ||
     type !== (template?.type ?? 'medical') ||
+    color !== (template ? templateColor(template) : 'blue') ||
     selected.length !== initial.length ||
     selected.some((id, i) => id !== initial[i]);
 
   const save = () => {
     if (!name.trim()) return setError(t('common.required'));
-    saveTemplate({ id: template?.id, name: name.trim(), type, participantIds: selected });
+    saveTemplate({ id: template?.id, name: name.trim(), type, color, participantIds: selected });
     onClose();
   };
 
@@ -91,7 +102,29 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
       <TextField editable label={t('templates.name')} value={name} onChange={(e) => (setName(e.target.value), setError(undefined))} error={error} />
       <div className="field">
         <span className="field__label">{t('templates.type')}</span>
-        <Segmented<MeetingType> label={t('templates.type')} variant="fill" value={type} onChange={setType} options={MEETING_TYPES.map((m) => ({ value: m, label: t(`typesShort.${m}`) }))} />
+        <Segmented<MeetingType> label={t('templates.type')} variant="fill" value={type} onChange={setType} options={MEETING_TYPES.map((m) => ({ value: m, label: t(`typesShort.${m}`), icon: <MeetingTypeIcon type={m} /> }))} />
+      </div>
+      <div className="field">
+        <span className="field__label" id="tpl-color">
+          {t('templates.color')}
+        </span>
+        <div className="swatches" role="radiogroup" aria-labelledby="tpl-color">
+          {COLOR_KEYS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="radio"
+              aria-checked={color === c}
+              aria-label={t(`colors.${c}`)}
+              title={t(`colors.${c}`)}
+              className="swatch"
+              style={{ background: PALETTE[c].bg, color: PALETTE[c].fg, borderColor: PALETTE[c].dot }}
+              onClick={() => setColor(c)}
+            >
+              {color === c && <CheckIcon size={16} weight="bold" aria-hidden />}
+            </button>
+          ))}
+        </div>
       </div>
       <fieldset className="tpl-people">
         <legend className="tpl-people__head">
@@ -123,20 +156,51 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
             className="tpl-person__input"
             placeholder={t('templates.newParticipantPh')}
             aria-label={t('templates.addPerson')}
+            role="combobox"
+            aria-expanded={q.length > 0}
+            aria-controls="tpl-suggest"
+            aria-autocomplete="list"
+            aria-activedescendant={q ? `tpl-opt-${active}` : undefined}
             value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addByName())}
+            onChange={(e) => (setNewName(e.target.value), setActive(0))}
+            onKeyDown={(e) => {
+              if (!q) return;
+              if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, matches.length)));
+              else if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
+              else if (e.key === 'Escape') (e.stopPropagation(), setNewName(''));
+              else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (matches[active]) pickExisting(matches[active].id);
+                else addByName();
+              }
+            }}
           />
-          {newName.trim() ? (
-            <Button variant="ghost" icon={<CheckIcon size={16} aria-hidden />} onClick={addByName}>
-              {t('templates.add')}
-            </Button>
-          ) : (
+          {!q && (
             <button type="button" className="link-btn tpl-person__details" onClick={() => setCreating('add')}>
               {t('templates.withDetails')}
             </button>
           )}
         </div>
+        {/* Predictive list: people already in Liminal first, "create new" last. Inline so the modal never clips it. */}
+        {q && (
+          <ul id="tpl-suggest" role="listbox" aria-label={t('templates.addPerson')} className="tpl-suggest">
+            {matches.map((p, i) => (
+              <li key={p.id} id={`tpl-opt-${i}`} role="option" aria-selected={i === active} className={`tpl-suggest__option${i === active ? ' is-active' : ''}`} onMouseEnter={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={() => pickExisting(p.id)}>
+                <Avatar name={p.name} />
+                <span className="who__text">
+                  <span className="who__name truncate">{p.name}</span>
+                  <span className="who__sub truncate">{[p.role, p.email].filter(Boolean).join(' · ')}</span>
+                </span>
+              </li>
+            ))}
+            <li id={`tpl-opt-${matches.length}`} role="option" aria-selected={active === matches.length} className={`tpl-suggest__option tpl-suggest__create${active === matches.length ? ' is-active' : ''}`} onMouseEnter={() => setActive(matches.length)} onMouseDown={(e) => e.preventDefault()} onClick={addByName}>
+              <span className="tpl-person__plus" aria-hidden style={{ marginLeft: 0 }}>
+                <PlusIcon size={16} weight="bold" />
+              </span>
+              <span className="who__name truncate">{t('templates.createNamed', { name: newName.trim() })}</span>
+            </li>
+          </ul>
+        )}
       </fieldset>
       <Button variant="primary" disabled={!dirty} block onClick={save}>
         {template ? t('templates.saveChanges') : t('templates.save')}
@@ -183,9 +247,12 @@ export function Templates() {
       <ul className="tpl-grid">
         {templates.map((tpl) => (
           <li key={tpl.id} className="card card--pad tpl-card">
-            <div className="stack" style={{ gap: 4 }}>
-              <h2 className="t-h3">{tpl.name}</h2>
-              <p className="note">{t('templates.meta', { type: t(`typesShort.${tpl.type}`), count: tpl.participantIds.length })}</p>
+            <div className="tpl-card__head">
+              <TemplateBadge color={templateColor(tpl)} type={tpl.type} />
+              <div className="stack" style={{ gap: 4, minWidth: 0 }}>
+                <h2 className="t-h3">{tpl.name}</h2>
+                <p className="note">{t('templates.meta', { type: t(`typesShort.${tpl.type}`), count: tpl.participantIds.length })}</p>
+              </div>
             </div>
             <div className="tpl-card__actions">
               <PeopleStack ids={tpl.participantIds} />

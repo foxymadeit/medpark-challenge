@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button } from '../components/Button';
 import { Segmented } from '../components/Segmented';
 import { TextField } from '../components/TextField';
+import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
 import { useStore } from '../store/AppStore';
@@ -105,7 +106,7 @@ export function Settings() {
               <div className="chips" role="radiogroup" aria-labelledby="set-type">
                 {MEETING_TYPES.map((m) => (
                   <button key={m} type="button" role="radio" aria-checked={type === m} className="chip" onClick={() => (setType(m), touch())}>
-                    {type === m && <CheckIcon size={16} aria-hidden />}
+                    {type === m ? <CheckIcon size={16} aria-hidden /> : <MeetingTypeIcon type={m} />}
                     {t(`types.${m}`)}
                   </button>
                 ))}

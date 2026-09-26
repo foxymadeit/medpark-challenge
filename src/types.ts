@@ -1,3 +1,5 @@
+import type { ColorKey } from './lib/colors';
+
 export type Access = 'receives' | 'organizer' | 'admin';
 export type MeetingType = 'medical' | 'executive' | 'administrative';
 export type MeetingStatus = 'processing' | 'needs_review' | 'sent';
@@ -34,6 +36,8 @@ export interface Template {
   name: string;
   type: MeetingType;
   participantIds: string[];
+  /** Colour picked in the editor (palette key); older templates fall back to a colour from their name. */
+  color?: ColorKey;
 }
 
 /** One transcript utterance. Keywords are wrapped in [[double brackets]]. */

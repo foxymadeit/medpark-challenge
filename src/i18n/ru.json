@@ -140,6 +140,16 @@
     "prevMonth": "Предыдущий месяц",
     "nextMonth": "Следующий месяц"
   },
+  "colors": {
+    "rose": "Розовый",
+    "peach": "Персиковый",
+    "amber": "Янтарный",
+    "green": "Зелёный",
+    "teal": "Бирюзовый",
+    "blue": "Синий",
+    "violet": "Фиолетовый",
+    "stone": "Серый"
+  },
   "accessTitle": {
     "receives": "Участник",
     "organizer": "Организатор",
@@ -340,7 +350,9 @@
     "newParticipantPh": "Новый участник: введите имя",
     "add": "Добавить",
     "withDetails": "Добавить с данными",
-    "saveChanges": "Сохранить изменения"
+    "createNamed": "Создать участника «{name}»",
+    "saveChanges": "Сохранить изменения",
+    "color": "Цвет"
   },
   "profile": {
     "meetingsCount_one": "{count} встреча",

@@ -139,6 +139,16 @@
     "prevMonth": "Luna precedentă",
     "nextMonth": "Luna următoare"
   },
+  "colors": {
+    "rose": "Roz",
+    "peach": "Piersică",
+    "amber": "Chihlimbar",
+    "green": "Verde",
+    "teal": "Turcoaz",
+    "blue": "Albastru",
+    "violet": "Violet",
+    "stone": "Gri piatră"
+  },
   "accessTitle": {
     "receives": "Participant",
     "organizer": "Organizator",
@@ -339,7 +349,9 @@
     "newParticipantPh": "Participant nou: scrieți un nume",
     "add": "Adaugă",
     "withDetails": "Adaugă cu detalii",
-    "saveChanges": "Salvează modificările"
+    "createNamed": "Creează „{name}” ca participant nou",
+    "saveChanges": "Salvează modificările",
+    "color": "Culoare"
   },
   "profile": {
     "meetingsCount_one": "{count} ședință",

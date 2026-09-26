@@ -6,6 +6,7 @@ import { Dialog } from '../components/Dialog';
 import { Avatar } from '../components/Avatar';
 import { TranscriptLines } from '../components/Minutes';
 import { StatusTag } from '../components/StatusTag';
+import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatDayMonth, formatFullDate } from '../lib/format';
 import { downloadMomPdf } from '../lib/momPdf';
@@ -48,6 +49,7 @@ export function History() {
         <div className="chips" role="radiogroup" aria-label={t('history.filter')}>
           {(['all', ...MEETING_TYPES] as const).map((f) => (
             <button key={f} type="button" role="radio" aria-checked={filter === f} className="chip chip--sm" onClick={() => setFilter(f)}>
+              {f !== 'all' && <MeetingTypeIcon type={f} />}
               {f === 'all' ? t('history.all') : t(`typesShort.${f}`)}
             </button>
           ))}
