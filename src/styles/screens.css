@@ -535,3 +535,8 @@
 .profile__value { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-2); }
 .profile__facts .input--inline { flex: 1; min-width: 0; height: 36px; }
 @media (max-width: 640px) { .profile__facts > div { grid-template-columns: 1fr; gap: 2px; } }
+/* Access screens are top-anchored (not vertically centred) so the greeting sits in the same spot
+   on Welcome, Log in and Sign up, whatever the card's height. */
+.main--access { justify-content: flex-start; min-height: 100vh; padding-top: clamp(64px, 16vh, 160px); }
+.access-lang { position: absolute; z-index: 2; top: 16px; right: 16px; }
+.access-card__title { text-align: center; }

@@ -188,7 +188,7 @@ export function LogIn() {
   return (
     <div className="stack access-stack">
       <form className="card access-card" onSubmit={submit} noValidate>
-        <h1 className="t-h1">{t('login.title')}</h1>
+        <h1 className="t-h1 access-card__title">{t('login.title')}</h1>
         {errors.form && (
           <div className="form-alert" role="alert">
             <WarningIcon size={18} aria-hidden />

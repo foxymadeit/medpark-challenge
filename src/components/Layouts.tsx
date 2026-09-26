@@ -158,8 +158,11 @@ export function AccessLayout() {
   const { t } = useI18n();
   return (
     <div className="app">
-      <TopBar showAccount={false} />
-      <main id="main" className="main main--center">
+      {/* No top bar here: the big greeting is the brand. Only the language switch stays, top right. */}
+      <div className="access-lang">
+        <LanguageSwitch />
+      </div>
+      <main id="main" className="main main--center main--access">
         {/* Brand greeting above every access card (welcome, log in, sign up). */}
         <div className="access-brand">
           <Logo size={64} />
