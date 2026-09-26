@@ -60,7 +60,7 @@ export interface TranscriptToken {
   lang?: SpokenLang;
 }
 
-/** Languages a word can be flagged as: interface languages plus Latin for medical terms. */
+/** Languages a word can be flagged as (the interface languages). */
 export type SpokenLang = 'ro' | 'ru' | 'en';
 export const SPOKEN_LANGS: SpokenLang[] = ['ro', 'ru', 'en'];
 

@@ -103,9 +103,12 @@ function WordMenu({ word, alternatives, anchor, onPick, onRemove, lang, onLang, 
           }}
         >
           <input className="input input--inline" aria-label={t('review.word.fix')} value={value} onChange={(e) => setValue(e.target.value)} onFocus={(e) => e.target.select()} />
-          <button type="submit" className="btn btn--primary word-menu__save">
-            {t('review.word.save')}
-          </button>
+          {/* Only once the word actually differs; Enter with no change just closes. */}
+          {value.trim() && value.trim() !== word && (
+            <button type="submit" className="btn btn--ink word-menu__save">
+              {t('review.word.save')}
+            </button>
+          )}
         </form>
       )}
       {/* Language flag: which language this word really is (training label). Click again to clear. */}
