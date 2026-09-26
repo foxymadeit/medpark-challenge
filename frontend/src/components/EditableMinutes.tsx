@@ -88,6 +88,11 @@ export default function EditableMinutes({
             rows={5}
             value={value}
             onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              // Esc cancels, like the action dialog does
+              if (e.key === "Escape") setEditing(false);
+            }}
+            autoFocus
             maxLength={10000}
           />
           <div className="button-row">
