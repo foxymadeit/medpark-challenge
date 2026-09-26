@@ -1,7 +1,6 @@
-import { ArrowRightIcon, CheckIcon, EnvelopeSimpleIcon, ListChecksIcon, MicrophoneIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { ArrowRightIcon, CheckIcon, EnvelopeSimpleIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
 import { useStore } from '../store/AppStore';
@@ -15,6 +14,17 @@ export function NewMeeting() {
   const [emailInput, setEmailInput] = useState('');
   const [emailError, setEmailError] = useState<string>();
   const selectedTemplate = templates.find((x) => x.id === draft.templateId);
+  // Until the user types a name, the template's name (or "Medical meeting") is used.
+  const suggestedName = selectedTemplate?.name ?? t('newMeeting.untitled', { type: t(`types.${draft.type}`) });
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState('');
+  const startName = () => (setNameDraft(draft.title?.trim() || suggestedName), setEditingName(true));
+  const commitName = () => {
+    const v = nameDraft.trim();
+    // Keeping the suggestion as-is stays "unnamed", so switching template still renames it.
+    setDraft({ title: v && v !== suggestedName ? v : undefined });
+    setEditingName(false);
+  };
 
   const commitEmail = () => {
     const values = emailInput.split(/[\s,;]+/).filter(Boolean);
@@ -38,17 +48,36 @@ export function NewMeeting() {
   return (
     <div className="page new-meeting">
       <div className="new-meeting__main">
-        <h1 className="t-h1">{t('newMeeting.title')}</h1>
-
-        {/* Always nameable; a template only suggests its name as the placeholder. */}
-        <TextField
-          editable
-          label={t('newMeeting.name')}
-          placeholder={selectedTemplate?.name ?? t('newMeeting.untitled', { type: t(`types.${draft.type}`) })}
-          value={draft.title ?? ''}
-          onChange={(e) => setDraft({ title: e.target.value })}
-          maxLength={120}
-        />
+        {/* The meeting's name is the headline; the pen (or a click on it) makes it editable. */}
+        <div className="stack" style={{ gap: 4 }}>
+          <p className="section-title">{t('newMeeting.title')}</p>
+          {editingName ? (
+            <input
+              autoFocus
+              className="input headline-input"
+              aria-label={t('newMeeting.name')}
+              placeholder={suggestedName}
+              value={nameDraft}
+              maxLength={120}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onFocus={(e) => e.target.select()}
+              onBlur={commitName}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commitName();
+                if (e.key === 'Escape') setEditingName(false);
+              }}
+            />
+          ) : (
+            <div className="headline">
+              <h1 className="t-h1 headline__text" onClick={startName}>
+                {draft.title?.trim() || suggestedName}
+              </h1>
+              <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
+                <PencilSimpleIcon size={20} aria-hidden />
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="stack" style={{ gap: 8 }}>
           <p className="t-strong" id="nm-type">

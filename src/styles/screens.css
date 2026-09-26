@@ -47,6 +47,11 @@
 .access-check.is-fixed .checkbox:disabled, .access-check .checkbox:checked:disabled { opacity: 0.55; }
 
 /* ── New meeting ── */
+/* Editable headline: the meeting name, pen right after it. */
+.headline { display: flex; align-items: center; gap: var(--sm-space-2); min-width: 0; }
+.headline__text { min-width: 0; overflow-wrap: anywhere; cursor: text; }
+.headline__pen { flex-shrink: 0; width: 36px; height: 36px; }
+.headline-input { height: 48px; padding: 0 12px; margin-left: -13.5px; width: calc(100% + 13.5px); font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
 .new-meeting { flex-direction: row; align-items: flex-start; justify-content: center; gap: 48px; }
 .new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); width: 656px; flex-shrink: 0; }
 .emails-field {

@@ -154,6 +154,7 @@
   "newMeeting": {
     "title": "Ședință nouă",
     "name": "Numele ședinței",
+    "rename": "Redenumește ședința",
     "type": "Tipul ședinței",
     "typeDesc": {
       "medical": "Procesul-verbal pune accent pe pacienți, paturi și doze.",

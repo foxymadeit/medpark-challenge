@@ -11,10 +11,10 @@
   --sm-ink-secondary: #5b544b;
   --sm-ink-tertiary: #6f685f;
 
-  /* Controls (user feedback 26 Sep): calm graphite for selected chips / segmented / checkboxes,
+  /* Controls: selected chips / segmented / checkboxes stay ink black (graphite #4a4f57 was tried and reverted),
      one action colour for the main call to action on each screen. */
-  --sm-control: #4a4f57;
-  --sm-control-hover: #3e424a;
+  --sm-control: var(--sm-ink-primary);
+  --sm-control-hover: #2b2b2b;
   --sm-action: #1f5fd1;
   --sm-action-hover: #1a50b3;
   --sm-action-tint: #eaf1fd;

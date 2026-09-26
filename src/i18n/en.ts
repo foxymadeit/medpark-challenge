@@ -157,6 +157,7 @@ export const en = {
   newMeeting: {
     title: 'New meeting',
     name: 'Meeting name',
+    rename: 'Rename meeting',
     type: 'Meeting type',
     typeDesc: {
       medical: 'Minutes focus on patients, beds and doses.',
