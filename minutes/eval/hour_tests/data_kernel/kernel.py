@@ -6,7 +6,8 @@ them all. A source that fails is recorded in the manifest with its error and
 the others carry on. A heartbeat line every minute says where it is.
 
   rompar_60   Romanian and Moldovan parliamentary speech (HF avramandrei/rompar,
-              test split), utterances in record order joined with 0.4 s gaps,
+              test split), Moldovan utterances first, then Romanian, each in record
+              order, joined with 0.4 s gaps,
               with the reference transcript and each utterance's times.
   icsi_60     ICSI meeting Bmr005 (English, 71 min, CC BY 4.0), headset mix,
               first 60 min, word reference and speaker turns (RTTM).
@@ -14,9 +15,9 @@ the others carry on. A heartbeat line every minute says where it is.
               (Russian, 77 min, medical-staffing topic, CC BY 4.0), first 60
               min, with the official transcript for the chapters that end
               inside the hour.
-  md_parl_60  a Moldovan Parliament plenary session (Romanian and Russian), the
-              60 min window with the most Russian next to Romanian, picked by
-              Whisper-tiny language ID on 30 s windows. No reference: the
+  md_parl_60  a Moldovan Parliament plenary session (Romanian and Russian): up to
+              8 sessions are scanned with Whisper-tiny language ID on 30 s
+              windows and the hour with the most minutes of both is kept. No reference: the
               stenograms are not reachable by machine (see manifest note).
 
 All of it is public data; nothing from Medpark goes here.
@@ -107,7 +108,8 @@ def rompar(d):
 
     step("download test split (430 MB)")
     p = hf_hub_download("avramandrei/rompar", "data/test-00000-of-00001.parquet", repo_type="dataset")
-    rows = sorted(pq.read_table(p).to_pylist(), key=lambda r: r["record_id"])
+    # Moldovan speech first (Medpark's own variety), then Romanian, each in record order
+    rows = sorted(pq.read_table(p).to_pylist(), key=lambda r: (str(r.get("dialect")).lower() == "romanian", r["record_id"]))
     step("join utterances")
     gap = np.zeros(int(0.4 * 16000), dtype="float32")
     parts, segs, t = [], [], 0.0
@@ -129,7 +131,8 @@ def rompar(d):
     sf.write(d / "audio.flac", full, 16000, format="FLAC")
     (d / "segments.json").write_text(json.dumps(segs, ensure_ascii=False, indent=1), encoding="utf-8")
     write_reference(d / "reference.txt",
-                    [f"ROMPAR test split, {len(segs)} utterances in record order, 0.4 s gaps, 0-{segs[-1]['end']} s",
+                    [f"ROMPAR test split, {len(segs)} utterances (Moldovan first, then Romanian, each in record order), "
+                     f"0.4 s gaps, 0-{segs[-1]['end']} s",
                      "Utterance times: segments.json"], [s["text"] for s in segs])
     dialects = {}
     for s in segs:
@@ -258,6 +261,8 @@ def kremlin(d):
 
 PARL_PLAYLIST = "https://www.youtube.com/playlist?list=PLAVLfBYYrdyTHyFw9wbJz8jrxR4LGOs1a"
 PARL_FALLBACK = ["https://www.youtube.com/watch?v=Fs5pJgXfu84"]   # plenary session, 29 December 2025
+PARL_MAX_SESSIONS = 8     # sessions to scan for Russian
+PARL_ENOUGH_RU = 10       # stop once an hour holds at least this many Russian minutes
 
 
 def _ytdlp(args):
@@ -280,43 +285,54 @@ def md_parl(d):
     except Exception as e:   # the fallback video still gets its chance
         log(f"playlist failed: {e!r}")
     urls += PARL_FALLBACK
-    src, url = None, None
-    for url in urls:
-        try:
-            step(f"download {url}")
-            _ytdlp(f"-f bestaudio -o '{TMP}/parl.%(ext)s' '{url}'")
-            src = next(TMP.glob("parl.*"))
-            break
-        except Exception as e:
-            log(f"{url}: {e!r}")
-    if src is None:
-        raise RuntimeError("no plenary session could be downloaded")
-    step("language ID every 60 s (Whisper tiny, CPU)")
     from faster_whisper import WhisperModel
     from faster_whisper.audio import decode_audio
 
-    audio = decode_audio(str(src), sampling_rate=16000)
     model = WhisperModel("tiny", device="cpu", compute_type="int8")
-    total = len(audio) / 16000
-    lid = []
-    for t in range(0, int(total) - 30, 60):
-        lang, prob, _ = model.detect_language(audio[t * 16000:(t + 30) * 16000])
-        lid.append({"t": t, "lang": lang, "p": round(prob, 2)})
-        STATE["since"] = time.time()
-    if total < HOUR:
-        raise ValueError(f"session is only {total / 60:.0f} min")
-    best, start = -1, 0
-    for s in range(0, int(total - HOUR) + 1, 300):   # 5-minute steps
-        win = [x["lang"] for x in lid if s <= x["t"] < s + HOUR]
-        score = min(win.count("ro"), win.count("ru"))
-        if score > best:
-            best, start = score, s
-    step(f"cut 60:00 from {start} s")
+    # Russian speeches come and go by session, so look at several and keep the
+    # hour with the most minutes of both languages (min of the two)
+    best = None   # (score, url, file, start, lid, total)
+    scanned = []
+    for n, url in enumerate(urls[:PARL_MAX_SESSIONS]):
+        try:
+            step(f"download {url}")
+            _ytdlp(f"-f bestaudio -o '{TMP}/parl{n}.%(ext)s' '{url}'")
+            src = next(TMP.glob(f"parl{n}.*"))
+        except Exception as e:
+            log(f"{url}: {e!r}")
+            continue
+        step(f"language ID every 60 s on {url} (Whisper tiny, CPU)")
+        audio = decode_audio(str(src), sampling_rate=16000)
+        total = len(audio) / 16000
+        lid = []
+        for t in range(0, int(total) - 30, 60):
+            lang, prob, _ = model.detect_language(audio[t * 16000:(t + 30) * 16000])
+            lid.append({"t": t, "lang": lang, "p": round(prob, 2)})
+            STATE["since"] = time.time()
+        del audio
+        for s in range(0, max(0, int(total - HOUR)) + 1, 300):   # 5-minute steps
+            win = [x["lang"] for x in lid if s <= x["t"] < s + HOUR]
+            score = min(win.count("ro"), win.count("ru"))
+            if total >= HOUR and (best is None or score > best[0]):
+                if best and best[2] != src:
+                    best[2].unlink(missing_ok=True)
+                best = (score, url, src, s, lid, total)
+        scanned.append({"url": url, "minutes": round(total / 60), "ru_minutes": sum(x["lang"] == "ru" for x in lid)})
+        log(f"{url}: {scanned[-1]}")
+        if best and best[2] != src:
+            src.unlink(missing_ok=True)
+        if best and best[0] >= PARL_ENOUGH_RU:
+            break
+    if best is None:
+        raise RuntimeError("no plenary session of an hour or more could be downloaded")
+    score, url, src, start, lid, total = best
+    step(f"cut 60:00 from {start} s of {url}")
     to_hour_flac(src, d / "audio.flac", start)
     window = [x for x in lid if start <= x["t"] < start + HOUR]
     (d / "lid.json").write_text(json.dumps([{**x, "t": x["t"] - start} for x in window], indent=1))
     counts = {lang: sum(x["lang"] == lang for x in window) for lang in {x["lang"] for x in window}}
-    return {"languages": ["ro", "ru"], "source": url, "window_start_s": start, "session_minutes": round(total / 60),
+    return {"languages": ["ro", "ru"] if counts.get("ru") else ["ro"], "source": url, "window_start_s": start,
+            "session_minutes": round(total / 60), "sessions_scanned": scanned,
             "license": "public broadcast of the Parliament of the Republic of Moldova; used for internal testing only",
             "reference": None, "lid": "lid.json", "lid_minutes": counts,
             "note": "no reference text: multimedia.parlament.md answered 503 and old.parlament.md serves a script page "
