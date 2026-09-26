@@ -116,7 +116,7 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
         </button>
       )}
       <Link to={signedIn ? '/new' : '/'} className="brand">
-        <Logo />
+        <Logo size={34} />
         <span className="brand__name" aria-label={t('common.appName')}>
           <Wordmark />
         </span>
