@@ -123,7 +123,7 @@ export function SignUp() {
 
   return (
     <form className="card access-card" onSubmit={submit} noValidate>
-      <div className="page__head">
+      <div className="page__head access-card__head">
         <h1 className="t-h1">{t('signup.title')}</h1>
         <p className="lead">{t('signup.lead')}</p>
       </div>

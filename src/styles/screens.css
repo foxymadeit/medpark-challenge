@@ -540,3 +540,4 @@
 .main--access { justify-content: flex-start; min-height: 100vh; padding-top: clamp(64px, 16vh, 160px); }
 .access-lang { position: absolute; z-index: 2; top: 16px; right: 16px; }
 .access-card__title { text-align: center; }
+.access-card__head { align-items: center; text-align: center; }
