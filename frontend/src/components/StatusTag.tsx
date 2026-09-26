@@ -25,10 +25,19 @@ export default function StatusTag({ status }: { status: MeetingStatus }) {
               : ["sending_soon", "sending"].includes(status)
                 ? EnvelopeSimple
                 : Clock;
+  // a shorter label for narrow rows, only where one exists ("Review")
+  const short = t(`${status}Short`, { defaultValue: "" });
   return (
     <span className={`status-tag ${status}`}>
       <Icon size={14} strokeWidth={2.5} />
-      {t(status)}
+      {short ? (
+        <>
+          <span className="status-full">{t(status)}</span>
+          <span className="status-short">{short}</span>
+        </>
+      ) : (
+        t(status)
+      )}
     </span>
   );
 }

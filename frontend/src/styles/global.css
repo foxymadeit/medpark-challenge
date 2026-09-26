@@ -12,7 +12,7 @@
 .admin-nav a {
   padding: 9px 13px;
   border-radius: var(--sm-radius-control);
-  color: #596361;
+  color: var(--sm-ink-secondary);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -1099,6 +1099,9 @@ svg {
   font-size: 12px;
   line-height: 18px;
   white-space: nowrap;
+}
+.status-short {
+  display: none;
 }
 .status-tag.failed,
 .status-tag.recording {
@@ -2497,9 +2500,18 @@ blockquote {
     font-size: 12px;
     padding: 0;
     background: transparent;
-    max-width: 52%;
-    white-space: normal;
-    text-align: right;
+    white-space: nowrap;
+  }
+  /* "Ready for review" becomes "Review" so the chip stays one line */
+  .meeting-list-row .status-full {
+    display: none;
+  }
+  .meeting-list-row .status-short {
+    display: inline;
+  }
+  .admin-nav {
+    flex-wrap: wrap;
+    overflow-x: visible;
   }
   .meeting-list-row .status-tag svg {
     display: none;
