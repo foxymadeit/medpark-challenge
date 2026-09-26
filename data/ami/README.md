@@ -23,3 +23,7 @@ large. `./fetch_ami.sh` downloads them, plus any of the WAV originals.
 Source and license: AMI Meeting Corpus, University of Edinburgh and partners,
 CC-BY 4.0 (https://groups.inf.ed.ac.uk/ami/corpus/). RTTM and UEM files come
 from https://github.com/pyannote/AMI-diarization-setup ("only_words" setup).
+
+The audio files (`*.flac`) are in git but left out of the working copy on
+the development laptop to save disk space (sparse checkout). To get them back:
+`git sparse-checkout disable`.
