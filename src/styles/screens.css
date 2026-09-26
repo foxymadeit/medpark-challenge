@@ -172,7 +172,19 @@
 
 /* ── Processing ── */
 .processing { align-items: center; }
-.processing__box { display: flex; flex-direction: column; gap: var(--sm-space-6); width: 400px; margin-top: 193px; }
+.processing__box { display: flex; flex-direction: column; gap: var(--sm-space-6); width: 560px; margin-top: 48px; }
+.processing__progress { display: flex; align-items: center; gap: var(--sm-space-3); }
+.processing__progress .progress { flex: 1; }
+.processing__pct { min-width: 44px; color: var(--sm-success); font: 600 15px/20px var(--sm-font-data); font-variant-numeric: tabular-nums; text-align: right; }
+/* Live transcript: chunks appear as they are transcribed; readable while processing continues. */
+.processing__live { display: flex; flex-direction: column; overflow: hidden; }
+.processing__live-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sm-space-3); padding: var(--sm-space-4) var(--sm-space-6) var(--sm-space-2); }
+.processing__live-body { max-height: 300px; overflow: auto; padding: var(--sm-space-2) var(--sm-space-6) var(--sm-space-5); }
+.processing__live-body .transcript__line { animation: chunk-in 320ms ease-out; }
+.processing__typing { margin: var(--sm-space-3) 0 0; }
+.processing__typing::after { content: '…'; animation: rec-blink 1.2s ease-in-out infinite; }
+@keyframes chunk-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .processing__live-body .transcript__line, .processing__typing::after { animation: none; } }
 .steps { display: flex; flex-direction: column; gap: var(--sm-space-3); margin: 0; padding: 0; list-style: none; }
 .step { display: flex; align-items: center; gap: var(--sm-space-3); color: var(--sm-ink-tertiary); font: 400 15px/22px var(--sm-font-body); }
 .step.is-done { color: var(--sm-success); font-weight: 500; }

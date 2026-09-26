@@ -13,7 +13,7 @@
 .onb__column { width: min(560px, 100%); }
 .onb__column--wide { width: min(800px, 100%); }
 .upload__column { width: min(560px, 100%); }
-.processing__box { width: min(400px, 100%); }
+.processing__box { width: min(560px, 100%); }
 .sent__done { width: min(464px, 100%); }
 .modal { width: min(560px, 100%); }
 .modal--wide { width: min(640px, 100%); }
@@ -73,7 +73,7 @@
 
   .tpl-grid { grid-template-columns: minmax(0, 1fr); }
   .settings__cols { grid-template-columns: 1fr; }
-  .processing__box { margin-top: 12vh; }
+  .processing__box { margin-top: 0; }
 }
 
 /* ── ≤640: phone ── */

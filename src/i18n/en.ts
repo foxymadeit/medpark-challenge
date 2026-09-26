@@ -238,6 +238,9 @@ export const en = {
     note: 'Offline. Audio never leaves the hospital network.',
     progress: 'Progress',
     done: 'done',
+    liveTitle: 'Transcribed so far',
+    chunks: '{n} of {total} chunks',
+    listening: 'Transcribing the next part',
   },
   review: {
     meta: '{type} · {n} min · {count} participants',

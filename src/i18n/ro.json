@@ -233,7 +233,10 @@
     "step3": "Gruparea sarcinilor pe responsabili",
     "note": "Offline. Sunetul nu părăsește rețeaua spitalului.",
     "progress": "Progres",
-    "done": "gata"
+    "done": "gata",
+    "liveTitle": "Transcris până acum",
+    "chunks": "{n} din {total} fragmente",
+    "listening": "Se transcrie partea următoare"
   },
   "review": {
     "meta_one": "{type} · {n} min · {count} participant",

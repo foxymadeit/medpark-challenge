@@ -17,8 +17,8 @@ export const diarizationTimeline: { speakerId: string | null; seconds: number }[
 /** Languages detected (i18n keys under `lang.*`); the first is "now speaking". */
 export const detectedLanguages = ['ro', 'ru'] as const;
 
-/** Mocked processing duration per step, ms. */
-export const processingStepMs = 1800;
+/** Mocked processing duration per step, ms: transcribing (long enough to read the chunks as they appear), people & keywords, tasks. */
+export const processingStepsMs = [12000, 3000, 3000];
 
 /** Mocked upload file used by the "board_audio" example in Figma. */
 export const exampleUploadName = 'board_audio_0924.m4a';
