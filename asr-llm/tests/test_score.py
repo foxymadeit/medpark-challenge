@@ -24,3 +24,11 @@ def test_report_counts_and_window():
     out = report(segs, gold="Pacientul are hipertensiune. Iešunčiui", window_s=180)
     assert out["off_set_lid"] == 1
     assert out["cer"] == 0.0
+
+
+def test_changes_counts_direction():
+    from asr_llm.score import changes
+
+    base = [SpeechSegment(start=0, end=1, text="a", language="ro"), SpeechSegment(start=1, end=2, text="b", language="ru")]
+    other = [SpeechSegment(start=0, end=1, text="x", language="ru"), SpeechSegment(start=1, end=2, text="b", language="ru")]
+    assert changes(base, other) == {"changed": 1, "by_direction": {"ro->ru": 1}}

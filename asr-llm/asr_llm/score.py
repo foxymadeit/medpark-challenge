@@ -78,15 +78,29 @@ def report(segments: list[SpeechSegment], gold: str | None = None, window_s: flo
     return out
 
 
+def changes(base: list[SpeechSegment], other: list[SpeechSegment]) -> dict:
+    """What a fusion run did relative to the acoustic pick, utterance by utterance."""
+    moved: dict[str, int] = {}
+    for a, b in zip(base, other):
+        if a.text != b.text:
+            key = f"{a.language}->{b.language}"
+            moved[key] = moved.get(key, 0) + 1
+    return {"changed": sum(moved.values()), "by_direction": moved}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("transcript", type=Path)
     parser.add_argument("--gold", type=Path, default=None)
     parser.add_argument("--window", type=float, default=None, help="Score only segments starting before this second.")
+    parser.add_argument("--baseline", type=Path, default=None, help="Acoustic transcript to diff a fusion run against.")
     args = parser.parse_args()
     segments = load_transcript(args.transcript).segments
     gold = args.gold.read_text(encoding="utf-8") if args.gold else None
-    print(json.dumps(report(segments, gold, args.window), ensure_ascii=False, indent=2))
+    out = report(segments, gold, args.window)
+    if args.baseline:
+        out["vs_baseline"] = changes(load_transcript(args.baseline).segments, segments)
+    print(json.dumps(out, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
