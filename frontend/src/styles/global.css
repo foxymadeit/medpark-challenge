@@ -264,6 +264,64 @@ svg {
   border-radius: 999px;
   background: var(--sm-surface-ground);
 }
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.template-card,
+.template-editor {
+  padding: 28px;
+}
+.template-card h2 {
+  margin: 0;
+}
+.template-avatars {
+  display: flex;
+  margin: 14px 0;
+}
+.template-avatars .avatar + .avatar {
+  margin-left: -6px;
+}
+.template-topics {
+  display: grid;
+  gap: 5px;
+  margin: 16px 0 22px;
+  color: var(--sm-ink-secondary);
+}
+.template-editor {
+  display: grid;
+  gap: 20px;
+  max-width: 760px;
+}
+.template-editor fieldset {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--sm-surface-hairline);
+  border-radius: 10px;
+  padding: 16px;
+}
+.check-row {
+  display: flex;
+  gap: 10px;
+}
+.template-prefill {
+  display: grid;
+  gap: 8px;
+  color: var(--sm-ink-secondary);
+}
+.button.disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+@media (max-width: 700px) {
+  .template-grid {
+    grid-template-columns: 1fr;
+  }
+  .template-card .button-row .button {
+    flex: 1;
+  }
+}
 .setup-fields-simple {
   grid-template-columns: 1fr;
 }

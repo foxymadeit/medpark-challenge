@@ -30,7 +30,12 @@ export default function MeetingsPage() {
   return (
     <>
       <div className="desktop-dashboard">
-        <h1>{data.length ? t("startMeeting") : t("meetings")}</h1>
+        <div className="section-heading spread">
+          <h1>{data.length ? t("startMeeting") : t("meetings")}</h1>
+          <Link className="button secondary" to="/templates">
+            {t("templates")}
+          </Link>
+        </div>
         <p className="dashboard-helper">{t("meetingStartHint")}</p>
         {data.length === 0 && (
           <p className="first-day-kicker">{t("startMeeting")}</p>

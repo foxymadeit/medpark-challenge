@@ -23,6 +23,8 @@ import SentPage from "./pages/SentPage";
 import SystemPage from "./pages/SystemPage";
 import TranscriptPage from "./pages/TranscriptPage";
 import UploadPage from "./pages/UploadPage";
+import TemplatesPage from "./pages/TemplatesPage";
+import TemplateEditorPage from "./pages/TemplateEditorPage";
 
 export const routes: RouteObject[] = [
   {
@@ -51,6 +53,9 @@ export const routes: RouteObject[] = [
               { path: "people", Component: PeoplePage },
               { path: "people/enroll", Component: EnrollVoicePage },
               { path: "people/:id/enroll", Component: EnrollVoicePage },
+              { path: "templates", Component: TemplatesPage },
+              { path: "templates/new", Component: TemplateEditorPage },
+              { path: "templates/:id/edit", Component: TemplateEditorPage },
               {
                 Component: AdminRoute,
                 children: [{ path: "system", Component: SystemPage }],

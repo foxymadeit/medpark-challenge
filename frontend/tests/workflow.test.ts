@@ -20,6 +20,8 @@ import {
   updateParticipants,
   saveCorrectionFeedback,
   getSystem,
+  getTemplates,
+  saveTemplate,
 } from "../src/api/meetings";
 import { advanceStore, readStore, writeStore } from "../src/mock/store";
 import { invalidMinutes } from "../src/api/validation";
@@ -110,6 +112,36 @@ describe("demo workflow with no network", () => {
       field: "summary",
       after: "Corrected",
     });
+  });
+  it("enforces template write permissions and keeps meeting setup snapshots independent", async () => {
+    const template = (await getTemplates())[0];
+    await expect(
+      saveTemplate(
+        { ...template, id: template.id, name: "Forbidden" },
+        "staff",
+      ),
+    ).rejects.toThrow("unauthorized");
+    const updated = await saveTemplate(
+      { ...template, id: template.id, name: "Updated tumor board" },
+      "admin",
+    );
+    const people = await getPeople();
+    const meeting = await createMeeting({
+      title: updated.defaultTitle ?? updated.name,
+      type: updated.meetingType,
+      inputMode: "upload",
+      participants: updated.participantStaffIds
+        .map((id) => people.find((person) => person.id === id)!)
+        .filter(Boolean),
+      templateId: updated.id,
+      agendaTopics: updated.agendaTopics,
+    });
+    await saveTemplate(
+      { ...updated, id: updated.id, agendaTopics: [] },
+      "admin",
+    );
+    expect(meeting.templateId).toBe(updated.id);
+    expect(meeting.agendaTopics).toEqual(updated.agendaTopics);
   });
   it("honors a 15-second countdown and pauses when review data is unresolved", () => {
     const store = readStore();

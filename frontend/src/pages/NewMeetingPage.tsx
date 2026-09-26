@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Link,
   useNavigate,
@@ -11,9 +11,9 @@ import {
   FiUpload as UploadSimple,
 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import { createMeeting } from "../api/meetings";
+import { createMeeting, getPeople, getTemplate } from "../api/meetings";
 import { departments, distribution } from "../api/config";
-import type { MeetingType } from "../types/meeting";
+import type { AgendaTopic, MeetingType, Participant } from "../types/meeting";
 import DepartmentDoor from "../components/DepartmentDoor";
 import RouteProgress from "../components/RouteProgress";
 import InputField from "../components/InputField";
@@ -22,7 +22,9 @@ export default function NewMeetingPage() {
   const { t, i18n } = useTranslation();
   const [search] = useSearchParams();
   const { department } = useParams();
-  const chosen = department ?? search.get("type");
+  const templateId = search.get("template") ?? undefined;
+  const [templateType, setTemplateType] = useState<MeetingType>();
+  const chosen = department ?? search.get("type") ?? templateType;
   const type = departments.includes(chosen as MeetingType)
     ? (chosen as MeetingType)
     : null;
@@ -33,6 +35,36 @@ export default function NewMeetingPage() {
   );
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState("");
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [agendaTopics, setAgendaTopics] = useState<AgendaTopic[]>([]);
+  const [templateLoading, setTemplateLoading] = useState(Boolean(templateId));
+  useEffect(() => {
+    if (!templateId) return;
+    let active = true;
+    void Promise.all([getTemplate(templateId), getPeople()])
+      .then(([template, people]) => {
+        if (!active) return;
+        setTemplateType(template.meetingType);
+        setTitle(template.defaultTitle ?? template.name);
+        setAgendaTopics(structuredClone(template.agendaTopics));
+        setParticipants(
+          template.participantStaffIds
+            .map((id) => people.find((person) => person.id === id))
+            .filter((person) => person !== undefined),
+        );
+        setTemplateLoading(false);
+      })
+      .catch(() => {
+        if (active) {
+          setFailure("requestFailed");
+          setTemplateLoading(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [templateId]);
+  if (templateLoading) return <p>{t("loading")}</p>;
   if (!type)
     return (
       <>
@@ -94,6 +126,18 @@ export default function NewMeetingPage() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder={t("titlePlaceholder")}
         />
+        {templateId && (
+          <section className="template-prefill">
+            <strong>
+              {t("participants")}:{" "}
+              {participants.map((person) => person.name).join(", ") || "—"}
+            </strong>
+            <span>
+              {t("agendaTopics")}:{" "}
+              {agendaTopics.map((topic) => topic.text).join(" · ") || "—"}
+            </span>
+          </section>
+        )}
       </div>
       <div className="page-footer">
         {failure && (
@@ -113,7 +157,9 @@ export default function NewMeetingPage() {
                   `${t("meetingFor", { department: t(type) })} — ${new Date().toLocaleDateString(i18n.language, { day: "numeric", month: "short", year: "numeric" })}`,
                 type,
                 inputMode: mode,
-                participants: [],
+                participants,
+                templateId,
+                agendaTopics,
               });
               navigate(
                 `/meetings/${m.id}/${mode === "record" ? "record" : "upload"}`,

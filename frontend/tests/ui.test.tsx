@@ -190,6 +190,18 @@ describe("application flows", () => {
     mount("/meetings/missing/minutes");
     await screen.findByText("This item was not found. Return to meetings.");
   });
+  it("renders real templates and prefills New Meeting without starting recording", async () => {
+    mount("/templates");
+    await screen.findByRole("heading", { name: "Templates" });
+    expect(screen.getByText("Tumor board")).toBeTruthy();
+    expect(screen.getAllByText("AP").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "New template" })).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("link", { name: "Start" })[0]);
+    await screen.findByDisplayValue("Tumor board");
+    expect(screen.getByText(/Dr. Ana Popescu/)).toBeTruthy();
+    expect(screen.getByText(/New oncology cases/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Pause" })).toBeNull();
+  });
   it("shows background processing completion when returning to meetings", async () => {
     mount();
     await screen.findByRole("heading", { name: "Start a meeting" });

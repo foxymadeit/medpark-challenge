@@ -35,6 +35,7 @@ export interface Participant {
   enrolled?: boolean;
   speakingSeconds?: number;
   enrollmentKind?: "prototype" | "verified";
+  active?: boolean;
 }
 export interface VoiceProfile {
   id: string;
@@ -54,6 +55,29 @@ export interface DetectedSpeakerCluster {
   sampleAvailable: boolean;
   identifiedStaffId: string | null;
   status: SpeakerIdentityState;
+}
+export interface AgendaTopic {
+  id: string;
+  text: string;
+  order: number;
+}
+export interface MeetingTemplate {
+  id: string;
+  name: string;
+  meetingType: MeetingType;
+  defaultTitle?: string;
+  participantStaffIds: string[];
+  agendaTopics: AgendaTopic[];
+  recurrence?: {
+    type: "daily" | "weekly" | "monthly" | "custom";
+    label: string;
+    weekday?: number;
+    time?: string;
+  };
+  active: boolean;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 export interface TranscriptSegment {
   id: string;
@@ -115,12 +139,16 @@ export interface Meeting {
   demoGenerated?: boolean;
   sendMode: SendMode;
   reviewState?: ReviewState;
+  templateId?: string;
+  agendaTopics?: AgendaTopic[];
 }
 export interface CreateMeetingInput {
   title: string;
   type: MeetingType;
   inputMode: "record" | "upload";
   participants?: Participant[];
+  templateId?: string;
+  agendaTopics?: AgendaTopic[];
 }
 export interface SystemState {
   local: boolean;

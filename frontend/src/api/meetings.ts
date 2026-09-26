@@ -8,6 +8,7 @@ import type {
   SystemState,
   VoiceProfile,
   DetectedSpeakerCluster,
+  MeetingTemplate,
 } from "../types/meeting";
 import {
   AUTO_COUNTDOWN_SECONDS,
@@ -54,6 +55,8 @@ export async function createMeeting(
         speakingSeconds: 0,
       })),
       distributionList: [distribution[input.type].list],
+      templateId: input.templateId,
+      agendaTopics: structuredClone(input.agendaTopics ?? []),
     };
     s.meetings.unshift(m);
     return m;
@@ -304,6 +307,64 @@ export async function getTranscript(id: string) {
 }
 export async function getPeople(): Promise<Participant[]> {
   return DEMO_MODE ? readStore().people : request("/people");
+}
+export async function getTemplates(): Promise<MeetingTemplate[]> {
+  return DEMO_MODE
+    ? readStore().templates.filter((template) => template.active)
+    : request("/templates");
+}
+export async function getTemplate(id: string): Promise<MeetingTemplate> {
+  if (!DEMO_MODE) return request(`/templates/${encodeURIComponent(id)}`);
+  const template = readStore().templates.find((item) => item.id === id);
+  if (!template) throw new ApiError("notFound");
+  return structuredClone(template);
+}
+export async function saveTemplate(
+  input: Omit<
+    MeetingTemplate,
+    "id" | "createdAt" | "updatedAt" | "createdBy"
+  > & { id?: string },
+  accountRole: "admin" | "staff",
+): Promise<MeetingTemplate> {
+  if (accountRole !== "admin") throw new ApiError("unauthorized");
+  const participantIds = [...new Set(input.participantStaffIds)];
+  if (
+    !input.name.trim() ||
+    participantIds.length !== input.participantStaffIds.length
+  )
+    throw new ApiError("required");
+  if (!DEMO_MODE)
+    return request(
+      input.id ? `/templates/${encodeURIComponent(input.id)}` : "/templates",
+      {
+        method: input.id ? "PATCH" : "POST",
+        body: JSON.stringify({ ...input, participantStaffIds: participantIds }),
+      },
+    );
+  return mutate((store) => {
+    if (
+      participantIds.some(
+        (id) => !store.people.some((person) => person.id === id),
+      )
+    )
+      throw new ApiError("notFound");
+    const now = new Date().toISOString();
+    const existing = input.id
+      ? store.templates.find((item) => item.id === input.id)
+      : undefined;
+    const value: MeetingTemplate = {
+      ...input,
+      id: existing?.id ?? crypto.randomUUID(),
+      name: input.name.trim(),
+      participantStaffIds: participantIds,
+      createdBy: existing?.createdBy ?? "demo-admin",
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    };
+    if (existing) Object.assign(existing, value);
+    else store.templates.push(value);
+    return value;
+  });
 }
 export async function getVoiceProfiles(): Promise<VoiceProfile[]> {
   return DEMO_MODE ? readStore().voiceProfiles : request("/voice-profiles");

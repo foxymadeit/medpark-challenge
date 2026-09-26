@@ -5,19 +5,79 @@ import type {
   Participant,
   VoiceProfile,
   DetectedSpeakerCluster,
+  MeetingTemplate,
 } from "../types/meeting";
 import { sampleMinutes, seedMeetings, seedPeople } from "./seed";
 import { AUTO_COUNTDOWN_SECONDS } from "../api/config";
 import { ApiError } from "../api/client";
 export interface DemoStore {
-  version: 2 | 3 | 4;
+  version: 2 | 3 | 4 | 5;
   meetings: Meeting[];
   people: Participant[];
   feedback: CorrectionFeedback[];
   voiceProfiles: VoiceProfile[];
   speakerClusters: DetectedSpeakerCluster[];
+  templates: MeetingTemplate[];
 }
 export const STORE_KEY = "secure-mom-v2";
+function seedTemplates(): MeetingTemplate[] {
+  const now = new Date().toISOString();
+  const make = (
+    id: string,
+    name: string,
+    meetingType: MeetingTemplate["meetingType"],
+    participantStaffIds: string[],
+    label: string,
+    topics: string[],
+  ): MeetingTemplate => ({
+    id,
+    name,
+    meetingType,
+    defaultTitle: name,
+    participantStaffIds,
+    agendaTopics: topics.map((text, order) => ({
+      id: `${id}-${order}`,
+      text,
+      order,
+    })),
+    recurrence: { type: "custom", label },
+    active: true,
+    createdBy: "demo-admin",
+    createdAt: now,
+    updatedAt: now,
+  });
+  return [
+    make(
+      "tumor-board",
+      "Tumor board",
+      "medical",
+      ["ana", "elena", "igor"],
+      "Every Monday · 09:00",
+      ["New oncology cases", "Surgery planning", "Treatment decisions"],
+    ),
+    make("icu-handover", "ICU handover", "medical", ["elena", "ana"], "Daily", [
+      "Critical patients",
+      "Medication changes",
+      "Pending tests",
+    ]),
+    make(
+      "executive-sync",
+      "Weekly executive sync",
+      "executive",
+      ["elena", "victor"],
+      "Fridays",
+      ["Operating priorities", "Staffing", "Risks"],
+    ),
+    make(
+      "supply-planning",
+      "Supply planning",
+      "administrative",
+      ["victor"],
+      "Monthly",
+      ["Stock levels", "Contracts", "Delivery dates"],
+    ),
+  ];
+}
 export function advanceStore(
   store: DemoStore,
   now = Date.now(),
@@ -108,14 +168,14 @@ export function readStore(): DemoStore {
       throw new ApiError("storage");
     }
     if (
-      ![2, 3, 4].includes(store.version) ||
+      ![2, 3, 4, 5].includes(store.version) ||
       !Array.isArray(store.meetings) ||
       !Array.isArray(store.people)
     )
       throw new ApiError("storage");
   } else {
     store = {
-      version: 4,
+      version: 5,
       meetings: seedMeetings(),
       people: structuredClone(seedPeople),
       feedback: [],
@@ -140,6 +200,7 @@ export function readStore(): DemoStore {
           status: "unidentified",
         },
       ],
+      templates: seedTemplates(),
     };
     writeStore(store);
   }
@@ -173,8 +234,14 @@ export function readStore(): DemoStore {
     ];
     migrated = true;
   }
+  if (store.version === 4) {
+    store.version = 5;
+    store.templates = seedTemplates();
+    migrated = true;
+  }
   store.voiceProfiles ??= [];
   store.speakerClusters ??= [];
+  store.templates ??= seedTemplates();
   store.feedback ??= [];
   for (const meeting of store.meetings) {
     for (const participant of meeting.participants) {
