@@ -6,7 +6,7 @@ const WORK_PER_AUDIO_SECOND = 0.25;
 const STARTUP_S = 60;
 // Share of the audio stages (recognition and speakers run side by side) in
 // the whole job, from the backend's own per-stage factors.
-const AUDIO_SHARE = 0.15 / 0.19;
+export const AUDIO_SHARE = 0.15 / 0.19;
 // What happens inside the server's single "minutes" stage (Figma M01), with
 // the share of its time each step takes: reading the model's two long passes
 // dominate, checking and rendering are quick.

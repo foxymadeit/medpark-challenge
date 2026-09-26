@@ -184,7 +184,8 @@ export default function ProcessingPage() {
           >
             <span style={{ transform: `scaleX(${overall / 100})` }} />
           </div>
-          {finish > now ? (
+          {/* a clock time only when it is at least a minute away */}
+          {finish - now >= 60_000 ? (
             <>
               <p>{t("minutesAbout")}</p>
               <div className="mono">

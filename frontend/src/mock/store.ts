@@ -14,6 +14,7 @@ import type {
 import { sampleMinutes, seedMeetings, seedPeople } from "./seed";
 import { AUTO_COUNTDOWN_SECONDS } from "../api/config";
 import { ApiError } from "../api/client";
+import { AUDIO_SHARE } from "../api/stages";
 export interface DemoStore {
   version: 2 | 3 | 4 | 5 | 6;
   meetings: Meeting[];
@@ -177,6 +178,18 @@ export function advanceStore(
       );
       if (m.progress !== progress) {
         m.progress = progress;
+        // the server's three stages, so the demo shows the same six steps
+        const split = start + (end - start) * AUDIO_SHARE;
+        const audioDone = now >= split;
+        m.stages = [
+          { id: "transcribe", state: audioDone ? "done" : "running" },
+          { id: "speakers", state: audioDone ? "done" : "running" },
+          {
+            id: "minutes",
+            state: audioDone ? "running" : "pending",
+            startedAt: new Date(split).toISOString(),
+          },
+        ];
         changed = true;
       }
       if (now >= end) {
