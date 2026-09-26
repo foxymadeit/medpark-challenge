@@ -9,12 +9,14 @@ interface Props {
   children: ReactNode;
   variant?: 'modal' | 'panel';
   wide?: boolean;
+  /** Extra class on the dialog box (e.g. a size). */
+  className?: string;
 }
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
 
 /** Modal (centered) or side panel (right). Esc / scrim click closes, focus is trapped and restored. */
-export function Dialog({ title, onClose, children, variant = 'modal', wide }: Props) {
+export function Dialog({ title, onClose, children, variant = 'modal', wide, className = '' }: Props) {
   const { t } = useI18n();
   const titleId = useId();
   const box = useRef<HTMLDivElement>(null);
@@ -58,7 +60,7 @@ export function Dialog({ title, onClose, children, variant = 'modal', wide }: Pr
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={variant === 'panel' ? 'side-panel' : `modal${wide ? ' modal--wide' : ''}`}
+        className={`${variant === 'panel' ? 'side-panel' : `modal${wide ? ' modal--wide' : ''}`} ${className}`.trim()}
         onKeyDown={onKeyDown}
       >
         <div className="dialog-head">
