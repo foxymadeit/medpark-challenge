@@ -7,11 +7,12 @@ import { formatClock } from "../utils";
  * now with its live count, and when the rest should finish. */
 export default function ProcessingStages({
   stages,
+  now,
 }: {
   stages: ProcessingStage[];
+  now: number;
 }) {
   const { t, i18n } = useTranslation();
-  const now = Date.now();
   // A clock time in the past would be a broken promise; say "soon" instead.
   const clock = (iso?: string) =>
     iso ? formatClock(new Date(iso), i18n.language) : "";

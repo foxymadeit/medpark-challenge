@@ -3,6 +3,7 @@ import { FiMail as EnvelopeSimple, FiPause as Pause } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { markReviewed, sendNow, stopScheduledSend } from "../api/meetings";
 import { invalidMinutes } from "../api/validation";
+import { listName } from "../api/routing";
 import type { Meeting } from "../types/meeting";
 import { notifyUpdate } from "../hooks/useData";
 import Button from "./Button";
@@ -104,7 +105,7 @@ export default function SendCountdown({ meeting }: { meeting: Meeting }) {
               ? t("sendingStopped")
               : meeting.status === "sending_soon"
                 ? t("sendingIn", {
-                    list: meeting.distributionList.join(", "),
+                    list: listName(meeting.type, t),
                     time: formatTime(seconds),
                   })
                 : meeting.status === "sending"

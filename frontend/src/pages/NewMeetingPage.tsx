@@ -17,7 +17,9 @@ import {
   getPeople,
   getTemplate,
 } from "../api/meetings";
-import { departments, distribution } from "../api/config";
+import { departments } from "../api/config";
+import { routingLine } from "../api/routing";
+import { useRouting } from "../hooks/useRouting";
 import type { AgendaTopic, MeetingType, Participant } from "../types/meeting";
 import DepartmentDoor from "../components/DepartmentDoor";
 import RouteProgress from "../components/RouteProgress";
@@ -35,6 +37,7 @@ export default function NewMeetingPage() {
     ? (chosen as MeetingType)
     : null;
   const navigate = useNavigate();
+  const routing = useRouting();
   const [title, setTitle] = useState("");
   const [mode, setMode] = useState<"record" | "upload">(
     search.get("mode") === "upload" ? "upload" : "record",
@@ -93,6 +96,7 @@ export default function NewMeetingPage() {
             <DepartmentDoor
               key={d}
               type={d}
+              routing={routing}
               mode={search.get("mode") ?? undefined}
             />
           ))}
@@ -108,7 +112,7 @@ export default function NewMeetingPage() {
         <div className="meeting-heading-title">
           <div>
             <h1>{t("meetingFor", { department: t(type) })}</h1>
-            <p>{t("routing", distribution[type])}</p>
+            <p>{routingLine(type, routing, t)}</p>
           </div>
         </div>
         <RouteProgress stage="record" upload={mode === "upload"} />

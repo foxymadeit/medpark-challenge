@@ -5,6 +5,7 @@ import { useData, notifyUpdate } from "../hooks/useData";
 import type { Meeting } from "../types/meeting";
 import Button from "./Button";
 import StatePanel from "./StatePanel";
+import { listName } from "../api/routing";
 
 export default function ReviewParticipants({ meeting }: { meeting: Meeting }) {
   const { t } = useTranslation();
@@ -20,7 +21,12 @@ export default function ReviewParticipants({ meeting }: { meeting: Meeting }) {
       <div className="section-heading spread">
         <div>
           <h2>{t("participantsRecipients")}</h2>
-          <small>{meeting.distributionList.join(", ")}</small>
+          <small>
+            {t("routingToCount", {
+              list: listName(meeting.type, t),
+              count: meeting.distributionList.length,
+            })}
+          </small>
         </div>
         <Button variant="quiet" onClick={() => setEditing(!editing)}>
           {t(editing ? "cancel" : "reviewParticipants")}

@@ -15,10 +15,13 @@ import StatePanel from "../components/StatePanel";
 import ProcessingStages from "../components/ProcessingStages";
 import { displayStages, expectedFinish } from "../api/stages";
 import { formatClock } from "../utils";
+import { listName } from "../api/routing";
+import { useNow } from "../hooks/useNow";
 import { formatTime } from "../utils";
 export default function ProcessingPage() {
   const { t, i18n } = useTranslation();
   const { data: m, error, refresh } = useMeeting();
+  const now = useNow();
   const navigate = useNavigate();
   useEffect(() => {
     if (m && ["sending_soon", "ready", "sending", "sent"].includes(m.status))
@@ -92,7 +95,6 @@ export default function ProcessingPage() {
     "writingMinutes",
     "preparingDelivery",
   ];
-  const now = Date.now();
   const stages = displayStages(m, now);
   const finish = expectedFinish(m, now);
   const running = stages.find((s) => s.state === "running")?.id;
@@ -140,7 +142,7 @@ export default function ProcessingPage() {
       <MeetingHeader meeting={m} stage={headerStage} />
       <div className="processing-grid">
         {stages.length ? (
-          <ProcessingStages stages={stages} />
+          <ProcessingStages stages={stages} now={now} />
         ) : (
           <section className="panel process-timeline">
             {steps.map((s, i) => (
@@ -163,7 +165,7 @@ export default function ProcessingPage() {
                           : i === 3
                             ? t("decisionsOwners")
                             : i === 4
-                              ? m.distributionList.join(", ")
+                              ? listName(m.type, t)
                               : ""}
                   </p>
                 </div>

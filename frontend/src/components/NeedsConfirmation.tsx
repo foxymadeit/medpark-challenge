@@ -5,6 +5,7 @@ import { notifyUpdate } from "../hooks/useData";
 import type { ConfirmItem, Meeting } from "../types/meeting";
 import Button from "./Button";
 import { explainProblems } from "../api/reasons";
+import { listName } from "../api/routing";
 
 type Choice = "keep" | "remove";
 
@@ -129,7 +130,7 @@ export default function NeedsConfirmation({
       </ul>
       <div className="confirm-footer">
         <p className="muted">
-          {t("sendingWaits", { list: meeting.distributionList.join(", ") })}
+          {t("sendingWaits", { list: listName(meeting.type, t) })}
         </p>
         <Button
           variant="primary"

@@ -12,7 +12,6 @@ const SEND_WINDOW = Number(process.env.SEND_WINDOW ?? 4);
 const STEP_MS = Number(process.env.STEP_MS ?? 700);
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".woff2": "font/woff2" };
 const USER = { id: "u1", email: "admin@medpark.local", name: "Administrator", role: "admin", initials: "AD" };
-const STAGES = ["transcribe", "speakers", "extract", "verify", "write", "render"];
 const meetings = new Map();
 let session = null;
 
@@ -90,6 +89,7 @@ const routes = [
   }],
   ["GET", /^\/api\/auth\/me$/, (req, res) => (session && req.headers.cookie?.includes(session) ? send(res, 200, USER) : send(res, 401, {}))],
   ["POST", /^\/api\/auth\/logout$/, (req, res) => { session = null; send(res, 204); }],
+  ["GET", /^\/api\/routing$/, (req, res) => send(res, 200, { medical: ["medical-board@hospital.local", "admin-board@hospital.local"], executive: ["executive-board@hospital.local"], administrative: ["admin-board@hospital.local"] })],
   ["GET", /^\/api\/capabilities$/, (req, res) => send(res, 200, { autoModeAvailable: true })],
   ["GET", /^\/api\/system$/, (req, res) => send(res, 200, { local: true, host: "liminal-test", services: ["asr", "speakers", "automation", "mail", "storage"].map((id) => ({ id, available: true })), capabilities: { autoModeAvailable: true } })],
   ["GET", /^\/api\/(people|templates|voice-profiles|speaker-clusters|action-items)$/, (req, res) => send(res, 200, [])],

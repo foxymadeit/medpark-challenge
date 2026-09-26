@@ -17,6 +17,7 @@ import SpeakerLabel from "../components/SpeakerLabel";
 import NeedsConfirmation from "../components/NeedsConfirmation";
 import DocumentsCard from "../components/DocumentsCard";
 import type { MinutesLanguage } from "../types/meeting";
+import { listName } from "../api/routing";
 import { formatTime } from "../utils";
 import { sendNow } from "../api/meetings";
 import { downloadMinutesPdf } from "../api/pdf";
@@ -67,7 +68,7 @@ export default function MomPage() {
                 <h2>{t("deliveryFailed")}</h2>
                 <p>
                   {t("deliveryFailedDetail", {
-                    list: m.distributionList.join(", "),
+                    list: listName(m.type, t),
                   })}
                 </p>
                 <p>{t("deliveryRetryThirty")}</p>

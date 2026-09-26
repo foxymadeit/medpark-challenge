@@ -11,6 +11,7 @@ import { departments } from "../api/config";
 import { useData } from "../hooks/useData";
 import { useAuth } from "../auth/useAuth";
 import DepartmentDoor from "../components/DepartmentDoor";
+import { useRouting } from "../hooks/useRouting";
 import MeetingList from "../components/MeetingList";
 import ActionItemRow from "../components/ActionItemRow";
 import StatePanel from "../components/StatePanel";
@@ -18,6 +19,7 @@ import Modal from "../components/Modal";
 import Button from "../components/Button";
 export default function MeetingsPage() {
   const { t } = useTranslation();
+  const routing = useRouting();
   const { user } = useAuth();
   const { data, error, refresh } = useData(getMeetings);
   const [choose, setChoose] = useState<false | "record" | "upload">(false);
@@ -42,7 +44,7 @@ export default function MeetingsPage() {
         )}
         <div className="department-doors">
           {departments.map((type) => (
-            <DepartmentDoor key={type} type={type} />
+            <DepartmentDoor key={type} type={type} routing={routing} />
           ))}
         </div>
         {data.length === 0 ? (
@@ -121,7 +123,12 @@ export default function MeetingsPage() {
         <Modal title={t("selectDepartment")} onClose={() => setChoose(false)}>
           <div className="door-stack">
             {departments.map((type) => (
-              <DepartmentDoor key={type} type={type} mode={choose} />
+              <DepartmentDoor
+                key={type}
+                type={type}
+                mode={choose}
+                routing={routing}
+              />
             ))}
           </div>
         </Modal>

@@ -17,6 +17,7 @@ import {
   safeName,
 } from "../api/exports";
 import { getRecording } from "../api/meetings";
+import { listName } from "../api/routing";
 export default function SentPage() {
   const { t, i18n } = useTranslation();
   const { data: m, error, refresh } = useMeeting();
@@ -38,7 +39,7 @@ export default function SentPage() {
         <div>
           <h2>{t("deliveryConfirmed")}</h2>
           <p>
-            {m.distributionList.join(", ")} ·{" "}
+            {listName(m.type, t)} ·{" "}
             {m.sentAt && new Date(m.sentAt).toLocaleString(i18n.language)}
           </p>
           {DEMO_MODE && <p>{t("demoDelivery")}</p>}

@@ -1,12 +1,15 @@
 import { FiShield as ShieldCheck } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { getSystem } from "../api/meetings";
-import { DEMO_MODE, departments, distribution } from "../api/config";
+import { DEMO_MODE, departments } from "../api/config";
+import { listName, routingLine } from "../api/routing";
+import { useRouting } from "../hooks/useRouting";
 import { useData } from "../hooks/useData";
 import StatePanel from "../components/StatePanel";
 export default function SystemPage() {
   const { t, i18n } = useTranslation();
   const { data, error, refresh } = useData(getSystem, 10000);
+  const routing = useRouting();
   if (!data) return <StatePanel error={error} retry={refresh} />;
   return (
     <>
@@ -74,8 +77,8 @@ export default function SystemPage() {
         <div className="distribution-grid">
           {departments.map((d) => (
             <div key={d}>
-              <strong>{distribution[d].list}</strong>
-              <p>{t("routing", distribution[d])}</p>
+              <strong>{listName(d, t)}</strong>
+              <p>{routingLine(d, routing, t)}</p>
             </div>
           ))}
         </div>

@@ -51,6 +51,7 @@ describe("real pipeline screens", () => {
   it("shows live stages with the count, the running step and clock-time ETAs", () => {
     render(
       <ProcessingStages
+        now={Date.now()}
         stages={[
           {
             id: "transcribe",
