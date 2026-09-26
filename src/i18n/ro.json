@@ -355,9 +355,9 @@
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",
     "sendingLead_few": "Se trimite la {count} participanți",
-    "doneLead_one": "Trimis la {count} participant.",
-    "doneLead_few": "Trimis la {count} participanți.",
-    "doneLead": "Trimis la {count} de participanți.",
+    "doneLead_one": "Trimis la {count} participant. Cu PDF atașat.",
+    "doneLead_few": "Trimis la {count} participanți. Cu PDF atașat.",
+    "doneLead": "Trimis la {count} de participanți. Cu PDF atașat.",
     "saved": "Salvat în Istoric cu rolurile de la {date}.",
     "sending": "Se trimite procesul-verbal…",
     "sendingLead": "Se trimite la {count} de participanți",
@@ -466,6 +466,12 @@
     "reviewModeHint": "Automat trimite procesul-verbal imediat ce este scris, fără a întreba.",
     "save": "Salvează modificările",
     "saved": "Salvat"
+  },
+  "email": {
+    "to": "Către",
+    "subject": "Subiect",
+    "subjectLine": "Proces-verbal: {title} · {date}",
+    "attached": "PDF atașat"
   },
   "pdf": {
     "title": "Proces-verbal al ședinței",

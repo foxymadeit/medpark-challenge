@@ -351,8 +351,8 @@ export const en = {
     },
   },
   sent: {
-    doneLead: 'Sent to {count} participants.',
-    doneLead_one: 'Sent to {count} participant.',
+    doneLead: 'Sent to {count} participants, with the PDF attached.',
+    doneLead_one: 'Sent to {count} participant, with the PDF attached.',
     saved: 'Saved to History with roles as of {date}.',
     sending: 'Sending the minutes…',
     sendingLead: 'Sending to {count} participants',
@@ -459,6 +459,12 @@ export const en = {
     reviewModeHint: 'Auto sends the minutes as soon as they are written, without asking.',
     save: 'Save changes',
     saved: 'Saved',
+  },
+  email: {
+    to: 'To',
+    subject: 'Subject',
+    subjectLine: 'Minutes: {title} · {date}',
+    attached: 'PDF attached',
   },
   pdf: {
     colName: 'Name',
