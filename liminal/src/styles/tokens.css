@@ -1,0 +1,71 @@
+/* Design tokens — read from Figma variables (file bnCzuQd39C1F9AkGe7lwo7, "Liminal — minimal v3").
+   Names mirror the Figma variable names (--sm-*) so code ↔ design lookups stay 1:1. */
+:root {
+  /* surface */
+  --sm-surface-ground: #f7f6f3;
+  --sm-surface-panel: #ffffff;
+  --sm-surface-hairline: #eae6df;
+
+  /* ink — text colours */
+  --sm-ink-primary: #101010;
+  --sm-ink-secondary: #5b544b;
+  --sm-ink-tertiary: #6f685f;
+
+  /* Controls: selected chips / segmented / checkboxes stay ink black (graphite #4a4f57 was tried and reverted),
+     one action colour for the main call to action on each screen. */
+  --sm-control: var(--sm-ink-primary);
+  --sm-control-hover: #2b2b2b;
+  --sm-action: #1f5fd1;
+  --sm-action-hover: #1a50b3;
+  --sm-action-tint: #eaf1fd;
+  --sm-success: #1e7f4f; /* completed milestones only */
+  --sm-success-tint: #e3f3ea;
+  /* Container titles sit a step quieter than the content inside them. */
+  --sm-title-muted: var(--sm-ink-secondary);
+
+  /* signal — errors only */
+  --sm-signal-danger: #b3261e;
+  /* Start tiles, Figma "01 New meeting · Cards A · Soft tint" (2042:2215). Tints only, never for errors. */
+  --sm-tint-record: #ffe1de;
+  --sm-tint-record-line: #f5b5ae;
+  --sm-tint-upload: #ddebff;
+  --sm-tint-upload-line: #a9c8f5;
+
+  /* speaker — speaker dots + waveform only.
+     Figma defines 01–04; add more here as the file grows. */
+  --sm-speaker-01: #b73f74;
+  --sm-speaker-02: #c27544;
+  --sm-speaker-03: #0093a5;
+  --sm-speaker-04: #6450a1;
+
+  /* radius */
+  --sm-radius-tile: 10px;
+  --sm-radius-panel: 18px;
+  --sm-radius-inner: 8px; /* segmented / language switch items */
+
+  /* spacing — 8-pt grid, 4 for micro gaps */
+  --sm-space-1: 4px;
+  --sm-space-2: 8px;
+  --sm-space-3: 12px;
+  --sm-space-4: 16px;
+  --sm-space-5: 20px;
+  --sm-space-6: 24px;
+  --sm-space-8: 32px;
+  --sm-space-10: 40px;
+  --sm-space-12: 48px;
+
+  /* elevation */
+  --sm-elevation-card: 0 1px 2px 0 rgba(16, 16, 16, 0.04), 0 4px 12px 0 rgba(16, 16, 16, 0.04),
+    0 16px 32px 0 rgba(16, 16, 16, 0.03);
+  --sm-elevation-button: inset 0 1px 0 0 rgba(255, 255, 255, 0.16), 0 1px 2px 0 rgba(16, 16, 16, 0.12),
+    0 4px 8px 0 rgba(16, 16, 16, 0.08);
+
+  /* fonts */
+  --sm-font-sign: 'Onest', system-ui, sans-serif;
+  --sm-font-body: 'Golos Text', system-ui, sans-serif;
+  --sm-font-data: 'Geist Mono', ui-monospace, monospace;
+
+  /* layout */
+  --sm-topbar-h: 64px;
+  --sm-sidebar-w: 240px;
+}
