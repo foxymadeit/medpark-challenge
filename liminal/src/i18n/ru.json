@@ -354,7 +354,9 @@
     "voicesToName_one": "{count} голос нужно определить",
     "voicesToName_few": "{count} голоса нужно определить",
     "voicesToName_many": "{count} голосов нужно определить",
-    "voicesToName": "{count} голоса нужно определить"
+    "voicesToName": "{count} голоса нужно определить",
+    "transcriptCheck": "Проверить расшифровку",
+    "transcriptHide": "Скрыть расшифровку"
   },
   "sent": {
     "sendingLead_one": "Отправка {count} участнику",

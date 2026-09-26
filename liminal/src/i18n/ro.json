@@ -347,7 +347,9 @@
     "transcriptMeta": "{count} de replici",
     "voicesToName_one": "{count} voce de identificat",
     "voicesToName_few": "{count} voci de identificat",
-    "voicesToName": "{count} de voci de identificat"
+    "voicesToName": "{count} de voci de identificat",
+    "transcriptCheck": "Verificați transcrierea",
+    "transcriptHide": "Ascundeți transcrierea"
   },
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",

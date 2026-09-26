@@ -353,7 +353,10 @@ export function Review() {
                 {t('review.transcriptMeta', { count: meeting.transcript.length })}
                 {unknown.length > 0 && ` · ${t('review.voicesToName', { count: unknown.length })}`}
               </span>
-              <CaretDownIcon size={18} aria-hidden className="review__disclosure-caret" />
+              <span className="review__disclosure-action" aria-hidden>
+                {transcriptOpen ? t('review.transcriptHide') : t('review.transcriptCheck')}
+                <CaretDownIcon size={18} className="review__disclosure-caret" />
+              </span>
             </button>
           </h2>
           {transcriptOpen && (
