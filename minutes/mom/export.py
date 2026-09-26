@@ -66,4 +66,5 @@ def meeting_json(meeting, facts, lines, body: str, lang: str, patients=()) -> di
         "reviewFlags": [latexcheck.unescape(b.args["text"]) for b in blocks if b.kind == "needsconfirmation"],
         "reviewState": "needs_review",     # a person reviews every set of minutes before it is sent
         "sendMode": "manual",
+        "minutesLanguage": lang,           # the summary and items above are written in this language
     }

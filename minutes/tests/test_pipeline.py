@@ -70,6 +70,11 @@ def test_transcript_to_six_documents_offline(tmp_path, no_network):
     assert a2["status"] == "confirm"
     app = json.loads(open(result["meeting"], encoding="utf-8").read())
     assert app["actionItems"][0]["deadline"] == "2026-09-30" and app["reviewFlags"]
+    state = tmp_path / "out" / "MoM_2026-09-24_administrative.render.json"   # what a later re-render needs
+    assert result["render"] == str(state) and oct(state.stat().st_mode & 0o777) == "0o600"
+    saved = json.loads(state.read_text(encoding="utf-8"))
+    assert set(saved["bodies"]) == {"ro", "ru", "en"} and saved["meeting"]["type"] == "administrative"
+    assert saved["meeting"]["number"] == "3" and all(saved["attendees"][lang] for lang in ("ro", "ru", "en"))
 
 
 def test_purge_deletes_only_old_minutes_files(tmp_path):
