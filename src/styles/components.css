@@ -34,9 +34,9 @@
 .btn--ghost:hover:not(:disabled) { background: var(--sm-surface-ground); }
 /* Black filled button (log in, create participant): same weight as primary, without the action blue. */
 .btn--ink { background: var(--sm-ink-primary); color: var(--sm-surface-panel); box-shadow: var(--sm-elevation-button); }
-.btn--ink:hover:not(:disabled) { background: #2b2b2b; }
+.btn--ink:hover:not(:disabled) { background: var(--sm-ink-hover); }
 .btn--danger { background: var(--sm-signal-danger); color: var(--sm-surface-panel); box-shadow: var(--sm-elevation-button); }
-.btn--danger:hover:not(:disabled) { background: #9a1f18; }
+.btn--danger:hover:not(:disabled) { background: var(--sm-signal-danger-hover); }
 .btn--block { width: 100%; }
 .btn:disabled, .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
@@ -164,7 +164,7 @@
   font-weight: 600;
 }
 /* Ink-outline variant (2045:2619): warm track, selected item is a raised white pill — everywhere, top-bar language switch included. */
-.segmented { gap: 2px; padding: 3px; border: 0; background: #f1efea; }
+.segmented { gap: 2px; padding: 3px; border: 0; background: var(--sm-control-track); }
 .segmented .segmented__item { height: 36px; color: var(--sm-ink-secondary); font-weight: 500; }
 .segmented .segmented__item:hover { color: var(--sm-ink-primary); }
 .segmented .segmented__item[aria-checked='true'] { background: var(--sm-surface-panel); color: var(--sm-ink-primary); font-weight: 600; box-shadow: 0 2px 8px rgba(16, 16, 16, 0.06), 0 1px 3px rgba(16, 16, 16, 0.08); }
@@ -348,21 +348,9 @@
 .dropdown__option[aria-selected='true'] { font-weight: 600; }
 .dropdown__option.is-active { background: var(--sm-surface-ground); }
 .dropdown__option--muted { color: var(--sm-ink-secondary); }
-.dropdown__custom { padding: 4px 8px; }
 
-/* ── Radio card & checkbox ───────────────────────────────── */
-.radio-card {
-  display: flex;
-  align-items: center;
-  gap: var(--sm-space-3);
-  width: 100%;
-  padding: var(--sm-space-2) var(--sm-space-4);
-  border: 1px solid var(--sm-surface-hairline);
-  border-radius: var(--sm-radius-tile);
-  cursor: pointer;
-}
-.radio-card:has(input:checked) { border: 1.5px solid var(--sm-control); padding: 7.5px 15.5px; }
-.radio-card:has(input:focus-visible) { outline: 2px solid var(--sm-ink-primary); outline-offset: 2px; }
+/* ── Radio & checkbox ───────────────────────────────── */
+
 .radio {
   appearance: none;
   flex-shrink: 0;

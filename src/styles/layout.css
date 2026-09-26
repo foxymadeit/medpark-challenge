@@ -27,7 +27,7 @@
 /* Wordmark: bold, and its cap-height box centred on the 25.5px sign. */
 .brand__name { position: relative; top: 1px; font: 600 16px/22px var(--sm-font-sign); letter-spacing: -0.08px; }
 /* Figma "Brand": "min" bold in the logo blue. */
-.wordmark__min { color: #007aff; font-weight: 700; }
+.wordmark__min { color: var(--sm-brand); font-weight: 700; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
 .account { position: relative; }
 .account__button {
@@ -124,7 +124,7 @@
   margin-top: auto;
   padding-top: var(--sm-space-8);
 }
-.page__actions--stack { flex-direction: column; gap: var(--sm-space-2); }
+
 .lead { font: 400 15px/22px var(--sm-font-body); color: var(--sm-ink-secondary); }
 .note { font: 400 13px/18px var(--sm-font-body); color: var(--sm-ink-secondary); }
 /* Descriptive hints under a control: 30% lighter than regular secondary text. */
@@ -134,7 +134,7 @@
 
 @media print {
   .topbar, .sidenav, .no-print { display: none !important; }
-  body { background: #fff; }
+  body { background: var(--sm-surface-panel); }
 }
 
 .note.c-danger, .lead.c-danger { color: var(--sm-signal-danger); }

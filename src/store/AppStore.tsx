@@ -33,7 +33,13 @@ interface State {
 
 export type LogInResult = 'ok' | 'receives-only' | 'no-account';
 
-const STORAGE_KEY = 'liminal:state:v1';
+const STORAGE_KEY = 'liminal:state';
+/**
+ * Bump when the shape of the saved data or the seed data changes: browsers holding an older
+ * version start fresh instead of mixing stale meetings with new code.
+ */
+const DATA_VERSION = 2;
+const LEGACY_KEYS = ['liminal:state:v1'];
 
 const initialState = (): State => ({
   account: null,
@@ -47,12 +53,16 @@ const initialState = (): State => ({
 
 function load(): State {
   try {
+    LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
     if (new URLSearchParams(location.search).has('reset')) {
       localStorage.removeItem(STORAGE_KEY);
       history.replaceState(null, '', location.pathname);
     }
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...initialState(), ...JSON.parse(raw) };
+    if (raw) {
+      const saved = JSON.parse(raw) as { v?: number; state?: Partial<State> };
+      if (saved.v === DATA_VERSION && saved.state) return { ...initialState(), ...saved.state };
+    }
   } catch {
     /* ignore corrupt or blocked storage */
   }
@@ -64,7 +74,7 @@ function useStoreValue() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: DATA_VERSION, state }));
     } catch {
       /* storage unavailable — keep in memory */
     }

@@ -23,8 +23,21 @@
   /* Container titles sit a step quieter than the content inside them. */
   --sm-title-muted: var(--sm-ink-secondary);
 
+  /* Brand: the blue "min" in the Liminal wordmark (Figma "Brand" 2009:1603) and meeting names. */
+  --sm-brand: #007aff;
+  /* Hover shades for the solid buttons, and the warm track behind segmented toggles. */
+  --sm-ink-hover: #2b2b2b;
+  --sm-control-track: #f1efea;
+  /* Text/icons on solid colour fills (template badges). */
+  --sm-on-solid: #ffffff;
+  /* Keyword chip hover in the transcript. */
+  --sm-keyword-hover: #ddd8cf;
+
   /* signal — errors only */
   --sm-signal-danger: #b3261e;
+  --sm-signal-danger-hover: #9a1f18;
+  --sm-signal-danger-tint: #fdf1f0;
+  --sm-signal-danger-line: #f1c6c2;
   /* Start tiles, Figma "01 New meeting · Cards A · Soft tint" (2042:2215). Tints only, never for errors. */
   --sm-tint-record: #ffe1de;
   --sm-tint-record-line: #f5b5ae;

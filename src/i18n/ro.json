@@ -69,7 +69,6 @@
     "title": "Autentificare",
     "passwordPh": "Parola dvs.",
     "submit": "Autentificare",
-    "network": "Funcționează doar în rețeaua spitalului",
     "noAccount": "Nu am găsit niciun cont cu acest email.",
     "emailMissing": "Introduceți emailul de serviciu",
     "passwordMissing": "Introduceți parola",
@@ -78,7 +77,6 @@
     "capsLock": "Caps Lock este activat",
     "newHere": "Nu aveți încă un cont?",
     "demoTitle": "Sau încercați un cont demo",
-    "demoHint": "Un clic și sunteți conectat.",
     "receivesOnly": "Primiți procesul-verbal pe e-mail, deci nu trebuie să vă autentificați."
   },
   "onboarding": {
@@ -118,7 +116,6 @@
     "colWho": "Nume și e-mail",
     "colRole": "Funcție",
     "colAccess": "Acces",
-    "you": "{name} (dvs.)",
     "emptyTitle": "Adăugați persoanele care participă la ședințele dvs.",
     "emptyLead": "Numele ajută AI-ul să atribuie sarcinile. E-mailurile decid cine primește procesul-verbal.",
     "add": "Creează participant nou",
@@ -280,10 +277,7 @@
   "review": {
     "meta_one": "{type} · {n} min · {count} participant",
     "meta_few": "{type} · {n} min · {count} participanți",
-    "sendingIn_one": "Se trimite la {count} participant în",
-    "sendingIn_few": "Se trimite la {count} participanți în",
     "meta": "{type} · {n} min · {count} de participanți",
-    "mode": "Mod de verificare",
     "manual": "Manual",
     "auto": "Automat",
     "transcript": "Transcriere",
@@ -291,13 +285,11 @@
     "tasks": "Rezumat",
     "patient": "Pacient · {name}",
     "noEmail": "Fără e-mail",
-    "addEmail": "adaugă",
     "emailFor": "E-mail pentru {name}",
     "task": "Sarcină",
     "owner": "Responsabil",
     "due": "Termen",
     "today": "Azi",
-    "tomorrow": "Mâine",
     "editTask": "Editează sarcina: {title}",
     "renameLabel": "Redenumește ședința",
     "addTask": "Adaugă sarcină",
@@ -309,8 +301,6 @@
     "cancel": "Anulează",
     "save": "Salvează modificările",
     "teach": "Corecturile dvs. instruiesc AI-ul.",
-    "sendingIn": "Se trimite la {count} de participanți în",
-    "stopReview": "Oprește și verifică",
     "heard": {
       "lines_one": "{count} replică · {times}",
       "lines_few": "{count} replici · {times}",
@@ -345,8 +335,7 @@
       "label": "{word} — clic pentru corectare",
       "labelUnsure": "{word} — posibil auzit greșit, clic pentru verificare",
       "labelFixed": "{word} — corectat"
-    },
-    "sendNow": "Trimite acum"
+    }
   },
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",

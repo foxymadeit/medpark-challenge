@@ -93,7 +93,6 @@
 
   .page__actions { flex-wrap: wrap; }
   .page__actions .btn { flex: 1 1 auto; }
-  .page__actions--stack .btn { width: 100%; }
 
   /* Tables → stacked rows (headers hidden; each cell wraps onto the row). */
   .table thead { display: none; }
@@ -135,7 +134,6 @@
   .action-bar .btn { flex: 1 1 0; }
   .action-bar__left { position: static; transform: none; flex: 1 1 100%; justify-content: center; text-align: center; }
   .review__panes { padding-bottom: 168px; }
-  .owner-group__head { row-gap: 0; }
   .summary-table thead { display: none; }
   .summary-table, .summary-table tbody { display: block; }
   .summary-table tr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 0; border-bottom: 1px solid var(--sm-surface-hairline); }

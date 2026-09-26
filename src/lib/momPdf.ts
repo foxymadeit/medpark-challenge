@@ -8,7 +8,7 @@ import { lineTokens } from './transcript';
 
 type T = (key: string, vars?: Record<string, string | number>) => string;
 
-// Design tokens (see styles/tokens.css) — ink-primary is the only accent.
+// pdfmake can't read CSS variables: these mirror --sm-ink-primary / --sm-ink-secondary / --sm-surface-hairline in styles/tokens.css.
 const INK = '#101010';
 const INK_2 = '#5B544B';
 const HAIRLINE = '#EAE6DF';
