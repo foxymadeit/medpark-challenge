@@ -126,9 +126,10 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
   return pdfMake.createPdf(doc);
 }
 
-const fileName = (meeting: Meeting) => `MoM-${safeName(meeting.title)}-${meeting.date}.pdf`;
+/** The attachment's file name, e.g. MoM-Cardiology-board-2026-09-26.pdf */
+export const momFileName = (meeting: Meeting) => `MoM-${safeName(meeting.title)}-${meeting.date}.pdf`;
 
 /** Downloads the MoM PDF. */
 export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
-  (await buildMomPdf(meeting, t, lang)).download(fileName(meeting));
+  (await buildMomPdf(meeting, t, lang)).download(momFileName(meeting));
 }

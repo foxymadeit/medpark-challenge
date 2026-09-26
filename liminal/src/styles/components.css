@@ -410,6 +410,16 @@
 .modal--wide { width: 640px; }
 /* MoM text preview: reads like the email/PDF that goes out. */
 .modal--mom { width: min(720px, 100%); }
+.modal--mom .page__actions > .btn { min-width: 184px; justify-content: center; } /* Download PDF and Send MoM the same size */
+.mom-email { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); overflow: hidden; }
+.mom-email__head { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 12px var(--sm-space-6); border-bottom: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); font: 400 14px/20px var(--sm-font-body); }
+.mom-email__head div { display: flex; gap: 8px; min-width: 0; }
+.mom-email__head dt { flex: none; width: 64px; color: var(--sm-ink-secondary); }
+.mom-email__head dd { min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.mom-email .mom-preview { border: 0; border-radius: 0; max-height: 52vh; }
+.mom-email__attachment { display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px var(--sm-space-6); border-top: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); font: 500 14px/20px var(--sm-font-body); }
+.mom-email__attachment svg { flex: none; color: var(--sm-signal-danger); }
+.mom-email__attachment .note { margin-left: auto; flex: none; }
 .mom-preview { display: flex; flex-direction: column; gap: 6px; max-height: 64vh; overflow: auto; padding: var(--sm-space-6); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); }
 .mom-preview__plate { margin: 0; color: var(--sm-ink-secondary); font: 500 11px/16px var(--sm-font-sign); letter-spacing: 0.6px; text-transform: uppercase; }
 .mom-preview__title { margin: 0; font: 600 22px/28px var(--sm-font-sign); }

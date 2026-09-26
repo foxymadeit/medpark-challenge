@@ -363,10 +363,10 @@
     "sendingLead_one": "Отправка {count} участнику",
     "sendingLead_few": "Отправка {count} участникам",
     "sendingLead_many": "Отправка {count} участникам",
-    "doneLead_one": "Отправлено {count} участнику.",
-    "doneLead_few": "Отправлено {count} участникам.",
-    "doneLead_many": "Отправлено {count} участникам.",
-    "doneLead": "Отправлено {count} участникам.",
+    "doneLead_one": "Отправлено {count} участнику. С PDF во вложении.",
+    "doneLead_few": "Отправлено {count} участникам. С PDF во вложении.",
+    "doneLead_many": "Отправлено {count} участникам. С PDF во вложении.",
+    "doneLead": "Отправлено {count} участникам. С PDF во вложении.",
     "saved": "Сохранено в истории с ролями на {date}.",
     "sending": "Отправляем протокол…",
     "sendingLead": "Отправка {count} участникам",
@@ -478,6 +478,12 @@
     "reviewModeHint": "В режиме «Авто» протокол отправляется сразу после создания, без вопросов.",
     "save": "Сохранить изменения",
     "saved": "Сохранено"
+  },
+  "email": {
+    "to": "Кому",
+    "subject": "Тема",
+    "subjectLine": "Протокол: {title} · {date}",
+    "attached": "PDF во вложении"
   },
   "pdf": {
     "title": "Протокол совещания",
