@@ -28,8 +28,24 @@ opening the app goes straight to the Meetings page, and every page (meetings,
 action items, people, templates, System and administration) is open to anyone
 who can reach the server. Keep it on 127.0.0.1 or on the hospital network only.
 
-On the Linux reference server, `docker compose --profile server up -d` adds
-the backend and Ollama on an internal network with no route out.
+On the Linux reference server the whole product runs in containers on an
+internal network with no route out. `Dockerfile.server` builds one image with
+the web app, this backend and the three pipeline tools; the Whisper weights are
+mounted read-only from `asr-llm/models`, and Ollama runs beside it:
+
+```bash
+# once, while the network is on (the stack itself has no route out, so the
+# model is pulled into its volume by a throwaway container on the default network)
+python ../asr-llm/scripts/fetch_whisper.py large-v3
+docker compose -f compose.yaml -f compose.gpu.yaml --profile server build
+docker run --rm -v backend_ollama:/root/.ollama --entrypoint sh ollama/ollama \
+  -c 'ollama serve & sleep 5 && ollama pull qwen3:8b'
+# then, network unplugged
+docker compose -f compose.yaml -f compose.gpu.yaml --profile server up -d
+```
+
+`compose.gpu.yaml` gives the GPU to Ollama and the backend (NVIDIA Container
+Toolkit). On a CPU-only server leave it out and build with `LIMINAL_GPU=0`.
 
 ## Pipeline stages
 

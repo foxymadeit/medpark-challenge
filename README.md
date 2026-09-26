@@ -639,6 +639,15 @@ cd backend && uv sync && docker compose up -d        # local mail on 127.0.0.1:1
 LIMINAL_FRONTEND_DIST=../frontend/dist uv run uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
+Or everything in containers on the GPU server: build once while online, then
+start it with the network unplugged (model download steps in
+[backend/README.md](backend/README.md)):
+
+```bash
+cd backend && docker compose -f compose.yaml -f compose.gpu.yaml --profile server build
+docker compose -f compose.yaml -f compose.gpu.yaml --profile server up -d
+```
+
 Each stage also runs alone:
 
 ```bash
