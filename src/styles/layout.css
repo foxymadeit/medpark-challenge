@@ -19,7 +19,7 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--sm-space-2);
+  gap: 4px; /* tighter than Figma's 8px, by request: the name sits close to the mark */
   color: var(--sm-ink-primary);
   text-decoration: none;
   border-radius: var(--sm-radius-inner);
