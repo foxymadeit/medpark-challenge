@@ -34,8 +34,9 @@ export default function UploadPage() {
         setFile(f);
         setDuration(seconds);
       }
-    } catch {
-      if (n === sequence.current) setFailure("invalidAudio");
+    } catch (error) {
+      if (n === sequence.current)
+        setFailure(error instanceof Error ? error.message : "audioUnreadable");
     } finally {
       if (n === sequence.current) setChecking(false);
     }
@@ -64,7 +65,7 @@ export default function UploadPage() {
           ref={input}
           hidden
           type="file"
-          accept=".wav,.mp3,.m4a,audio/wav,audio/mpeg,audio/mp4"
+          accept=".wav,.mp3,.m4a,.flac,audio/wav,audio/mpeg,audio/mp4,audio/flac,audio/x-flac"
           onChange={(e) => void choose(e.target.files?.[0])}
         />
         <Button

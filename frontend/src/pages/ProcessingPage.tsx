@@ -1,9 +1,10 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Check } from "@phosphor-icons/react";
+import { Check, DownloadSimple, Warning } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
-import { startProcessing } from "../api/meetings";
+import { getRecording, startProcessing } from "../api/meetings";
+import Button from "../components/Button";
 import { DEMO_MODE } from "../api/config";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
@@ -20,14 +21,60 @@ export default function ProcessingPage() {
       );
   }, [m, navigate]);
   if (!m) return <StatePanel error={error} retry={refresh} />;
-  if (["failed", "stopped"].includes(m.status))
+  if (m.processingState === "queued")
     return (
-      <StatePanel
-        error="requestFailed"
-        retry={() => {
-          void startProcessing(m.id).then(refresh).catch(refresh);
-        }}
-      />
+      <>
+        <MeetingHeader meeting={m} stage="transcribe" />
+        <section className="state-page panel">
+          <span className="state-badge">{t("queued")}</span>
+          <h1>{t("waitingInLine")}</h1>
+          <p>{t("queueDetail")}</p>
+          <Link className="button secondary" to="/meetings">
+            {t("backMeetings")}
+          </Link>
+        </section>
+      </>
+    );
+  if (m.status === "failed" || m.processingState === "failed")
+    return (
+      <>
+        <MeetingHeader meeting={m} stage="transcribe" />
+        <section className="state-page panel">
+          <Warning size={40} className="warning" />
+          <span className="state-badge">{t("processingFailed")}</span>
+          <h1>{t("couldNotProcess")}</h1>
+          <p>{t("recordingSafe")}</p>
+          <p className="mono">
+            {t("reference")}:{" "}
+            {m.failureReference ?? `PROC-${m.id.slice(-8).toUpperCase()}`}
+          </p>
+          <div className="button-row">
+            <Button
+              variant="primary"
+              onClick={() =>
+                void startProcessing(m.id).then(refresh).catch(refresh)
+              }
+            >
+              {t("retry")}
+            </Button>
+            <Button
+              onClick={async () => {
+                const blob = await getRecording(m.id);
+                if (!blob) return;
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = m.audioFilename ?? `${m.id}.webm`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              <DownloadSimple size={20} />
+              {t("downloadAudio")}
+            </Button>
+          </div>
+        </section>
+      </>
     );
   const at = Math.min(4, Math.floor((m.progress ?? 0) / 22));
   const steps = [

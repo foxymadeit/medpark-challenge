@@ -10,6 +10,9 @@ export type MeetingStatus =
   | "sent"
   | "stopped"
   | "failed";
+export type ProcessingState = "queued" | "running" | "failed" | "complete";
+export type DeliveryState =
+  "scheduled" | "stopped" | "sending" | "sent" | "failed";
 export interface Participant {
   id: string;
   name: string;
@@ -70,6 +73,9 @@ export interface Meeting {
   sendScheduledAt?: string | null;
   sentAt?: string | null;
   sendingStartedAt?: string;
+  processingState?: ProcessingState;
+  deliveryState?: DeliveryState;
+  failureReference?: string;
   processingStartedAt?: string;
   processingEndsAt?: string;
   sendWindowSeconds?: number;

@@ -83,7 +83,11 @@ Processing completion creates minutes, sets `sending_soon` and an absolute `send
 
 Missing task text, unknown/missing owners, missing required deadlines or unresolved `reviewFlags` pause automatic sending. Stop sets `ready` and clears the deadline. Edits reset an active countdown; editing a stopped window does not silently restart sending. `sent` is terminal for delivery; completion checkboxes may still update, but sent content is not silently changed or resent. Duplicate send requests return the existing result.
 
-Frontend recordings use the browser-supported MediaRecorder MIME (`audio/webm;codecs=opus`, WebM or MP4). Uploaded files support WAV, MP3, M4A, at most 3 hours and 500 MB. The frontend checks extension, MIME, nonzero size and decodable duration. The backend must inspect actual content, decode it and enforce the limits independently. Periodic local recording checkpoints improve refresh recovery; a page close may still lose the last few seconds. Real-mode chunk upload/append semantics should be defined before deploying long-recording recovery.
+Frontend recordings use the browser-supported MediaRecorder MIME (`audio/webm;codecs=opus`, WebM or MP4). Uploaded files support WAV, MP3, M4A and FLAC, at most 3 hours and 500 MB. The frontend distinguishes unsupported type, empty, oversized, too long and unreadable files. The backend must inspect actual content, decode it and enforce the limits independently. Periodic local recording checkpoints improve refresh recovery; a page close may still lose the last few seconds. Active recording continues if the local backend is temporarily unavailable; queued checkpoints retry only after connectivity returns. Real-mode chunk upload/append semantics should be defined before deploying long-recording recovery.
+
+Processing may return `processingState: queued | running | failed | complete` and an optional opaque `failureReference`. Delivery may return `deliveryState: scheduled | stopped | sending | sent | failed` and an optional failure reference. A failed delivery leaves minutes available and must never report the meeting as sent. The backend owns queue order, retries, idempotency and failure references.
+
+Authenticated sessions expire after 30 minutes without pointer, keyboard or touch activity in the frontend prototype. The backend must enforce its own idle and absolute session limits; frontend timers are only a usability layer.
 
 ## Backend security and processing requirements
 

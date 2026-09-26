@@ -1,4 +1,5 @@
 import { Link, Navigate } from "react-router-dom";
+import { Warning } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
 import MeetingHeader from "../components/MeetingHeader";
@@ -8,6 +9,7 @@ import EditableMinutes from "../components/EditableMinutes";
 import ActionItemRow from "../components/ActionItemRow";
 import SpeakerLabel from "../components/SpeakerLabel";
 import { formatTime } from "../utils";
+import { sendNow } from "../api/meetings";
 export default function MomPage() {
   const { t } = useTranslation();
   const { data: m, error, refresh } = useMeeting();
@@ -27,7 +29,33 @@ export default function MomPage() {
       {m.demoGenerated && <p className="sample-note">{t("sampleContent")}</p>}
       <div className="minutes-grid">
         <div className="minutes-main">
-          {m.status === "sent" ? (
+          {m.deliveryState === "failed" ? (
+            <section className="panel delivery-failed">
+              <Warning size={28} className="warning" />
+              <div>
+                <h2>{t("deliveryFailed")}</h2>
+                <p>
+                  {t("deliveryFailedDetail", {
+                    list: m.distributionList.join(", "),
+                  })}
+                </p>
+              </div>
+              <button
+                className="button primary"
+                type="button"
+                onClick={() => void sendNow(m.id).then(refresh)}
+              >
+                {t("sendNow")}
+              </button>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => window.print()}
+              >
+                {t("printMinutes")}
+              </button>
+            </section>
+          ) : m.status === "sent" ? (
             <Link
               className="panel delivery-banner"
               to={`/meetings/${m.id}/sent`}

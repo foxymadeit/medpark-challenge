@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../src/App";
 import i18n from "../src/i18n/i18n";
 import { getMeeting, getMeetings, updateMeeting } from "../src/api/meetings";
+import { readStore, writeStore } from "../src/mock/store";
 import { notifyUpdate } from "../src/hooks/useData";
 beforeEach(async () => {
   await i18n.changeLanguage("en");
@@ -117,7 +118,7 @@ describe("application flows", () => {
     fireEvent.click(
       await screen.findByRole("button", { name: "Stop sending" }),
     );
-    await screen.findByText("Automatic sending is paused.");
+    await screen.findByText("Sending stopped. Nothing went out.");
     expect((await getMeeting("meeting-001")).sendScheduledAt).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Send now" }));
     const receipt = await screen.findByRole(
@@ -249,8 +250,95 @@ describe("upload and empty/error states", () => {
         files: [new File(["bad"], "meeting.mp3", { type: "text/html" })],
       },
     });
-    await screen.findByText(/This file cannot be read/);
+    await screen.findByText(/Not an audio file/);
     expect(screen.queryByText("Uploaded and checked")).toBeNull();
+  });
+});
+
+describe("final Figma states", () => {
+  it("renders a real 404 and returns to meetings", async () => {
+    mount("/route-that-does-not-exist");
+    await screen.findByRole("heading", { name: "This page isn't here" });
+    fireEvent.click(screen.getByRole("link", { name: "Back to meetings" }));
+    await screen.findByRole("heading", { name: "Start a meeting" });
+  });
+  it("signs out after inactivity, preserves meetings, and shows the timeout notice", async () => {
+    vi.useFakeTimers();
+    const count = readStore().meetings.length;
+    mount();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
+    });
+    expect(screen.getByText(/signed out after 30 minutes/)).toBeTruthy();
+    expect(readStore().meetings).toHaveLength(count);
+    expect(sessionStorage.getItem(DEMO_SESSION_KEY)).toBeNull();
+  });
+  it("activity resets the inactivity timer", async () => {
+    vi.useFakeTimers();
+    mount();
+    await act(async () => vi.advanceTimersByTime(29 * 60 * 1000));
+    fireEvent.keyDown(window, { key: "Tab" });
+    await act(async () => vi.advanceTimersByTime(2 * 60 * 1000));
+    expect(screen.queryByText(/signed out after 30 minutes/)).toBeNull();
+    expect(sessionStorage.getItem(DEMO_SESSION_KEY)).not.toBeNull();
+  });
+  it("shows queued and failed processing states with deterministic retry", async () => {
+    await updateMeeting("meeting-001", {
+      status: "processing",
+      processingState: "queued",
+    });
+    let view = mount("/meetings/meeting-001/processing");
+    await screen.findByRole("heading", {
+      name: "Waiting for another meeting to finish",
+    });
+    view.unmount();
+    await updateMeeting("meeting-001", {
+      status: "failed",
+      processingState: "failed",
+      failureReference: "PROC-DEMO",
+    });
+    view = mount("/meetings/meeting-001/processing");
+    await screen.findByText("PROC-DEMO", { exact: false });
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await waitFor(async () =>
+      expect((await getMeeting("meeting-001")).processingState).toBe("running"),
+    );
+    view.unmount();
+  });
+  it("renders the dedicated sending stopped and delivery failure states", async () => {
+    await updateMeeting("meeting-001", {
+      status: "ready",
+      deliveryState: "stopped",
+      sendScheduledAt: null,
+    });
+    let view = mount("/meetings/meeting-001/minutes");
+    await screen.findByText("Sending stopped. Nothing went out.");
+    expect(screen.queryByRole("progressbar")).toBeNull();
+    view.unmount();
+    await updateMeeting("meeting-001", {
+      status: "ready",
+      deliveryState: "failed",
+    });
+    view = mount("/meetings/meeting-001/minutes");
+    await screen.findByRole("heading", {
+      name: "Minutes are ready but weren't sent",
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send now" }));
+    await waitFor(async () =>
+      expect((await getMeeting("meeting-001")).deliveryState).toBe("sending"),
+    );
+    view.unmount();
+  });
+  it("shows the first-day state without empty dashboard sections", async () => {
+    const store = readStore();
+    store.meetings = [];
+    writeStore(store);
+    mount();
+    expect(
+      await screen.findAllByRole("heading", { name: "No meetings yet" }),
+    ).toHaveLength(2);
+    expect(screen.queryByText("Your action items")).toBeNull();
+    expect(screen.queryByText("Recent meetings")).toBeNull();
   });
 });
 

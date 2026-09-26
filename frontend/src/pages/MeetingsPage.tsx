@@ -30,38 +30,49 @@ export default function MeetingsPage() {
   return (
     <>
       <div className="desktop-dashboard">
-        <h1>{t("startMeeting")}</h1>
+        <h1>{data.length ? t("startMeeting") : t("meetings")}</h1>
         <div className="department-doors">
           {departments.map((type) => (
             <DepartmentDoor key={type} type={type} />
           ))}
         </div>
-        <div className="dashboard-columns">
-          <section>
-            <div className="section-heading">
-              <h2>{t("myActions")}</h2>
-              <small>{t("openCount", { count: actions.length })}</small>
-            </div>
-            <div className="panel">
-              {actions.length ? (
-                actions.map(({ meeting, item }) => (
-                  <ActionItemRow
-                    key={meeting.id + item.id}
-                    meeting={meeting}
-                    item={item}
-                    compact
-                  />
-                ))
-              ) : (
-                <p className="empty-inline">{t("noActions")}</p>
-              )}
-            </div>
+        {data.length === 0 ? (
+          <section className="first-day panel">
+            <h2>{t("emptyMeetings")}</h2>
+            <p>{t("firstDayDescription")}</p>
+            <Button onClick={() => setChoose("upload")}>
+              <UploadSimple size={20} />
+              {t("uploadRecording")}
+            </Button>
           </section>
-          <section>
-            <h2>{t("recent")}</h2>
-            <MeetingList meetings={data.slice(0, 4)} />
-          </section>
-        </div>
+        ) : (
+          <div className="dashboard-columns">
+            <section>
+              <div className="section-heading">
+                <h2>{t("myActions")}</h2>
+                <small>{t("openCount", { count: actions.length })}</small>
+              </div>
+              <div className="panel">
+                {actions.length ? (
+                  actions.map(({ meeting, item }) => (
+                    <ActionItemRow
+                      key={meeting.id + item.id}
+                      meeting={meeting}
+                      item={item}
+                      compact
+                    />
+                  ))
+                ) : (
+                  <p className="empty-inline">{t("noActions")}</p>
+                )}
+              </div>
+            </section>
+            <section>
+              <h2>{t("recent")}</h2>
+              <MeetingList meetings={data.slice(0, 4)} />
+            </section>
+          </div>
+        )}
       </div>
       <div className="mobile-dashboard">
         <h1>{t("meetings")}</h1>
@@ -69,8 +80,18 @@ export default function MeetingsPage() {
           <Microphone size={20} />
           {t("startMeeting")}
         </Button>
-        <h2>{t("recent")}</h2>
-        <MeetingList meetings={data.slice(0, 4)} />
+        {data.length > 0 && (
+          <>
+            <h2>{t("recent")}</h2>
+            <MeetingList meetings={data.slice(0, 4)} />
+          </>
+        )}
+        {data.length === 0 && (
+          <div className="first-day">
+            <h2>{t("emptyMeetings")}</h2>
+            <p>{t("firstDayDescription")}</p>
+          </div>
+        )}
         <Button onClick={() => setChoose("upload")}>
           <UploadSimple size={20} />
           {t("uploadRecording")}

@@ -48,7 +48,7 @@ const resources = {
       recordRoom: "Record in this room",
       micDescription: "Uses this laptop’s microphone.",
       uploadRecording: "Upload a recording",
-      audioFormats: "WAV, MP3 or M4A, up to 3 hours.",
+      audioFormats: "WAV, MP3, M4A or FLAC, up to 3 hours.",
       optionalTitle: "Title (optional)",
       titlePlaceholder: "e.g. Cardiology board, weekly review",
       roomPeople: "People in the room",
@@ -164,7 +164,36 @@ const resources = {
       unauthorized: "Your session expired. Sign in again.",
       notFound: "This item was not found. Return to meetings.",
       invalidAudio:
-        "This file cannot be read. Choose WAV, MP3 or M4A under 3 hours and 500 MB.",
+        "This file cannot be read. Choose WAV, MP3, M4A or FLAC under 3 hours and 500 MB.",
+      unsupportedAudioType: "Not an audio file. Choose WAV, MP3, M4A or FLAC.",
+      audioTooLong: "This recording is longer than 3 hours.",
+      audioUnreadable: "File damaged or cannot be read.",
+      audioEmpty: "This audio file is empty.",
+      audioTooLarge: "This audio file is larger than 500 MB.",
+      pageNotHere: "This page isn't here",
+      pageNotHereDetail:
+        "The address may be incorrect or the page may have moved.",
+      sessionTimedOut:
+        "You were signed out after 30 minutes without activity. Nothing was lost.",
+      queued: "Waiting in line",
+      waitingInLine: "Waiting for another meeting to finish",
+      queueDetail:
+        "Local processing will start automatically when capacity is available.",
+      processingFailed: "Processing failed",
+      couldNotProcess: "We couldn't process this recording",
+      recordingSafe:
+        "The recording is safe on this computer. Try again when the service is available.",
+      reference: "Reference",
+      downloadAudio: "Download audio",
+      serviceNotAnswering:
+        "Service not answering. The recording is safe on this computer.",
+      deliveryFailed: "Minutes are ready but weren't sent",
+      deliveryFailedDetail:
+        "Local mail could not reach {{list}}. Your minutes remain available.",
+      printMinutes: "Print / save PDF",
+      sendingStopped: "Sending stopped. Nothing went out.",
+      sendingStoppedDetail: "Fix an owner or a deadline, then send when ready.",
+      firstDayDescription: "Pick a board above to record or upload a meeting.",
       microphone:
         "Microphone unavailable. Allow microphone access in your browser, then try again.",
       unsupported:
@@ -232,7 +261,7 @@ const resources = {
       recordRoom: "Înregistrează în această sală",
       micDescription: "Folosește microfonul acestui laptop.",
       uploadRecording: "Încarcă o înregistrare",
-      audioFormats: "WAV, MP3 sau M4A, până la 3 ore.",
+      audioFormats: "WAV, MP3, M4A sau FLAC, până la 3 ore.",
       optionalTitle: "Titlu (opțional)",
       titlePlaceholder: "ex. Consiliul de cardiologie, ședință săptămânală",
       roomPeople: "Participanți în sală",
@@ -348,7 +377,38 @@ const resources = {
       unauthorized: "Sesiunea a expirat. Autentifică-te din nou.",
       notFound: "Elementul nu a fost găsit. Revino la ședințe.",
       invalidAudio:
-        "Fișierul nu poate fi citit. Alege WAV, MP3 sau M4A sub 3 ore și 500 MB.",
+        "Fișierul nu poate fi citit. Alege WAV, MP3, M4A sau FLAC sub 3 ore și 500 MB.",
+      unsupportedAudioType:
+        "Fișierul nu este audio. Alege WAV, MP3, M4A sau FLAC.",
+      audioTooLong: "Înregistrarea depășește 3 ore.",
+      audioUnreadable: "Fișier deteriorat sau imposibil de citit.",
+      audioEmpty: "Fișierul audio este gol.",
+      audioTooLarge: "Fișierul audio depășește 500 MB.",
+      pageNotHere: "Această pagină nu există",
+      pageNotHereDetail: "Adresa poate fi greșită sau pagina a fost mutată.",
+      sessionTimedOut:
+        "Ai fost deconectat după 30 de minute de inactivitate. Nimic nu s-a pierdut.",
+      queued: "În așteptare",
+      waitingInLine: "Se așteaptă finalizarea altei ședințe",
+      queueDetail:
+        "Procesarea locală va începe automat când există capacitate.",
+      processingFailed: "Procesarea a eșuat",
+      couldNotProcess: "Nu am putut procesa înregistrarea",
+      recordingSafe:
+        "Înregistrarea este păstrată pe acest computer. Încearcă din nou când serviciul este disponibil.",
+      reference: "Referință",
+      downloadAudio: "Descarcă audio",
+      serviceNotAnswering:
+        "Serviciul nu răspunde. Înregistrarea este în siguranță pe acest computer.",
+      deliveryFailed: "Procesul-verbal este gata, dar nu a fost trimis",
+      deliveryFailedDetail:
+        "Emailul local nu a putut contacta {{list}}. Procesul-verbal rămâne disponibil.",
+      printMinutes: "Tipărește / salvează PDF",
+      sendingStopped: "Trimiterea este oprită. Nu s-a trimis nimic.",
+      sendingStoppedDetail:
+        "Corectează responsabilul sau termenul, apoi trimite când este gata.",
+      firstDayDescription:
+        "Alege un consiliu de mai sus pentru a înregistra sau încărca o ședință.",
       microphone:
         "Microfon indisponibil. Permite accesul în browser, apoi reîncearcă.",
       unsupported:
@@ -415,7 +475,7 @@ const resources = {
       recordRoom: "Записать в этой комнате",
       micDescription: "Использует микрофон этого ноутбука.",
       uploadRecording: "Загрузить запись",
-      audioFormats: "WAV, MP3 или M4A, до 3 часов.",
+      audioFormats: "WAV, MP3, M4A или FLAC, до 3 часов.",
       optionalTitle: "Название (необязательно)",
       titlePlaceholder: "например, Кардиологический совет",
       roomPeople: "Участники в комнате",
@@ -532,7 +592,39 @@ const resources = {
       unauthorized: "Сессия истекла. Войдите снова.",
       notFound: "Элемент не найден. Вернитесь к совещаниям.",
       invalidAudio:
-        "Файл не читается. Выберите WAV, MP3 или M4A до 3 часов и 500 МБ.",
+        "Файл не читается. Выберите WAV, MP3, M4A или FLAC до 3 часов и 500 МБ.",
+      unsupportedAudioType:
+        "Это не аудиофайл. Выберите WAV, MP3, M4A или FLAC.",
+      audioTooLong: "Запись длиннее 3 часов.",
+      audioUnreadable: "Файл повреждён или не читается.",
+      audioEmpty: "Аудиофайл пуст.",
+      audioTooLarge: "Аудиофайл больше 500 МБ.",
+      pageNotHere: "Этой страницы нет",
+      pageNotHereDetail:
+        "Адрес может быть неверным или страница была перемещена.",
+      sessionTimedOut:
+        "Вы вышли после 30 минут бездействия. Ничего не потеряно.",
+      queued: "В очереди",
+      waitingInLine: "Ожидание завершения другого совещания",
+      queueDetail:
+        "Локальная обработка начнётся автоматически, когда появится ресурс.",
+      processingFailed: "Ошибка обработки",
+      couldNotProcess: "Не удалось обработать запись",
+      recordingSafe:
+        "Запись сохранена на этом компьютере. Повторите, когда сервис станет доступен.",
+      reference: "Ссылка",
+      downloadAudio: "Скачать аудио",
+      serviceNotAnswering:
+        "Сервис не отвечает. Запись сохранена на этом компьютере.",
+      deliveryFailed: "Протокол готов, но не отправлен",
+      deliveryFailedDetail:
+        "Локальная почта не смогла связаться с {{list}}. Протокол остаётся доступным.",
+      printMinutes: "Печать / сохранить PDF",
+      sendingStopped: "Отправка остановлена. Ничего не отправлено.",
+      sendingStoppedDetail:
+        "Исправьте ответственного или срок, затем отправьте.",
+      firstDayDescription:
+        "Выберите отделение выше, чтобы записать или загрузить совещание.",
       microphone:
         "Микрофон недоступен. Разрешите доступ в браузере и повторите.",
       unsupported:

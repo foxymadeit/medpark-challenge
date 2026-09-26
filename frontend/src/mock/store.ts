@@ -36,6 +36,8 @@ export function advanceStore(
           demoGenerated: true,
         });
         m.status = invalidMinutes(m) ? "ready" : "sending_soon";
+        m.processingState = "complete";
+        m.deliveryState = m.status === "sending_soon" ? "scheduled" : "stopped";
         m.sendWindowSeconds = countdown;
         m.sendScheduledAt =
           m.status === "sending_soon"
@@ -51,6 +53,7 @@ export function advanceStore(
         changed = true;
       } else if (m.sendScheduledAt && now >= Date.parse(m.sendScheduledAt)) {
         m.status = "sending";
+        m.deliveryState = "sending";
         m.sendingStartedAt = m.sendScheduledAt;
         m.sendScheduledAt = null;
         changed = true;
@@ -62,6 +65,7 @@ export function advanceStore(
       now >= Date.parse(m.sendingStartedAt) + 800
     ) {
       m.status = "sent";
+      m.deliveryState = "sent";
       m.sentAt = new Date(Date.parse(m.sendingStartedAt) + 800).toISOString();
       changed = true;
     }

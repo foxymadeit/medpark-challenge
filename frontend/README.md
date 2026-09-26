@@ -16,6 +16,6 @@ The demo account is **Administrator / AD**, separate from staff participants. Sy
 
 Open the local URL printed by Vite. Demo credentials: `admin@medpark.local` / `<VITE_DEMO_PASSWORD from .env.local>`. Set `VITE_DEMO_SEND_COUNTDOWN_SECONDS=15` for a shorter demo and restart Vite. The default is five minutes.
 
-Demo mode uses localStorage for metadata and IndexedDB for audio. Processing, speaker activity and email delivery are simulated; sample transcripts are explicitly labeled. Interface language supports EN/RO/RU without translating spoken content. All runtime assets are served locally.
+Demo mode uses localStorage for metadata and IndexedDB for audio. WAV, MP3, M4A and FLAC uploads are validated in the browser, while a real backend must validate decoded content again. Processing, queue/failure states, speaker activity and email delivery are simulated deterministically; sample transcripts are explicitly labeled. Interface language supports EN/RO/RU without translating spoken content. Sessions sign out after 30 minutes without pointer, keyboard or touch activity while preserving meeting data. All runtime assets are served locally.
 
 Run `npm test`, `npm run lint`, and `npm run build`. Production builds disable demo authentication. Real backend integration, endpoint payloads, security and local delivery behavior are documented in [API_CONTRACT.md](API_CONTRACT.md). The implementation inventory and verification notes are in [IMPLEMENTATION.md](IMPLEMENTATION.md).

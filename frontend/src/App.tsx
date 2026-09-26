@@ -25,6 +25,8 @@ import HistoryPage from "./pages/HistoryPage";
 import PeoplePage from "./pages/PeoplePage";
 import EnrollVoicePage from "./pages/EnrollVoicePage";
 import SystemPage from "./pages/SystemPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import InactivityGuard from "./auth/InactivityGuard";
 function Legacy({ page }: { page: string }) {
   const { meetingId } = useParams();
   return <Navigate replace to={`/meetings/${meetingId}/${page}`} />;
@@ -34,6 +36,7 @@ export default function App() {
     <IconContext.Provider value={{ weight: "bold", size: 24 }}>
       <BrowserRouter>
         <AuthProvider>
+          <InactivityGuard />
           <ErrorBoundary>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
@@ -90,7 +93,11 @@ export default function App() {
                   />
                 </Route>
               </Route>
-              <Route path="*" element={<Navigate to="/meetings" replace />} />
+              <Route element={<ProtectedRoute />}>
+                <Route element={<Layout />}>
+                  <Route path="*" element={<NotFoundPage />} />
+                </Route>
+              </Route>
             </Routes>
           </ErrorBoundary>
         </AuthProvider>

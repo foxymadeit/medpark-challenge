@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Microphone, Pause, Play, Stop } from "@phosphor-icons/react";
+import {
+  Microphone,
+  Pause,
+  Play,
+  Stop,
+  WifiSlash,
+} from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
 import { useRecorder } from "../hooks/useRecorder";
@@ -137,6 +143,12 @@ function Recorder({ initial: m }: { initial: Meeting }) {
   return (
     <>
       <MeetingHeader meeting={m} stage="record" />
+      {error && active && (
+        <div className="offline-banner" role="status">
+          <WifiSlash size={20} />
+          {t("serviceNotAnswering")}
+        </div>
+      )}
       <div className="recording-grid">
         <section className="panel recorder-panel">
           <p className={active ? "recording-indicator" : ""}>
@@ -203,7 +215,7 @@ function Recorder({ initial: m }: { initial: Meeting }) {
                 </Button>
               </>
             )}
-          {(error || rec.error) && (
+          {(rec.error || (error && !active)) && (
             <div role="alert" className="error">
               <p>
                 {t(error || rec.error, { defaultValue: t("requestFailed") })}

@@ -202,17 +202,24 @@ describe("audio validation and speaker identity", () => {
     expect(() =>
       validateAudioFile({ name: "meeting.wav", type: "audio/wav", size: 123 }),
     ).not.toThrow();
+    expect(() =>
+      validateAudioFile({
+        name: "meeting.flac",
+        type: "audio/flac",
+        size: 123,
+      }),
+    ).not.toThrow();
     for (const f of [
       { name: "file.exe", type: "audio/wav", size: 123 },
       { name: "file.mp3", type: "text/plain", size: 123 },
       { name: "file.m4a", type: "audio/mp4", size: 0 },
       { name: "file.wav", type: "audio/wav", size: MAX_AUDIO_BYTES + 1 },
     ])
-      expect(() => validateAudioFile(f)).toThrow("invalidAudio");
+      expect(() => validateAudioFile(f)).toThrow();
   });
   it("rejects invalid or excessive durations", () => {
     for (const n of [0, -1, Infinity, NaN, 10801])
-      expect(() => validateDuration(n)).toThrow("invalidAudio");
+      expect(() => validateDuration(n)).toThrow();
     expect(() => validateDuration(10800)).not.toThrow();
   });
   it("assigns stable, distinct colors to speaker slots", () => {

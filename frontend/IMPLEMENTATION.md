@@ -2,7 +2,7 @@
 
 ## Result
 
-The existing frontend was continued in place on `frontend-secure-mom`. Build, lint and all **34 tests** pass. No backend teammate files were changed.
+The existing frontend was continued in place on `frontend-secure-mom`. The final state pass adds a real 404, a 30-minute inactivity sign-out, FLAC and canonical upload errors, queued/failed processing, failed delivery, stopped sending, offline recording feedback and the first-day dashboard. No backend teammate files were changed.
 
 The demo account is Administrator / AD. It is distinct from participants, including Elena Ciobanu. Versioned sessions discard legacy identities, and System requires the admin role. Credentials are environment-only; `.env.local` is ignored. The actual local password is absent from source files eligible for commit and from the production bundle. Production builds disable demo authentication.
 
@@ -11,7 +11,7 @@ Delivery persists `ready/sending_soon → sending → sent`; content editing is 
 ## Verification
 
 - `npm run build`: passed.
-- `npm test`: 34 passed, 4 files.
+- `npm test`: 40 passed, 4 files.
 - `npm run lint`: passed.
 - `git diff --check`: passed.
 - Auth: normalized login, rejection, logout, stale-session handling, Administrator identity, account/participant separation and non-admin System guard.
@@ -19,7 +19,8 @@ Delivery persists `ready/sending_soon → sending → sent`; content editing is 
 - Recorder: mocked MediaRecorder lifecycle, pause/resume/stop, Strict Mode, track cleanup, unsupported and denied states. Real hardware microphone capture was not reverified in this continuation.
 - Upload: drag/drop, remove/replace, filename/metadata, extension/MIME, nonzero size, maximum size and 3-hour limit.
 - Processing: timestamp persistence through reload and off-page reconciliation.
-- Delivery: configurable 15-second window, stop, manual send, intermediate sending state, automatic expiry, idempotency, review validation and persistence.
+- Delivery: configurable 15-second window, distinct stopped/failed states, manual retry, intermediate sending state, automatic expiry, idempotency, review validation and persistence.
+- Final Figma states: X02 processing failed, X03 delivery failed, X04 upload problems, X05 service unavailable banner, X06 page not found, X07 signed out, X08 first day, X09 queued and X10 sending stopped.
 
 ## Visual verification and remaining gate
 

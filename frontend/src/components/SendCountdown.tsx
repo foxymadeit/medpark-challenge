@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { EnvelopeSimple } from "@phosphor-icons/react";
+import { EnvelopeSimple, Pause } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { sendNow, stopScheduledSend } from "../api/meetings";
 import { distribution } from "../api/config";
@@ -22,6 +22,7 @@ export default function SendCountdown({ meeting }: { meeting: Meeting }) {
     : 0;
   const invalid = invalidMinutes(meeting);
   const sentWindow = useRef<string | undefined>(undefined);
+  const stopped = meeting.deliveryState === "stopped";
   useEffect(() => {
     const window = meeting.sendScheduledAt;
     if (
@@ -53,20 +54,24 @@ export default function SendCountdown({ meeting }: { meeting: Meeting }) {
   return (
     <section className="panel send-countdown">
       <div className="send-line">
-        <EnvelopeSimple size={24} />
+        {stopped ? <Pause size={24} /> : <EnvelopeSimple size={24} />}
         <div>
           <strong>
-            {meeting.status === "sending_soon"
-              ? t("sendingIn", {
-                  list: meeting.distributionList.join(", "),
-                  time: formatTime(seconds),
-                })
-              : meeting.status === "sending"
-                ? t("sending")
-                : t("sendPaused")}
+            {stopped
+              ? t("sendingStopped")
+              : meeting.status === "sending_soon"
+                ? t("sendingIn", {
+                    list: meeting.distributionList.join(", "),
+                    time: formatTime(seconds),
+                  })
+                : meeting.status === "sending"
+                  ? t("sending")
+                  : t("sendPaused")}
           </strong>
           <p>
-            {t("reviewWindow", { count: distribution[meeting.type].count })}
+            {stopped
+              ? t("sendingStoppedDetail")
+              : t("reviewWindow", { count: distribution[meeting.type].count })}
           </p>
         </div>
         <div className="button-row">

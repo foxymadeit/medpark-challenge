@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       )
         throw new Error("invalidCredentials");
       saveDemoSession();
+      sessionStorage.removeItem("secure-mom-timeout");
       setUser(demoAccount());
       return;
     }
@@ -58,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email: email.trim(), password }),
       }),
     );
+    sessionStorage.removeItem("secure-mom-timeout");
   }, []);
   const logout = useCallback(async () => {
     setError("");

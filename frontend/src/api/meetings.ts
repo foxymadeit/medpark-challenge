@@ -103,6 +103,7 @@ export async function startProcessing(id: string): Promise<Meeting> {
     if (!m.durationSeconds) throw new ApiError("invalidAudio");
     return Object.assign(m, {
       status: "processing" as const,
+      processingState: "running" as const,
       progress: 0,
       processingStartedAt: new Date().toISOString(),
       processingEndsAt: new Date(Date.now() + 12000).toISOString(),
@@ -180,6 +181,7 @@ export async function stopScheduledSend(id: string): Promise<Meeting> {
     const m = findMeeting(s, id);
     if (m.status === "sending_soon") {
       m.status = "ready";
+      m.deliveryState = "stopped";
       m.sendScheduledAt = null;
     }
     return m;
@@ -197,6 +199,8 @@ export async function sendNow(id: string): Promise<Meeting> {
     if (!["ready", "sending_soon"].includes(m.status) || invalidMinutes(m))
       throw new ApiError("unresolved");
     m.status = "sending";
+    m.deliveryState = "sending";
+    m.failureReference = undefined;
     m.sendingStartedAt = new Date().toISOString();
     m.sendScheduledAt = null;
     return m;

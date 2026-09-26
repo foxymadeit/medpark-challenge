@@ -8,7 +8,10 @@ function ProtectedRoute() {
   if (loading) return <StatePanel />;
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    const timeout = sessionStorage.getItem("secure-mom-timeout") === "1";
+    return (
+      <Navigate to={timeout ? "/login?reason=timeout" : "/login"} replace />
+    );
   }
 
   return <Outlet />;

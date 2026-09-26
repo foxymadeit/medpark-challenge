@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
-import { ShieldCheck } from "@phosphor-icons/react";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { Clock, ShieldCheck } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/useAuth";
 import TopBar from "../components/TopBar";
@@ -9,6 +9,10 @@ import InputField from "../components/InputField";
 export default function LoginPage() {
   const { t } = useTranslation();
   const { user, login } = useAuth();
+  const [params] = useSearchParams();
+  const timedOut =
+    params.get("reason") === "timeout" ||
+    sessionStorage.getItem("secure-mom-timeout") === "1";
   const [email, setEmail] = useState(import.meta.env.VITE_DEMO_EMAIL ?? "");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -35,6 +39,12 @@ export default function LoginPage() {
           }}
         >
           <h2>{t("signIn")}</h2>
+          {timedOut && (
+            <div className="login-timeout" role="status">
+              <Clock size={18} />
+              {t("sessionTimedOut")}
+            </div>
+          )}
           <InputField
             label={t("username")}
             autoComplete="username"
