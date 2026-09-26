@@ -6,7 +6,7 @@ The existing frontend was continued in place on `frontend-secure-mom`. The final
 
 The demo account is Administrator / AD. It is distinct from participants, including Elena Ciobanu. Versioned sessions discard legacy identities, and System requires the admin role. Credentials are environment-only; `.env.local` is ignored. The actual local password is absent from source files eligible for commit and from the production bundle. Production builds disable demo authentication.
 
-Manual delivery is now the default: processing ends in review, corrections are stored as honest feedback, participants are confirmed, and Send is explicit. Auto delivery is modeled behind `autoModeAvailable: false`; its dormant path uses a 30-second countdown and Stop moves the meeting into Manual review. Content editing is locked during delivery. The intermediate send phase lasts 800 ms in the prototype.
+Automatic delivery is the default whenever the server reports `autoModeAvailable: true`, which the Liminal backend does: processing ends in a 60-second send window that anyone can stop, and Stop moves the meeting into Manual review. Items the minutes checks could not confirm always wait for a person first (Needs confirmation), and continuing sends the minutes in automatic mode. Manual mode stays one checkbox away on the new-meeting screen: review, corrections stored as honest feedback, participants confirmed, explicit Send. The demo store (`VITE_DEMO_MODE=true`) still keeps Manual mode only. Content editing is locked during delivery. The intermediate send phase lasts 800 ms in the prototype.
 
 ## Verification
 
@@ -19,7 +19,7 @@ Manual delivery is now the default: processing ends in review, corrections are s
 - Recorder: mocked MediaRecorder lifecycle, pause/resume/stop, Strict Mode, track cleanup, unsupported and denied states. Real hardware microphone capture was not reverified in this continuation.
 - Upload: drag/drop, remove/replace, filename/metadata, extension/MIME, nonzero size, maximum size and 3-hour limit.
 - Processing: timestamp persistence through reload and off-page reconciliation.
-- Delivery: Manual review by default, participant validation, explicit send, distinct failed state, intermediate sending state, idempotency and persistence. Auto remains unavailable; its controlled store path verifies a 30-second countdown.
+- Delivery: automatic by default against the Liminal backend (60-second window, Stop into review, Needs confirmation before sending), Manual review in the demo store, participant validation, explicit send, distinct failed state, intermediate sending state, idempotency and persistence. Playwright covers the real backend end to end (`npm run e2e`, see README).
 - Final Figma states: X02 processing failed, X03 delivery failed, X04 upload problems, X05 service unavailable banner, X06 page not found, X07 signed out, X08 first day, X09 queued and X10 sending stopped.
 
 ## Visual verification
