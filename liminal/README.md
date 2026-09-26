@@ -23,7 +23,7 @@ On **Log in**, click one of the demo accounts under the form (any password works
 2. **New meeting:** rename the meeting (pen next to the title), pick a date, type *Medical*, add participants (type a name, pick from the list). On the red card, show **Test microphone** and the mic picker.
 3. **Record:** click the red card → 3‥2‥1 countdown → live waveform coloured by speaker, voices and languages detected on the right → **Stop and write minutes**.
    *Or* **Upload:** click the blue card, pick any audio file → upload bar → **Write minutes**.
-4. **Processing:** steps and live transcript fill in. It takes ~1 min — click **Skip to the minutes (demo)** to jump ahead.
+4. **Processing:** steps and live transcript fill in. It takes ~15 s — or click **Skip to the minutes (demo)** to jump ahead.
 5. **Review:** click a highlighted word to pick the right reading, fix it, flag its language (RO/RU/EN) or remove it; select a sentence to listen/edit/remove; name unknown voices ("Who is this?"); edit the Task · Owner · Deadline table.
 6. **Send MoM** → sending bar → sent. **Go to History** → open the record → **Download PDF** / **Save as template**.
 7. Switch **EN / RO / RU** in the top bar at any point.
