@@ -1,0 +1,5 @@
+{
+  "medical": ["medical-board@hospital.local", "admin-board@hospital.local"],
+  "executive": ["executive-board@hospital.local"],
+  "administrative": ["admin-board@hospital.local"]
+}

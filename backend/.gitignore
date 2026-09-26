@@ -31,6 +31,9 @@ dist/
 # Logs
 *.log
 
+# Liminal runtime data: accounts, meetings, audio, minutes (never commit)
+data/
+
 # Editor and operating-system files
 .vscode/*
 !.vscode/extensions.json

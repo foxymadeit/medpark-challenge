@@ -111,6 +111,7 @@ class EmailService:
 		attachment_path: str | Path | None = None,
 		attachment: tuple[str, bytes] | None = None,
 		*,
+		attachments: list[tuple[str, bytes]] | tuple = (),
 		participant_emails: tuple[str, ...] = (),
 	) -> EmailDeliveryResult:
 		"""Send minutes to the board list and separate participant copies."""
@@ -135,10 +136,12 @@ class EmailService:
 		text_body, html_body = _render_minutes(minutes)
 		safe_title = " ".join(minutes.title.splitlines()).strip()
 
-		attachment_data: tuple[str, bytes] | None = attachment
+		files: list[tuple[str, bytes]] = list(attachments)
+		if attachment is not None:
+			files.append(attachment)
 		if attachment_path is not None:
 			path = Path(attachment_path)
-			attachment_data = path.name, path.read_bytes()
+			files.append((path.name, path.read_bytes()))
 
 		def build_message(to_address: str | None = None) -> EmailMessage:
 			message = EmailMessage()
@@ -147,12 +150,12 @@ class EmailService:
 			message["Subject"] = f"MoM | {minutes.meeting_type.title()} | {safe_title}"
 			message.set_content(text_body)
 			message.add_alternative(html_body, subtype="html")
-			if attachment_data is not None:
-				filename, content = attachment_data
+			for filename, content in files:
+				pdf = filename.lower().endswith(".pdf")
 				message.add_attachment(
 					content,
 					maintype="application",
-					subtype="octet-stream",
+					subtype="pdf" if pdf else "octet-stream",
 					filename=filename,
 				)
 			return message

@@ -1,3 +1,4 @@
+import ipaddress
 import os
 import socket
 from collections.abc import Callable
@@ -29,15 +30,29 @@ def block_outbound() -> Callable[[], None]:
 			return str(address[0])
 		return str(address)
 
+	def allowed(host: str) -> bool:
+		"""Loopback always; inside the compose network (LIMINAL_ALLOW_PRIVATE_NETWORK=1)
+		also private addresses and the named internal services."""
+		if host in _LOOPBACK:
+			return True
+		if os.getenv("LIMINAL_ALLOW_PRIVATE_NETWORK") != "1":
+			return False
+		if host in {h.strip() for h in os.getenv("LIMINAL_INTERNAL_HOSTS", "").split(",") if h.strip()}:
+			return True
+		try:
+			return ipaddress.ip_address(host).is_private
+		except ValueError:
+			return False
+
 	def guarded_connect(connection, address, *args, **kwargs):
 		host = host_of(address)
-		if host not in _LOOPBACK:
+		if not allowed(host):
 			raise OSError(f"network disabled: refused connection to {host}")
 		return real_connect(connection, address, *args, **kwargs)
 
 	def guarded_create(address, *args, **kwargs):
 		host = host_of(address)
-		if host not in _LOOPBACK:
+		if not allowed(host):
 			raise OSError(f"network disabled: refused connection to {host}")
 		return real_create(address, *args, **kwargs)
 
