@@ -118,7 +118,7 @@ export const en = {
     you: '{name} (you)',
     emptyTitle: 'Add the people who attend your meetings',
     emptyLead: 'Names help the AI match tasks to people. Emails decide who gets the minutes.',
-    add: 'Add participant',
+    add: 'Create new participant',
     customRole: '+ Custom role',
     customRolePh: 'Custom role',
     roleFor: 'Role for {name}',
@@ -148,7 +148,7 @@ export const en = {
     admin: 'Administrator',
   },
   addParticipant: {
-    title: 'Add participant',
+    title: 'New participant',
     name: 'Full official name',
     namePh: 'e.g. Igor Rusu',
     role: 'Role',
@@ -156,7 +156,7 @@ export const en = {
     email: 'Email',
     emailPh: 'name@medpark.md',
     access: 'Access',
-    submit: 'Add participant',
+    submit: 'Create participant',
   },
   newMeeting: {
     title: 'New meeting',
