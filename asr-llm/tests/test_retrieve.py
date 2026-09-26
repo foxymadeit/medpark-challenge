@@ -22,3 +22,10 @@ def test_llm_glossary_includes_hospital_ops_and_guardrail():
     assert "Do not add unused terms" in table
     assert "pacient" in table.lower()
     assert "ro | ru | en" in table
+
+
+def test_team_short_forms_reach_the_llm():
+    table = llm_glossary_for("dobu 5, nor 0,2, pe eco e gol")
+    assert "dobu = dobutamină" in table
+    assert "nor = noradrenalină" in table  # ICU vasopressor, not norethindrone
+    assert "eco = ecografie" in table

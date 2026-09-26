@@ -2,7 +2,7 @@
   "meta": {
     "icd10": "ICD-10 diagnosis titles extracted from birgermoell/icd10-clinical-notes (en/ro/ru).",
     "harvard_en": "English term list from harvard_medical_dictionary.json already in this repo.",
-    "hospital_ops": "Meeting/hospital workflow terms, curated for Medpark minutes."
+    "hospital_ops": "Meeting/hospital workflow terms, curated for Medpark minutes. Short forms and phrases from the team's listening notes (asr-llm/data/pattern.png)."
   },
   "aligned": [
     {
@@ -525,6 +525,54 @@
       "en": "surgery",
       "ro": "chirurgie",
       "ru": "хирургия"
+    },
+    {
+      "source": "hospital-ops",
+      "en": "norepinephrine (noradrenaline), ICU vasopressor",
+      "ro": "nor = noradrenalină",
+      "ru": "нор = норадреналин"
+    },
+    {
+      "source": "hospital-ops",
+      "en": "dobutamine",
+      "ro": "dobu = dobutamină",
+      "ru": "добу = добутамин"
+    },
+    {
+      "source": "hospital-ops",
+      "en": "echocardiography (short: echo)",
+      "ro": "eco = ecografie / ecocardiografie",
+      "ru": "эхо = ЭхоКГ, эхокардиография"
+    },
+    {
+      "source": "hospital-ops",
+      "en": "pacemaker (ECS, said the Russian way)",
+      "ro": "ECS = electrostimulator cardiac",
+      "ru": "ЭКС = электрокардиостимулятор"
+    },
+    {
+      "source": "hospital-ops",
+      "en": "patient in bed N (bed number, not the word four)",
+      "ro": "pacientul (de pe) patul 8",
+      "ru": "пациент на восьмой койке"
+    },
+    {
+      "source": "hospital-ops",
+      "en": "sensitive to an antibiotic (antibiogram)",
+      "ro": "suntem sensibili la …",
+      "ru": "чувствителен к …"
+    },
+    {
+      "source": "hospital-ops",
+      "en": "sent up to another floor or department",
+      "ro": "s-o dus sus",
+      "ru": "подняли наверх"
+    },
+    {
+      "source": "hospital-ops",
+      "en": "limbs (arms and legs)",
+      "ro": "membre",
+      "ru": "конечности"
     }
   ],
   "english_extra": [
