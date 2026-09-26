@@ -42,3 +42,13 @@ def test_vague_deadlines_are_not_guessed(phrase):
 def test_without_a_meeting_date_only_explicit_dates_resolve():
     assert resolve("până vineri", "") == ""
     assert resolve("30.09.2026", "") == "2026-09-30"
+
+
+def test_today_and_within_n_days_in_three_languages():
+    from mom.dates import resolve
+    d = "2026-09-24"
+    assert resolve("Actualizez graficul și îl public azi.", d) == "2026-09-24"
+    assert resolve("сегодня до вечера", d) == "2026-09-24"
+    assert resolve("I'll send it today", d) == "2026-09-24"
+    assert resolve("în termen de 7 zile", d) == "2026-10-01"
+    assert resolve("в течение 3 дней", d) == "2026-09-27"

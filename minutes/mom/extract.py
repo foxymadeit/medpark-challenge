@@ -69,7 +69,7 @@ def extract(llm, lines, meeting_type: str, think=None) -> tuple:
     """-> (facts, patients). Facts are proposals; verify.verify decides what stands."""
     parts = windows(lines)
     user = lambda w: f"Meeting type: {meeting_type}.\n\nLines:\n{format_lines(w)}"  # noqa: E731
-    call = lambda w: llm.chat_json(PROMPT, user(w), SCHEMA, max_tokens=3000, think=think)  # noqa: E731
+    call = lambda w: llm.chat_json(PROMPT, user(w), SCHEMA, max_tokens=4096, think=think)  # noqa: E731
     if PARALLEL > 1 and len(parts) > 1:
         with ThreadPoolExecutor(PARALLEL) as pool:
             results = list(pool.map(call, parts))

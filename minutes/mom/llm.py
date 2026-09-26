@@ -74,8 +74,12 @@ class LocalLLM:
                     "options": {"temperature": 0, "num_predict": max_tokens, "num_ctx": self.ctx, "seed": 7}}
             if schema:
                 body["format"] = schema
-            if think is not None:
-                body["think"] = think
+            # Thinking models (Qwen3, Gemma 4) otherwise spend the whole token budget
+            # thinking and return empty or cut-off JSON. gpt-oss cannot switch it off,
+            # only down to "low".
+            if think is None or think is False:
+                think = "low" if "gpt-oss" in self.model else False
+            body["think"] = think
             if self.cpu_only:
                 body["options"]["num_gpu"] = 0
             out = self._post("/api/chat", body)
@@ -99,9 +103,17 @@ class LocalLLM:
     def chat_json(self, system: str, user: str, schema: dict, max_tokens: int = 2048, think=None) -> dict:
         text = self.chat(system, user, schema, max_tokens, think)
         try:
-            return json.loads(text)
+            return _parse_json(text)
         except json.JSONDecodeError:
-            start, end = text.find("{"), text.rfind("}")
-            if start >= 0 and end > start:
-                return json.loads(text[start:end + 1])
-            raise
+            # usually the answer was cut off at the token limit: one retry with twice the room
+            return _parse_json(self.chat(system, user, schema, max_tokens * 2, think))
+
+
+def _parse_json(text: str) -> dict:
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        start, end = text.find("{"), text.rfind("}")
+        if start >= 0 and end > start:
+            return json.loads(text[start:end + 1])
+        raise

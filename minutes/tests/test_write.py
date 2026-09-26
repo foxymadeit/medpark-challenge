@@ -81,3 +81,20 @@ def test_fallback_body_has_a_summary_in_the_document_language():
     body = fallback_body(plan(FACTS, "ru"), "ru")
     assert body.startswith("\\summary{S1}{Рассмотрено вопросов: 1")
     latexcheck.parse(body)
+
+
+def test_repeated_blocks_times_and_institutions_do_not_fail_a_good_body():
+    rows = plan(FACTS, "en")
+    body = GOOD.replace("\\needsconfirmation{C1}{Trimiterea documentelor.}",
+                        "\\needsconfirmation{C1}{Trimiterea documentelor.}\n\\needsconfirmation{C1}{Trimiterea documentelor.}")
+    body = body.replace("Verifică condițiile de reînnoire.", "The Board checks the terms at 30:00.")
+    _, errors = check_body(body, rows, {**EVIDENCE, "A1": "verific eu până pe 30"}, lang="en")
+    assert not any("appears" in e or "The Board" in e or "number 00" in e for e in errors), errors
+
+
+def test_fallback_never_prints_a_patient_name():
+    from mom.schemas import Fact
+    facts = [Fact("T1", "topic", "Cazul Maria Lungu", ["L0001"], quote="x"),
+             Fact("N1", "note", "Pacienta Maria Lungu are 67 de ani.", ["L0001"], quote="x", topic="T1")]
+    body = fallback_body(plan(facts, "ro"), "ro", [{"name": "Maria Lungu", "age": 67, "bed": 12}])
+    assert "Lungu" not in body and "M.L." in body

@@ -27,6 +27,8 @@ Plain, exact, formal. Short sentences, past tense for what happened, the languag
 
 ## Example
 
+The example's topics, numbers and wording are invented. Never copy a number, vote or phrase from it into the minutes.
+
 Facts:
 {EXAMPLE_FACTS}
 

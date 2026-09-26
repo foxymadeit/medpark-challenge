@@ -42,6 +42,8 @@ def resolve(phrase: str, meeting_date: str) -> str:
     if not meeting_date or any(v in p for v in VAGUE):
         return ""
     base = dt.date.fromisoformat(meeting_date)
+    if re.search(r"\b(azi|astăzi|astazi|today|tonight)\b|сегодня", p):
+        return base.isoformat()
     if re.search(r"\b(mâine|maine|tomorrow)\b|завтра", p) and "послезавтра" not in p:
         return (base + dt.timedelta(days=1)).isoformat()
     if re.search(r"\bpoimâine\b|\bpoimaine\b|послезавтра|day after tomorrow", p):
@@ -50,7 +52,7 @@ def resolve(phrase: str, meeting_date: str) -> str:
         return base.replace(day=calendar.monthrange(base.year, base.month)[1]).isoformat()
     if re.search(r"sfârșitul săptămânii|sfarsitul saptamanii|конца недели|end of the week|end of week", p):
         return (base + dt.timedelta(days=(4 - base.weekday()) % 7)).isoformat()
-    m = re.search(r"(?:în|in|peste|через|within)\s+(\w+)\s+(zile|zi|дн|день|дня|days?|săptămân|saptaman|недел|weeks?)", p)
+    m = re.search(r"(?:în(?: termen de)?|in|peste|через|в течение|within)\s+(\w+)\s+(zile|zi|дн|день|дня|days?|săptămân|saptaman|недел|weeks?)", p)
     if m:
         n = int(m.group(1)) if m.group(1).isdigit() else NUMBERS.get(m.group(1))
         if n:

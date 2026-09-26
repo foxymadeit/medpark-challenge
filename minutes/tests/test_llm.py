@@ -20,3 +20,22 @@ def test_proxy_settings_are_ignored():
     from mom import llm
     assert not any(getattr(h, "proxies", None) for h in llm._OPENER.handlers)
     assert not any(type(h).__name__ == "HTTPRedirectHandler" for h in llm._OPENER.handlers)
+
+
+def test_thinking_is_switched_off_by_default_and_cut_json_is_retried(monkeypatch):
+    from mom.llm import LocalLLM
+    sent = []
+    replies = ['{"items": [', '{"items": []}']
+
+    def fake_post(self, path, body):
+        sent.append(body)
+        return {"message": {"content": replies.pop(0)}, "eval_count": 1, "prompt_eval_count": 1}
+
+    monkeypatch.setattr(LocalLLM, "_post", fake_post)
+    llm = LocalLLM("qwen3:8b", "http://127.0.0.1:11434")
+    assert llm.chat_json("s", "u", {"type": "object"}, max_tokens=100) == {"items": []}
+    assert sent[0]["think"] is False and sent[1]["options"]["num_predict"] == 200
+    oss = LocalLLM("gpt-oss:20b", "http://127.0.0.1:11434")
+    replies.append("{}")
+    oss.chat_json("s", "u", {"type": "object"})
+    assert sent[-1]["think"] == "low"

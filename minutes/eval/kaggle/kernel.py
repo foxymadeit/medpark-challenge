@@ -23,12 +23,13 @@ WORK = Path("/kaggle/working") if Path("/kaggle/working").exists() else Path("/t
 OUT = WORK / "results"
 OUT.mkdir(parents=True, exist_ok=True)
 REPO = Path("/tmp/repo")
+# round 2 (2026-09-26 evening): the models that worked in round 1, plus the ones that
+# only failed on thinking or a cut-off answer, now fixed in mom/llm.py
 GPU_MODELS = [
-    "gemma3:4b", "qwen3:4b", "gemma3:12b", "qwen3:8b", "qwen3:8b|think", "gpt-oss:20b|low", "phi4:14b", "qwen3:14b",
-    "gemma4:e4b", "gemma4:12b", "gemma4:26b", "qwen3:30b-a3b", "mistral-small3.2:24b",
-    "hf.co/bartowski/utter-project_EuroLLM-22B-Instruct-2512-GGUF:Q4_K_M",
+    "qwen3:8b", "qwen3:14b", "gpt-oss:20b|low", "mistral-small3.2:24b", "phi4:14b", "gemma3:12b",
+    "gemma4:12b", "qwen3:30b-a3b",
 ]
-CPU_MODELS = ["gemma3:4b", "qwen3:4b", "gpt-oss:20b|low", "qwen3:30b-a3b", "gemma4:26b"]
+CPU_MODELS = ["qwen3:4b", "gpt-oss:20b|low", "qwen3:30b-a3b"]
 STATE = {"step": "setup", "model": "", "note": "", "done": 0, "total": len(GPU_MODELS) + len(CPU_MODELS),
          "warnings": [], "results": {}, "progress": 0}
 
@@ -151,6 +152,7 @@ def run():
                 traceback.print_exc()
             finally:
                 STATE["done"] += 1
+                subprocess.run(f"ollama stop {name}", shell=True)   # free the GPU before the next model's peak is measured
                 if not cpu_only and spec.partition("|")[0] not in [m.partition("|")[0] for m in CPU_MODELS]:
                     subprocess.run(f"ollama rm {name}", shell=True)
                 (WORK / "run_report.json").write_text(json.dumps(STATE, indent=1))

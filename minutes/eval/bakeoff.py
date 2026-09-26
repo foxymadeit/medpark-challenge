@@ -17,6 +17,9 @@ from eval.long import LONG
 from eval.long import build as build_long
 from eval.meetings import DATE, MEETINGS, build
 from eval.score import score_meeting, summary
+from dataclasses import replace
+
+from mom.anonymize import anonymize_text
 from mom.extract import extract
 from mom.llm import LocalLLM
 from mom.normalize import load_transcript
@@ -78,6 +81,8 @@ def run_model(spec: str, data: Path, out: Path, tools=None, cpu_only=False, prog
             print(f"  {mid}: extraction failed: {e!r}", flush=True)
             proposed, patients, ok_json = [], [], False
         facts = verify(proposed, lines, DATE, [l.speaker for l in lines])
+        # the same anonymizing step the product runs before writing (mom/pipeline.py)
+        facts = [replace(f, text=anonymize_text(f.text, patients), owner=anonymize_text(f.owner, patients)) for f in facts]
         s = score_meeting(facts, gold)
         s["json_ok"], s["extract_s"] = int(ok_json), round(time.perf_counter() - t, 1)
         rows.append(s)
