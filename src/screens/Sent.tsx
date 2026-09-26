@@ -8,7 +8,7 @@ import { formatDayMonth } from '../lib/format';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 
-/** ms per recipient: their green bar fills over this time, then the check pops. */
+/** ms per recipient; the ring around the badge fills over all of them. */
 const STEP_MS = 1200;
 
 /**
@@ -40,8 +40,15 @@ export function Sent() {
   return (
     <div className="page sent">
       <div className="sent__done">
-        <span className={`sent__badge${done ? ' is-done' : ''}`} aria-hidden>
-          {done ? <CheckIcon size={28} className="sent__check-icon" /> : <PaperPlaneTiltIcon size={26} className="sent__plane" />}
+        {/* Progress ring around the badge fills green over the whole send, then the check pops in. */}
+        <span className={`sent__badge-wrap${done ? ' is-done' : ''}`} aria-hidden>
+          <svg className="sent__ring" viewBox="0 0 80 80" width="80" height="80">
+            <circle cx="40" cy="40" r="37" className="sent__ring-track" />
+            <circle cx="40" cy="40" r="37" className="sent__ring-fill" pathLength={100} style={{ animationDuration: `${withEmail.length * STEP_MS}ms` }} />
+          </svg>
+          <span className={`sent__badge${done ? ' is-done' : ''}`}>
+            {done ? <CheckIcon size={28} className="sent__check-icon" /> : <PaperPlaneTiltIcon size={26} className="sent__plane" />}
+          </span>
         </span>
         <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
           <h1 className="t-h1" role="status" aria-live="polite">
@@ -50,6 +57,8 @@ export function Sent() {
           <p className="lead">{done ? t('sent.lead', { date: formatDayMonth(meeting.date, lang) }) : t('sent.sendingLead', { count: withEmail.length })}</p>
         </div>
 
+        {/* Recipients show only while sending; once done the screen keeps just the result. */}
+        {!done && (
         <ul className="sent__list" aria-label={t('sent.recipients')}>
           {people.map((p) => {
             const i = withEmail.indexOf(p);
@@ -67,18 +76,15 @@ export function Sent() {
                       <CheckIcon size={12} weight="bold" aria-hidden />
                     </span>
                   )}
-                  {/* Same slot as the check: an empty bar while waiting, it fills green while sending, then gives way to the check. */}
-                  {(state === 'sending' || state === 'waiting') && (
-                    <span className="sent__bar" role={state === 'sending' ? 'img' : undefined} aria-label={state === 'sending' ? t('sent.stateSending') : undefined} aria-hidden={state === 'waiting' || undefined}>
-                      <span className="sent__bar-fill" style={{ animationDuration: `${STEP_MS}ms` }} />
-                    </span>
-                  )}
+                  {state === 'sending' && <span className="sent__pulse" role="img" aria-label={t('sent.stateSending')} />}
+                  {state === 'waiting' && <span className="sent__wait" aria-hidden />}
                   {state === 'skipped' && <span className="note">{t('sent.stateSkipped')}</span>}
                 </span>
               </li>
             );
           })}
         </ul>
+        )}
 
         {done && (
           <div className="sent__after">
