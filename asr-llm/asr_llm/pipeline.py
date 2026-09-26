@@ -11,7 +11,7 @@ from .clean import collapse_repeat_segments
 from .config import settings
 from .llm import LocalLlm
 from .schemas import Minutes, PipelineResult, SpeechSegment, Transcript
-from .vad import energy_vad
+from .vad import speech_spans
 
 
 def transcribe_audio(audio_path: Path) -> tuple[Transcript, dict[str, float]]:
@@ -21,7 +21,7 @@ def transcribe_audio(audio_path: Path) -> tuple[Transcript, dict[str, float]]:
     timings["decode"] = time.perf_counter() - t0
 
     t0 = time.perf_counter()
-    spans = energy_vad(audio)
+    spans = speech_spans(audio)
     if not spans:
         spans = [(0.0, duration_s(audio))]
     batches = pack_batches(audio, spans)

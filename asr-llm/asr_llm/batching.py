@@ -30,7 +30,7 @@ def pack_batches(
 
     glued: list[tuple[float, float]] = []
     for start, end in spans:
-        if glued and start - glued[-1][1] <= merge_gap_s:
+        if glued and start - glued[-1][1] < merge_gap_s:
             glued[-1] = (glued[-1][0], end)
         else:
             glued.append((start, end))

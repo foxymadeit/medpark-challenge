@@ -12,4 +12,4 @@ Not bundled: SNOMED / UMLS (license), full CIM-10-AM PDFs.
 
 The JSON is committed. Nothing fetches it at run time; the pipeline never opens a socket.
 
-Whisper only sees a short `hotwords` slice. The LLM sees the aligned table. `english_extra` is stored for later lookup, not stuffed into prompts.
+Whisper never sees the glossary. The LLM sees a retrieved subset of the aligned table (`retrieve.py`). `english_extra` is stored for later lookup, not stuffed into prompts.
