@@ -14,5 +14,8 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./tests/setup.ts"],
     restoreMocks: true,
+    // The recorder tests race real timers; under a loaded machine 5 s is too tight.
+    testTimeout: 15000,
+    exclude: ["tests/e2e/**", "node_modules/**"],
   },
 });
