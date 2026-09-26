@@ -385,9 +385,13 @@ sentences; people appear only in the attendance list and as action owners.
 | Skeleton sheen | 1.2 s across, then restarts |
 | Success check | 240 ms ease-out, once |
 | Toast in and out | 200 ms ease-out, from and to the bottom |
-| Tabs, keyboard, menus | Instant |
+| Language switch | indicator slides 220 ms `cubic-bezier(0.23, 1, 0.32, 1)`; text fades out 120 ms, new text fades in 180 ms and rises 2 px; no layout jump |
+| Tabs and segmented controls | indicator slides 220 ms, same curve; panel crossfades 180 ms |
+| Menus, dropdowns, modals | open 160 ms, fade and scale 0.98 to 1 from the trigger; close 120 ms |
+| Checkbox, toggle | check draws in 180 ms; knob slides 180 ms |
+| Expand and collapse | height 220 ms, same curve |
 
-With `prefers-reduced-motion`, every movement becomes a 150 ms fade. The
+Nothing a person clicks changes instantly. With `prefers-reduced-motion`, every movement becomes a 150 ms fade. The
 countdown bar still empties, because it carries meaning.
 
 ## Do's and Don'ts
