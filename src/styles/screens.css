@@ -298,5 +298,34 @@
 .tpl-people-preview { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; margin-right: auto; }
 .avatar-stack { display: flex; flex-shrink: 0; }
 .avatar-stack .avatar { box-shadow: 0 0 0 2px var(--sm-surface-panel); }
-.avatar-stack .avatar + .avatar { margin-left: -8px; }
+.avatar-stack .avatar-tip + .avatar-tip { margin-left: -8px; }
+.avatar-stack { position: relative; border-radius: 16px; }
+
+/* Name tooltips: one name per hovered avatar; the full list when the stack has keyboard focus. */
+.avatar-tip { position: relative; display: inline-flex; }
+.avatar-tip:hover { z-index: 1; }
+.avatar-tip::after,
+.avatar-stack::after {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  z-index: 2;
+  padding: 4px 8px;
+  border-radius: var(--sm-radius-inner);
+  background: var(--sm-ink-primary);
+  color: var(--sm-surface-panel);
+  font: 500 13px/18px var(--sm-font-body);
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+}
+.avatar-tip::after { content: attr(data-name); }
+.avatar-stack::after { content: attr(data-names); left: 0; transform: none; }
+.avatar-tip:hover::after,
+.avatar-stack:focus-visible::after { opacity: 1; visibility: visible; }
+.avatar-stack:focus-visible .avatar-tip::after { opacity: 0; visibility: hidden; }
+@media (prefers-reduced-motion: reduce) { .avatar-tip::after, .avatar-stack::after { transition: none; } }
 .sent__download { align-self: center; margin-top: 4px; }

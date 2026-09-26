@@ -67,15 +67,18 @@ function TemplatePeople({ ids }: { ids: string[] }) {
   const people = ids.map(resolvePerson).filter((p): p is Person => !!p);
   const shown = people.slice(0, 2).map((p) => p.name);
   const rest = people.length - shown.length;
+  const names = people.map((p) => p.name).join(', ');
   return (
-    <div className="tpl-people-preview" title={people.map((p) => p.name).join(', ')}>
-      <span className="avatar-stack" aria-hidden>
+    <div className="tpl-people-preview">
+      {/* Hover an avatar for that name; keyboard focus on the stack shows everyone. */}
+      <span className="avatar-stack" tabIndex={0} aria-label={`${t('templates.participants')}: ${names}`} data-names={names}>
         {people.slice(0, 5).map((p) => (
-          <Avatar key={p.id} name={p.name} />
+          <span key={p.id} className="avatar-tip" data-name={p.name}>
+            <Avatar name={p.name} />
+          </span>
         ))}
       </span>
-      <span className="note truncate">
-        <span className="sr-only">{t('templates.participants')}: </span>
+      <span className="note truncate" aria-hidden>
         {shown.join(', ')}
         {rest > 0 && ` ${t('templates.more', { n: rest })}`}
       </span>
