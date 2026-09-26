@@ -127,7 +127,11 @@ voice prototypes per person, so someone switching from Romanian to Russian
 keeps one label. It matches each new embedding to a known person or opens a
 new one. Labels lag the audio by 1 s so the model has heard a bit past each
 moment. When the session ends, every observation is scored again against
-the final voiceprints before the minutes are written.
+the final voiceprints before the minutes are written. A "voice" with under
+3 s of speech in one or two turns is a fragment (a cough, a chair, the
+recorder starting), not a person: it joins the speaker it sounds like, or is
+dropped when it sounds like nobody. Someone who says "da" three times keeps
+their own label.
 
 ## Measured
 

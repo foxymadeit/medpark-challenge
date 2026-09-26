@@ -22,7 +22,7 @@ import numpy as np
 
 from .neural import SR
 from .recluster import recluster
-from .refine import refine
+from .refine import _centroids, refine
 from .timeline import Timeline
 from .tracker import SpeakerTracker
 
@@ -153,6 +153,14 @@ class Labeler:
                               max_speakers=self.tracker.max_speakers)
         else:
             final = refine(embs, online, new_th=self.tracker.new_th)
+        turns = self._turns(final)
+        named = {s.id for s in self.tracker.speakers if s.name}
+        fold = ghost_remap(turns, embs, final, keep=named)
+        if not fold:
+            return turns
+        return self._turns([[fold.get(i, i) for i in ids] for ids in final])
+
+    def _turns(self, final) -> list:
         tl = Timeline(self.timeline.min_gap, self.timeline.min_dur)
         for (obs, _), ids in zip(self._history, final):
             for sid, runs in zip(ids, obs.runs):
@@ -160,6 +168,44 @@ class Labeler:
                     for start, end in runs:
                         tl.add(sid, start, end)
         return tl.finish()
+
+
+# A voice that speaks less than this in total, in at most GHOST_MAX_TURNS
+# turns, is a fragment (a cough, a chair, the recorder being started), not a
+# participant. Someone who says "da" three times keeps their own label.
+GHOST_MAX_TALK_S = 3.0
+GHOST_MAX_TURNS = 2
+# A fragment whose voiceprint is at least this close to a real speaker is that
+# speaker (the session's `new` threshold is 0.3-0.4, so this is well inside a
+# match); anything less alike is dropped as non-speech rather than guessed.
+GHOST_JOIN_SIM = 0.5
+
+
+def ghost_remap(turns, embs_per_obs, ids_per_obs, keep=frozenset()) -> dict:
+    """{ghost id: real id, or None to drop it}. Short-cluster handling as in
+    pyannote's min_cluster_size and DKU-MSXF (VoxSRC-23): small clusters go to
+    the nearest large one when they sound like it; unlike them, a tiny
+    dissimilar cluster is dropped instead of kept as a phantom speaker."""
+    talk: dict = {}
+    count: dict = {}
+    for t in turns:
+        talk[t.speaker] = talk.get(t.speaker, 0.0) + t.duration
+        count[t.speaker] = count.get(t.speaker, 0) + 1
+    if len(talk) < 2:
+        return {}
+    biggest = max(talk, key=talk.get)
+    ghosts = [s for s in talk if s != biggest and s not in keep
+              and talk[s] < GHOST_MAX_TALK_S and count[s] <= GHOST_MAX_TURNS]
+    if not ghosts:
+        return {}
+    cents = _centroids(embs_per_obs, ids_per_obs)
+    real = [s for s in talk if s not in ghosts and s in cents]
+    remap = {}
+    for g in ghosts:
+        sims = {r: float(cents[g] @ cents[r]) for r in real} if g in cents else {}
+        best = max(sims, key=sims.get, default=None)
+        remap[g] = best if best is not None and sims[best] >= GHOST_JOIN_SIM else None
+    return remap
 
 
 class StreamingDiarizer:
