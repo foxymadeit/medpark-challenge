@@ -1,6 +1,11 @@
 import { FiShield as ShieldCheck } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
-import { getCapabilities, getSystem } from "../api/meetings";
+import {
+  auditAction,
+  getAudit,
+  getCapabilities,
+  getSystem,
+} from "../api/meetings";
 import { DEMO_MODE, departments } from "../api/config";
 import { listName, routingLine } from "../api/routing";
 import { useRouting } from "../hooks/useRouting";
@@ -13,6 +18,7 @@ export default function SystemPage() {
   const routing = useRouting();
   // the same answer the new-meeting page uses to offer automatic sending
   const { data: capabilities } = useData(getCapabilities, 0);
+  const { data: audit } = useData(getAudit, 10000);
   if (!data) return <StatePanel error={error} retry={refresh} />;
   return (
     <>
@@ -73,6 +79,34 @@ export default function SystemPage() {
         <span className="state-badge">
           {t(capabilities?.autoModeAvailable ? "available" : "unavailable")}
         </span>
+      </section>
+      <section className="panel minutes-card audit-trail">
+        <h2>{t("auditTrail")}</h2>
+        <p className="muted">{t("auditIntro")}</p>
+        {audit?.length ? (
+          <table>
+            <thead>
+              <tr>
+                <th>{t("auditWhen")}</th>
+                <th>{t("auditWho")}</th>
+                <th>{t("auditWhat")}</th>
+                <th>{t("auditResult")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {audit.slice(0, 12).map((row, i) => (
+                <tr key={`${row.at}-${i}`}>
+                  <td>{formatClock(row.at, i18n.language)}</td>
+                  <td>{row.user ?? t("auditNobody")}</td>
+                  <td>{t(auditAction(row))}</td>
+                  <td>{t(row.status < 400 ? "auditDone" : "auditRefused")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>{t("auditEmpty")}</p>
+        )}
       </section>
       <section className="panel minutes-card">
         <h2>{t("distribution")}</h2>

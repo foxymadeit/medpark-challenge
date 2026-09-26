@@ -655,3 +655,36 @@ export async function getSystem(): Promise<SystemState> {
       }
     : request("/system");
 }
+
+/** One entry of the server's append-only audit trail (never any content). */
+export interface AuditRow {
+  at: string;
+  user?: string | null;
+  method: string;
+  route: string;
+  meetingId?: string | null;
+  status: number;
+}
+export async function getAudit(): Promise<AuditRow[]> {
+  return DEMO_MODE ? [] : request<AuditRow[]>("/admin/audit");
+}
+const AUDIT_ACTIONS: [RegExp, string][] = [
+  [/\/upload$/, "audit_upload"],
+  [/\/recording$/, "audit_recording"],
+  [/\/process$/, "audit_process"],
+  [/\/send$/, "audit_send"],
+  [/\/stop-send$/, "audit_stop"],
+  [/\/confirmations\//, "audit_confirm"],
+  [/\/documents\//, "audit_document"],
+  [/\/transcript$/, "audit_transcript"],
+  [/\/(minutes|actions\/|review)/, "audit_edit"],
+  [/\/auth\/login$/, "audit_login"],
+  [/\/auth\/logout$/, "audit_logout"],
+  [/\/(admin|templates|people)/, "audit_admin"],
+];
+/** The translation key that says, in plain words, what an audit entry was. */
+export function auditAction(row: Pick<AuditRow, "method" | "route">): string {
+  if (row.method === "GET" && row.route.endsWith("/recording"))
+    return "audit_listen";
+  return AUDIT_ACTIONS.find(([re]) => re.test(row.route))?.[1] ?? "audit_other";
+}

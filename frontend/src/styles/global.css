@@ -2992,3 +2992,25 @@ blockquote {
     scroll-behavior: auto !important;
   }
 }
+
+/* System page: the audit trail, read-only */
+.audit-trail table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.audit-trail th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--sm-ink-secondary);
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--sm-surface-hairline);
+}
+.audit-trail td {
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--sm-surface-hairline);
+}
+.audit-trail td:first-child {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

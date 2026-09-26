@@ -212,6 +212,7 @@ class AuditTrail(BaseHTTPMiddleware):
 
 
 def audit_rows(limit: int = 500) -> list[dict]:
-    rows = store.db().execute("SELECT * FROM audit ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
-    return [{"at": r["at"], "userId": r["user_id"], "method": r["method"], "route": r["route"],
+    rows = store.db().execute("SELECT a.*, u.name AS user_name FROM audit a LEFT JOIN users u ON u.id = a.user_id "
+                              "ORDER BY a.id DESC LIMIT ?", (limit,)).fetchall()
+    return [{"at": r["at"], "userId": r["user_id"], "user": r["user_name"], "method": r["method"], "route": r["route"],
              "meetingId": r["meeting_id"], "status": r["status"], "address": r["address"]} for r in rows]
