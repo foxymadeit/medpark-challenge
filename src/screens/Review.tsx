@@ -369,7 +369,7 @@ export function Review() {
 
       <div className="action-bar">
         <p className="action-bar__left note">{t('review.teach')}</p>
-        <Button variant="primary" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send}>
+        <Button variant="ink" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send}>
           {t('review.send')}
         </Button>
       </div>
