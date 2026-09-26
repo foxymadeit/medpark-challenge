@@ -1,0 +1,129 @@
+# DRAFT — NOT GOLD. Correct by listening to data/Medpark_audio.m4a, 0:00–3:00.
+# For each block keep ONE line: what was actually said, each word in its own language/script
+# (Romanian in Latin with diacritics, Russian in Cyrillic, English as English).
+# Delete the C:/W: hint lines and these # lines, then save as data/gold_0-180s.txt.
+
+# [0.4-2.9]
+C: Supărnic parcăm. Ajust.
+W(ru): С парнем к паркам.
+Supărnic parcăm. Ajust.
+
+# [3.1-4.8]
+C: Deci, 4-8.
+W(ro): Pacientul patul opt.
+Deci, 4-8.
+
+# [4.8-19.4]
+C: El a fost pediat de Uscrips și a fost un oslonoi cu infarct miocardic, a fost turboaspirație făcută. Mitral 3, fracție de 38-340. Da, e un. Deci, sunt. Cardiac și acolo suspecție. Trivascular, nu?
+W(ro): El a fost pe dată de uscări și a ajuns la noi cu infarct miocardic, a fost trombospirație făcută, mitrală a trei, fracție de 38-40. Da, el e pacient. Cardiac și cardiovascular, nu?
+El a fost pediat de Uscrips și a fost un oslonoi cu infarct miocardic, a fost turboaspirație făcută. Mitral 3, fracție de 38-340. Da, e un. Deci, sunt. Cardiac și acolo suspecție. Trivascular, nu?
+
+# [19.4-32.9]
+C: Trivascular, da. Ceea ce acolo suspecție și la ruptura de cordaș a fost, care nu prea a fost confirmată. El a stat la un moment dat în 18. Deci, pe o strălucire, transcrat cu doze mici de doar drevenina.
+W(ro): Trei văscula, da. De acolo suspecția și la ruptura de cordajul post, care nu prea a fost confirmată, iar ăsta nu a fost recomandată, au fost trece-pre-o trece transferat cu dozile mici de noradrenalină și cu vinic, da.
+Trivascular, da. Ceea ce acolo suspecție și la ruptura de cordaș a fost, care nu prea a fost confirmată. El a stat la un moment dat în 18. Deci, pe o strălucire, transcrat cu doze mici de doar drevenina.
+
+# [32.9-40.7]
+C: A fost descărcat în condiții de activitate. El a fost în care, ca nu știa, i-a dat. La momentul de transfer, da sau nu?
+W(ro): A fost descărcată când te iubiți tu de activ? Da, eu îmi fost comparit cu atunci ce vreau de noștri. La momentul de transfer, da, să văd.
+A fost descărcat în condiții de activitate. El a fost în care, ca nu știa, i-a dat. La momentul de transfer, da sau nu?
+
+# [41.3-52.2]
+C: La momentul de transfer, da, dacă nu-l dușezi, nu. E nor. E nor. Așa. Hemodinamic, instabil, norul 001. Mescuturni.
+W(ro): La momentul transferului, dacă vă duceți în urmă, este obținut de dinor. Dinor. Așa. În chemodinamic, stabil, norul 001. Măi, scutură-mi!
+La momentul de transfer, da, dacă nu-l dușezi, nu. E nor. E nor. Așa. Hemodinamic, instabil, norul 001. Mescuturni.
+
+# [52.2-56.5]
+C: 2 micro. 2 micro. El ce este și eu?
+W(ro): două micrometre. El cea mai scârșită cea mai bună.
+2 micro. 2 micro. El ce este și eu?
+
+# [56.5-71.3]
+C: Așa. Transferat acolo, acolo în Turchina, el a fost descărcat volemic și acum ajung spre motivul de instabilitate hemodinamică, chemisunele 80, chemisunele 22, dieronor și dobui cu 4.
+W(ro): Așa, a transferat acolo, acolo continuu el a fost descărcat volimic și acum a ajuns pe motivul de instabilitatea hemodinamică, cum sunt ele, 80 pe 40, dozile de 0,22.
+Așa. Transferat acolo, acolo în Turchina, el a fost descărcat volemic și acum ajung spre motivul de instabilitate hemodinamică, chemisunele 80, chemisunele 22, dieronor și dobui cu 4.
+
+# [71.3-75.2]
+C: Transferat acolo, acolo în Turchina, el a fost descărcat volemic și acum ajung spre motivul de instabilitate hemodinamică, chemisunele 80, chemisunele 22, dieronor și dobui cu 4.
+W(ro): si dobu-i cu patul
+Transferat acolo, acolo în Turchina, el a fost descărcat volemic și acum ajung spre motivul de instabilitate hemodinamică, chemisunele 80, chemisunele 22, dieronor și dobui cu 4.
+
+# [75.3-79.2]
+C: S-a făcut ieco, el e gol, ce dreapta și stânga, stânga, dacă putem să-l considerăm pe motiv diametrală care riscă apă.
+W(ro): Vsau făcut ieco, ielă-i gol.
+S-a făcut ieco, el e gol, ce dreapta și stânga, stânga, dacă putem să-l considerăm pe motiv diametrală care riscă apă.
+
+# [79.2-94.0]
+C: S-a făcut ieco, el e gol, ce dreapta și stânga, stânga, dacă putem să-l considerăm pe motiv diametrală care riscă apă. Dreapta e gol, să nu uităm volumul acum și el deja începe ușor să riscă pe lelești din sesiunea. Da, da, da. Băti, cum punem arteria, da?
+W(ro): și dreapta și stânga, stânga dacă putem să o considerăm pe motiv diametrală care scapă, dreapta e găluță, noi dăm volumul acum și el deja încet-încet restabilește tensiunea. Da, scade și norul? Da, da, da, da. Adică îi punem în sartere, da?
+S-a făcut ieco, el e gol, ce dreapta și stânga, stânga, dacă putem să-l considerăm pe motiv diametrală care riscă apă. Dreapta e gol, să nu uităm volumul acum și el deja începe ușor să riscă pe lelești din sesiunea. Da, da, da. Băti, cum punem arteria, da?
+
+# [94.0-106.6]
+C: Da, punem arteria că ar trebui să monitorizăm tot ce mai activ. Bun, ce facem? Nor, arteria. Nor, arteria, nor, două. Pirivascular, tuboproflexia, alte agregate.
+W(ro): Da, punem artera, că ar trebui să monitorizăm totuși mai activ toate chestiile acestea. Și cu dânsul ce facem? Nori, artera și umplere vasculară? Nori, artera, umplere vasculară, tromboflexie, alte agregate.
+Da, punem arteria că ar trebui să monitorizăm tot ce mai activ. Bun, ce facem? Nor, arteria. Nor, arteria, nor, două. Pirivascular, tuboproflexia, alte agregate.
+
+# [106.7-112.0]
+C: Da. Da, ca pe creatinina, el cu mâna. Ia ca pe creatinina, 200.
+W(ro): Da, da, picreatininii ialcunii. Iaca, picreatinina, două sute.
+Da. Da, ca pe creatinina, el cu mâna. Ia ca pe creatinina, 200.
+
+# [113.2-118.0]
+C: Asta deja ce aveam, că e 240 și uree 19.
+W(ro): Asta de la cei ce aveam credinina de 200 tipături zeci și ureia e nouă, scrie ceva de altfel.
+Asta deja ce aveam, că e 240 și uree 19.
+
+# [120.7-123.5]
+C: 240 și uree 19.
+W(ru): Стипатру здесь швыряя нос при защите.
+240 și uree 19.
+
+# [123.7-132.2]
+C: El și-a... Nu prea la gumerite, sunt multe. Câte am amintit, e în toare. În plus, ești cineva din membrii familiei Vine? Vineau.
+W(ru): Да, например, Ладонсу есть ученик? Мембрия, фамилия, имени?
+El și-a... Nu prea la gumerite, sunt multe. Câte am amintit, e în toare. În plus, ești cineva din membrii familiei Vine? Vineau.
+
+# [132.2-137.8]
+C: Vineau. A, soție, cred că e. Vineau, da. Dar azi încă nu...
+W(ro): Vine altul, asociația picărilor băgâni, dar azi încă nu mai vine niciunul.
+Vineau. A, soție, cred că e. Vineau, da. Dar azi încă nu...
+
+# [139.7-143.7]
+C: 90 și acum ai 200, 90 și practic s-a triplat aproape.
+W(ro): Nu uitați să dați like, să lăsați un comentariu și să distribuiți acest material video pe alte rețele sociale. Vă mulțumesc frumos!
+90 și acum ai 200, 90 și practic s-a triplat aproape.
+
+# [143.7-144.3]
+C: Da.
+W(ro): Da.
+Da.
+
+# [144.7-147.9]
+C: Dar cred că e un minim bolier. Eu cred că nu e să-l rincă ca în bolierimic și un pic o să scadă și credeți-mă.
+W(ro): Dar eu sunt un boliefic, eu cred că nu eu sunt...
+Dar cred că e un minim bolier. Eu cred că nu e să-l rincă ca în bolierimic și un pic o să scadă și credeți-mă.
+
+# [147.9-162.1]
+C: Eu cred că nu e să-l rincă ca în bolierimic și un pic o să scadă și credeți-mă. Codensul planului este infuzie și suport depresor. Da, suportul depresor care ușor face o să cucim de pe tine. Da, el e ucit, el nu. La moment, da.
+W(ro): Reîncărcăm volenic și un pic o scadă și cred că e bine. Pentru că se vede în jur de aici și cu tine. Deci, curcudință, o plană este infuzie și suport presări? Da, suportul de presări, care începe și eu, poate o să fugim de pe deasupra. De el e uțit? La moment, da.
+Eu cred că nu e să-l rincă ca în bolierimic și un pic o să scadă și credeți-mă. Codensul planului este infuzie și suport depresor. Da, suportul depresor care ușor face o să cucim de pe tine. Da, el e ucit, el nu. La moment, da.
+
+# [162.7-165.5]
+C: Și are 02 din nou. Da. La moment, el ucit, la moment, destul de cooperant și destul de adecvat.
+W(ro): Și are ziură doi din oră? Da. Ok.
+Și are 02 din nou. Da. La moment, el ucit, la moment, destul de cooperant și destul de adecvat.
+
+# [165.5-177.7]
+C: La moment, el ucit, la moment, destul de cooperant și destul de adecvat. Să vedem ce o să fie pe neasea, ca a fost terminată. Deci, falopate, este studiu pe masacru, hiperactiv, cred că asta.
+W(ro): La moment e ucit, la moment distrug de un cooperant și distrug de adecvat. O să vedem ce o să fie până seara, că a fost neamintele din șfolopatie, distrug de pământaticul, deliric, hiperactiv, către statul acela.
+La moment, el ucit, la moment, destul de cooperant și destul de adecvat. Să vedem ce o să fie pe neasea, ca a fost terminată. Deci, falopate, este studiu pe masacru, hiperactiv, cred că asta.
+
+# [178.3-179.4]
+C: Da, pacientul de pe patul nouă.
+W(ro): Da.
+Da, pacientul de pe patul nouă.
+
+# [179.4-194.2]
+C: Da, pacientul de pe patul nouă.
+W(ro): Pacientul de pe patul nouă nu face la un moment febra, are o insuficiență respiratorie cu o saturație de 92-94.
+Da, pacientul de pe patul nouă.
