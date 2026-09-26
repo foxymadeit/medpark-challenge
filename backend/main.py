@@ -4,7 +4,7 @@ import smtplib
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from starlette.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -74,11 +74,13 @@ def root():
     return {"message": "backend initialized."}
 
 
-@app.post("/email/send", response_model=EmailSendResponse)
+@app.post("/api/email/send", response_model=EmailSendResponse)
 async def send_mom_email(
     request: EmailSendRequest,
+    user: dict = Depends(security.require_admin),
 ) -> EmailSendResponse | JSONResponse:
-    """Email structured minutes to the configured meeting-type distribution list."""
+    """Email structured minutes to the configured meeting-type distribution list.
+    Administrators only: under /api it gets the origin check and the audit trail."""
     try:
         result = await run_in_threadpool(
             email_service.send_mom_email,

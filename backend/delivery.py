@@ -141,6 +141,7 @@ def payload(m: dict) -> dict:
             docs.append({"fileName": files["pdf"], "mimeType": "application/pdf",
                          "data": base64.b64encode((folder / files["pdf"]).read_bytes()).decode()})
     return {"meetingId": m["id"], "minutes": minutes.model_dump(), "documents": docs,
+            "distributionList": list(m.get("distributionList") or []),
             "participant_emails": [p["email"] for p in m.get("participants", []) if p.get("email")]}
 
 
@@ -159,7 +160,8 @@ def _via_n8n(body: dict) -> bool:
     if not N8N_WEBHOOK:
         return False
     req = urllib.request.Request(N8N_WEBHOOK, data=json.dumps(body).encode(), method="POST",
-                                 headers={"Content-Type": "application/json"})
+                                 headers={"Content-Type": "application/json",
+                                          "X-Liminal-Secret": os.getenv("LIMINAL_N8N_SECRET", "")})
     try:
         with _OPENER.open(req, timeout=60) as r:
             return 200 <= r.status < 300

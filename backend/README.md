@@ -105,7 +105,7 @@ receives a structured `minutes` payload and sends it through SMTP.
 
 ## Workflow
 
-1. The upstream pipeline sends a `minutes` object to `POST /email/send`.
+1. An administrator (or a script signed in as one) sends a `minutes` object to `POST /api/email/send`; it passes the same origin check and audit trail as every other `/api` route.
 2. The backend selects the configured recipient list for that meeting type.
 3. It sends one email to the meeting distribution list and separate copies to unique participant addresses.
 4. In local development, Mailpit captures the outgoing messages instead of delivering them externally.
@@ -182,7 +182,7 @@ The API is available at:
 
 ## API behavior
 
-The endpoint `POST /email/send` returns:
+The endpoint `POST /api/email/send` returns:
 
 - `200` when all recipients accept the email
 - `207` when only some recipients are refused

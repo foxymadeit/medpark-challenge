@@ -43,7 +43,7 @@ $body = @{
 } | ConvertTo-Json -Depth 8
 
 $response = Invoke-RestMethod `
-    -Uri "$($ApiBaseUrl.TrimEnd('/'))/email/send" `
+    -Uri "$($ApiBaseUrl.TrimEnd('/'))/api/email/send" `
     -Method Post `
     -ContentType "application/json" `
     -Body $body

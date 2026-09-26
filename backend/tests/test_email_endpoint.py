@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
+import security
 from main import app
 from schemas import Minutes
 from services.EmailService import (
@@ -13,7 +14,9 @@ from services.EmailService import (
 
 class EmailEndpointTests(unittest.TestCase):
 	def setUp(self) -> None:
-		self.client = TestClient(app)
+		app.dependency_overrides[security.require_admin] = lambda: {"id": "admin", "role": "admin"}
+		self.addCleanup(app.dependency_overrides.clear)
+		self.client = TestClient(app, headers={"Origin": "http://testserver"})
 
 	def _payload(self) -> dict:
 		return {
@@ -52,7 +55,7 @@ class EmailEndpointTests(unittest.TestCase):
 		payload["to_addresses"] = ["outside@example.com"]
 
 		response = self.client.post(
-			"/email/send",
+			"/api/email/send",
 			json=payload,
 		)
 
@@ -82,7 +85,7 @@ class EmailEndpointTests(unittest.TestCase):
 			"Participant email addresses must be valid email addresses."
 		)
 
-		response = self.client.post("/email/send", json=payload)
+		response = self.client.post("/api/email/send", json=payload)
 
 		self.assertEqual(response.status_code, 422)
 		send_mom_email.assert_called_once()
@@ -93,7 +96,7 @@ class EmailEndpointTests(unittest.TestCase):
 			accepted=("board@hospital.local",),
 			refused=("admin@hospital.local",),
 		)
-		response = self.client.post("/email/send", json=self._payload())
+		response = self.client.post("/api/email/send", json=self._payload())
 
 		self.assertEqual(response.status_code, 207)
 		self.assertEqual(response.json()["status"], "partial")
@@ -103,7 +106,7 @@ class EmailEndpointTests(unittest.TestCase):
 	@patch("main.email_service.send_mom_email")
 	def test_reports_unconfigured_distribution_list(self, send_mom_email) -> None:
 		send_mom_email.side_effect = DistributionListNotConfiguredError("No recipients configured")
-		response = self.client.post("/email/send", json=self._payload())
+		response = self.client.post("/api/email/send", json=self._payload())
 
 		self.assertEqual(response.status_code, 503)
 		send_mom_email.assert_called_once()
@@ -111,3 +114,7 @@ class EmailEndpointTests(unittest.TestCase):
 
 if __name__ == "__main__":
 	unittest.main()
+
+def test_nobody_signed_out_can_send_mail():
+	client = TestClient(app, headers={"Origin": "http://testserver"})
+	assert client.post("/api/email/send", json={"minutes": {}}).status_code == 401

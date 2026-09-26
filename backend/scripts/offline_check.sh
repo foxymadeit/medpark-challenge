@@ -17,11 +17,16 @@ bad = [name + ":" + str(p.get("published")) for name, s in c["services"].items()
        for p in s.get("ports", []) if p.get("host_ip") not in ("127.0.0.1", "::1")]
 assert not bad, f"ports open beyond this machine: {bad}"
 assert c["networks"]["internal"].get("internal") is True, "the internal network can reach out"
+outside = [n for n, sv in c["services"].items() if n != "gateway" and set(sv.get("networks") or {"default"}) - {"internal"}]
+assert not outside, f"services with a network that can reach out: {outside}"
+gw = c["services"].get("gateway", {})
+assert "socat" in str(gw.get("image", "")) and not gw.get("environment"), "the gateway must stay a bare port forwarder"
 env = c["services"].get("n8n", {}).get("environment", {})
 calls_home = [k for k in ("N8N_DIAGNOSTICS_ENABLED", "N8N_VERSION_NOTIFICATIONS_ENABLED", "N8N_TEMPLATES_ENABLED",
                           "N8N_PERSONALIZATION_ENABLED", "N8N_COMMUNITY_PACKAGES_ENABLED") if env and env.get(k) != "false"]
 assert not calls_home, f"n8n would call its servers: {calls_home}"
-print("   ok: every port on 127.0.0.1; internal network has no route out; n8n telemetry, updates and templates off")'
+print("   ok: every port on 127.0.0.1; every service but the port-forwarding gateway is on the internal network only,")
+print("       which has no route out; n8n telemetry, updates and templates off")'
 
 echo "3/3 listening sockets on Liminal ports"
 if command -v lsof >/dev/null; then
