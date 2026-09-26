@@ -972,10 +972,6 @@ svg {
     0 8px 20px #1010100f,
     0 24px 48px #1010100d;
 }
-.department-tile {
-  flex-shrink: 0;
-  display: block;
-}
 .department-door h2 {
   font-size: 20px;
   line-height: 26px;
@@ -1095,10 +1091,6 @@ svg {
   font-size: 12px;
   line-height: 18px;
   white-space: nowrap;
-}
-.status-tag.sent {
-  background: var(--sm-dept-medical-tint);
-  color: var(--sm-dept-medical);
 }
 .status-tag.failed,
 .status-tag.recording {
@@ -2190,9 +2182,6 @@ blockquote {
   grid-column: 2;
   font-size: 13px;
 }
-.door-stack .department-tile {
-  grid-row: span 2;
-}
 @media (min-width: 1600px) {
   .top-bar {
     padding-left: max(64px, calc((100vw - 1312px) / 2));
@@ -2493,14 +2482,6 @@ blockquote {
     gap: 10px;
     padding: 18px;
   }
-  .meeting-list-row .department-tile {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-top: 7px;
-    align-self: start;
-    object-fit: cover;
-  }
   .meeting-list-row strong {
     font-size: 14px;
   }
@@ -2541,9 +2522,6 @@ blockquote {
   }
   .meeting-heading-title {
     gap: 12px;
-  }
-  .meeting-heading-title > .department-tile {
-    display: none;
   }
   .meeting-heading h1 {
     font-size: 20px;
@@ -2832,10 +2810,6 @@ blockquote {
   .history-title {
     grid-column: 1/-1;
   }
-  .history-title .department-tile {
-    width: 28px;
-    height: 28px;
-  }
   .history-row > .mono {
     font-size: 11px;
   }
@@ -2961,35 +2935,5 @@ blockquote {
   * {
     scroll-behavior: auto !important;
     transition: none !important;
-  }
-}
-
-.mobile-department-dot {
-  display: none;
-}
-@media (max-width: 700px) {
-  .meeting-list-row .department-tile {
-    display: none;
-  }
-  .meeting-list-row .mobile-department-dot {
-    display: block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    align-self: start;
-    margin-top: 7px;
-  }
-  .mobile-department-dot.medical {
-    background: var(--sm-dept-medical);
-  }
-  .mobile-department-dot.executive {
-    background: var(--sm-dept-executive);
-  }
-  .mobile-department-dot.administrative {
-    background: var(--sm-dept-administrative);
-  }
-  .history-title .department-tile {
-    width: 40px;
-    height: 40px;
   }
 }

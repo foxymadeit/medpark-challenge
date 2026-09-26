@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FiArrowLeft as ArrowLeft } from "react-icons/fi";
 import type { Meeting } from "../types/meeting";
-import DepartmentTile from "./DepartmentTile";
 import RouteProgress, { type Stage } from "./RouteProgress";
+import { dateLocale } from "../utils";
 export default function MeetingHeader({
   meeting,
   stage,
@@ -20,17 +20,19 @@ export default function MeetingHeader({
       </Link>
       <div className="meeting-heading">
         <div className="meeting-heading-title">
-          <DepartmentTile type={meeting.type} />
           <div>
             <h1>{meeting.title}</h1>
             <p>
               {t(meeting.type)} ·{" "}
-              {new Date(meeting.createdAt).toLocaleString(i18n.language, {
-                day: "numeric",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {new Date(meeting.createdAt).toLocaleString(
+                dateLocale(i18n.language),
+                {
+                  day: "numeric",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                },
+              )}
             </p>
           </div>
         </div>
