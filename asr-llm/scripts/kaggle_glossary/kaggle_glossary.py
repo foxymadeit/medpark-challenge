@@ -17,6 +17,6 @@ def sh(cmd: str) -> None:
 
 sh(f"git clone -q --depth 1 -b samoilov-asr-llm https://github.com/foxymadeit/medpark-challenge {REPO}")
 # 0.6.x is the last line with dependable T4 (sm75) + AWQ support.
-sh("pip install -q vllm==0.6.3.post1")
+sh('pip install -q vllm==0.6.3.post1 "transformers<4.47"')  # vLLM 0.6 breaks on transformers 5
 sh(f"cd {REPO}/asr-llm && python scripts/build_glossary.py translate --model Qwen/Qwen2.5-32B-Instruct-AWQ --tp 2")
 shutil.copy(f"{REPO}/asr-llm/data/glossary_build/translated.json", "/kaggle/working/translated.json")
