@@ -276,6 +276,9 @@
 .table tbody tr:last-child td:last-child { border-bottom-right-radius: var(--sm-radius-panel); }
 
 .who { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; }
+.who--button { max-width: 100%; margin: -6px -8px; padding: 6px 8px; border: 0; border-radius: var(--sm-radius-tile); background: none; color: inherit; text-align: left; cursor: pointer; }
+.who--button:hover { background: var(--sm-surface-ground); }
+.who--button:hover .who__name { text-decoration: underline; text-underline-offset: 3px; }
 .who__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .who__name { font: 600 15px/22px var(--sm-font-body); color: var(--sm-ink-primary); }
 .who__sub { font: 400 13px/18px var(--sm-font-body); color: var(--sm-ink-secondary); }

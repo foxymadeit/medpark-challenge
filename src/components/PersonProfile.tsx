@@ -66,7 +66,7 @@ function EditableFact({ label, value, display, type = 'text', placeholder, valid
 }
 
 /** Profile card: contact, access, the templates they're in and their meetings. */
-export function PersonProfileDialog({ personId, onClose }: { personId: string; onClose: () => void }) {
+export function PersonProfileDialog({ personId, onClose, showManage = true }: { personId: string; onClose: () => void; showManage?: boolean }) {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
   const { account, resolvePerson, templates, meetings, updatePerson, updateAccount } = useStore();
@@ -143,9 +143,11 @@ export function PersonProfileDialog({ personId, onClose }: { personId: string; o
           </dd>
         </div>
       </dl>
-      <Button icon={<UsersThreeIcon size={20} aria-hidden />} onClick={() => navigate('/participants')}>
-        {t('profile.manage')}
-      </Button>
+      {showManage && (
+        <Button icon={<UsersThreeIcon size={20} aria-hidden />} onClick={() => navigate('/participants')}>
+          {t('profile.manage')}
+        </Button>
+      )}
     </Dialog>
   );
 }

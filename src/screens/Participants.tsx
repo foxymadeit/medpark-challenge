@@ -5,6 +5,7 @@ import { Dialog } from '../components/Dialog';
 import { Dropdown } from '../components/Dropdown';
 import { TextField } from '../components/TextField';
 import { Avatar } from '../components/Avatar';
+import { PersonProfileDialog } from '../components/PersonProfile';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
 import { roleSuggestions } from '../mocks';
@@ -80,6 +81,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
   const { updatePerson, removePerson, updateAccount, account } = useStore();
   const isYou = person.id === account?.personId;
   const [confirming, setConfirming] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const displayName = isYou ? t('common.meName', { name: person.name }) : person.name;
 
   const roles = [person.role, ...roleSuggestions].filter((r, i, a) => r && a.indexOf(r) === i);
@@ -92,13 +94,15 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
   return (
     <tr>
       <td>
-        <div className="who">
+        {/* Avatar + name open the profile, where email and role can be edited. */}
+        <button type="button" className="who who--button" aria-label={t('profile.open', { name: displayName })} onClick={() => setProfileOpen(true)}>
           <Avatar name={person.name} />
-          <div className="who__text">
+          <span className="who__text">
             <span className="who__name truncate">{displayName}</span>
-            {person.email && <span className="who__sub truncate">{person.email}</span>}
-          </div>
-        </div>
+            <span className="who__sub truncate">{person.email ?? t('review.noEmail')}</span>
+          </span>
+        </button>
+        {profileOpen && <PersonProfileDialog personId={person.id} onClose={() => setProfileOpen(false)} showManage={false} />}
       </td>
       <td>
         {editable ? (
