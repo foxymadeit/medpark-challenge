@@ -327,15 +327,19 @@ flowchart LR
 | | Reference GPU server | Reference CPU server | Demo laptop |
 |---|---|---|---|
 | The challenge's target | one 16 GB GPU | CPU only, 32 GB RAM | none given |
-| Transcription | Whisper large-v3 (CTranslate2), 3.1 GB of weights | Whisper turbo, int8 | Whisper small, int8, short clips |
-| Minutes model | qwen3:8b, 7.2 GB GPU peak (5.2 GB on disk) | the CPU tier's round-2 winner | a 4B model, short clips |
+| Transcription | Whisper large-v3 (CTranslate2), 3.1 GB of weights | Whisper large-v3 turbo, int8 | Whisper large-v3 turbo, int8, short clips |
+| Minutes model | qwen3:8b, 7.2 GB GPU peak (5.2 GB on disk) | qwen3:8b on CPU until round 2 names the CPU winner | qwen3:4b, short clips |
 | Speaker labels | CPU: 232 MB RAM, 52 MB of models | same | same (runs live on a 2017 dual-core laptop) |
 | PDF and DOCX | XeLaTeX, 4.3 s per language on a 2017 laptop | same | same |
 | Services | Docker Compose: backend, Ollama, n8n (1.0 GB image), Mailpit | same | same |
 | Disk | about 15 GB with models and TeX | about 12 GB | about 8 GB |
 
-The speaker labeller needs no GPU at all, so on the GPU server the card is
-shared only by transcription and the minutes model.
+The backend picks the column by itself (`backend/hardware.py`): a GPU with
+15 GB or more gets the first, 30 GB of RAM without one the second, anything
+smaller the third. `LIMINAL_PROFILE` names one outright, and any model setting
+already in the environment wins. The speaker labeller needs no GPU at all, so
+on the GPU server the card is shared only by transcription and the minutes
+model.
 
 ### Routing: n8n
 
@@ -356,7 +360,7 @@ Hospital IT changes a distribution list in n8n's editor, with no code.
 Telemetry, update checks, templates and community packages are switched off,
 and `offline_check.sh` fails if any comes back on. Tested against Mailpit:
 each type reached its own list with all three PDFs attached
-(`backend/n8n/test_routing.py`).
+(`backend/n8n/check_routing.py`).
 
 The speaker labeller runs on a 2017 dual-core laptop in real time, so it adds
 no GPU load. The end-to-end hour test (below) measures the rest on one T4.

@@ -1,4 +1,4 @@
-# python n8n/test_routing.py routing.json [mailpit-api-url]
+# python n8n/check_routing.py routing.json [mailpit-api-url]
 """Posts the backend's own payload (delivery.payload shape) to n8n for each meeting type and
 checks what Mailpit received: recipients per type, subject, three PDF attachments."""
 import base64, json, sys, time, urllib.request

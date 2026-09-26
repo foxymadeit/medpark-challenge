@@ -29,6 +29,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import delivery
+import hardware
 import store
 from security import now_iso
 
@@ -173,7 +174,7 @@ def _run_args(stage: str, args: list[str], cwd: str | None, logs: Path) -> None:
         os.chmod(logs / f"{stage}.log", 0o600)
         try:
             code = subprocess.run(args, cwd=cwd, stdout=out, stderr=subprocess.STDOUT, timeout=TIMEOUT_S,
-                                  env={**os.environ, **OFFLINE_ENV}).returncode
+                                  env={**os.environ, **hardware.stage_env(), **OFFLINE_ENV}).returncode
         except (OSError, subprocess.TimeoutExpired) as e:
             raise StageFailed(f"{stage}: {type(e).__name__}") from e
     if code != 0:

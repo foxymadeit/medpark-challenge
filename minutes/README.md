@@ -34,7 +34,7 @@ Three things have to be on the machine before the network goes off:
    `polyglossia`, `xltabular`, `colortbl`, `ragged2e`, `needspace`,
    `hyphen-romanian` and `hyphen-russian`. On macOS: MacTeX, then
    `sudo tlmgr install hyphen-romanian hyphen-russian`.
-2. **Ollama** with the model pulled once: `ollama pull gemma3:12b`. The
+2. **Ollama** with the model pulled once: `ollama pull qwen3:8b`. The
    pipeline only talks to it on 127.0.0.1. llama.cpp's `llama-server` works
    too (`--url http://127.0.0.1:8080`).
 3. **Fonts for DOCX** (optional): the PDF embeds Montserrat and PT Serif
@@ -57,7 +57,7 @@ mom report TRANSCRIPT [options]
 | `--number 14`, `--place`, `--chair`, `--secretary` | header fields, printed as given |
 | `--lang ro,ru,en` | which documents to write (default all three) |
 | `--out DIR` | where the files go (created 0700) |
-| `--model gemma3:12b`, `--url` | the local model and its loopback address |
+| `--model qwen3:8b`, `--url` | the local model and its loopback address |
 | `--think off\|low\|medium\|high` | reasoning effort for models that have it, extraction only |
 
 `mom purge out/ --days 30` deletes minutes files older than the retention
@@ -160,9 +160,11 @@ Qwen 3, Phi-4, Mistral Small, EuroLLM-22B); the 32 GB CPU tier tries
 mixture-of-experts models with 3 to 4B active parameters (gpt-oss-20b,
 Qwen3-30B-A3B, Gemma 4 26B).
 
-Results are added here when the run finishes. Until then the default is
-`gemma3:12b` (8.1 GB on disk as listed by Ollama, 4.4% hallucination on Vectara's grounded
-summary leaderboard).
+Round 1 (six scripted meetings, 16.4 min, 15 decisions, 15 actions, 6 traps) put
+`qwen3:8b` first: 100% of decisions found and all correct, 93% of actions, 0
+traps, 7.2 GB of GPU memory. It is the default; round 2 re-scores the top eight
+with the date fixes and a 60-minute meeting. The full table is in the
+[root README](../README.md#2-output-quality-30).
 
 ## Measured
 

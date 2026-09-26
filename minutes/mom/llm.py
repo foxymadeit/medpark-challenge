@@ -14,7 +14,7 @@ import urllib.request
 from urllib.parse import urlparse
 
 DEFAULT_URL = os.environ.get("MOM_LLM_URL", "http://127.0.0.1:11434")
-DEFAULT_MODEL = os.environ.get("MOM_LLM_MODEL", "gemma3:12b")
+DEFAULT_MODEL = os.environ.get("MOM_LLM_MODEL", "qwen3:8b")   # the model bake-off winner, round 1
 TIMEOUT = float(os.environ.get("MOM_LLM_TIMEOUT", "900"))
 
 
