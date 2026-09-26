@@ -149,7 +149,6 @@
 
   .tpl-card__actions { flex-wrap: wrap; }
   .tpl-card__actions .people-stack { flex: 1 1 100%; }
-  .settings__demo { flex-direction: column; align-items: stretch; }
   .frozen-banner { align-items: flex-start; }
 
   .side-panel { padding: var(--sm-space-6); }

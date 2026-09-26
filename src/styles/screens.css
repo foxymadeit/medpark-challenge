@@ -371,7 +371,6 @@
 .settings__readonly .input { background: var(--sm-surface-ground); border-color: var(--sm-surface-hairline); color: var(--sm-ink-secondary); }
 .settings__check { display: flex; align-items: flex-start; gap: var(--sm-space-3); cursor: pointer; }
 .settings__check .checkbox { margin-top: 1px; }
-.settings__demo { display: flex; flex-direction: row; align-items: center; gap: var(--sm-space-4); padding: var(--sm-space-2) var(--sm-space-2) 0; }
 .tpl-card__actions { align-items: center; }
 .people-stack { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; }
 .tpl-card__actions .people-stack { margin-right: auto; }

@@ -105,9 +105,6 @@ function useStoreValue() {
 
   const logOut = useCallback(() => setState((s) => ({ ...s, signedIn: false })), []);
 
-  /** Wipe everything (demo reset) — back to first-run sign-up. */
-  const resetDemo = useCallback(() => setState(initialState()), []);
-
   const finishOnboarding = useCallback(() => setState((s) => ({ ...s, onboarded: true })), []);
 
   /** Returns the person's id (an existing one when the email matches a known colleague). */
@@ -306,7 +303,6 @@ function useStoreValue() {
     preferences,
     updatePreferences,
     logOut,
-    resetDemo,
     signUp,
     logIn,
     updateAccount,

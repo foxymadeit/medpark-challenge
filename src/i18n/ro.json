@@ -374,11 +374,6 @@
     "notifications": "Notificări",
     "notifyReady": "Trimite-mi e-mail când procesul-verbal e gata",
     "notifyReadyDesc": "Un link spre verificare sosește imediat ce procesarea se termină.",
-    "demo": "Date demo",
-    "demoLead": "Reporniți prototipul de la înregistrare. Șterge ședințele, participanții și șabloanele adăugate în acest browser.",
-    "reset": "Resetează datele demo",
-    "resetTitle": "Resetați datele demo?",
-    "resetConfirm": "Resetează",
     "save": "Salvează modificările",
     "saved": "Salvat"
   },

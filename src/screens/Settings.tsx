@@ -1,8 +1,6 @@
 import { CheckIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
-import { Dialog } from '../components/Dialog';
 import { Segmented } from '../components/Segmented';
 import { TextField } from '../components/TextField';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
@@ -16,8 +14,7 @@ const NATIVE: Record<Lang, string> = { en: 'English', ro: 'Română', ru: 'Ру�
 /** Account settings — opened from the avatar menu in the top bar. */
 export function Settings() {
   const { t, lang, setLang } = useI18n();
-  const navigate = useNavigate();
-  const { account, draft, preferences, updateAccount, updatePreferences, resetDemo } = useStore();
+  const { account, draft, preferences, updateAccount, updatePreferences } = useStore();
   const [email, setEmail] = useState(account?.email ?? '');
   const [name, setName] = useState(account?.name ?? '');
   const [role, setRole] = useState(account?.role ?? '');
@@ -28,7 +25,6 @@ export function Settings() {
   const [error, setError] = useState<string>();
   const [emailError, setEmailError] = useState<string>();
   const [saved, setSaved] = useState(false);
-  const [confirmReset, setConfirmReset] = useState(false);
 
   if (!account) return null;
   const touch = () => setSaved(false);
@@ -146,15 +142,6 @@ export function Settings() {
             </label>
           </section>
 
-          <section className="settings__demo" aria-labelledby="set-demo">
-            <div className="stack" style={{ gap: 4, flex: 1 }}>
-              <h2 id="set-demo" className="section-title">
-                {t('settings.demo')}
-              </h2>
-              <p className="note">{t('settings.demoLead')}</p>
-            </div>
-            <Button onClick={() => setConfirmReset(true)}>{t('settings.reset')}</Button>
-          </section>
         </div>
       </div>
 
@@ -171,25 +158,6 @@ export function Settings() {
         </Button>
       </div>
 
-      {confirmReset && (
-        <Dialog title={t('settings.resetTitle')} onClose={() => setConfirmReset(false)}>
-          <p className="lead">{t('settings.demoLead')}</p>
-          <div className="row" style={{ justifyContent: 'flex-end', gap: 16 }}>
-            <Button variant="ghost" onClick={() => setConfirmReset(false)}>
-              {t('common.cancel')}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => {
-                resetDemo();
-                navigate('/signup');
-              }}
-            >
-              {t('settings.resetConfirm')}
-            </Button>
-          </div>
-        </Dialog>
-      )}
     </div>
   );
 }
