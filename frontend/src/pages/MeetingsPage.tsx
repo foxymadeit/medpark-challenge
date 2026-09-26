@@ -119,20 +119,24 @@ export default function MeetingsPage() {
           {t(error)}
         </p>
       )}
-      {choose && (
-        <Modal title={t("selectDepartment")} onClose={() => setChoose(false)}>
+      {
+        <Modal
+          open={Boolean(choose)}
+          title={t("selectDepartment")}
+          onClose={() => setChoose(false)}
+        >
           <div className="door-stack">
             {departments.map((type) => (
               <DepartmentDoor
                 key={type}
                 type={type}
-                mode={choose}
+                mode={choose || undefined}
                 routing={routing}
               />
             ))}
           </div>
         </Modal>
-      )}
+      }
     </>
   );
 }

@@ -118,8 +118,12 @@ export default function ActionItemRow({
           {t(error, { defaultValue: t("requestFailed") })}
         </p>
       )}
-      {edit && (
-        <Modal title={t("editAction")} onClose={() => setEdit(false)}>
+      {
+        <Modal
+          open={edit}
+          title={t("editAction")}
+          onClose={() => setEdit(false)}
+        >
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -193,7 +197,7 @@ export default function ActionItemRow({
             </div>
           </form>
         </Modal>
-      )}
+      }
     </>
   );
 }

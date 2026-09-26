@@ -34,7 +34,7 @@ export default function ReviewParticipants({ meeting }: { meeting: Meeting }) {
       </div>
       {editing ? (
         <>
-          <div className="participant-checklist">
+          <div className="participant-checklist expand-in">
             {data.map((person) => (
               <label key={person.id}>
                 <input
@@ -76,7 +76,7 @@ export default function ReviewParticipants({ meeting }: { meeting: Meeting }) {
           </Button>
         </>
       ) : (
-        <div className="participant-summary">
+        <div className="participant-summary expand-in">
           {meeting.participants.length ? (
             meeting.participants.map((person) => (
               <span key={person.id}>{person.name}</span>

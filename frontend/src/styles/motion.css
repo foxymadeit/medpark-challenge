@@ -1,19 +1,33 @@
-/* Motion, from DESIGN.md's table. Strong ease-out for things that arrive,
-   linear only where time itself is shown (the send countdown). */
-:root {
-  --sm-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --sm-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-}
+/* Motion, from DESIGN.md: opacity and colour only, 100 to 200 ms. Nothing a
+   person clicks changes instantly, and nothing moves for decoration. The
+   toggle knob and a drawn tick are the only shapes that change. */
 
-/* Button press: 120 ms, scale 0.97. Hover tint only with a real pointer. */
-.button {
+/* Buttons and links: hover tints the background (150 ms, mouse only);
+   pressing darkens it one step (120 ms). No scale, no lift. */
+.button,
+.chip,
+.language-switcher button,
+.minutes-language button,
+.meeting-list-row,
+.admin-nav a,
+a {
   transition:
-    transform 120ms var(--sm-ease-out),
     background-color 150ms ease,
-    border-color 150ms ease;
+    border-color 150ms ease,
+    color 150ms ease;
 }
 .button:active:not(:disabled) {
-  transform: scale(0.97);
+  transition-duration: 120ms;
+}
+.button.primary:active:not(:disabled) {
+  background: #2a2a2a;
+}
+.button.secondary:active:not(:disabled),
+.button.quiet:active:not(:disabled) {
+  background: #efece6;
+}
+.button.danger:active:not(:disabled) {
+  background: #fbe3e0;
 }
 @media (hover: none) {
   .button.primary:hover {
@@ -24,39 +38,38 @@
   }
 }
 
-/* Screen change: the top bar stays; the page fades and rises 8 px. */
-@keyframes sm-page-in {
+/* Screen change: the page fades in 200 ms; the top bar and route stay put. */
+@keyframes sm-fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+  }
+}
+@keyframes sm-fade-out {
+  to {
+    opacity: 0;
   }
 }
 .page-enter {
-  animation: sm-page-in 280ms var(--sm-ease-out) both;
+  animation: sm-fade-in 200ms ease-out both;
 }
 
-/* Route marker */
-.route-dot {
+/* Route: the reached stop and the line fill in. */
+.route-dot,
+.route-progress li::after {
   transition:
-    background-color 280ms var(--sm-ease-in-out),
-    box-shadow 280ms var(--sm-ease-in-out),
-    transform 280ms var(--sm-ease-in-out);
+    background-color 200ms ease,
+    border-color 200ms ease;
 }
 
-/* The countdown arrives: rises 12 px with the lift shadow. */
-@keyframes sm-rise {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-}
+/* The countdown and the confirmation step arrive by fading in, with the
+   lift shadow because they sit over the minutes. */
 .send-countdown,
 .needs-confirmation {
-  animation: sm-rise 240ms var(--sm-ease-out) both;
+  box-shadow: var(--sm-lift);
+  animation: sm-fade-in 200ms ease-out both;
 }
 
-/* Send countdown bar: empties linearly over the real window. CSS drives it,
-   so it stays smooth between React renders and survives a busy main thread. */
+/* Send countdown bar: empties linearly over the real window. */
 .countdown-bar {
   height: 3px;
   margin-top: 18px;
@@ -82,8 +95,7 @@
   }
 }
 
-/* Processing: the overall bar glides between server updates (the poll is
-   1.5 s, so a 1.5 s linear transition interpolates the gap). */
+/* Processing: the bar follows progress between server updates. */
 .processing-bar {
   height: 4px;
   margin: 0 0 24px;
@@ -99,25 +111,26 @@
   transition: transform 1500ms linear;
 }
 .process-step {
-  transition: color 280ms ease;
+  transition: color 200ms ease;
 }
 .process-marker {
   transition:
-    background-color 240ms var(--sm-ease-out),
-    border-color 240ms var(--sm-ease-out),
-    box-shadow 240ms var(--sm-ease-out);
+    background-color 200ms ease,
+    border-color 200ms ease;
 }
 
-/* Success check: grows from 90 % once. */
-@keyframes sm-check {
+/* Success: the tick's stroke draws in once. */
+@keyframes sm-draw {
   from {
-    opacity: 0;
-    transform: scale(0.9);
+    stroke-dashoffset: 24;
   }
 }
-.process-step.complete .process-marker svg,
-.success-check {
-  animation: sm-check 240ms var(--sm-ease-out) both;
+.success-check polyline,
+.process-step.complete .process-marker polyline {
+  /* the Feather check is about 23 units long in its 24-unit box */
+  stroke-dasharray: 24;
+  stroke-dashoffset: 0;
+  animation: sm-draw 200ms ease-out both;
 }
 
 /* Loader dots, 0.35 s per step. */
@@ -146,7 +159,7 @@
   animation-delay: 0.7s;
 }
 
-/* Skeleton sheen crosses in 1.2 s. */
+/* Skeleton sheen crosses in 1.2 s (the one sanctioned gradient). */
 @keyframes sm-sheen {
   from {
     background-position: 150% 0;
@@ -171,41 +184,149 @@
   animation: sm-sheen 1.2s linear infinite;
 }
 
-/* Toasts: 200 ms from the bottom. */
+/* Toasts: 180 ms opacity. */
 .offline-toast,
 .toast {
-  animation: sm-rise 200ms var(--sm-ease-out) both;
+  animation: sm-fade-in 180ms ease-out both;
 }
 
-/* Reduced motion: movement becomes a 150 ms fade. The countdown bar keeps
-   emptying because it carries meaning. */
-@keyframes sm-fade {
-  from {
+/* Language: the selected fill crossfades 180 ms. The text itself crossfades
+   through the View Transitions API (src/motion.ts): old text out in 100 ms,
+   new text in over 160 ms. Without that API the new text fades in. */
+.language-switcher button {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+.minutes-language button {
+  transition:
+    border-color 180ms ease,
+    color 180ms ease;
+}
+::view-transition-old(root) {
+  animation: sm-fade-out 100ms ease-out both;
+}
+::view-transition-new(root) {
+  animation: sm-fade-in 160ms ease-out both;
+}
+html[data-fade] .page-container,
+html[data-fade] .top-bar {
+  animation: sm-fade-in 160ms ease-out both;
+}
+
+/* Menus and dialogs: open 150 ms opacity, close 120 ms; the scrim fades
+   150 ms. No scale, no slide. */
+.edit-dialog,
+.account-menu {
+  opacity: 1;
+  transition: opacity 150ms ease;
+}
+@starting-style {
+  .edit-dialog[open],
+  .account-menu {
     opacity: 0;
   }
 }
+.edit-dialog[data-closing],
+.account-menu[data-closing] {
+  opacity: 0;
+  transition-duration: 120ms;
+}
+.edit-dialog::backdrop {
+  transition: background-color 150ms ease;
+}
+@starting-style {
+  .edit-dialog[open]::backdrop {
+    background: transparent;
+  }
+}
+.edit-dialog[data-closing]::backdrop {
+  background: transparent;
+}
+
+/* Checkbox: 8 px-family corners, the tick draws in over 150 ms. */
+input[type="checkbox"] {
+  appearance: none;
+  flex-shrink: 0;
+  display: inline-grid;
+  place-content: center;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid #82786b;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+input[type="checkbox"]::after {
+  content: "";
+  width: 10px;
+  height: 5px;
+  margin-top: -2px;
+  border: solid white;
+  border-width: 0 0 2px 2px;
+  transform: rotate(-45deg);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 150ms ease-out;
+}
+input[type="checkbox"]:checked {
+  background: var(--sm-ink-primary);
+  border-color: var(--sm-ink-primary);
+}
+input[type="checkbox"]:checked::after {
+  clip-path: inset(0 0 0 0);
+}
+input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Content that appears on expand fades in. */
+.expand-in {
+  animation: sm-fade-in 150ms ease-out both;
+}
+
+/* Reduced motion: every change is a 150 ms fade, never instant. Moving
+   shapes (sheen, drawn tick) become fades; the countdown bar still empties
+   because it carries meaning. */
 @media (prefers-reduced-motion: reduce) {
   .page-enter,
   .send-countdown,
   .needs-confirmation,
   .offline-toast,
   .toast,
-  .process-step.complete .process-marker svg,
-  .success-check {
-    animation: sm-fade 150ms ease both;
+  .expand-in,
+  html[data-fade] .page-container,
+  html[data-fade] .top-bar {
+    animation: sm-fade-in 150ms ease both;
   }
-  .button:active:not(:disabled) {
-    transform: none;
+  .success-check polyline,
+  .process-step.complete .process-marker polyline {
+    animation: sm-fade-in 150ms ease both;
+  }
+  input[type="checkbox"]::after {
+    clip-path: none;
+    opacity: 0;
+    transition: opacity 150ms ease;
+  }
+  input[type="checkbox"]:checked::after {
+    opacity: 1;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 150ms;
   }
   .skeleton-heading i,
   .skeleton-door i,
   .skeleton-door b,
   .skeleton-list i,
-  .skeleton-list b,
-  .loader-dots i {
+  .skeleton-list b {
     animation: none;
   }
   .processing-bar > span {
-    transition: none;
+    transition-duration: 150ms;
   }
 }

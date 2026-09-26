@@ -18,6 +18,7 @@ import NeedsConfirmation from "../components/NeedsConfirmation";
 import DocumentsCard from "../components/DocumentsCard";
 import type { MinutesLanguage } from "../types/meeting";
 import { listName } from "../api/routing";
+import { crossfade } from "../motion";
 import { formatTime, LANGUAGE_NAMES } from "../utils";
 import { sendNow } from "../api/meetings";
 import { downloadMinutesPdf } from "../api/pdf";
@@ -120,7 +121,10 @@ export default function MomPage() {
                   type="button"
                   lang={code}
                   aria-pressed={code === lang}
-                  onClick={() => setChosen(code)}
+                  onClick={() => {
+                    if (code !== lang)
+                      void crossfade("minutes-language", () => setChosen(code));
+                  }}
                 >
                   {LANGUAGE_NAMES[code]}
                 </button>

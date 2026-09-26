@@ -21,6 +21,8 @@ export default function PeoplePage() {
   const profiles = useData(getVoiceProfiles);
   const clusters = useData(getSpeakerClusters);
   const [identifying, setIdentifying] = useState<string>();
+  // The dialog fades out after closing; keep showing who it was about.
+  const [shownId, setShownId] = useState<string>();
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
@@ -64,6 +66,8 @@ export default function PeoplePage() {
   const activeCluster = unresolved.find(
     (cluster) => cluster.id === identifying,
   );
+  if (identifying && identifying !== shownId) setShownId(identifying);
+  const shownCluster = clusters.data.find((cluster) => cluster.id === shownId);
   const choices = staff.filter((person) =>
     person.name.toLowerCase().includes(search.trim().toLowerCase()),
   );
@@ -148,13 +152,14 @@ export default function PeoplePage() {
           );
         })}
       </section>
-      {activeCluster && (
+      {shownCluster && (
         <Modal
+          open={!!activeCluster}
           title={t("identifyPerson")}
           onClose={() => setIdentifying(undefined)}
         >
           <p>
-            <strong>{activeCluster.label}</strong>
+            <strong>{shownCluster.label}</strong>
           </p>
           <label className="form-field">
             {t("searchStaff")}
@@ -177,7 +182,7 @@ export default function PeoplePage() {
                   setBusy(true);
                   setActionError("");
                   try {
-                    await identifySpeakerCluster(activeCluster.id, person.id);
+                    await identifySpeakerCluster(shownCluster.id, person.id);
                     setIdentifying(undefined);
                     clusters.refresh();
                     notifyUpdate();
