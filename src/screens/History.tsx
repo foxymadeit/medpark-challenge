@@ -9,6 +9,7 @@ import { StatusTag } from '../components/StatusTag';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatDayMonth, formatFullDate } from '../lib/format';
+import { speakerNamer } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES, type Meeting, type MeetingType } from '../types';
@@ -148,7 +149,7 @@ export function HistoryRecord() {
   const meeting = meetings.find((m) => m.id === id);
   if (!meeting) return <Navigate to="/history" replace />;
 
-  const nameOf = (pid: string) => meeting.participants.find((p) => p.personId === pid)?.name ?? resolvePerson(pid)?.name ?? pid;
+  const nameOf = speakerNamer(meeting, resolvePerson, t);
   const fullDate = formatFullDate(meeting.date, lang);
   const type = t(`types.${meeting.type}`);
 

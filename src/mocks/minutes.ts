@@ -1,4 +1,5 @@
 // EXAMPLE medical content from Figma — fictional patients and tasks.
+// Speaker ids starting with 'voice-' are voices the diarisation could not match to a participant.
 import type { Task, TranscriptLine } from '../types';
 import { YOU_ID } from './people';
 
@@ -17,10 +18,13 @@ export const cardioTranscript: TranscriptLine[] = [
   { at: '00:05:36', speakerId: YOU_ID, text: 'Great progress. Physiotherapy twice a day from now on, please.' },
   { at: '00:06:10', speakerId: 'p-maria', text: 'A quick note: the second echo machine is back from service, so the waiting list should get shorter.' },
   { at: '00:06:42', speakerId: YOU_ID, text: 'Thank you, Maria. That helps with [[bed 8]] as well.' },
+  // A voice the system could not match to any participant (e.g. a lab colleague who stepped in).
+  { at: '00:07:05', speakerId: 'voice-1', text: 'Sorry to interrupt, the potassium for [[bed 3]] came back at 5.4.' },
   { at: '00:07:40', speakerId: 'p-elena', text: 'Noted for [[bed 8]]. [[Room 204]] still has fever since [[Friday]].' },
   { at: '00:08:12', speakerId: 'p-victor', text: 'Cultures from [[room 204]] came back this morning, a gram negative in the blood.' },
   { at: '00:09:05', speakerId: 'p-igor', text: 'I will check antibiotic sensitivity for [[room 204]] by [[Monday]].' },
   { at: '00:09:40', speakerId: YOU_ID, text: 'Until then we continue the current antibiotic and repeat the CRP every day.' },
+  { at: '00:10:02', speakerId: 'voice-1', text: 'I will send the full panel to the ward by [[noon]].' },
   { at: '00:10:18', speakerId: 'p-elena', text: '[[Bed 5]] is asking again about going home. The INR was 2.4 today.' },
   { at: '00:10:51', speakerId: 'p-victor', text: 'That is in range. If it stays there [[tomorrow]] we can discharge with a follow-up in two weeks.' },
   { at: '00:11:26', speakerId: 'p-maria', text: 'Discharge letters need to go through the new system from October, please remember.' },

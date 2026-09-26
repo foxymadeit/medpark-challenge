@@ -270,6 +270,17 @@
     "teach": "Ваши исправления обучают ИИ.",
     "sendingIn": "Отправка {count} участникам через",
     "stopReview": "Стоп и проверить",
+    "heard": {
+      "lines_one": "{count} реплика · {times}",
+      "lines_few": "{count} реплики · {times}",
+      "lines_many": "{count} реплик · {times}",
+      "languages": "Языки",
+      "voices": "Не среди участников",
+      "lines": "{count} реплики · {times}",
+      "who": "Кто такой {name}?",
+      "whoShort": "Кто это?",
+      "newPerson": "+ Новый участник…"
+    },
     "sentence": {
       "select": "Выбрать фразу в {time}, {name}",
       "actions": "Фраза",

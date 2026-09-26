@@ -269,6 +269,16 @@
     "teach": "Corecturile dvs. instruiesc AI-ul.",
     "sendingIn": "Se trimite la {count} de participanți în",
     "stopReview": "Oprește și verifică",
+    "heard": {
+      "lines_one": "{count} replică · {times}",
+      "lines_few": "{count} replici · {times}",
+      "languages": "Limbi",
+      "voices": "Nu sunt printre participanți",
+      "lines": "{count} de replici · {times}",
+      "who": "Cine este {name}?",
+      "whoShort": "Cine este?",
+      "newPerson": "+ Participant nou…"
+    },
     "sentence": {
       "select": "Selectați propoziția de la {time} a lui {name}",
       "actions": "Propoziție",

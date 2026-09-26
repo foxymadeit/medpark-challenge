@@ -4,6 +4,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { TranscriptLines } from '../components/Minutes';
 import { ProgressBar } from '../components/ProgressBar';
 import { useI18n } from '../i18n/I18nProvider';
+import { speakerNamer } from '../lib/meeting';
 import { processingStepsMs } from '../mocks';
 import { useStore } from '../store/AppStore';
 
@@ -61,7 +62,7 @@ export function Processing() {
   const current = processingStepsMs.findIndex((ms) => (acc += ms) > elapsed);
   const step = current === -1 ? STEPS.length - 1 : current;
   const pct = Math.min(100, Math.round((elapsed / total) * 100));
-  const nameOf = (pid: string) => meeting.participants.find((p) => p.personId === pid)?.name ?? resolvePerson(pid)?.name ?? pid;
+  const nameOf = speakerNamer(meeting, resolvePerson, t);
 
   return (
     <div className="page processing">

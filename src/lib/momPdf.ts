@@ -1,5 +1,6 @@
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { groupTasks } from '../components/Minutes';
+import { speakerNamer } from './meeting';
 import type { Lang } from '../i18n/I18nProvider';
 import type { Meeting } from '../types';
 import { formatDayMonth, formatFullDate, todayISO } from './format';
@@ -36,7 +37,7 @@ export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
   pdfMake.vfs = vfs;
 
   const date = formatFullDate(meeting.date, lang);
-  const nameOf = (id: string) => meeting.participants.find((p) => p.personId === id)?.name ?? id;
+  const nameOf = speakerNamer(meeting, () => undefined, t);
   const type = t(`types.${meeting.type}`);
 
   const participants: Content = {

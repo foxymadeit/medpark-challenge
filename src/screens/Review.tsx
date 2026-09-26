@@ -8,9 +8,12 @@ import { TranscriptLines } from '../components/Minutes';
 import { PeopleStack } from '../components/PeopleStack';
 import { useI18n } from '../i18n/I18nProvider';
 import { addDays, daysBetween, formatDayMonth, formatWeekdayDate, isEmail } from '../lib/format';
+import { speakerNamer } from '../lib/meeting';
 import { lineTokens } from '../lib/transcript';
+import { detectedLanguages } from '../mocks';
+import { AddParticipantModal } from './Participants';
 import { useStore } from '../store/AppStore';
-import type { Meeting, Task } from '../types';
+import type { Meeting, Person, Task } from '../types';
 
 function useDueLabel(meetingDate: string) {
   const { t, lang } = useI18n();
@@ -123,6 +126,78 @@ function EditableTitle({ meeting }: { meeting: Meeting }) {
   );
 }
 
+const NOT_SET = '__who__';
+const NEW = '__new__';
+
+/**
+ * What the recording contained beyond the participant list: languages spoken and voices that
+ * didn't match anyone invited. Each voice can be assigned to a person from the directory.
+ */
+function HeardPanel({ meeting, voiceName, unknown }: { meeting: Meeting; voiceName: (id: string) => string; unknown: string[] }) {
+  const { t } = useI18n();
+  const { people, updateMeeting } = useStore();
+  const invited = new Set(meeting.participants.map((p) => p.personId));
+  const candidates = people.filter((p) => !invited.has(p.id));
+
+  const [creatingFor, setCreatingFor] = useState<string | null>(null);
+  const assign = (voiceId: string, personId: string, created?: Omit<Person, 'id'>) => {
+    const person = created ?? people.find((p) => p.id === personId);
+    if (!person) return;
+    updateMeeting(meeting.id, {
+      transcript: meeting.transcript.map((l) => (l.speakerId === voiceId ? { ...l, speakerId: personId } : l)),
+      participants: [...meeting.participants, { personId, name: person.name, roleThen: person.role, email: person.email }],
+    });
+  };
+
+  return (
+    <div className="heard">
+      <div className="heard__row">
+        <span className="heard__label">{t('review.heard.languages')}</span>
+        <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+          {detectedLanguages.map((l) => (
+            <span key={l} className="tag">
+              {t(`lang.${l}Name`)}
+            </span>
+          ))}
+        </span>
+      </div>
+      {unknown.length > 0 && (
+        <div className="heard__row heard__row--voices">
+          <span className="heard__label">{t('review.heard.voices')}</span>
+          <ul className="heard__voices">
+            {unknown.map((id) => {
+              const lines = meeting.transcript.filter((l) => l.speakerId === id);
+              return (
+                <li key={id} className="heard__voice">
+                  <span className="voice__dot" style={{ background: 'var(--sm-ink-tertiary)' }} aria-hidden />
+                  <span className="who__text" style={{ flex: 1, minWidth: 0 }}>
+                    <span className="who__name">{voiceName(id)}</span>
+                    <span className="who__sub">{t('review.heard.lines', { count: lines.length, times: lines.map((l) => l.at).join(', ') })}</span>
+                  </span>
+                  <Dropdown
+                    label={t('review.heard.who', { name: voiceName(id) })}
+                    value={NOT_SET}
+                    width={200}
+                    options={[
+                      { value: NOT_SET, label: t('review.heard.whoShort') },
+                      ...candidates.map((p) => ({ value: p.id, label: p.name })),
+                      { value: NEW, label: t('review.heard.newPerson') },
+                    ]}
+                    onChange={(v) => (v === NEW ? setCreatingFor(id) : v !== NOT_SET && assign(id, v))}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+      {creatingFor && (
+        <AddParticipantModal onClose={() => setCreatingFor(null)} onAdded={(pid, person) => assign(creatingFor, pid, person)} />
+      )}
+    </div>
+  );
+}
+
 /** 05 — Review the AI minutes, then send. Every editable value carries a pen. */
 export function Review() {
   const { t } = useI18n();
@@ -149,7 +224,9 @@ export function Review() {
   if (meeting.status === 'sent' && !sent.current) return <Navigate to={`/history/${meeting.id}`} replace />;
   if (meeting.status === 'processing') return <Navigate to={`/processing/${meeting.id}`} replace />;
 
-  const nameOf = (pid: string) => meeting.participants.find((p) => p.personId === pid)?.name ?? resolvePerson(pid)?.name ?? pid;
+  // Voices in the transcript that aren't meeting participants (unknown voices and uninvited colleagues).
+  const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id));
+  const nameOf = speakerNamer(meeting, resolvePerson, t);
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
   const dueOptions = Array.from({ length: 8 }, (_, i) => addDays(meeting.date, i));
 
@@ -189,6 +266,7 @@ export function Review() {
               </button>
             </p>
           )}
+          <HeardPanel meeting={meeting} voiceName={nameOf} unknown={unknown} />
           <TranscriptLines
             lines={meeting.transcript}
             nameOf={nameOf}

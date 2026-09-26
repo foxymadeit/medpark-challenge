@@ -271,6 +271,15 @@ export const en = {
     sendingIn: 'Sending to {count} participants in',
     sendingIn_one: 'Sending to {count} participant in',
     stopReview: 'Stop & review',
+    heard: {
+      languages: 'Languages',
+      voices: 'Not in participants',
+      lines: '{count} lines · {times}',
+      lines_one: '{count} line · {times}',
+      who: 'Who is {name}?',
+      whoShort: 'Who is this?',
+      newPerson: '+ New participant…',
+    },
     sentence: {
       select: 'Select sentence at {time} by {name}',
       actions: 'Sentence',

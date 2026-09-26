@@ -13,10 +13,10 @@ import { useStore } from '../store/AppStore';
 import { ACCESS_LEVELS, type Access, type Person } from '../types';
 
 /** Also used by the template editor, which passes onAdded to select the new person. */
-export function AddParticipantModal({ onClose, onAdded, title }: { onClose: () => void; onAdded?: (id: string) => void; title?: string }) {
+export function AddParticipantModal({ onClose, onAdded, title, initialName = '' }: { onClose: () => void; onAdded?: (id: string, person: Omit<Person, 'id'>) => void; title?: string; initialName?: string }) {
   const { t } = useI18n();
   const { addPerson } = useStore();
-  const [name, setName] = useState('');
+  const [name, setName] = useState(initialName);
   const [role, setRole] = useState('');
   const [email, setEmail] = useState('');
   const [access, setAccess] = useState<Access>('receives');
@@ -29,8 +29,9 @@ export function AddParticipantModal({ onClose, onAdded, title }: { onClose: () =
     if (email.trim() && !isEmail(email)) next.email = t('common.emailInvalid');
     setErrors(next);
     if (Object.keys(next).length) return;
-    const id = addPerson({ name: name.trim(), role: role.trim(), email: email.trim() || undefined, access });
-    onAdded?.(id);
+    const person = { name: name.trim(), role: role.trim(), email: email.trim() || undefined, access };
+    const id = addPerson(person);
+    onAdded?.(id, person);
     onClose();
   };
 
