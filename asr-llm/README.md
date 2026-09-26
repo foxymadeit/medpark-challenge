@@ -19,7 +19,9 @@ audio (or a ready transcript JSON)
     clip < 1.5 s → reuse previous language
     drop known subtitle hallucinations ("Продолжение следует…")
  4. faster-whisper large-v3           ← NO glossary, NO hotwords
- 5. unload Whisper
+    (MOM_ASR_ENGINE=specialists instead: SpeD-RoASR + GigaAM-v3 + Parakeet v3,
+     combined per utterance and span by lexicon fit; see "Which setup ships")
+ 5. unload Whisper; snap misheard medical terms to the glossary (correct.py), log each change
         │
         ▼
  6. retrieve ~24 glossary rows        ← numpy search over medical_ro_ru_en.json
