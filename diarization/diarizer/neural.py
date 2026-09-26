@@ -49,6 +49,5 @@ class Embedder:
         stream.accept_waveform(sample_rate=SR, waveform=np.asarray(samples, dtype=np.float32))
         stream.input_finished()
         v = np.asarray(self._ex.compute(stream), dtype=np.float32)
-        if self.backend is not None:
-            return self.backend(v)
-        return v / (np.linalg.norm(v) + 1e-9)
+        v = v / (np.linalg.norm(v) + 1e-9)  # the projection was trained on unit vectors
+        return self.backend(v) if self.backend is not None else v

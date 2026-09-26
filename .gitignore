@@ -4,6 +4,7 @@ __pycache__/
 .pytest_cache/
 diarization/models/*
 !diarization/models/segmentation-3.0.onnx
+!diarization/models/segmentation-ft.onnx
 !diarization/models/nemo_en_titanet_small.onnx
 !diarization/models/NOTICE.md
 !diarization/models/titanet-small.backend.d64.npz

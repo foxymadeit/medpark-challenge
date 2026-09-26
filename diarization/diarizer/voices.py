@@ -3,6 +3,7 @@
 
 import os
 import re
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -34,8 +35,8 @@ def save_voice(name: str, embedder_name: str, embs, add: bool = False) -> Path:
     """add=True keeps what is already saved, e.g. a second language."""
     VOICES_DIR.mkdir(parents=True, exist_ok=True)
     path = VOICES_DIR / f"{_slug(name)}.{embedder_name}.npz"
-    old = list(np.load(path)["embs"]) if add and path.exists() else []
-    np.savez(path, name=name, embs=np.asarray(old + list(embs), dtype=np.float32))
+    old = list(np.load(path)["embs"]) if add and path.exists() and "space" in np.load(path).files else []
+    np.savez(path, name=name, embs=np.asarray(old + list(embs), dtype=np.float32), space="raw")
     return path
 
 
@@ -55,6 +56,9 @@ def load_voices(embedder_name: str) -> dict:
     out = {}
     for p in sorted(VOICES_DIR.glob(f"*.{embedder_name}.npz")) if VOICES_DIR.is_dir() else []:
         data = np.load(p)
+        if "space" not in data.files:  # saved before voiceprints were stored raw
+            print(f"skipping {data['name']}: enrolled with an older version, please enroll again", file=sys.stderr)
+            continue
         out[str(data["name"])] = list(data["embs"])
     return out
 

@@ -8,6 +8,7 @@
 """
 
 import argparse
+import itertools
 import json
 import sys
 import threading
@@ -25,24 +26,43 @@ from .engine import Labeler, Observer, StreamingDiarizer
 from .export import build_session, clock, consecutive_labels, summary, write_all
 from .neural import SR, Embedder, Segmenter
 from .passages import PASSAGES
+from .profiles import PROFILES, pick, speech_to_background_db
 from .timeline import Timeline
 from .tracker import SpeakerTracker
 from .voices import closest_voice, load_voices, save_voice, voice_embeddings
 
 DEFAULT_OUT = Path("sessions")
+CHECK_S = 10  # seconds of room audio the live microphone check listens to
 
 
-def build(args) -> StreamingDiarizer:
-    th = dict(models.THRESHOLDS[args.embedder])
+def choose_profile(args, audio) -> str:
+    """--mic close/far as given; auto measures speech over the room's background."""
+    if args.mic != "auto":
+        return args.mic
+    db = speech_to_background_db(audio, Segmenter(models.model_path(PROFILES["far"]["segmentation"]), args.threads))
+    profile = pick(db)
+    print(f"microphone check: speech {db:.1f} dB over the room -> {profile} profile", file=sys.stderr)
+    return profile
+
+
+def build(args, profile="far") -> StreamingDiarizer:
+    p = PROFILES[profile]
+    default = args.embedder == models.DEFAULT_EMBEDDER  # profile thresholds are tuned for the default embedder
+    th = {k: p[k] for k in ("assign", "new", "merge")} if default else dict(models.THRESHOLDS[args.embedder])
     for k in ("assign", "new", "merge"):
         if getattr(args, k) is not None:
             th[k] = getattr(args, k)
-    seg = Segmenter(models.model_path(models.SEGMENTATION), args.threads)
-    emb = Embedder(models.embedder_path(args.embedder), args.threads, backend=_backend(args))
+    seg_file = p["segmentation"]
+    if not (models.MODELS_DIR / seg_file).is_file():
+        print(f"{seg_file} is missing; using the stock segmentation model", file=sys.stderr)
+        seg_file = PROFILES["far"]["segmentation"]
+    backend = _backend(args) if p["backend"] else None
+    seg = Segmenter(models.model_path(seg_file), args.threads)
+    emb = Embedder(models.embedder_path(args.embedder), args.threads, backend=backend)
     tracker = SpeakerTracker(assign=th["assign"], new=th["new"], max_speakers=args.speakers)
     if not args.no_voices:
-        for name, embs in load_voices(args.embedder).items():
-            tracker.enroll(name, embs)
+        for name, embs in load_voices(args.embedder).items():  # stored raw; project like live audio
+            tracker.enroll(name, list(backend(np.asarray(embs))) if backend else embs)
             print(f"enrolled voice: {name}", file=sys.stderr)
     observer = Observer(seg, emb, window=args.window, step=args.step, latency=args.latency)
     return StreamingDiarizer(observer, Labeler(tracker, Timeline(), merge=th["merge"]))
@@ -73,13 +93,21 @@ def show(event, d: StreamingDiarizer, start: float) -> None:
 
 
 def cmd_live(args) -> None:
-    d = build(args)
+    blocks, first = mic_blocks(device=args.device), []
+    start = time.time()
+    if args.mic == "auto":
+        print("Listening to the room for 10 s to pick the microphone profile...", file=sys.stderr)
+        for block, start in blocks:
+            first.append(block)
+            if sum(map(len, first)) >= CHECK_S * SR:
+                break
+    d = build(args, choose_profile(args, np.concatenate(first)) if first else args.mic)
     stop = threading.Event()
     threading.Thread(target=lambda: (sys.stdin.readline(), stop.set()), daemon=True).start()
     print("Listening. Press Enter (or Ctrl+C) to finish.", file=sys.stderr)
-    start, heard = time.time(), 0
+    heard = 0
     try:
-        for block, start in mic_blocks(device=args.device):
+        for block, start in itertools.chain(((b, start) for b in first), blocks):
             heard += len(block)
             for e in d.feed(block):
                 show(e, d, start)
@@ -94,7 +122,7 @@ def cmd_file(args) -> None:
     path = Path(args.path)
     audio = load(path)
     start = _start_time(args.start_time, path, len(audio) / SR)
-    d = build(args)
+    d = build(args, choose_profile(args, audio))
     t0 = time.perf_counter()
     for i in range(0, len(audio), SR):
         for e in d.feed(audio[i:i + SR]):
@@ -121,7 +149,7 @@ def cmd_enroll(args) -> None:
                 break
         audio = np.concatenate(chunks)
     seg = Segmenter(models.model_path(models.SEGMENTATION), args.threads)
-    emb = Embedder(models.embedder_path(args.embedder), args.threads, backend=_backend(args))
+    emb = Embedder(models.embedder_path(args.embedder), args.threads)  # raw; each profile projects at load
     embs = voice_embeddings(audio, seg, emb)
     if not embs:
         sys.exit("heard less than 3 s of speech; try again closer to the mic")
@@ -177,6 +205,8 @@ def main(argv=None) -> None:
 
     def engine_args(p):
         p.add_argument("--speakers", type=int, default=0, help="max speakers if known (0 = figure it out)")
+        p.add_argument("--mic", default="auto", choices=["auto", "close", "far"],
+                       help="close: speakers near the mic; far: one mic on the table; auto: measure it")
         p.add_argument("--embedder", default=models.DEFAULT_EMBEDDER, choices=list(models.EMBEDDERS))
         p.add_argument("--latency", type=float, default=1.0, help="seconds of look-ahead before a label is final")
         p.add_argument("--step", type=float, default=0.5)

@@ -19,10 +19,10 @@ cd diarization
 uv venv --python 3.11 && uv pip install -e '.[dev]'
 ```
 
-The two models it needs are in `models/` (the segmentation model and TitaNet-small,
-about 46 MB together), so nothing is downloaded at runtime. The only
-command that touches the internet is `diarizer models fetch --all`, and that
-just pulls the extra embedders we compare against.
+The models it needs are in `models/` (two segmentation models, one per microphone
+profile, and TitaNet-small, about 52 MB together), so nothing is downloaded at
+runtime. The only command that touches the internet is `diarizer models fetch --all`,
+and that just pulls the extra embedders we compare against.
 
 ## Use
 
@@ -30,9 +30,15 @@ just pulls the extra embedders we compare against.
 diarizer live                          # talk; press Enter or Ctrl+C to finish
 diarizer live --speakers 4             # at most 4 people (optional)
 diarizer file meeting.m4a --start-time 14:00:00
-diarizer enroll "Dr. Popescu"          # record ~20 s so the name shows up instead of "Speaker N"
+diarizer file meeting.m4a --mic far    # skip the microphone check (auto, close or far)
+diarizer enroll "Dr. Popescu" --language ro        # optional: read the passage shown, about 25 s
+diarizer enroll "Dr. Popescu" --language ru --add  # a second language for the same person
 diarizer enroll "Dr. Popescu" --file clip.wav
 ```
+
+Enrollment is optional. Without it people are Speaker 1, 2, 3; with it they
+are named, and enroll warns when a new voice is close to someone already
+enrolled.
 
 The number of speakers doesn't need to be known in advance, and there is no
 upper limit. The segmenter separates up to 3 people inside any 5 s window
@@ -58,32 +64,73 @@ changes. It reads openai-whisper JSON, a faster-whisper segment list, or
 whisper.cpp `-oj` output, and writes `<session>.transcript.json` with
 `speaker, start, end, start_clock, end_clock, text` per line.
 
+## Microphone profiles
+
+How far people sit from the microphone changes which models and settings do
+best, so there are two profiles and a check that picks one:
+
+| Profile | When | Segmentation | Voiceprints | Thresholds (assign, new, merge) |
+|---|---|---|---|---|
+| close | speakers near the mic: laptop in front of them, phone, headset | our fine-tuned `segmentation-ft.onnx` | raw TitaNet | 0.6, 0.4, 0.7 |
+| far | one mic on the table, room audible | stock `segmentation-3.0.onnx` | AMI-trained projection | 0.40, 0.25, 0.90 |
+
+`--mic auto` (the default) measures how far speech rises above the room's
+background: at 15 dB or more it picks close, otherwise far. AMI table-mic
+meetings measure 1 to 10 dB; the Medpark sample recording measures 9 dB and
+gets the far profile. Live sessions listen for 10 s before they start
+labelling. Picking the wrong profile costs 10 to 13 points of accuracy.
+
 ## How it works
 
-Every 0.5 s, pyannote segmentation-3.0 looks at the last 5 s of audio and
+Every 0.5 s, a segmentation model looks at the last 5 s of audio and
 marks who is talking in each 17 ms frame. Each voice then gets a TitaNet
-embedding from its clean frames, passed through a projection trained on 38 AMI
-meetings (120 speakers) that keeps what tells voices apart and drops room sound. The tracker keeps an average and a few
+embedding from its clean frames (in the far profile, passed through a
+projection trained on 38 AMI meetings that drops room sound). The tracker keeps an average and a few
 voice prototypes per person, so someone switching from Romanian to Russian
 keeps one label. It matches each new embedding to a known person or opens a
 new one. Labels lag the audio by 1 s so the model has heard a bit past each
 moment. When the session ends, every observation is scored again against
 the final voiceprints before the minutes are written.
 
-## Measured (AMI far-field table mic, 4 speakers per meeting, 1 s latency)
+## Measured
 
-| Set | DER | Speaker count right | Notes |
-|---|---|---|---|
-| AMI dev, 8 meetings | 27.7% | 5 of 8 | thresholds tuned here |
-| AMI test, 4 meetings (ES2004a, IS1009a, TS3003a, EN2002a) | **33.5%** | 1 of 4 exact, 2 over | held out, never tuned on |
+Accuracy below is 100 minus DER (diarization error rate: missed speech,
+false alarms and wrong labels, every 10 ms, no collar). Turn accuracy is the
+share of reference turns that mostly went to the right person, which is how
+often a line of the minutes gets the right name.
 
-The test number is with the trained projection. Without it the same test set scores 38.2%, and
-with the first thresholds (tuned on 2 meetings) it scored 41.4%. The largest remaining error
-is missed speech (about 14%), quiet far-field talk the segmenter does not mark as speech.
+**Mixed Romanian / Russian / English meetings** (`eval/make_mix.py`): 24
+meetings of 3 to 7 people built from voices no model here trained on,
+including people switching between Romanian and Russian. Thresholds tuned on
+6, scored on the other 18.
 
-Speed on a 2017 Intel i5 (2 cores, 8 GB): about 0.15-0.25x real time, so a
-60-minute recording takes 10-15 minutes. Apple Silicon and servers are
-several times faster.
+| Setup | Accuracy | Turn accuracy |
+|---|---|---|
+| **close profile** | **93.0%** (DER 7.0%) | **96.3%** |
+| same, stock segmentation model | 90.1% | 94.6% |
+| far profile on this clean speech | 80.2% | 81.6% |
+
+**AMI far-field, one table mic, 4 speakers per meeting**, the harder case.
+Thresholds tuned on 8 dev meetings, scored on 4 held-out test meetings
+(ES2004a, IS1009a, TS3003a, EN2002a).
+
+| Setup | Accuracy | Notes |
+|---|---|---|
+| **far profile** | **66.5%** (DER 33.5%) | the best public systems score about 78 to 85% here |
+| close profile on this audio | 56.3% | why the microphone check matters |
+
+What did not help: fine-tuning the TitaNet voice model (three runs on Kaggle
+T4s, up to 4,585 voices of Russian, Romanian and English, including a
+frozen-encoder low-learning-rate run) always separated unseen voices a
+little worse than the original. The fine-tuned segmentation model helps
+clean multilingual speech and costs about 3 points on far-field English,
+which is why it is used only in the close profile. Details and code are in
+`train/`.
+
+Speed on a 2017 Intel i5 (2 cores, 8 GB): about 0.12 to 0.16x real time, so a
+60-minute recording takes 7 to 10 minutes. `--step 1.0` halves the neural
+work (0.06x) at a cost of about 3 points on the mixed set. Apple Silicon and
+servers are several times faster.
 
 ## Evaluate and train
 

@@ -148,9 +148,10 @@ def health(ram, gpus, idle_beats):
     if WORK.exists() and shutil.disk_usage(WORK).used / 1e9 > 15:
         out.append("/kaggle/working is over 15 of 20 GB")
     if STATE["key"] == "train":
-        if idle_beats >= 3:
-            out.append(f"GPU idle for {idle_beats} minutes during training")
         tp = train_progress()
+        stalled = not tp or time.time() - tp["updated"] > 180
+        if idle_beats >= 3 and stalled:  # small models leave the GPU idle between batches; only a stall matters
+            out.append(f"GPU idle for {idle_beats} minutes and no training progress")
         if tp and time.time() - tp["updated"] > 300:
             out.append(f"no training update for {(time.time() - tp['updated']) / 60:.0f} min")
         if tp and tp.get("warn"):
