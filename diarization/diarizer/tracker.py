@@ -56,6 +56,7 @@ class SpeakerTracker:
         self._speakers: list[Speaker] = []
         self._merged: dict[int, int] = {}
         self._next_id = 1
+        self._aliases: dict[int, str] = {}  # names typed in after introductions; display only
 
     @property
     def speakers(self) -> list[Speaker]:
@@ -68,7 +69,11 @@ class SpeakerTracker:
 
     def label(self, sid: int) -> str:
         spk = self._by_id(self.resolve(sid))
-        return spk.name or f"Speaker {spk.id}"
+        return spk.name or self._aliases.get(spk.id) or f"Speaker {spk.id}"
+
+    def rename(self, sid: int, name: str) -> None:
+        """Show this voice as `name`. Unlike enroll, matching stays as it was."""
+        self._aliases[self.resolve(sid)] = name
 
     def similarity(self, emb, spk: Speaker) -> float:
         emb = _unit(emb)
@@ -188,6 +193,8 @@ class SpeakerTracker:
         keep.centroid = _unit(keep.centroid * keep.weight + gone.centroid * gone.weight)
         keep.weight = min(total, self.max_weight)
         keep.name = keep.name or gone.name
+        if gone.id in self._aliases:
+            self._aliases.setdefault(keep.id, self._aliases.pop(gone.id))
         for p in gone.protos:
             self._maybe_add_proto(keep, p)
         self._speakers.remove(gone)

@@ -179,6 +179,9 @@ class StreamingDiarizer:
     def label(self, sid: int) -> str:
         return self.labeler.tracker.label(sid)
 
+    def rename(self, sid: int, name: str) -> None:
+        self.labeler.tracker.rename(sid, name)
+
 
 def _runs(mask: np.ndarray):
     """[start, stop) index pairs of consecutive True values."""

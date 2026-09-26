@@ -135,3 +135,17 @@ def test_newcomer_who_sounds_a_bit_like_someone_is_founded_from_a_group():
     got = [t.assign([near(b)], [True])[0] for _ in range(8)]
     assert len(t.speakers) == 2
     assert got[-1] == 2  # once founded, B keeps its own label
+
+
+def test_renamed_voice_keeps_normal_matching_and_survives_a_merge():
+    from diarizer.tracker import SpeakerTracker
+    import numpy as np
+    t = SpeakerTracker(assign=0.5, new=0.3)
+    a = np.array([1.0, 0, 0, 0]); b = np.array([0.95, 0.31, 0, 0])
+    sid = t.assign([a], [True])[0]
+    t.rename(sid, "Dr. Ana Popescu")
+    assert t.label(sid) == "Dr. Ana Popescu"
+    assert t.assign([b], [True])[0] == sid  # 0.95 similar: same person, no stricter enrolled threshold
+    other = t._create(np.array([0.99, 0.14, 0, 0]))
+    t._absorb(t._by_id(other.id), t._by_id(sid))
+    assert t.label(sid) == "Dr. Ana Popescu"

@@ -36,6 +36,15 @@ diarizer enroll "Dr. Popescu" --language ru --add  # a second language for the s
 diarizer enroll "Dr. Popescu" --file clip.wav
 ```
 
+`live` opens with a round of introductions: each person says their name and
+role while the room check runs, you press Enter, and it lists the voices it
+heard so you can type a name for each (or press Enter to keep Speaker N).
+Then the meeting screen shows a scrolling voice waveform, who is talking now
+(two names during overlap), talk time per person, and a log where a new voice
+is marked `+ NEW VOICE` and a returning one `↺ BACK`, each turn with its start
+and end. `--no-intro` skips the introductions; `--plain` (or piping the
+output) prints plain lines instead of the screen.
+
 Enrollment is optional. Without it people are Speaker 1, 2, 3; with it they
 are named, and enroll warns when a new voice is close to someone already
 enrolled.

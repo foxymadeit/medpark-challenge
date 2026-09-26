@@ -128,6 +128,9 @@ def main():
     ap.add_argument("--meetings", type=int, default=12)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--first", type=int, default=1, help="number of the first meeting, e.g. 13 to add mix13 onward")
+    ap.add_argument("--people", type=int, default=0, help="large meetings: this many people, split across RO/RU/EN")
+    ap.add_argument("--minutes", type=float, default=3.5)
+    ap.add_argument("--prefix", default="mix")
     a = ap.parse_args()
     rng = np.random.default_rng(a.seed)
     ro, ru = cv_speakers("ro"), cv_speakers("ru")
@@ -138,6 +141,10 @@ def main():
     plan, need = [], {"ro": {}, "ru": {}}
     for m in range(a.meetings):
         n_ro, n_ru, n_en = [(2, 1, 0), (1, 2, 1), (2, 2, 2), (1, 1, 1)][m % 4]
+        if a.people:  # e.g. 12 -> 5 Romanian, 4 Russian, 3 English, give or take one
+            k = a.people + int(rng.integers(-1, 3))
+            n_ro, n_ru = k * 5 // 12, k * 4 // 12
+            n_en = k - n_ro - n_ru - (1 if m % 2 == 0 else 0)
         pick = {lang: list(rng.choice(pool[lang], size=n, replace=False)) for lang, n in (("ro", n_ro), ("ru", n_ru))}
         bi = both[m // 2 % len(both)] if both and m % 2 == 0 else None
         plan.append((pick, n_en, bi))
@@ -154,8 +161,8 @@ def main():
             voices.update(libri_speakers(n_en, rng))
         if bi:
             voices[f"bi_{bi[:8]}"] = clips["ro"][bi] + clips["ru"][bi]  # one person, two languages, one label
-        name = f"mix{m + a.first - 1:02d}"
-        audio, ref = build_meeting(voices, rng)
+        name = f"{a.prefix}{m + a.first - 1:02d}"
+        audio, ref = build_meeting(voices, rng, minutes=a.minutes)
         wavfile.write(out / f"{name}.mix.wav", SR, audio)
         (out / f"{name}.rttm").write_text("".join(
             f"SPEAKER {name} 1 {s:.3f} {e - s:.3f} <NA> <NA> {w} <NA> <NA>\n" for w, s, e in ref))
