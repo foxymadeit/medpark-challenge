@@ -108,6 +108,7 @@
   margin: 0 auto;
   display: grid;
   gap: 24px;
+  padding: 32px;
 }
 .email-preview-heading {
   display: flex;
@@ -120,7 +121,7 @@
 }
 .email-preview-meta {
   margin: 0;
-  border-block: 1px solid #e2e6e5;
+  border-block: 1px solid var(--sm-surface-hairline);
 }
 .email-preview-meta > div {
   display: grid;
@@ -129,7 +130,7 @@
   padding: 12px 0;
 }
 .email-preview-meta dt {
-  color: #68716f;
+  color: var(--sm-ink-secondary);
   font-weight: 600;
 }
 .email-preview-meta dd {
@@ -147,6 +148,9 @@
   justify-content: flex-end;
 }
 @media (max-width: 600px) {
+  .email-preview-card {
+    padding: 20px;
+  }
   .email-preview-meta > div {
     grid-template-columns: 1fr;
     gap: 4px;
