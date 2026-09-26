@@ -18,8 +18,7 @@
 \RequirePackage{polyglossia}
 \RequirePackage[margin=21mm,top=30mm,bottom=24mm,headheight=16mm,headsep=8mm,footskip=11mm]{geometry}
 \RequirePackage{xcolor}
-\RequirePackage{tikz}
-\usetikzlibrary{svg.path}
+\RequirePackage{graphicx}
 \RequirePackage{fancyhdr}
 \RequirePackage{lastpage}
 \RequirePackage{xltabular}
@@ -172,7 +171,7 @@
 \ExplSyntaxOff
 
 % ---------------------------------------------------------------- 6. page design
-\newcommand\momlogo[1][30mm]{\resizebox{#1}{!}{\input{\momtemplatedir logo-colour.tex}}}
+\newcommand\momlogo[1][30mm]{\includegraphics[width=#1]{\momtemplatedir logo.pdf}}  % vector; drawn from logo-colour.tex
 \titleformat{\section}{\momsans\bfseries\large\color{mpteal}}{\thesection.}{0.5em}{}
 \titlespacing*{\section}{0pt}{1.1em}{0.25em}
 \setlist[itemize]{leftmargin=1.2em,itemsep=0.15em,topsep=0.2em,label={\color{mpteal}\textbullet}}
