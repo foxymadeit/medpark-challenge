@@ -16,6 +16,7 @@ import ActionItemRow from "../components/ActionItemRow";
 import SpeakerLabel from "../components/SpeakerLabel";
 import NeedsConfirmation from "../components/NeedsConfirmation";
 import DocumentsCard from "../components/DocumentsCard";
+import DeliveryBanner from "../components/DeliveryBanner";
 import type { MinutesLanguage } from "../types/meeting";
 import { listName } from "../api/routing";
 import { crossfade } from "../motion";
@@ -91,12 +92,7 @@ export default function MomPage() {
               </button>
             </section>
           ) : m.status === "sent" ? (
-            <Link
-              className="panel delivery-banner"
-              to={`/meetings/${m.id}/sent`}
-            >
-              {t("deliveryConfirmed")}
-            </Link>
+            <DeliveryBanner meeting={m} link />
           ) : confirming ? (
             <NeedsConfirmation
               meeting={m}

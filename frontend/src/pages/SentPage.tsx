@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { FiCheck as Check } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
-import { DEMO_MODE } from "../api/config";
+import DeliveryBanner from "../components/DeliveryBanner";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import StatusTag from "../components/StatusTag";
@@ -18,9 +17,9 @@ import {
 } from "../api/exports";
 import { getRecording } from "../api/meetings";
 import { listName } from "../api/routing";
-import { formatDayTime } from "../utils";
+
 export default function SentPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { data: m, error, refresh } = useMeeting();
   const [recording, setRecording] = useState<Blob>();
   useEffect(() => {
@@ -30,22 +29,28 @@ export default function SentPage() {
         .catch(() => setRecording(undefined));
   }, [m?.id]);
   if (!m) return <StatePanel error={error} retry={refresh} />;
+  if (m.status === "sending")
+    return (
+      <>
+        <MeetingHeader meeting={m} stage="sent" />
+        <section className="panel delivery-banner" role="status">
+          <span className="loader-dots" aria-hidden>
+            <i />
+            <i />
+            <i />
+          </span>
+          <div>
+            <h2>{t("sendingTo", { list: listName(m.type, t) })}</h2>
+          </div>
+        </section>
+      </>
+    );
   if (m.status !== "sent")
     return <Navigate to={`/meetings/${m.id}/minutes`} replace />;
   return (
     <>
       <MeetingHeader meeting={m} stage="sent" />
-      <section className="panel delivery-banner">
-        <Check size={28} className="success success-check" />
-        <div>
-          <h2>{t("deliveryConfirmed")}</h2>
-          <p>
-            {listName(m.type, t)} ·{" "}
-            {m.sentAt && formatDayTime(m.sentAt, i18n.language)}
-          </p>
-          {DEMO_MODE && <p>{t("demoDelivery")}</p>}
-        </div>
-      </section>
+      <DeliveryBanner meeting={m} />
       <div className="sent-grid">
         <section className="panel minutes-card">
           <h2>{t("deliveredTo")}</h2>

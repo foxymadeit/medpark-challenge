@@ -153,14 +153,12 @@ describe("application flows", () => {
     await screen.findByText("Email preview");
     expect(screen.getByText(/Minutes\.docx$/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    const receipt = await screen.findByRole(
-      "link",
-      {
-        name: "Delivery confirmed",
-      },
+    // Send goes straight to the delivery page (ISSUE-003)
+    await screen.findByRole(
+      "heading",
+      { name: "Delivery confirmed" },
       { timeout: 3000 },
     );
-    fireEvent.click(receipt);
     await screen.findByText(
       "Demo delivery simulated locally. No email was sent.",
     );

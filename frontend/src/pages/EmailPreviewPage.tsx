@@ -99,7 +99,7 @@ export default function EmailPreviewPage() {
         ],
       });
       await sendNow(meeting!.id);
-      navigate(`/meetings/${meeting!.id}/minutes`);
+      navigate(`/meetings/${meeting!.id}/sent`);
     } catch (reason) {
       setActionError(
         reason instanceof Error ? reason.message : "requestFailed",
