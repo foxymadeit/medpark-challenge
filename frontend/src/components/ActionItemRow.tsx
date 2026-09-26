@@ -95,7 +95,7 @@ export default function ActionItemRow({
           </>
         )}
         <span
-          className={`deadline mono ${!item.completed && item.deadline && item.deadline <= new Date().toLocaleDateString("sv-SE") ? "overdue" : ""}`}
+          className={`deadline mono ${!item.completed && item.deadline && item.deadline < new Date().toLocaleDateString("sv-SE") ? "overdue" : ""}`}
         >
           {item.completed
             ? t("done")
