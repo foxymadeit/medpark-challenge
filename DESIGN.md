@@ -332,6 +332,13 @@ Pressed, Disabled and Focus states.
 - **Send countdown**: the undo window. "Stop sending" stays visible and is
   first in tab order.
 - **Action item**: task, owner (speaker), deadline, and when it was said.
+- **Needs confirmation**: takes the countdown's place when the checks could
+  not confirm an item against the transcript. Each item gets its reason in
+  one line and two buttons, "Take out" and "Keep". Sending waits until every
+  item is settled.
+- **Documents**: one row per language (Română, Русский, English) with PDF and
+  DOCX, then how many items were checked against the transcript and the
+  AI-drafted notice.
 - **Top bar**: wordmark, sections, the "Hospital network only" status, language.
 - **Loader**: three dots stepping every 0.35 s, for waits under 10 s.
 - **Skeleton**: grey bars with a sheen crossing in 1.2 s, for loading lists.
@@ -345,15 +352,23 @@ Pressed, Disabled and Focus states.
 
 | State | Rule | Screens |
 |---|---|---|
-| Loading | A skeleton after 300 ms, loader dots for waits under 10 s, and an ETA in clock time for anything longer | X01, E04, S06 |
+| Loading | A skeleton after 300 ms, loader dots for waits under 10 s, and an ETA in clock time for anything longer | X01, E04, S06, M01 |
 | Empty | Say what is missing and offer one way to fill it | X08 |
 | Error | Say what happened and that nothing was lost, then offer one next step and a reference code for IT | X02, X03, X04, E06 |
 | Service not answering | Recording carries on and is saved locally; processing resumes by itself | X05, X09 |
 | Sending stopped | Replaces the countdown in place, with one button to send | X10 |
+| Needs a person | Replaces the countdown in place; sending waits until each unconfirmed item is kept or taken out | M03 |
 
 Voice enrollment (E01 to E09) is optional. Without it, voices appear as
 Speaker 1, 2, 3 and can be named after the meeting. The reading passages
 live in `diarization/diarizer/passages.py`.
+
+The minutes row (M01 to M03) shows what happens after "Writing the minutes":
+M01 opens that stage up (transcript read, decisions found, each item checked
+with a live count, writing in three languages, making PDF and DOCX). M03 is
+the stop for items the checks could not confirm. M02 is the finished screen
+with the six documents. The minutes themselves carry no names in their
+sentences; people appear only in the attendance list and as action owners.
 
 ### Motion
 
