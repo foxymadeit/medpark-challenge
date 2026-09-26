@@ -1,6 +1,6 @@
 import { EyeIcon, EyeSlashIcon, WarningIcon } from '@phosphor-icons/react';
 import { useId, useState, type FormEvent, type KeyboardEvent } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { TextField } from '../components/TextField';
@@ -56,19 +56,45 @@ function PasswordField({ label, placeholder, value, onChange, error, autoComplet
   );
 }
 
+/** L—1 — what the site opens with: Log in or Sign up (and a shortcut back in when already signed in). */
+export function Welcome() {
+  const { t } = useI18n();
+  const { account, signedIn, onboarded } = useStore();
+  const navigate = useNavigate();
+  return (
+    <div className="card access-card welcome">
+      <div className="page__head">
+        <h1 className="t-h1">{t('welcome.title')}</h1>
+        <p className="lead">{t('welcome.lead')}</p>
+      </div>
+      <div className="stack" style={{ gap: 12 }}>
+        <Button variant="ink" block onClick={() => navigate('/login')}>
+          {t('login.submit')}
+        </Button>
+        <Button block onClick={() => navigate('/signup')}>
+          {t('welcome.signUp')}
+        </Button>
+      </div>
+      {account && signedIn && (
+        <p className="access-alt">
+          <Link to={onboarded ? '/new' : '/onboarding/1'} className="link-btn">
+            {t('welcome.continueAs', { name: account.name })}
+          </Link>
+        </p>
+      )}
+    </div>
+  );
+}
+
 /** L00 — first user becomes Admin, then onboarding. */
 export function SignUp() {
   const { t } = useI18n();
-  const { account, signUp } = useStore();
+  const { signUp } = useStore();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({});
   const [taken, setTaken] = useState(false);
 
-  // Only the very first user signs up here; after that it's log in.
-  // (Checked on arrival only — right after signUp() the account exists and we're navigating on.)
-  const [hadAccount] = useState(() => !!account);
-  if (hadAccount) return <Navigate to="/login" replace />;
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -195,14 +221,13 @@ export function LogIn() {
         <Button type="submit" variant="ink" block disabled={!email.trim() || !password}>
           {t('login.submit')}
         </Button>
-        {!account && (
-          <p className="access-alt">
-            <span className="note">{t('login.newHere')}</span>
-            <Link to="/signup" className="link-btn">
-              {t('signup.title')}
-            </Link>
-          </p>
-        )}
+        {/* Always offered, even when an account already exists on this device. */}
+        <p className="access-alt">
+          <span className="note">{t('login.newHere')}</span>
+          <Link to="/signup" className="link-btn">
+            {t('welcome.signUp')}
+          </Link>
+        </p>
       </form>
 
       {showDemo && (

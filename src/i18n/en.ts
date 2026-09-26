@@ -46,6 +46,12 @@ export const en = {
     participants: 'Participants',
     templates: 'Templates',
   },
+  welcome: {
+    title: 'Welcome to Liminal',
+    lead: 'Record or upload a meeting and get the minutes written for you.',
+    signUp: 'Sign up',
+    continueAs: 'Continue as {name}',
+  },
   signup: {
     title: 'Set up Liminal',
     lead: 'You are the first user, so you become the Admin. You add colleagues next.',
@@ -73,7 +79,7 @@ export const en = {
     showPassword: 'Show password',
     hidePassword: 'Hide password',
     capsLock: 'Caps Lock is on',
-    newHere: 'New to Liminal?',
+    newHere: "Don't have an account yet?",
     demoTitle: 'Or try a demo account',
     demoHint: 'One click signs you in.',
     receivesOnly: 'You receive the minutes by email. No login needed.',

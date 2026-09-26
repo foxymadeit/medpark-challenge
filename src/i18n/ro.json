@@ -43,6 +43,12 @@
     "participants": "Participanți",
     "templates": "Șabloane"
   },
+  "welcome": {
+    "title": "Bun venit în Liminal",
+    "lead": "Înregistrați sau încărcați o ședință și primiți procesul-verbal scris pentru dvs.",
+    "signUp": "Înregistrare",
+    "continueAs": "Continuați ca {name}"
+  },
   "signup": {
     "title": "Configurați Liminal",
     "lead": "Sunteți primul utilizator, deci deveniți Administrator. Apoi adăugați colegii.",
@@ -70,7 +76,7 @@
     "showPassword": "Arată parola",
     "hidePassword": "Ascunde parola",
     "capsLock": "Caps Lock este activat",
-    "newHere": "Nou în Liminal?",
+    "newHere": "Nu aveți încă un cont?",
     "demoTitle": "Sau încercați un cont demo",
     "demoHint": "Un clic și sunteți conectat.",
     "receivesOnly": "Primiți procesul-verbal pe e-mail, deci nu trebuie să vă autentificați."

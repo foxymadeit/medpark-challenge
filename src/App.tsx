@@ -1,7 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AccessLayout, AppLayout, OnboardingLayout, RequireAuth } from './components/Layouts';
-import { useStore } from './store/AppStore';
-import { LogIn, SignUp } from './screens/Access';
+import { LogIn, SignUp, Welcome } from './screens/Access';
 import { History, HistoryRecord } from './screens/History';
 import { NewMeeting } from './screens/NewMeeting';
 import { Onboarding } from './screens/Onboarding';
@@ -14,19 +13,12 @@ import { Settings } from './screens/Settings';
 import { Templates } from './screens/Templates';
 import { Upload } from './screens/Upload';
 
-function Home() {
-  const { account, signedIn, onboarded } = useStore();
-  if (!account) return <Navigate to="/signup" replace />;
-  if (!signedIn) return <Navigate to="/login" replace />;
-  return <Navigate to={onboarded ? '/new' : '/onboarding/1'} replace />;
-}
-
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
         <Route element={<AccessLayout />}>
+          <Route path="/" element={<Welcome />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/login" element={<LogIn />} />
         </Route>
