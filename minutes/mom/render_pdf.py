@@ -23,15 +23,16 @@ RERUN = re.compile(r"Rerun to get|Label\(s\) may have changed|Table widths have 
 
 
 def creation_date(now: datetime | None = None) -> str:
-    """PDF/A needs a creation date. XeTeX before 2019 has no \\creationdate, and
-    pdfx then stops with "CreationDate is not properly supported" (Kaggle's
-    TeX Live did). Give it one, only where the engine has none; SOURCE_DATE_EPOCH
-    keeps builds reproducible when set."""
+    """PDF/A needs a creation date, which pdfx reads from \\pdfcreationdate. XeTeX
+    names it \\creationdate, and pdfx before 1.6.5 does not look there, so it stops
+    with "CreationDate is not properly supported" (Kaggle's TeX Live did). Alias
+    it, or give it one where the engine has none; SOURCE_DATE_EPOCH keeps builds
+    reproducible when set."""
     epoch = os.environ.get("SOURCE_DATE_EPOCH")
     now = now or (datetime.fromtimestamp(int(epoch), timezone.utc) if epoch else datetime.now(timezone.utc))
     stamp = now.astimezone(timezone.utc).strftime("D:%Y%m%d%H%M%S+00'00'")
-    return (f"\\ifdefined\\pdfcreationdate\\else\\ifdefined\\creationdate\\else"
-            f"\\def\\pdfcreationdate{{\\string {stamp}}}\\fi\\fi")
+    return (f"\\ifdefined\\pdfcreationdate\\else\\ifdefined\\creationdate\\let\\pdfcreationdate\\creationdate"
+            f"\\else\\def\\pdfcreationdate{{\\string {stamp}}}\\fi\\fi")
 
 
 def tex_source(meeting: Meeting, body: str, lang: str, model: str, verified: str) -> str:
