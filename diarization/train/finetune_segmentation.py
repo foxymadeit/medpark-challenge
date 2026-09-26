@@ -98,6 +98,7 @@ def main():
     model = Model.from_pretrained(a.checkpoint)
     if not same_as_reference(model, a.reference, out / "stock.onnx"):
         raise SystemExit("the downloaded checkpoint does not match the shipped segmentation model")
+    model.train()  # the check exported in eval mode, and Lightning 2 keeps whatever mode it finds
 
     registry.load_database(a.database)
     protocol = registry.get_protocol(a.protocol, preprocessors={"audio": FileFinder()})
