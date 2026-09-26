@@ -98,8 +98,9 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
         _para(doc, s["actions"], HEAD, 12.5, TEAL, bold=True, before=14, after=4)
         _table(doc, ["#", s["task"], s["owner"], s["deadline"]],
                [[str(i), x["text"], x["owner"], x["deadline"] or s["notset"]] for i, x in enumerate(actions, 1)],
-               [Mm(9), Mm(95), Mm(38), Mm(26)])
+               [Mm(9), Mm(91), Mm(38), Mm(30)])   # 30 mm: "не установлен" on one line
     if confirm:
+        doc.add_paragraph().paragraph_format.space_after = Pt(2)   # Word joins touching tables into one
         box = doc.add_table(rows=1, cols=1)
         cell = box.rows[0].cells[0]
         _widths(box, [Mm(168)])
@@ -181,13 +182,15 @@ def _para(doc, text, font, size, colour, bold=False, before=0, after=4):
     if text:
         _run(par, text, font, size, colour, bold)
     par.paragraph_format.space_before, par.paragraph_format.space_after = Pt(before), Pt(after)
+    par.paragraph_format.keep_with_next = font == HEAD   # a heading never ends a page alone
     return par
 
 
 def _item(doc, label, text, detail, newline=False):
     t = doc.add_table(rows=1, cols=2)
     a, b = t.rows[0].cells
-    _widths(t, [Mm(25), Mm(143)])
+    t.rows[0]._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))   # owner line stays with its task
+    _widths(t, [Mm(28), Mm(140)])   # 28 mm: "Поручение 3" on one line
     _cell(a, label, HEAD, 9, TEAL)
     par = b.paragraphs[0]
     _run(par, text, BODY, 10.5, CHARCOAL)

@@ -220,7 +220,7 @@
 \newcommand\momsummary{%
   \mom@ifdecisions{\begingroup
     \section*{\momstr{decisions}}
-    \renewcommand\arraystretch{1.35}\rowcolors{2}{white}{mprow}
+    \renewcommand\arraystretch{1.25}\rowcolors{2}{white}{mprow}
     \begin{xltabular}{\textwidth}{@{\hspace{4pt}}>{\raggedleft\arraybackslash}p{6mm}@{\hspace{8pt}}>{\raggedright\arraybackslash}X@{\hspace{4pt}}}
       \mom@tablehead{\mom@h{\#} & \mom@h{\momstr{decision}}}
       \endhead
@@ -228,7 +228,7 @@
     \end{xltabular}\endgroup}%
   \mom@ifactions{\begingroup
     \section*{\momstr{actions}}
-    \renewcommand\arraystretch{1.35}\rowcolors{2}{white}{mprow}
+    \renewcommand\arraystretch{1.25}\rowcolors{2}{white}{mprow}
     \begin{xltabular}{\textwidth}{@{\hspace{4pt}}>{\raggedleft\arraybackslash}p{6mm}@{\hspace{8pt}}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{38mm}>{\raggedright\arraybackslash}p{26mm}@{\hspace{4pt}}}
       \mom@tablehead{\mom@h{\#} & \mom@h{\momstr{task}} & \mom@h{\momstr{owner}} & \mom@h{\momstr{deadline}}}
       \endhead
@@ -237,14 +237,14 @@
   \mom@ifconfirm{%
     \par\vspace{10pt}\noindent\colorbox{mpnote}{\parbox{\dimexpr\textwidth-2\fboxsep}{%
       {\momlabel\color{mpcharcoal}\momstr{confirm}}\par\vspace{2pt}{\small\momstr{confirmhint}}
-      \begin{itemize}\mom@confirmitems\end{itemize}}}\par}}
-\newcommand\momsignatures{%
-  \par\needspace{24mm}\vspace{12pt}\noindent
+      \begin{itemize}[topsep=3pt,itemsep=1pt,parsep=0pt,partopsep=0pt]\mom@confirmitems\end{itemize}\vspace{-2pt}}}\par}}
+\newcommand\momsignatures{%  % one line of two minipages, about 14 mm tall; it never splits
+  \par\needspace{16mm}\vspace{4pt}\noindent
   \begin{minipage}[t]{0.47\textwidth}\raggedright
-    \textcolor{mpslate}{\momlabel\small\momstr{chair}}\par\vspace{16pt}
+    \textcolor{mpslate}{\momlabel\small\momstr{chair}}\par\vspace{14pt}
     \rule{55mm}{0.4pt}\par\small\momvalue{chair}\end{minipage}\hfill
   \begin{minipage}[t]{0.47\textwidth}\raggedright
-    \textcolor{mpslate}{\momlabel\small\momstr{secretary}}\par\vspace{16pt}
+    \textcolor{mpslate}{\momlabel\small\momstr{secretary}}\par\vspace{14pt}
     \rule{55mm}{0.4pt}\par\small\momvalue{secretary}\end{minipage}\par}
 
 % the document: \begin{minutes} (model-written body) \end{minutes}
