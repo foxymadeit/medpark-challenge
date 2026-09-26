@@ -13,18 +13,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import i18n from "../src/i18n/i18n";
 import { routes } from "../src/router";
-import { saveDemoSession } from "../src/auth/demoSession";
 import { getMeeting, updateMeeting } from "../src/api/meetings";
 import { readStore, writeStore } from "../src/mock/store";
 import type { Meeting } from "../src/types/meeting";
 import { countByType } from "../src/api/routing";
+import { personName } from "../src/utils";
 
 beforeEach(async () => {
   await i18n.changeLanguage("en");
 });
 
 function mount(path: string) {
-  saveDemoSession();
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   return { router, ...render(<RouterProvider router={router} />) };
 }
@@ -299,5 +298,22 @@ describe("routing", () => {
         ["unknown", ["x@x"]],
       ]),
     ).toEqual({ medical: 2, executive: 1, administrative: 3 });
+  });
+});
+
+describe("detected speakers", () => {
+  it("read as Participant N in the interface language; given names stay", async () => {
+    const detected = { name: "Participant 3", speakerNumber: 3 };
+    expect(personName(detected, i18n.t)).toBe("Participant 3");
+    await i18n.changeLanguage("ro");
+    expect(personName(detected, i18n.t)).toBe("Participantul 3");
+    await i18n.changeLanguage("ru");
+    expect(personName({ name: "", speakerNumber: 3 }, i18n.t)).toBe(
+      "Участник 3",
+    );
+    expect(
+      personName({ name: "Dr. Ana Popescu", speakerNumber: 3 }, i18n.t),
+    ).toBe("Dr. Ana Popescu");
+    expect(personName({ name: "Elena Ciobanu" }, i18n.t)).toBe("Elena Ciobanu");
   });
 });

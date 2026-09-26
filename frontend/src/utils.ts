@@ -1,4 +1,20 @@
-import type { Meeting } from "./types/meeting";
+import type { TFunction } from "i18next";
+import type { Meeting, Participant } from "./types/meeting";
+// "Participant 3", "Participantul 3", "Speaker 3", "Участник 3"...: a name the
+// pipeline gave, not one a person typed.
+const GENERIC_NAME =
+  /^(participant(ul)?|speaker|vorbitor(ul)?|участник|говорящий|спикер)\s*\d+$/i;
+/** A person's name as the reader should see it: a detected speaker reads
+ * "Participant 3" in the interface language; a name someone gave stays. */
+export function personName(
+  person: Pick<Participant, "name" | "speakerNumber">,
+  t: TFunction,
+): string {
+  const generic = !person.name?.trim() || GENERIC_NAME.test(person.name.trim());
+  return person.speakerNumber != null && generic
+    ? t("participantNumber", { number: person.speakerNumber })
+    : person.name;
+}
 /** The browser locale for an interface language. English uses day-month
  * order ("26 Sep 2026"), as Moldovan and Romanian readers expect. */
 export function dateLocale(language: string): string {

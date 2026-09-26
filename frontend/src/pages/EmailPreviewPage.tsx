@@ -12,7 +12,7 @@ import Button from "../components/Button";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import { useMeeting } from "../hooks/useMeeting";
-import { LANGUAGE_NAMES, formatDay } from "../utils";
+import { LANGUAGE_NAMES, formatDay, personName } from "../utils";
 import type { Meeting } from "../types/meeting";
 import { listName } from "../api/routing";
 import { useRouting } from "../hooks/useRouting";
@@ -43,13 +43,15 @@ export default function EmailPreviewPage() {
   const people = meeting.participants;
   const invalid = people.some((p) => p.email && !validEmail(p.email));
   const subject = emailSubject(meeting);
-  const ownerName = (id?: string | null) =>
-    people.find((p) => p.id === id)?.name ?? t("unassigned");
+  const ownerName = (id?: string | null) => {
+    const owner = people.find((p) => p.id === id);
+    return owner ? personName(owner, t) : t("unassigned");
+  };
   const body = [
     meeting.title,
     `${t("summary")}\n${meeting.summary || t("notGiven")}`,
     people.length &&
-      `${t("participants")}\n${people.map((p) => `- ${p.name}`).join("\n")}`,
+      `${t("participants")}\n${people.map((p) => `- ${personName(p, t)}`).join("\n")}`,
     meeting.decisions?.length &&
       `${t("decisions")}\n${meeting.decisions.map((d) => `- ${d.text}`).join("\n")}`,
     meeting.actionItems?.length &&
@@ -132,8 +134,8 @@ export default function EmailPreviewPage() {
               {people.map((person) => (
                 <span className="recipient-line" key={person.id}>
                   {person.email
-                    ? `${person.name} <${person.email}>`
-                    : `${person.name}: ${t("noCopyNoEmail")}`}
+                    ? `${personName(person, t)} <${person.email}>`
+                    : `${personName(person, t)}: ${t("noCopyNoEmail")}`}
                 </span>
               ))}
             </dd>

@@ -460,6 +460,7 @@ const resources = {
       serviceDesc_llm:
         "Reads the transcript and drafts the minutes, on this server",
       starting: "Starting…",
+      participantNumber: "Participant {{number}}",
     },
   },
   ro: {
@@ -937,6 +938,7 @@ const resources = {
       serviceDesc_llm:
         "Citește transcrierea și redactează procesul-verbal, pe acest server",
       starting: "Pornește…",
+      participantNumber: "Participantul {{number}}",
     },
   },
   ru: {
@@ -1408,6 +1410,7 @@ const resources = {
       serviceDesc_llm:
         "Читает расшифровку и готовит черновик протокола на этом сервере",
       starting: "Запуск…",
+      participantNumber: "Участник {{number}}",
     },
   },
 };
