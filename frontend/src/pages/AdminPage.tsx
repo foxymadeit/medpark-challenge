@@ -71,7 +71,6 @@ export default function AdminPage({
     <>
       <header className="page-heading">
         <div>
-          <p className="eyebrow">{t("adminArea")}</p>
           <h1>
             {t(
               section === "overview"
@@ -85,7 +84,7 @@ export default function AdminPage({
       </header>
       {nav}
       {section === "overview" && (
-        <div className="admin-summary-grid">
+        <nav className="panel admin-overview" aria-label={t("overview")}>
           <AdminSummary
             label={t("users")}
             value={data.accounts.length}
@@ -106,7 +105,7 @@ export default function AdminPage({
             value={data.distributionLists.length}
             to="/admin/lists"
           />
-        </div>
+        </nav>
       )}
       {section === "users" && (
         <UsersPanel data={data} busy={busy} run={run} role={user!.role} t={t} />
@@ -168,9 +167,9 @@ function AdminSummary({
   to: string;
 }) {
   return (
-    <NavLink className="panel admin-summary" to={to}>
-      <strong>{value}</strong>
+    <NavLink className="admin-summary" to={to}>
       <span>{label}</span>
+      <span className="mono">{value}</span>
     </NavLink>
   );
 }

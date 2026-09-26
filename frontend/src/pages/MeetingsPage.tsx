@@ -39,9 +39,6 @@ export default function MeetingsPage() {
           </Link>
         </div>
         <p className="dashboard-helper">{t("meetingStartHint")}</p>
-        {data.length === 0 && (
-          <p className="first-day-kicker">{t("startMeeting")}</p>
-        )}
         <div className="department-doors">
           {departments.map((type) => (
             <DepartmentDoor key={type} type={type} routing={routing} />

@@ -12,6 +12,7 @@ import Button from "../components/Button";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import { useMeeting } from "../hooks/useMeeting";
+import { LANGUAGE_NAMES } from "../utils";
 
 const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -113,13 +114,7 @@ export default function EmailPreviewPage() {
       <MeetingHeader meeting={meeting} stage="minutes" />
       <section className="panel email-preview-card">
         <div className="email-preview-heading">
-          <div>
-            <p className="eyebrow">{t("emailPreview")}</p>
-            <h2>{subject}</h2>
-          </div>
-          <span className="email-preview-icon">
-            <FiMail />
-          </span>
+          <h2>{t("emailPreview")}</h2>
         </div>
         <dl className="email-preview-meta">
           <div>
@@ -141,7 +136,13 @@ export default function EmailPreviewPage() {
           </div>
           <div>
             <dt>{t("attachment")}</dt>
-            <dd>{minutesDocxFilename(meeting)}</dd>
+            <dd>
+              {meeting.documents?.length
+                ? meeting.documents
+                    .map((lang) => `${LANGUAGE_NAMES[lang]} (PDF)`)
+                    .join(", ")
+                : minutesDocxFilename(meeting)}
+            </dd>
           </div>
         </dl>
         {(!recipients.length || invalidRecipients.length > 0) && (
