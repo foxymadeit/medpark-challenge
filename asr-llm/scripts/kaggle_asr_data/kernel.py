@@ -1,9 +1,13 @@
-"""Kaggle entry: install what build.py needs, fetch it from the branch, run it."""
+"""Kaggle entry for asr_train.build_data: fetch the branch, install what it needs, run it.
+
+Kaggle pushes only this file, so the package comes from a clone of BRANCH. Locally,
+run `python -m asr_train.build_data` from asr-llm/ instead.
+"""
 
 import subprocess
-import sys
 
-REPO = "/kaggle/working/repo"
+BRANCH = "samoilov-asr-llm"
+REPO = "/tmp/repo"  # outside /kaggle/working: the kernel output is the dataset only
 
 
 def sh(cmd: str) -> None:
@@ -11,7 +15,6 @@ def sh(cmd: str) -> None:
     subprocess.run(cmd, shell=True, check=True)
 
 
-sh(f"git clone -q --depth 1 -b samoilov-asr-llm https://github.com/foxymadeit/medpark-challenge {REPO}")
+sh(f"git clone -q --depth 1 -b {BRANCH} https://github.com/foxymadeit/medpark-challenge {REPO}")
 sh("pip install -q uroman huggingface_hub soundfile pyarrow librosa")
-sh(f"{sys.executable} {REPO}/asr-llm/scripts/kaggle_asr_data/build.py")
-sh(f"rm -rf {REPO}")  # keep the output folder to the dataset only
+sh(f"cd {REPO}/asr-llm && python -m asr_train.build_data --out /kaggle/working/asrdata --raw-dir /tmp/raw --prune-raw")

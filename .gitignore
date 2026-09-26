@@ -11,6 +11,7 @@ asr-llm/models/whisper/
 asr-llm/models/whisper-turbo/
 asr-llm/models/llm/
 asr-llm/.venv/
+asr-llm/runs/
 *.gguf
 *.bin
 *.pt

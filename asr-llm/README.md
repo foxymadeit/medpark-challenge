@@ -146,6 +146,37 @@ checked by back-translation (`back_ok`). Runtime only reads the merged JSON. The
 fusion and minutes prompts get the ~24 rows that match the text, the best five with
 a short definition.
 
+## Fine-tuning an ASR model (dev time only)
+
+`asr_train/` builds a RO/RU/EN training set with spliced code-switching, fine-tunes
+Parakeet-TDT-0.6B-v3 on it, and benches ASR candidates. It runs the same locally and on
+Kaggle: `scripts/kaggle_asr_{data,finetune,zeroshot}/kernel.py` only pass `/kaggle` paths.
+It is never imported at meeting runtime, and unlike `asr_llm` it does not force HF offline.
+
+```bash
+cd asr-llm
+pip install -e ".[train-data,train,dev]"   # plus torch + torchaudio built for your CUDA
+
+# 1. data (~150 h + 30 h collage). Offline: copy the Hub repos into a mirror first, see asr_train/hub.py
+python -m asr_train.build_data --out data/asrdata [--hf-mirror ~/hf-mirror]
+python -m asr_train.build_data --out /tmp/smoke --sources fleurs --collage-hours 0.2   # quick run
+
+# 2. fine-tune: every visible GPU, bf16 where supported, fp16 on T4
+python -m asr_train.finetune --data-dir data/asrdata --check                     # manifests + audio only
+python -m asr_train.finetune --data-dir data/asrdata --out runs/ft [--resume auto] \
+    [--base-model models/parakeet-tdt-0.6b-v3.nemo]                               # local base = no Hub
+python -m asr_train.finetune --data-dir /tmp/smoke --out /tmp/ft --max-steps 50 --val-every 25   # smoke run
+
+# 3. bench, before and after: CER/WER on gold + public test sets, RTFx on the long file
+python -m asr_train.zeroshot --work runs/zeroshot --audio ../data/Medpark_audio.m4a
+python -m asr_train.zeroshot --work runs/zeroshot --models parakeet \
+    --model-path parakeet=runs/ft/parakeet-tdt-0.6b-v3-medpark.nemo
+```
+
+Checkpoints: the best two by `val_wer` and `last.ckpt` are saved after every dev check.
+`final.ckpt` and the `.nemo` are saved when training ends. `--max-hours` is a per-session
+budget and is not carried through a resume, so a resumed 11-hour Kaggle run gets another 11 hours.
+
 ## With diarization
 
 ```bash
