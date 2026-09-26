@@ -8,8 +8,8 @@ import { formatDayMonth } from '../lib/format';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 
-/** ms per recipient; the bar fills over all of them. */
-const STEP_MS = 3600;
+/** How long the sending bar takes to fill, whatever the number of recipients. */
+const SEND_MS = 3000;
 
 /**
  * 07 — Sent. MOCK sending: the meeting name and a green bar that fills linearly (as on processing),
@@ -27,7 +27,7 @@ export function Sent() {
   const people = (meeting?.participants ?? []).map((p) => ({ ...p, email: p.email ?? resolvePerson(p.personId)?.email }));
   const withEmail = people.filter((p) => p.email);
   // Linear progress over the whole send, like the processing screen.
-  const total = Math.max(1, withEmail.length) * STEP_MS;
+  const total = SEND_MS;
   const [elapsed, setElapsed] = useState(reduced ? total : 0);
   const done = elapsed >= total;
 
