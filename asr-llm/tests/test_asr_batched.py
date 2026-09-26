@@ -48,3 +48,9 @@ def test_batched_engines_get_every_piece_in_one_call():
     batches = [AudioBatch(i, i, i + 1, np.zeros(10 + i)) for i in range(3)]
     chunks = transcribe_batches(Batched(), batches)
     assert [(c.start, c.text) for c in chunks] == [(0, "t10"), (1, "t11"), (2, "t12")]
+
+
+def test_a_relative_model_path_means_under_asr_llm(monkeypatch):
+    from asr_llm.config import ASR_ROOT, Settings
+    monkeypatch.setenv("MOM_ASR_MODEL_DIR", "models/whisper")
+    assert Settings().asr_model_dir == ASR_ROOT / "models" / "whisper"

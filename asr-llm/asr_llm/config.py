@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PACKAGE_DIR = Path(__file__).resolve().parent
@@ -83,6 +84,14 @@ class Settings(BaseSettings):
     asr_joint_languages: tuple[str, ...] = ()
 
     ffmpeg_bin: str = "ffmpeg"
+
+    @field_validator("asr_model_dir", "sped_model", "parakeet_model", "gigaam_dir", "llm_gguf")
+    @classmethod
+    def _under_asr_root(cls, path: Path) -> Path:
+        """A relative model path (the backend's MOM_ASR_MODEL_DIR=models/whisper) means asr-llm/models,
+        not wherever the process happens to start."""
+        path = path.expanduser()
+        return path if path.is_absolute() else ASR_ROOT / path
 
 
 settings = Settings()
