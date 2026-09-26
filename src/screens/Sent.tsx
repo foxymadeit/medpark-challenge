@@ -1,7 +1,6 @@
 import { CheckIcon, DownloadSimpleIcon, PaperPlaneTiltIcon } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatDayMonth } from '../lib/format';
@@ -12,7 +11,7 @@ import { useStore } from '../store/AppStore';
 const STEP_MS = 1200;
 
 /**
- * 07 — Sent. MOCK sending animation: a paper plane leaves, each recipient ticks off in turn,
+ * 07 — Sent. MOCK sending animation: a paper plane in a ring that fills green over the send,
  * then the green check pops in. Reduced motion shows the final state straight away.
  */
 export function Sent() {
@@ -57,34 +56,6 @@ export function Sent() {
           <p className="lead">{done ? t('sent.lead', { date: formatDayMonth(meeting.date, lang) }) : t('sent.sendingLead', { count: withEmail.length })}</p>
         </div>
 
-        {/* Recipients show only while sending; once done the screen keeps just the result. */}
-        {!done && (
-        <ul className="sent__list" aria-label={t('sent.recipients')}>
-          {people.map((p) => {
-            const i = withEmail.indexOf(p);
-            const state = !p.email ? 'skipped' : i < ticked ? 'sent' : i === ticked ? 'sending' : 'waiting';
-            return (
-              <li key={p.personId} className={`sent__row is-${state}`}>
-                <Avatar name={p.name} />
-                <span className="who__text" style={{ flex: 1, minWidth: 0 }}>
-                  <span className="who__name truncate">{p.name}</span>
-                  <span className="who__sub truncate">{p.email ?? t('review.noEmail')}</span>
-                </span>
-                <span className="sent__state">
-                  {state === 'sent' && (
-                    <span className="sent__tick" aria-label={t('sent.stateSent')}>
-                      <CheckIcon size={12} weight="bold" aria-hidden />
-                    </span>
-                  )}
-                  {state === 'sending' && <span className="sent__pulse" role="img" aria-label={t('sent.stateSending')} />}
-                  {state === 'waiting' && <span className="sent__wait" aria-hidden />}
-                  {state === 'skipped' && <span className="note">{t('sent.stateSkipped')}</span>}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-        )}
 
         {done && (
           <div className="sent__after">

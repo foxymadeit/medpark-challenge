@@ -339,10 +339,6 @@
     "lead": "Сохранено в Истории с должностями на {date}.",
     "sending": "Отправляем протокол…",
     "sendingLead": "Письма {count} участникам",
-    "recipients": "Получатели",
-    "stateSent": "Отправлено",
-    "stateSending": "Отправляется",
-    "stateSkipped": "Нет почты, не отправлено",
     "toHistory": "Перейти в историю",
     "download": "Скачать протокол (PDF)"
   },
@@ -368,9 +364,11 @@
     "processing": "Обработка"
   },
   "record": {
+    "saveTemplateLead_one": "Сохранит тип и {count} участника на следующий раз.",
+    "saveTemplateLead_few": "Сохранит тип и {count} участника на следующий раз.",
+    "saveTemplateLead_many": "Сохранит тип и {count} участников на следующий раз.",
     "saveTemplate": "Сохранить как шаблон",
     "saveTemplateLead": "Сохранит тип и {count} участника на следующий раз.",
-    "saveTemplateLead_one": "Сохранит тип и {count} участника на следующий раз.",
     "back": "История",
     "meta": "{type} · {date} · {n} мин · Отправлено {sent} из {total}",
     "metaUnsent": "{type} · {date} · {n} мин",
@@ -380,9 +378,7 @@
     "now": "Сейчас: {role}",
     "minutes": "Протокол",
     "openTranscript": "Открыть расшифровку",
-    "download": "Скачать PDF",
-    "saveTemplateLead_few": "Сохранит тип и {count} участника на следующий раз.",
-    "saveTemplateLead_many": "Сохранит тип и {count} участников на следующий раз."
+    "download": "Скачать PDF"
   },
   "templates": {
     "meta_one": "{type} · {count} участник",

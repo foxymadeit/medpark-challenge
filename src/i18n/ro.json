@@ -335,10 +335,6 @@
     "lead": "Salvat în Istoric cu funcțiile valabile la {date}.",
     "sending": "Se trimite procesul-verbal…",
     "sendingLead": "Se trimite email la {count} de participanți",
-    "recipients": "Destinatari",
-    "stateSent": "Trimis",
-    "stateSending": "Se trimite",
-    "stateSkipped": "Fără email, netrimis",
     "toHistory": "Mergi la Istoric",
     "download": "Descarcă PV (PDF)"
   },
@@ -364,9 +360,10 @@
     "processing": "În procesare"
   },
   "record": {
+    "saveTemplateLead_one": "Păstrează tipul și {count} participant pentru data viitoare.",
+    "saveTemplateLead_few": "Păstrează tipul și {count} participanți pentru data viitoare.",
     "saveTemplate": "Salvează ca șablon",
     "saveTemplateLead": "Păstrează tipul și {count} de participanți pentru data viitoare.",
-    "saveTemplateLead_one": "Păstrează tipul și {count} participant pentru data viitoare.",
     "back": "Istoric",
     "meta": "{type} · {date} · {n} min · Trimis la {sent} din {total}",
     "metaUnsent": "{type} · {date} · {n} min",
@@ -376,8 +373,7 @@
     "now": "Acum: {role}",
     "minutes": "Proces-verbal",
     "openTranscript": "Deschide transcrierea",
-    "download": "Descarcă PDF",
-    "saveTemplateLead_few": "Păstrează tipul și {count} participanți pentru data viitoare."
+    "download": "Descarcă PDF"
   },
   "templates": {
     "meta_one": "{type} · {count} participant",
