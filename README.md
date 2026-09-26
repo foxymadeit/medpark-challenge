@@ -202,21 +202,36 @@ What Liminal does instead:
   and Parakeet-TDT-0.6B-v3 are combined per utterance and per span by how well
   each hypothesis fits the language's word list.
 
-**Against paid models.** ElevenLabs Scribe, the paid leader, reports
-[3.0% word error on Romanian FLEURS](https://elevenlabs.io/speech-to-text/romanian)
-and 3.1% on Russian: clean read speech, one language at a time. FLEURS has no
-sentence that switches language. Our bake-off scores every setup on FLEURS so
-the comparison is like for like, and also on what FLEURS lacks: a
-hand-corrected Romanian and Russian reference from the Medpark recording and our
-own scripted board meeting.
+**The bake-off** (`asr-llm/scripts/kaggle_asr_bakeoff`, one Kaggle T4, 156 min).
+11 setups scored on the same audio. Error is the share of letters wrong
+(character error rate), lower is better:
 
-> **Bake-off running now** (`asr-llm/scripts/kaggle_asr_bakeoff`, Kaggle T4). It
-> scores Whisper large-v3 and turbo, the phrase-level merge, the specialists,
-> their combination, a local-LLM correction pass and a Parakeet fine-tune. The
-> rule that picks the default was fixed before the results: lowest mean
-> character error over the hand-checked reference and our reading, an hour
-> transcribed in 6 minutes or less, and no more inserted words than Whisper
-> large-v3. The table lands here when it finishes.
+| Setup | Our mock board, 1 reader, 8.4 min, 695 words | Our mock board, 3 of us, 6.4 min, 498 words | Synthetic meeting, 4.5 min, 475 words | Medpark sample, first 3 min, 430 words | Russian kept? | One hour of audio |
+|---|---|---|---|---|---|---|
+| **Whisper large-v3, two decodes (ships)** | **20.6%** | **53.5%** | **36.1%** | 44.6% | yes | 23.2 min |
+| Whisper large-v3, both language tokens at once | 33.3% | 71.3% | 40.1% | 39.6% | yes | not timed |
+| Whisper turbo, two decodes | 37.2% | 61.4% | 47.1% | 54.1% | garbled on 2 of 3 | 15.3 min |
+| Jackrabbit 110M, Romanian only | 40.5% | 65.0% | 41.5% | **32.6%** | **no, drops it all** | not timed |
+| Parakeet-TDT-0.6B-v3 | 43.3% | 62.5% | 58.0% | 50.8% | no, garbles it | 57 s |
+| SpeD Romanian, alone or with our corrector | 45.2 to 45.9% | 71.6 to 76.7% | 57.1 to 58.4% | 46.8 to 49.0% | no | 13 to 15 s |
+| NVIDIA Canary-1B-v2 | 51.4% | 87.9% | 49.4% | 37.4% | no | not timed |
+
+The Medpark column is Romanian with almost no Russian, which is why a
+Romanian-only model tops it. On every recording that switches language, the
+one we ship is the most accurate, by 4 to 13 points. The rule fixed before
+the run first picked Jackrabbit, because it counted only error and speed; a model
+that deletes every Russian word cannot write a Medpark board's minutes, so the
+rule now also requires the Russian to survive (`summarize.py`, with a test).
+The speed limit stays for challengers; nothing faster came close.
+
+**Against paid models, like for like.** On FLEURS (60 read sentences per
+language, word error rate), the setup we ship scores Russian **3.5%**,
+Romanian 6.9% and English 6.2%. ElevenLabs Scribe, the paid leader,
+[reports](https://elevenlabs.io/speech-to-text/romanian) 3.1% Russian and 3.0%
+Romanian on the full FLEURS test set, one language per clip. On
+[our code-switched Russian/English set](asr-llm/scripts/kaggle_asr_bakeoff) (60
+clips) we score 18.5% word error, and Scribe publishes no number for speech that
+switches language at all.
 
 ## 2. Output quality (30%)
 

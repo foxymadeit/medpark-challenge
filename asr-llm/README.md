@@ -187,6 +187,10 @@ A wrapper around `asr_train.zeroshot` that also runs the product's Whisper pipel
 (large-v3 and turbo, merge off and on), times an hour of audio for each model, and scores the
 term corrector before and after on every engine's output. Push it with
 `kaggle kernels push -p asr-llm/scripts/kaggle_asr_bakeoff`; results land in `out/report.json`.
+`summarize.py` turns them into one table per recording and names the default. The 26 September
+run kept Whisper large-v3 with two decodes: the most accurate on all three code-switched
+recordings (20.6% character error on our mock board, next best 33.3%). A setup that loses the
+Russian (100% or worse on the Russian part) is never eligible; see the root README for the table.
 
 ## Fine-tuning an ASR model (dev time only)
 

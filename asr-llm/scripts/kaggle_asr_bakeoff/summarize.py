@@ -6,8 +6,11 @@
 Rule for the default: among setups that transcribe an hour in at most BUDGET_S on the T4, the lowest
 mean CER over the hand-corrected gold and the team's code-switched reading (weighted equally: the
 team recording is the closest thing to the judges' audio), provided it inserts no more words on those
-two than the current pipeline (whisper large-v3). LLM correction ships only if it lowers that CER
-without adding insertions.
+two than the current pipeline (whisper large-v3), and it keeps the Russian: a setup whose Russian
+error is 100% or worse on a code-switched recording drops or garbles every Russian word, so a low
+mean CER there only means the reference is mostly Romanian (the first run picked the Romanian-only
+jackrabbit this way). The current pipeline stays eligible whatever its hour takes: the budget is
+for challengers. LLM correction ships only if it lowers that CER without adding insertions.
 """
 
 from __future__ import annotations
@@ -24,7 +27,13 @@ BUDGET_S = 360.0
 BASELINE = "whisper-large-v3"
 GROUPS = ("gold", "clip_team1", "clip_team2", "clip_synthetic")
 DECISIVE = ("gold", "clip_team1")
+CODE_SWITCHED = ("clip_team1", "clip_team2", "clip_synthetic")
 COLS = ("cer", "wer", "cer_ro_part", "cer_ru_part", "word_ins", "script_mismatch", "key_terms")
+
+
+def keeps_russian(r: dict) -> bool:
+    """False when any code-switched recording lost (>= 100% error) its Russian part."""
+    return all(r[g].get("cer_ru_part") is None or r[g]["cer_ru_part"] < 1.0 for g in CODE_SWITCHED if g in r)
 
 
 def main(root: Path) -> None:
@@ -69,7 +78,8 @@ def main(root: Path) -> None:
 
     base_ins = mean(rows.get(BASELINE, {}), "word_ins")
     ok = {n: r for n, r in rows.items() if mean(r, "cer") is not None and not n.startswith("ger:")
-          and (r.get("hour_s") is None or r["hour_s"] <= BUDGET_S)
+          and keeps_russian(r)
+          and (n == BASELINE or r.get("hour_s") is None or r["hour_s"] <= BUDGET_S)
           and (base_ins is None or mean(r, "word_ins") is None or mean(r, "word_ins") <= base_ins)}
     ranked = sorted(ok, key=lambda n: mean(ok[n], "cer"))
     print(f"\npeak GPU GB: {json.loads((out / 'report.json').read_text()).get('peak_gpu_gb')}")
