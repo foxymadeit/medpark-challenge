@@ -128,26 +128,18 @@ export function MicCheck() {
   const busy = phase === 'listening' || phase === 'playing';
   const lit = Math.round(level * METER_BARS);
 
+  // One quiet line, like the upload card's hint, so both cards keep the same shape.
   return (
-    <div className="mic-check">
-      <div className="mic-check__row">
+    <div className="mic-check" role="group" aria-label={t('mic.choose')}>
+      {phase === 'idle' ? (
         <Dropdown
           label={t('mic.choose')}
           value={micId}
           options={mics}
-          disabled={busy}
-          onChange={(v) => {
-            updatePreferences({ micId: v });
-            setPhase('idle');
-          }}
+          onChange={(v) => updatePreferences({ micId: v })}
         />
-        <button type="button" className="btn btn--secondary mic-check__test" onClick={busy ? stop : start}>
-          {busy ? <StopIcon size={16} aria-hidden /> : <WaveformIcon size={16} aria-hidden />}
-          {busy ? t('mic.stopTest') : t('mic.test')}
-        </button>
-      </div>
-      {phase !== 'idle' && (
-        <div className="mic-check__status" role="status" aria-live="polite">
+      ) : (
+        <span className="mic-check__status" role="status" aria-live="polite">
           {phase === 'listening' && (
             <>
               <span className="mic-meter" aria-hidden>
@@ -155,23 +147,28 @@ export function MicCheck() {
                   <span key={i} className={`mic-meter__bar${i < lit ? ' is-on' : ''}`} />
                 ))}
               </span>
-              <span>{t('mic.listening')}</span>
+              {t('mic.listening')}
             </>
           )}
           {phase === 'playing' && (
             <>
               <PlayIcon size={14} aria-hidden />
-              <span>{t('mic.playing')}</span>
+              {t('mic.playing')}
             </>
           )}
           {phase === 'done' && (
             <>
               {blocked ? <WarningIcon size={14} aria-hidden /> : <CheckIcon size={14} aria-hidden className="mic-check__ok" />}
-              <span>{blocked ? t('mic.blocked') : t('mic.done')}</span>
+              {blocked ? t('mic.blockedShort') : t('mic.done')}
             </>
           )}
-        </div>
+        </span>
       )}
+      <span className="mic-check__sep" aria-hidden>·</span>
+      <button type="button" className="mic-check__link" onClick={busy ? stop : phase === 'done' ? () => setPhase('idle') : start}>
+        {busy ? <StopIcon size={14} aria-hidden /> : phase === 'done' ? null : <WaveformIcon size={14} aria-hidden />}
+        {busy ? t('mic.stopTest') : phase === 'done' ? t('mic.change') : t('mic.test')}
+      </button>
     </div>
   );
 }

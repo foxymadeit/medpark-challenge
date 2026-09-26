@@ -221,6 +221,8 @@ export const en = {
     playing: 'Playing back what it heard…',
     done: 'Microphone works.',
     blocked: 'Microphone is blocked in the browser; this was a simulated test.',
+    blockedShort: 'Mic blocked, simulated test',
+    change: 'Change',
   },
   recording: {
     recording: 'Recording',

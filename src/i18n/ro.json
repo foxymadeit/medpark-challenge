@@ -218,7 +218,9 @@
     "listening": "Spuneți ceva: barele ar trebui să se miște.",
     "playing": "Se redă ce s-a auzit…",
     "done": "Microfonul funcționează.",
-    "blocked": "Microfonul este blocat în browser; testul a fost simulat."
+    "blocked": "Microfonul este blocat în browser; testul a fost simulat.",
+    "blockedShort": "Microfon blocat, test simulat",
+    "change": "Schimbă"
   },
   "recording": {
     "recording": "Se înregistrează",
