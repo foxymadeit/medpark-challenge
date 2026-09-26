@@ -13,7 +13,7 @@ import SpeakerLabel from "./SpeakerLabel";
 import Button from "./Button";
 import Modal from "./Modal";
 import InputField from "./InputField";
-import { formatTime } from "../utils";
+import { formatDay, formatTime } from "../utils";
 export default function ActionItemRow({
   meeting,
   item,
@@ -92,10 +92,7 @@ export default function ActionItemRow({
           {item.completed
             ? t("done")
             : item.deadline
-              ? new Date(item.deadline + "T12:00:00").toLocaleDateString(
-                  i18n.language,
-                  { day: "numeric", month: "short" },
-                )
+              ? formatDay(item.deadline + "T12:00:00", i18n.language, false)
               : t("noDeadline")}
         </span>
         {!compact && !["sent", "sending"].includes(meeting.status) && (

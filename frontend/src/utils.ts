@@ -4,12 +4,31 @@ import type { Meeting } from "./types/meeting";
 export function dateLocale(language: string): string {
   return language.startsWith("en") ? "en-GB" : language;
 }
-export function formatDay(date: Date | string, language: string): string {
-  return new Date(date).toLocaleDateString(dateLocale(language), {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+// ICU now abbreviates September as "Sept" in British English; the design
+// uses three letters everywhere.
+const tidy = (text: string) => text.replace(/\bSept\b/, "Sep");
+export function formatDay(
+  date: Date | string,
+  language: string,
+  withYear = true,
+): string {
+  return tidy(
+    new Date(date).toLocaleDateString(dateLocale(language), {
+      day: "numeric",
+      month: "short",
+      ...(withYear ? { year: "numeric" } : {}),
+    }),
+  );
+}
+export function formatDayTime(date: Date | string, language: string): string {
+  return tidy(
+    new Date(date).toLocaleString(dateLocale(language), {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+  );
 }
 export function formatClock(date: Date | string, language: string): string {
   return new Date(date).toLocaleTimeString(dateLocale(language), {

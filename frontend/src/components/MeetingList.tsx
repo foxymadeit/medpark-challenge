@@ -1,4 +1,4 @@
-import { dateLocale, meetingUrl } from "../utils";
+import { formatDayTime, meetingUrl } from "../utils";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { Meeting } from "../types/meeting";
@@ -14,17 +14,7 @@ export default function MeetingList({ meetings }: { meetings: Meeting[] }) {
           <Link key={m.id} className="meeting-list-row" to={meetingUrl(m)}>
             <div>
               <strong>{m.title}</strong>
-              <small>
-                {new Date(m.createdAt).toLocaleString(
-                  dateLocale(i18n.language),
-                  {
-                    day: "numeric",
-                    month: "short",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  },
-                )}
-              </small>
+              <small>{formatDayTime(m.createdAt, i18n.language)}</small>
             </div>
             <StatusTag status={m.status} />
           </Link>

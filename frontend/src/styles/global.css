@@ -361,8 +361,10 @@ svg {
   color: var(--sm-ink-secondary);
 }
 .text-link {
-  color: var(--sm-accent, #087f83);
+  color: var(--sm-ink-primary);
   font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .manual-review-bar,
 .auto-mode-card {

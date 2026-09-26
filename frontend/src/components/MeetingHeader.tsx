@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { FiArrowLeft as ArrowLeft } from "react-icons/fi";
 import type { Meeting } from "../types/meeting";
 import RouteProgress, { type Stage } from "./RouteProgress";
-import { dateLocale } from "../utils";
+import { formatDayTime } from "../utils";
 export default function MeetingHeader({
   meeting,
   stage,
@@ -24,15 +24,7 @@ export default function MeetingHeader({
             <h1>{meeting.title}</h1>
             <p>
               {t(meeting.type)} ·{" "}
-              {new Date(meeting.createdAt).toLocaleString(
-                dateLocale(i18n.language),
-                {
-                  day: "numeric",
-                  month: "short",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                },
-              )}
+              {formatDayTime(meeting.createdAt, i18n.language)}
             </p>
           </div>
         </div>

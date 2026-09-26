@@ -6,6 +6,7 @@ import { listName, routingLine } from "../api/routing";
 import { useRouting } from "../hooks/useRouting";
 import { useData } from "../hooks/useData";
 import StatePanel from "../components/StatePanel";
+import { formatClock } from "../utils";
 export default function SystemPage() {
   const { t, i18n } = useTranslation();
   const { data, error, refresh } = useData(getSystem, 10000);
@@ -29,10 +30,7 @@ export default function SystemPage() {
           <p>
             {t("lastChecked", {
               time: data.lastCheckedAt
-                ? new Date(data.lastCheckedAt).toLocaleTimeString(
-                    i18n.language,
-                    { hour: "2-digit", minute: "2-digit" },
-                  )
+                ? formatClock(data.lastCheckedAt, i18n.language)
                 : t("notGiven"),
               host: data.host ?? t("notGiven"),
             })}

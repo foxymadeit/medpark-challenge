@@ -4,11 +4,10 @@ import { useTranslation } from "react-i18next";
 import { useData } from "../hooks/useData";
 import { getMeetings } from "../api/meetings";
 import { departments } from "../api/config";
-import { meetingUrl } from "../utils";
+import { formatDayTime, formatTime, meetingUrl } from "../utils";
 import StatePanel from "../components/StatePanel";
 import StatusTag from "../components/StatusTag";
 import InputField from "../components/InputField";
-import { formatTime } from "../utils";
 export default function HistoryPage() {
   const { t, i18n } = useTranslation();
   const { data, error, refresh } = useData(getMeetings);
@@ -83,12 +82,7 @@ export default function HistoryPage() {
                 <strong>{m.title}</strong>
               </div>
               <span className="mono">
-                {new Date(m.createdAt).toLocaleString(i18n.language, {
-                  day: "numeric",
-                  month: "short",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {formatDayTime(m.createdAt, i18n.language)}
               </span>
               <span className="mono">
                 {m.durationSeconds ? formatTime(m.durationSeconds) : ""}

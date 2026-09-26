@@ -12,7 +12,7 @@ import Button from "../components/Button";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import { useMeeting } from "../hooks/useMeeting";
-import { LANGUAGE_NAMES } from "../utils";
+import { LANGUAGE_NAMES, formatDay } from "../utils";
 
 const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -35,7 +35,7 @@ export default function EmailPreviewPage() {
   if (meeting.reviewState !== "reviewed")
     return <Navigate to={`/meetings/${meeting.id}/minutes`} replace />;
 
-  const date = new Date(meeting.createdAt).toLocaleDateString(i18n.language);
+  const date = formatDay(meeting.createdAt, i18n.language);
   const subject = `${t("minutes")}: ${meeting.title}, ${date}`;
   const participantNames = meeting.participantSnapshots
     ?.map((person) => person.nameAtMeeting)
