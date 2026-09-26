@@ -11,7 +11,7 @@ export function useDraftMeeting() {
   const ids = template?.participantIds ?? [account?.personId ?? YOU_ID];
   const people = ids.map(resolvePerson).filter((p): p is Person => !!p);
   const typeLabel = t(`types.${draft.type}`);
-  const title = template?.name ?? t('newMeeting.untitled', { type: typeLabel });
+  const title = draft.title?.trim() || template?.name || t('newMeeting.untitled', { type: typeLabel });
   const count = people.length + draft.emails.length;
   return { title, typeLabel, people, count, template };
 }

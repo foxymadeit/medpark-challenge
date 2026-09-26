@@ -12,6 +12,8 @@ import type { Preferences, Account, Meeting, MeetingSource, MeetingType, Partici
 export interface Draft {
   type: MeetingType;
   templateId?: string;
+  /** Name typed on New meeting; wins over the template name. */
+  title?: string;
   emails: string[];
 }
 
@@ -158,7 +160,7 @@ function useStoreValue() {
         if (!known) participants.push({ personId: uid('guest'), name: email, email, roleThen: '' });
       }
       const date = todayISO();
-      const title = template?.name ?? fileName ?? fallbackTitle;
+      const title = draft.title?.trim() || template?.name || fileName || fallbackTitle;
       const meeting: Meeting = {
         id,
         title,
@@ -173,7 +175,8 @@ function useStoreValue() {
         transcript: cardioTranscript,
         tasks: materialiseTasks(date, id, cardioTasks),
       };
-      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings] }));
+      // The typed name belongs to this meeting only; the next one starts unnamed.
+      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined } }));
       return id;
     },
     [state, snapshot],

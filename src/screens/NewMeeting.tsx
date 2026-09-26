@@ -1,6 +1,7 @@
 import { ArrowRightIcon, CheckIcon, EnvelopeSimpleIcon, ListChecksIcon, MicrophoneIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type KeyboardEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
 import { useStore } from '../store/AppStore';
@@ -13,6 +14,7 @@ export function NewMeeting() {
   const navigate = useNavigate();
   const [emailInput, setEmailInput] = useState('');
   const [emailError, setEmailError] = useState<string>();
+  const selectedTemplate = templates.find((x) => x.id === draft.templateId);
 
   const commitEmail = () => {
     const values = emailInput.split(/[\s,;]+/).filter(Boolean);
@@ -37,6 +39,16 @@ export function NewMeeting() {
     <div className="page new-meeting">
       <div className="new-meeting__main">
         <h1 className="t-h1">{t('newMeeting.title')}</h1>
+
+        {/* Always nameable; a template only suggests its name as the placeholder. */}
+        <TextField
+          editable
+          label={t('newMeeting.name')}
+          placeholder={selectedTemplate?.name ?? t('newMeeting.untitled', { type: t(`types.${draft.type}`) })}
+          value={draft.title ?? ''}
+          onChange={(e) => setDraft({ title: e.target.value })}
+          maxLength={120}
+        />
 
         <div className="stack" style={{ gap: 8 }}>
           <p className="t-strong" id="nm-type">

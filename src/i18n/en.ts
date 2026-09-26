@@ -156,6 +156,7 @@ export const en = {
   },
   newMeeting: {
     title: 'New meeting',
+    name: 'Meeting name',
     type: 'Meeting type',
     typeHint: 'Decides who gets the minutes.',
     typeDesc: {

@@ -153,6 +153,7 @@
   },
   "newMeeting": {
     "title": "Ședință nouă",
+    "name": "Numele ședinței",
     "type": "Tipul ședinței",
     "typeHint": "Determină cine primește procesul-verbal.",
     "typeDesc": {
