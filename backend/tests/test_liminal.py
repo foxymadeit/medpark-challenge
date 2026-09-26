@@ -36,6 +36,7 @@ def client(tmp_path, monkeypatch):
         monkeypatch.setenv(f"LIMINAL_{stage.upper()}_CMD", f"{sys.executable} {FAKE / stage}.py {{audio}} {{work}}")
     monkeypatch.setenv("LIMINAL_MINUTES_CMD", f"{sys.executable} {FAKE}/minutes.py {{work}}/transcript.json "
                                               "--session {session} --type {type} --out {work}/minutes")
+    monkeypatch.setenv("LIMINAL_RENDER_CMD", f"{sys.executable} {FAKE}/render.py {{render}} --type {{type}}")
     with TestClient(main.app, headers=ORIGIN) as c:
         yield c
 
@@ -147,7 +148,7 @@ def test_full_flow_auto_mode_schedules_then_sends_once(client):
     assert m["processingState"] == "complete" and m["progress"] == 100
     assert [d["text"] for d in m["decisions"]] == ["Se aprobă protocolul ATI."]
     owner = next(p for p in m["participants"] if p["id"] == m["actionItems"][0]["ownerParticipantId"])
-    assert owner["speakerId"] == "Speaker 3" and owner["name"] == "Participant 3"
+    assert owner["speakerId"] == "Speaker 3" and owner["name"] == "Participant 3" and owner["speakerNumber"] == 3
     assert m["actionItems"][0]["deadline"] == "2026-10-02" and m["actionItems"][0]["sourceTimestampSeconds"] == 12.0
     assert {s["speakerId"] for s in m["transcript"]} == {"Speaker 1", "Speaker 2", "Speaker 3"}
     assert m["status"] == "sending_soon" and m["sendWindowSeconds"] == 60
@@ -256,8 +257,42 @@ def test_nothing_leaves_the_machine(client):
 
 def test_system_reports_each_service(client):
     s = client.get("/api/system").json()
-    assert s["local"] is True and {x["id"] for x in s["services"]} >= {"asr", "speakers", "mail", "automation", "storage"}
+    ids = [x["id"] for x in s["services"]]
+    assert s["local"] is True and ids == ["asr", "speakers", "minutes", "automation", "mail", "storage"]
+    assert all(x["name"] and x["description"] for x in s["services"])
+    assert len({x["name"] for x in s["services"]}) == len(ids)   # no two rows read the same
     assert s["capabilities"] == {"autoModeAvailable": True}
+
+
+def test_the_minutes_row_includes_the_language_model(client, monkeypatch):
+    monkeypatch.setattr(api, "_tool", lambda stage: True)
+    monkeypatch.setattr(api, "_probe", lambda url: True)
+    row = next(x for x in client.get("/api/system").json()["services"] if x["id"] == "minutes")
+    assert row["available"] is True
+    monkeypatch.setattr(api, "_probe", lambda url: False)
+    row = next(x for x in client.get("/api/system").json()["services"] if x["id"] == "minutes")
+    assert row["available"] is False and "language model" in row["description"]
+
+
+def test_any_answer_from_the_model_server_counts_as_running():
+    import http.server
+    import threading
+
+    class NotHere(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):   # llama-server has no /api/version: a 404 still means it is up
+            self.send_response(404)
+            self.end_headers()
+
+        def log_message(self, *a):
+            pass
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), NotHere)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        assert api._probe(f"http://127.0.0.1:{server.server_address[1]}/api/version") is True
+    finally:
+        server.shutdown()
+        server.server_close()
+    assert api._probe(f"http://127.0.0.1:{server.server_address[1]}/api/version") is False
 
 
 def test_security_headers(client):
@@ -299,6 +334,32 @@ def test_a_meeting_that_sounds_like_another_type_waits_for_a_person(client, monk
     after = r.json()
     assert after["type"] == "executive" and after["distributionList"] == api._distribution("executive")
     assert all(c["id"] != "meeting-type" for c in after["needsConfirmation"])
+    # the documents follow the type: new names and titles, the medical files gone
+    assert after["documents"] == {lang: {"pdf": f"MoM_2026-09-26_executive_{lang}.pdf",
+                                         "docx": f"MoM_2026-09-26_executive_{lang}.docx"} for lang in ("ro", "ru", "en")}
+    folder = jobs.work_dir(m["id"]) / "minutes"
+    assert not list(folder.glob("MoM_*_medical_*")) and (folder / "MoM_2026-09-26_executive.render.json").is_file()
+    assert client.get(f"/api/meetings/{m['id']}/documents/en.pdf").content == b"%PDF-1.7 fake executive en"
+
+
+def test_if_the_documents_cannot_be_rebuilt_the_type_stays(client, monkeypatch):
+    monkeypatch.setenv("FAKE_DETECTED", "executive")
+    m = processed(client)
+    monkeypatch.setenv("LIMINAL_RENDER_CMD", f"{sys.executable} -c raise SystemExit(2)")
+    r = client.post(f"/api/meetings/{m['id']}/confirmations/meeting-type", json={"action": "remove"})
+    assert r.status_code == 503
+    got = client.get(f"/api/meetings/{m['id']}").json()
+    assert got["type"] == "medical" and got["documents"] == m["documents"]
+    assert any(c["id"] == "meeting-type" for c in got["needsConfirmation"])
+    assert client.get(f"/api/meetings/{m['id']}/documents/en.pdf").status_code == 200
+
+
+def test_keeping_the_chosen_type_renders_nothing(client, monkeypatch):
+    monkeypatch.setenv("FAKE_DETECTED", "executive")
+    m = processed(client)
+    monkeypatch.setenv("LIMINAL_RENDER_CMD", f"{sys.executable} -c raise SystemExit(2)")
+    r = client.post(f"/api/meetings/{m['id']}/confirmations/meeting-type", json={"action": "keep"})
+    assert r.status_code == 200 and r.json()["type"] == "medical" and r.json()["documents"] == m["documents"]
 
 
 def test_a_matching_type_changes_nothing(client, monkeypatch):
@@ -319,6 +380,44 @@ def test_the_audit_trail_records_what_and_from_where_and_cannot_be_rewritten(cli
     with pytest.raises(Exception):
         with store.tx() as con:
             con.execute("DELETE FROM audit")
+
+
+def test_audit_rows_carry_time_meeting_and_a_readable_action(client):
+    m = processed(client)
+    client.patch(f"/api/meetings/{m['id']}/minutes", json={"summary": "Suspect pneumania."})
+    client.patch(f"/api/meetings/{m['id']}/minutes", json={"summary": "Suspect pneumonia."})
+    client.post("/api/admin/glossary-candidates/approve", json={"heard": "pneumania", "corrected": "pneumonia", "lang": "ro"})
+    rows = client.get("/api/admin/audit").json()
+    up = next(r for r in rows if r["route"].endswith("/upload"))
+    assert up["meetingId"] == m["id"] and up["action"] == "Uploaded a recording"
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", up["at"])
+    assert next(r for r in rows if r["route"].endswith("/approve"))["action"] == "Approved a glossary word"
+    assert all(r["action"] and not r["action"].startswith("/") for r in rows)
+
+
+def test_audit_pages_with_limit_and_before(client):
+    processed(client)
+    everything = client.get("/api/admin/audit").json()
+    first = client.get("/api/admin/audit?limit=2").json()
+    assert [r["id"] for r in first] == [r["id"] for r in everything[:2]]
+    second = client.get(f"/api/admin/audit?limit=2&before={first[-1]['id']}").json()
+    assert [r["id"] for r in second] == [r["id"] for r in everything[2:4]]
+    assert client.get("/api/admin/audit?limit=0").status_code == 422
+
+
+def test_an_automatic_send_is_audited_as_the_server_not_the_viewer(client):
+    m = processed(client)
+    with patch.object(delivery.EmailService, "send_mom_email", return_value=EmailDeliveryResult(("a",), ())), \
+            patch.object(delivery, "deliver_async", delivery.deliver):
+        store.update("meetings", m["id"], lambda x: x.update(sendScheduledAt="2000-01-01T00:00:00Z"))
+        delivery.Scheduler().tick()
+        client.post(f"/api/meetings/{m['id']}/send", headers={"Idempotency-Key": f"minutes-{m['id']}"})
+    rows = [r for r in client.get("/api/admin/audit").json() if r["meetingId"] == m["id"] and "send" in r["route"]]
+    auto = [r for r in rows if r.get("user") == "Automatic send"]
+    assert len(auto) == 1 and auto[0]["address"] == "server" and auto[0]["action"] == "Sent the minutes automatically"
+    viewer = next(r for r in rows if r["address"] != "server")
+    assert "user" not in viewer
+    assert viewer["action"] != "Sent the minutes" and "already" in viewer["action"]
 
 
 # ---------------------------------------------------------------- learning from corrections
@@ -374,3 +473,54 @@ def test_approving_writes_the_site_glossary_once(client):
     assert client.get("/api/admin/glossary-candidates").json()[0]["approved"] is True
     assert client.post("/api/admin/glossary-candidates/approve",
                        json={**body, "lang": "de"}).status_code == 422
+
+
+# ---------------------------------------------------------------- routing, queue, summary
+def test_routing_gives_each_list_its_name_and_count_not_its_addresses(client, tmp_path, monkeypatch):
+    table = tmp_path / "routing.json"
+    table.write_text(json.dumps({"medical": ["a@h.local", "b@h.local"], "executive": ["c@h.local"], "administrative": []}))
+    monkeypatch.setattr(delivery, "ROUTING", table)
+    got = client.get("/api/routing").json()
+    assert got == {"medical": {"name": "Medical board", "recipients": 2},
+                   "executive": {"name": "Executive board", "recipients": 1},
+                   "administrative": {"name": "Administrative board", "recipients": 0}}
+    assert "@" not in json.dumps(got)
+    store.update("lists", "medical", lambda x: x.update(active=False))
+    assert client.get("/api/routing").json()["medical"]["recipients"] == 0
+
+
+def test_queue_position_is_exact_and_first_in_line_is_starting(client):
+    first, second = new_meeting(client), new_meeting(client)
+    for m in (first, second):
+        upload(client, m["id"])
+        client.post(f"/api/meetings/{m['id']}/process")
+    a = client.get(f"/api/meetings/{first['id']}/processing").json()
+    b = client.get(f"/api/meetings/{second['id']}/processing").json()
+    assert (a["processingState"], a["queuePosition"]) == ("running", 0)   # nothing ahead: starting
+    assert (b["processingState"], b["queuePosition"]) == ("queued", 1)
+    jobs.claim()   # the worker takes the first; the second still waits behind it
+    assert client.get(f"/api/meetings/{second['id']}").json()["queuePosition"] == 1
+    listed = {x["id"]: x for x in client.get("/api/meetings").json()}
+    assert listed[first["id"]]["processingState"] == "running"
+    run_queue()
+    done = client.get(f"/api/meetings/{second['id']}").json()
+    assert done["processingState"] == "complete" and "queuePosition" not in done
+
+
+def test_the_fallback_summary_counts_in_the_minutes_language():
+    facts = [{"kind": "topic", "text": "Protocolul ATI", "status": "ok"}]
+    one = facts + [{"kind": "decision", "status": "ok"}, {"kind": "action", "status": "ok"}]
+    five = facts + [{"kind": "decision", "status": "ok"}] * 5 + [{"kind": "action", "status": "ok"}] * 2
+    assert jobs._summary(one, "en") == "Topics: Protocolul ATI. 1 decision, 1 action."
+    assert jobs._summary(five, "en") == "Topics: Protocolul ATI. 5 decisions, 2 actions."
+    assert jobs._summary(one, "ro") == "Subiecte: Protocolul ATI. 1 decizie, 1 acțiune."
+    assert jobs._summary(five, "ro") == "Subiecte: Protocolul ATI. 5 decizii, 2 acțiuni."
+    twenty = facts + [{"kind": "decision", "status": "ok"}] * 21
+    assert jobs._summary(twenty, "ro") == "Subiecte: Protocolul ATI. 21 de decizii, 0 acțiuni."
+    assert jobs._summary(one, "ru") == "Темы: Protocolul ATI. 1 решение, 1 поручение."
+    assert jobs._summary(five, "ru") == "Темы: Protocolul ATI. 5 решений, 2 поручения."
+
+
+def test_processed_minutes_name_their_language_and_summarise_in_it(client):
+    m = processed(client)   # the fake transcript is mostly Romanian and has no exported summary
+    assert m["minutesLanguage"] == "ro" and m["summary"] == "Subiecte: Protocolul ATI. 1 decizie, 1 acțiune."

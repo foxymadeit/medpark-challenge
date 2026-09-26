@@ -23,5 +23,6 @@ stem = "MoM_2026-09-26_medical"
 for lang in ("ro", "ru", "en"):
     (out / f"{stem}_{lang}.pdf").write_bytes(b"%PDF-1.7 fake " + lang.encode())
     (out / f"{stem}_{lang}.docx").write_bytes(b"PK fake")
+(out / f"{stem}.render.json").write_text(json.dumps({"meeting": {"type": "medical", "date": "2026-09-26"}}))
 report = {"checks": {}, "detected_type": os.getenv("FAKE_DETECTED") or None}
 (out / f"{stem}.report.json").write_text(json.dumps(report))
