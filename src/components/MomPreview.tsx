@@ -6,8 +6,8 @@ import type { Meeting } from '../types';
 import { groupTasks } from './Minutes';
 
 /**
- * The MoM as it goes out, as text: title, summary, then tasks grouped by owner with deadlines.
- * Same content as the PDF (no participants list, no transcript).
+ * The MoM as it goes out, as text: title, participants, summary, then tasks grouped by owner with deadlines.
+ * Same content as the PDF: participants, summary, tasks (no transcript).
  */
 export function MomPreview({ meeting }: { meeting: Meeting }) {
   const { t, lang } = useI18n();
@@ -24,6 +24,26 @@ export function MomPreview({ meeting }: { meeting: Meeting }) {
       <p className="mom-preview__plate">{t('pdf.title')}</p>
       <h3 className="mom-preview__title">{meeting.title}</h3>
       <p className="note">{t('record.metaUnsent', { type: t(`types.${meeting.type}`), date: formatFullDate(meeting.date, lang), n: meeting.durationMin })}</p>
+
+      <h4 className="mom-preview__h">{t('record.participants')}</h4>
+      <table className="mom-preview__people">
+        <thead>
+          <tr>
+            <th scope="col">{t('pdf.colName')}</th>
+            <th scope="col">{t('pdf.colRole')}</th>
+            <th scope="col">{t('pdf.colEmail')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {meeting.participants.map((p) => (
+            <tr key={p.personId}>
+              <td className="mom-preview__person">{p.name}</td>
+              <td>{p.roleThen || '—'}</td>
+              <td className="mom-preview__email">{p.email ?? '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <h4 className="mom-preview__h">{t('review.summary')}</h4>
       {meeting.summary?.length ? (

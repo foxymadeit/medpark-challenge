@@ -461,6 +461,10 @@ export const en = {
     saved: 'Saved',
   },
   pdf: {
+    colName: 'Name',
+    colRole: 'Role at the meeting',
+    colEmail: 'Email',
+    frozen: 'Roles and participants as of {date}.',
     title: 'Minutes of meeting',
     colTask: 'Task',
     colPatient: 'Patient',

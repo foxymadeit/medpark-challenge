@@ -487,6 +487,10 @@
     "noTasks": "Задач нет.",
     "generated": "Создано в Liminal {date}",
     "page": "{n} / {total}",
-    "preparing": "Готовим PDF…"
+    "preparing": "Готовим PDF…",
+    "colName": "Имя",
+    "colRole": "Должность на совещании",
+    "colEmail": "E-mail",
+    "frozen": "Должности и участники на {date}."
   }
 }

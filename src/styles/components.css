@@ -414,6 +414,11 @@
 .mom-preview__plate { margin: 0; color: var(--sm-ink-secondary); font: 500 11px/16px var(--sm-font-sign); letter-spacing: 0.6px; text-transform: uppercase; }
 .mom-preview__title { margin: 0; font: 600 22px/28px var(--sm-font-sign); }
 .mom-preview__h { margin: var(--sm-space-4) 0 var(--sm-space-1); padding-bottom: 6px; border-bottom: 1px solid var(--sm-surface-hairline); font: 600 15px/20px var(--sm-font-sign); }
+.mom-preview__people { width: 100%; border-collapse: collapse; font: 400 14px/20px var(--sm-font-body); }
+.mom-preview__people th { padding: 0 12px 4px 0; color: var(--sm-ink-secondary); font: 500 12px/16px var(--sm-font-body); text-align: left; }
+.mom-preview__people td { padding: 4px 12px 4px 0; vertical-align: top; }
+.mom-preview__person { font-weight: 600; }
+.mom-preview__email { color: var(--sm-ink-secondary); white-space: nowrap; } /* name and role wrap instead */
 .mom-preview__list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding-left: 18px; font: 400 14px/21px var(--sm-font-body); }
 .mom-preview__owner { margin-top: var(--sm-space-2); }
 .mom-preview__owner-name { margin: 0 0 4px; font: 600 14px/20px var(--sm-font-body); }
