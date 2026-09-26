@@ -48,7 +48,7 @@ export async function createMinutesDocx(meeting: Meeting): Promise<Blob> {
                 data: logo,
                 type: "svg",
                 fallback: { data: fallbackLogo, type: "png" },
-                transformation: { width: 91, height: 28 },
+                transformation: { width: 47, height: 28 },
               }),
             ],
           }),

@@ -10,7 +10,7 @@ export default function LiminalLogo({
       <img
         src="/assets/liminal-logo.svg"
         alt="Liminal"
-        width="91"
+        width="47"
         height="28"
       />
     </Link>
