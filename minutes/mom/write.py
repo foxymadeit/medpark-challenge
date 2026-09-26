@@ -158,7 +158,8 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
 
     everything = " ".join(f"{r.get('text', '')} {r.get('vote', '')} {r.get('deadline', '')}" for r in rows) + " " + " ".join(evidence_text.values())
     fixed = []
-    allowed_names = {w for n in names for w in fold(n).split()}
+    # speaker names are not allowed in sentences: minutes are impersonal, names
+    # belong to the attendance list and the owner column only
     for b in blocks:
         args = dict(b.args)
         r = expected.get(b.fact_id, {})
@@ -177,7 +178,7 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
                 if n.replace(",", ".") not in source.replace(",", "."):
                     errors.append(f"{b.fact_id}: the number {n} is not in the fact")
             for pair in re.findall(r"\b([A-Z][a-zăâîșț]+ [A-Z][a-zăâîșț]+)\b", text):
-                if not all(w in allowed_names or w in fold(source) for w in fold(pair).split()):
+                if not all(w in fold(source) for w in fold(pair).split()):
                     errors.append(f"{b.fact_id}: the name {pair!r} is not in the facts; minutes are impersonal")
             if lang in ("ro", "en") and re.search(r"[А-Яа-яЁё]{4,}", text):
                 errors.append(f"{b.fact_id}: text contains Cyrillic; write it in {LANGUAGE[lang]}")

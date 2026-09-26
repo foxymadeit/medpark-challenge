@@ -67,8 +67,6 @@ def test_diarizer_attach_output_is_read_as_is(tmp_path):
     assert [(l.speaker, l.start, l.end) for l in lines] == [("Speaker 2", 1.0, 3.0), ("", 3.0, 4.0)]
 
 
-@pytest.mark.xfail(strict=True, reason="check_body allows speaker names in sentences (write.py allowed_names); "
-                                       "minutes must be impersonal, names only in attendance and owners")
 def test_an_enrolled_name_in_a_sentence_is_rejected():
     rows = [{"id": "T1", "kind": "topic", "text": "Contract"}, {"id": "N1", "kind": "note", "topic": "T1", "text": "Contractul expiră."}]
     body = "\\topic{T1}{Contract}\n\\noted{N1}{Ion Rusu a comunicat că contractul expiră.}\n"
