@@ -1,0 +1,102 @@
+{
+  "seconds": 114.9,
+  "turns": 17,
+  "voices": {
+    "Ion": {
+      "language": "ro",
+      "source": "Common Voice 22",
+      "speaker": "ca99a533ff76",
+      "clips": [
+        "common_voice_ro_31830547.mp3",
+        "common_voice_ro_31830548.mp3",
+        "common_voice_ro_31830549.mp3",
+        "common_voice_ro_31830567.mp3",
+        "common_voice_ro_31830568.mp3",
+        "common_voice_ro_31830570.mp3",
+        "common_voice_ro_31830550.mp3",
+        "common_voice_ro_31830551.mp3",
+        "common_voice_ro_31830569.mp3",
+        "common_voice_ro_31830571.mp3"
+      ]
+    },
+    "Maria": {
+      "language": "bi",
+      "source": "Common Voice 22",
+      "speaker": "e80c9a51b8fe",
+      "clips": [
+        "common_voice_ro_23992318.mp3",
+        "common_voice_ro_23992319.mp3",
+        "common_voice_ro_23992320.mp3",
+        "common_voice_ro_23992323.mp3",
+        "common_voice_ro_23992324.mp3",
+        "common_voice_ro_23992325.mp3",
+        "common_voice_ro_23992326.mp3",
+        "common_voice_ro_23992327.mp3",
+        "common_voice_ru_23992272.mp3",
+        "common_voice_ru_23992273.mp3",
+        "common_voice_ru_23992274.mp3",
+        "common_voice_ru_23992275.mp3",
+        "common_voice_ru_23992309.mp3",
+        "common_voice_ru_23992310.mp3",
+        "common_voice_ru_23992312.mp3"
+      ]
+    },
+    "David": {
+      "language": "en",
+      "source": "LibriSpeech test-clean",
+      "speaker": "7021",
+      "clips": [
+        "7021-79730-0000.flac",
+        "7021-79730-0001.flac",
+        "7021-79730-0002.flac",
+        "7021-79730-0003.flac",
+        "7021-79730-0004.flac",
+        "7021-79730-0005.flac",
+        "7021-79730-0006.flac",
+        "7021-79730-0007.flac",
+        "7021-79730-0008.flac",
+        "7021-79730-0009.flac",
+        "7021-79740-0000.flac",
+        "7021-79740-0001.flac"
+      ]
+    },
+    "Sofia": {
+      "language": "ru",
+      "source": "Common Voice 22",
+      "speaker": "df6bcded8d98",
+      "clips": [
+        "common_voice_ru_37815195.mp3",
+        "common_voice_ru_37815196.mp3",
+        "common_voice_ru_37815197.mp3",
+        "common_voice_ru_37815226.mp3",
+        "common_voice_ru_37815228.mp3",
+        "common_voice_ru_37815237.mp3",
+        "common_voice_ru_37815239.mp3",
+        "common_voice_ru_37815240.mp3",
+        "common_voice_ru_37815241.mp3",
+        "common_voice_ru_37815242.mp3",
+        "common_voice_ru_37815243.mp3",
+        "common_voice_ru_37815250.mp3"
+      ]
+    },
+    "Alexandru": {
+      "language": "ru",
+      "source": "Common Voice 22",
+      "speaker": "d288ae34ca59",
+      "clips": [
+        "common_voice_ru_32070061.mp3",
+        "common_voice_ru_32070062.mp3",
+        "common_voice_ru_32070063.mp3",
+        "common_voice_ru_32070172.mp3",
+        "common_voice_ru_32070173.mp3",
+        "common_voice_ru_32070175.mp3",
+        "common_voice_ru_32070176.mp3",
+        "common_voice_ru_32070227.mp3",
+        "common_voice_ru_32070228.mp3",
+        "common_voice_ru_32070229.mp3",
+        "common_voice_ru_32070231.mp3",
+        "common_voice_ru_32070359.mp3"
+      ]
+    }
+  }
+}

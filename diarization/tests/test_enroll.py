@@ -27,3 +27,37 @@ def test_closest_voice_names_the_person_a_new_voice_could_be_confused_with():
     assert name == "Elena Ciobanu" and sim > 0.9
     assert voices.closest_voice([a], {}) == (None, 0.0)
     assert voices.closest_voice([a], known, skip="Elena Ciobanu")[0] == "Igor Rusu"
+
+
+def test_a_voiceprint_records_when_consent_was_given(tmp_path, monkeypatch):
+    monkeypatch.setattr(voices, "VOICES_DIR", tmp_path)
+    voices.save_voice("Maria", "titanet-small", [np.ones(4)] * 2, consent="2026-09-26T14:00:00")
+    assert voices.list_voices() == [("Maria", "2026-09-26T14:00:00", 2)]
+
+
+def test_forgetting_a_person_deletes_every_voiceprint_of_theirs(tmp_path, monkeypatch):
+    monkeypatch.setattr(voices, "VOICES_DIR", tmp_path)
+    voices.save_voice("Ion", "titanet-small", [np.ones(4)], consent="2026-09-26T14:00:00")
+    voices.save_voice("Ion", "resnet34", [np.ones(4)], consent="2026-09-26T14:00:00")
+    voices.save_voice("Maria", "titanet-small", [np.ones(4)], consent="2026-09-26T14:00:00")
+    assert len(voices.forget_voice("Ion")) == 2
+    assert [v[0] for v in voices.list_voices()] == ["Maria"]
+    assert voices.forget_voice("Ion") == []
+
+
+def test_enrolling_without_a_terminal_or_consent_flag_records_nothing(monkeypatch):
+    import pytest
+    from diarizer import cli
+    monkeypatch.setattr("sys.stdin.isatty", lambda: False)
+    with pytest.raises(SystemExit, match="agreement"):
+        cli.main(["enroll", "Ion", "--file", "missing.wav"])
+
+
+def test_voices_forget_from_the_command_line(tmp_path, monkeypatch, capsys):
+    from diarizer import cli
+    monkeypatch.setattr(voices, "VOICES_DIR", tmp_path)
+    voices.save_voice("Sofia", "titanet-small", [np.ones(4)], consent="2026-09-26T14:00:00")
+    cli.main(["voices"])
+    assert "Sofia" in capsys.readouterr().out
+    cli.main(["voices", "forget", "Sofia"])
+    assert "deleted 1" in capsys.readouterr().out and voices.list_voices() == []

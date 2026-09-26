@@ -50,3 +50,16 @@ def test_vectorised_similarity_matches_the_per_speaker_loop():
     embs = [rng.standard_normal(16) for _ in range(3)]
     unit = [e / np.linalg.norm(e) for e in embs]
     assert np.allclose(t._sims(unit), _old_sims(t, embs), atol=1e-6)
+
+
+def test_replay_plays_a_recording_like_a_microphone(tmp_path):
+    import itertools
+
+    from scipy.io import wavfile
+
+    from diarizer.audio import replay_blocks
+    wav = tmp_path / "r.wav"
+    wavfile.write(wav, 16000, (np.ones(16000 * 3 // 10) * 0.1).astype(np.float32))
+    blocks = [b for b, _ in itertools.islice(replay_blocks(wav, block_s=0.1), 5)]
+    assert all(len(b) == 1600 for b in blocks)
+    assert blocks[0].max() > 0 and blocks[-1].max() == 0  # the recording, then silence

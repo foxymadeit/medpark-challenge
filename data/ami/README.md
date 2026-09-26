@@ -1,11 +1,12 @@
 # AMI meeting subset (evaluation and tuning)
 
-Six meetings from the AMI Meeting Corpus, which we use to measure and tune
-the diarizer. Each one has four speakers in a real meeting room.
+22 meetings from the AMI Meeting Corpus (11.2 scored hours), which we use to
+measure and tune the diarizer. Each one has three to five speakers in a real
+meeting room. The 38 meetings in `train/` fit the far-microphone projection.
 
 | Split | Meetings | Used for |
 |---|---|---|
-| dev | ES2011a, IS1008a | choosing thresholds |
+| dev | ES2011a-d, IS1008a-d, TS3004a-d, IB4001-4004, IB4010, IB4011 | choosing thresholds (the README reports tuning on 8 of these) |
 | test | ES2004a, IS1009a, TS3003a, EN2002a | the numbers we report; never tuned on |
 
 Files per meeting:

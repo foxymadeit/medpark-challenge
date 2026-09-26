@@ -1,0 +1,78 @@
+{
+  "result": "done",
+  "total_minutes": 121.3,
+  "phases": [
+    {
+      "phase": "setup (multilingual data)",
+      "minutes": 0.4
+    },
+    {
+      "phase": "room echo and noise pack",
+      "minutes": 1.7
+    },
+    {
+      "phase": "smoke test: one batch, export, load",
+      "minutes": 1.3
+    },
+    {
+      "phase": "data: AMI",
+      "minutes": 15.3
+    },
+    {
+      "phase": "data: VoxPopuli RO",
+      "minutes": 10.1
+    },
+    {
+      "phase": "data: VoxConverse",
+      "minutes": 1.5
+    },
+    {
+      "phase": "data: VoxConverse test",
+      "minutes": 3.7
+    },
+    {
+      "phase": "data: AliMeeting",
+      "minutes": 4.4
+    },
+    {
+      "phase": "data: CV Russian",
+      "minutes": 6.6
+    },
+    {
+      "phase": "data: CV Romanian",
+      "minutes": 2.8
+    },
+    {
+      "phase": "data: Simsamu",
+      "minutes": 0.2
+    },
+    {
+      "phase": "check pieces",
+      "minutes": 0.7
+    },
+    {
+      "phase": "preflight: one real batch on the real data",
+      "minutes": 1.1
+    },
+    {
+      "phase": "train",
+      "minutes": 71.5
+    },
+    {
+      "phase": "verify export",
+      "minutes": 0.0
+    }
+  ],
+  "warnings": [],
+  "last_training_update": {
+    "epoch": 6,
+    "epochs": 6,
+    "step": 16350,
+    "total": 16380,
+    "loss": 11.272584629058837,
+    "eta_min": 0.1,
+    "elapsed_min": 70.6,
+    "updated": 1790381452.75531,
+    "warn": ""
+  }
+}

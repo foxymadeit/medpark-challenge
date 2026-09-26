@@ -2,7 +2,8 @@
 
   diarizer live   [--speakers N] [--out DIR]      listen to the mic, label voices as they appear
   diarizer file   MEETING.m4a [--speakers N]      same engine over a recording
-  diarizer enroll NAME [--file CLIP] [--seconds 20]
+  diarizer enroll NAME [--file CLIP] [--seconds 20]  save a voiceprint, with the person's agreement
+  diarizer voices [forget NAME]                   list enrolled people, or delete one
   diarizer attach SESSION.json WHISPER.json       put speaker names on a Whisper transcript
   diarizer models fetch [--all]                   one-time download (the only networked command)
 """
@@ -21,7 +22,7 @@ import numpy as np
 
 from . import models
 from .attach import attach, load_segments
-from .audio import load, mic_blocks
+from .audio import load, mic_blocks, replay_blocks
 from .backend import Backend
 from .engine import Labeler, Observer, StreamingDiarizer
 from .export import build_session, clock, consecutive_labels, summary, write_all
@@ -31,7 +32,7 @@ from .profiles import PROFILES, pick, speech_to_background_db
 from . import ui
 from .timeline import Timeline
 from .tracker import SpeakerTracker
-from .voices import closest_voice, load_voices, save_voice, voice_embeddings
+from .voices import closest_voice, forget_voice, list_voices, load_voices, save_voice, voice_embeddings
 
 DEFAULT_OUT = Path("sessions")
 CHECK_S = 10  # seconds of room audio the live microphone check listens to
@@ -116,7 +117,7 @@ def show(event, d: StreamingDiarizer, start: float) -> None:
 def cmd_live(args) -> None:
     if pretty(args):
         return live_screen(args)
-    blocks, first = mic_blocks(device=args.device), []
+    blocks, first = _source(args), []
     start = time.time()
     if args.mic == "auto":
         print("Listening to the room for 10 s to pick the microphone profile...", file=sys.stderr)
@@ -141,6 +142,11 @@ def cmd_live(args) -> None:
     finalize(d, d.finish(), start, "microphone", args)
 
 
+def _source(args):
+    """The microphone, or a recording played like one (--replay, for tests and demos)."""
+    return replay_blocks(args.replay) if getattr(args, "replay", None) else mic_blocks(device=args.device)
+
+
 INTRO_HINT = "INTRODUCTIONS · EACH PERSON: NAME AND ROLE · [ENTER] WHEN EVERYONE HAS SPOKEN"
 LIVE_HINT = "[ENTER] FINISH   [CTRL+C] STOP"
 
@@ -149,7 +155,7 @@ def live_screen(args) -> None:
     """Room check and introductions, optional names, then the meeting."""
     from rich.console import Console
     from rich.live import Live
-    console, lines, blocks = Console(), stdin_lines(), mic_blocks(device=args.device)
+    console, lines, blocks = Console(), stdin_lines(), _source(args)
     holder: dict = {}
     screen = ui.Screen(lambda i: holder["d"].label(i) if "d" in holder else f"Speaker {i}", console)
     clock_of = {"start": time.time()}
@@ -263,6 +269,7 @@ def file_screen(args) -> None:
 
 
 def cmd_enroll(args) -> None:
+    consent = _ask_consent(args.name, args.consent)
     if args.file:
         audio = load(args.file)
     elif pretty(args):
@@ -289,8 +296,37 @@ def cmd_enroll(args) -> None:
     if sim >= 0.70:
         print(f"warning: this voice is very close to {other} ({sim:.2f}); they may be mixed up in meetings. "
               "Recording again in a quiet room usually helps.", file=sys.stderr)
-    path = save_voice(args.name, args.embedder, embs, add=args.add)
+    path = save_voice(args.name, args.embedder, embs, add=args.add, consent=consent)
     print(f"saved {len(embs)} voiceprints for {args.name} to {path}")
+    print(f'to delete them: diarizer voices forget "{args.name}"')
+
+
+def _ask_consent(name: str, given: bool) -> str:
+    """A voiceprint is biometric data (GDPR Art. 9): keep one only with the person's agreement."""
+    if not given:
+        if not sys.stdin.isatty():
+            sys.exit("enrolling saves a voiceprint, which needs the person's agreement; "
+                     "run it in a terminal to be asked, or pass --consent if they agreed in writing")
+        answer = input(f"{name}'s voiceprint will be kept on this computer only, so meetings show their name.\n"
+                       f'It can be deleted any time with: diarizer voices forget "{name}"\n'
+                       f"Does {name} agree? [y/N] ")
+        if answer.strip().lower() not in ("y", "yes", "da", "да"):
+            sys.exit("nothing recorded")
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def cmd_voices(args) -> None:
+    if args.action == "forget":
+        if not args.name:
+            sys.exit('usage: diarizer voices forget "NAME"')
+        gone = forget_voice(args.name)
+        print(f"deleted {len(gone)} voiceprint file(s) for {args.name}" if gone else f"no voiceprints saved for {args.name}")
+        return
+    rows = list_voices()
+    for name, consent, n in rows:
+        print(f"{name:<28} {n:>3} voiceprints   agreed {consent or 'not recorded'}")
+    if not rows:
+        print("no one is enrolled")
 
 
 def enroll_screen(args):
@@ -380,6 +416,8 @@ def main(argv=None) -> None:
     p.add_argument("--device", help="input device name or index")
     p.add_argument("--duration", type=float, help="stop after this many seconds")
     p.add_argument("--no-intro", action="store_true", help="skip the introductions round and naming")
+    p.add_argument("--replay", metavar="RECORDING",
+                   help="testing only: play a recording as if it were the microphone")
     p.set_defaults(fn=cmd_live)
 
     p = sub.add_parser("file", help="label speakers in a recording")
@@ -400,7 +438,13 @@ def main(argv=None) -> None:
     p.add_argument("--threads", type=int, default=2)
     p.add_argument("--no-backend", action="store_true")
     p.add_argument("--plain", action="store_true", help="plain text instead of the recording screen")
+    p.add_argument("--consent", action="store_true", help="the person already agreed in writing; don't ask")
     p.set_defaults(fn=cmd_enroll)
+
+    p = sub.add_parser("voices", help="list enrolled people, or forget one")
+    p.add_argument("action", nargs="?", default="list", choices=["list", "forget"])
+    p.add_argument("name", nargs="?")
+    p.set_defaults(fn=cmd_voices)
 
     p = sub.add_parser("attach", help="put speaker names on a Whisper transcript")
     p.add_argument("session", help="the .json written by diarizer file or live")

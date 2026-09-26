@@ -1,0 +1,67 @@
+{
+  "result": "done",
+  "total_minutes": 87.2,
+  "phases": [
+    {
+      "phase": "setup (segmentation)",
+      "minutes": 0.6
+    },
+    {
+      "phase": "room echo and noise pack",
+      "minutes": 1.8
+    },
+    {
+      "phase": "smoke test: checkpoint check, one batch, export",
+      "minutes": 1.2
+    },
+    {
+      "phase": "data: AMI far-field train",
+      "minutes": 3.0
+    },
+    {
+      "phase": "data: AMI far-field dev",
+      "minutes": 0.2
+    },
+    {
+      "phase": "data: CV Russian",
+      "minutes": 5.7
+    },
+    {
+      "phase": "data: CV Romanian",
+      "minutes": 2.7
+    },
+    {
+      "phase": "synthetic Romanian and Russian meetings",
+      "minutes": 1.4
+    },
+    {
+      "phase": "preflight: one real batch on the real data",
+      "minutes": 1.1
+    },
+    {
+      "phase": "train",
+      "minutes": 69.4
+    },
+    {
+      "phase": "verify export",
+      "minutes": 0.0
+    }
+  ],
+  "warnings": [
+    "30 min: GPU idle for 3 minutes during training",
+    "31 min: GPU idle for 4 minutes during training",
+    "68 min: GPU idle for 5 minutes during training",
+    "69 min: GPU idle for 6 minutes during training"
+  ],
+  "last_training_update": {
+    "epoch": 5,
+    "epochs": 5,
+    "step": 5600,
+    "total": 5635,
+    "loss": 0.2884504497051239,
+    "eta_min": 0.4,
+    "elapsed_min": 67.9,
+    "updated": 1790406341.3154144,
+    "warn": ""
+  }
+}

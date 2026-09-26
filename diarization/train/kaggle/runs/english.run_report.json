@@ -1,0 +1,58 @@
+{
+  "result": "done",
+  "total_minutes": 63.9,
+  "phases": [
+    {
+      "phase": "setup (base data)",
+      "minutes": 3.7
+    },
+    {
+      "phase": "smoke test: one batch, export, load",
+      "minutes": 1.1
+    },
+    {
+      "phase": "data: AMI",
+      "minutes": 16.9
+    },
+    {
+      "phase": "data: VoxPopuli RO",
+      "minutes": 1.7
+    },
+    {
+      "phase": "data: VoxConverse",
+      "minutes": 4.0
+    },
+    {
+      "phase": "data: AliMeeting",
+      "minutes": 1.9
+    },
+    {
+      "phase": "check pieces",
+      "minutes": 0.1
+    },
+    {
+      "phase": "preflight: one real batch on the real data",
+      "minutes": 0.8
+    },
+    {
+      "phase": "train",
+      "minutes": 33.7
+    },
+    {
+      "phase": "verify export",
+      "minutes": 0.0
+    }
+  ],
+  "warnings": [],
+  "last_training_update": {
+    "epoch": 8,
+    "epochs": 8,
+    "step": 8250,
+    "total": 8272,
+    "loss": 5.2302032089233395,
+    "eta_min": 0.1,
+    "elapsed_min": 33.2,
+    "updated": 1790377838.2958848,
+    "warn": ""
+  }
+}

@@ -1,5 +1,8 @@
 # Secure MOM: live + file speaker diarization (`diarizer`)
 
+> Status: implemented. Current behaviour and measured numbers are in
+> [diarization/README.md](../../../diarization/README.md). This spec is kept as written.
+
 ## Context
 
 The team is building Secure MOM for the Medpark GigaHack challenge. It is an on-premise pipeline

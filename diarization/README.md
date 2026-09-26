@@ -34,6 +34,9 @@ diarizer file meeting.m4a --mic far    # skip the microphone check (auto, close 
 diarizer enroll "Dr. Popescu" --language ro        # optional: read the passage shown, about 25 s
 diarizer enroll "Dr. Popescu" --language ru --add  # a second language for the same person
 diarizer enroll "Dr. Popescu" --file clip.wav
+diarizer voices                                    # who is enrolled, and when they agreed
+diarizer voices forget "Dr. Popescu"               # delete every voiceprint of theirs
+diarizer live --replay demo/meeting.wav            # testing only: a recording played as the mic
 ```
 
 `live` opens with a round of introductions: each person says their name and
@@ -45,9 +48,29 @@ is marked `+ NEW VOICE` and a returning one `↺ BACK`, each turn with its start
 and end. `--no-intro` skips the introductions; `--plain` (or piping the
 output) prints plain lines instead of the screen.
 
+### Live test with a group
+
+1. Put the laptop where everyone can be heard and run `diarizer live`.
+2. People introduce themselves one at a time, a few seconds each (name and
+   role). Don't talk over each other here: it needs about 2 s of each voice
+   on its own.
+3. Press Enter, then type a name for each voice it lists, or press Enter to
+   keep Speaker N.
+4. Hold the meeting in any mix of languages. Press Enter to finish.
+
+Leave `--speakers` out: forcing the head count merges real people and scored
+worse than letting it count (see Measured).
+
 Enrollment is optional. Without it people are Speaker 1, 2, 3; with it they
 are named, and enroll warns when a new voice is close to someone already
-enrolled.
+enrolled. A voiceprint is biometric data under GDPR Art. 9, so enroll first
+asks whether the person agrees and stores when they did (`--consent` skips
+the question when they agreed in writing; without a terminal and without the
+flag, nothing is recorded). `diarizer voices forget NAME` deletes them again.
+
+`--replay` exists for tests and the README demo: it plays a recording through
+the live screen at normal speed, as if it came from the microphone. The demo
+recording and its answer key are rebuilt with `python -m demo.make_demo`.
 
 The number of speakers doesn't need to be known in advance, and there is no
 upper limit. The segmenter separates up to 3 people inside any 5 s window
@@ -60,6 +83,11 @@ Outputs land in `sessions/<start time>/`:
   plus talk time per speaker. `start`/`end` are seconds from the session start.
 - `<id>.rttm` is the standard diarization format, used for scoring.
 - `<id>.csv` is for people.
+
+The ASR and LLM side (`samoilov-asr-llm` branch, `asr_llm/diarization.py`)
+reads `turns[].speaker`, `start` and `end` from this file. Both sides decode
+audio with ffmpeg to 16 kHz mono, so the times line up:
+`python -m asr_llm.cli meeting.m4a --diarization sessions/x/<id>.json`.
 
 To put names on a Whisper transcript of the same recording:
 

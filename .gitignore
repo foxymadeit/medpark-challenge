@@ -16,3 +16,5 @@ diarization/eval/cache/
 diarization/voices/
 # mixed-language test meetings, rebuilt by eval/make_mix.py
 data/mix/
+# VHS text capture, used only to check a recording
+diarization/demo/cli.txt

@@ -71,3 +71,24 @@ def mic_blocks(block_s: float = 0.1, device=None):
         yield first, start
         while True:
             yield q.get(), start
+
+
+def replay_blocks(path, block_s: float = 0.1):
+    """A recording played as if it were the microphone, at real-time pace:
+    for repeatable tests and demos of the live screen. Playback waits while
+    nobody reads (e.g. while voices are being named), then carries on; after
+    the end it sends silence until the session is stopped."""
+    import time
+
+    audio, n = load(path), int(block_s * SR)
+    start = time.time()
+    due = time.perf_counter()
+    for i in range(0, len(audio) + 1, n):
+        due = max(due + block_s, time.perf_counter())
+        time.sleep(max(0.0, due - time.perf_counter()))
+        block = audio[i:i + n]
+        yield (block if len(block) == n else np.pad(block, (0, n - len(block)))), start
+    while True:
+        time.sleep(block_s)
+        yield np.zeros(n, np.float32), start
+
