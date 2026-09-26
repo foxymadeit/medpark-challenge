@@ -1,4 +1,4 @@
-import { CheckIcon, DownloadSimpleIcon, PaperPlaneTiltIcon } from '@phosphor-icons/react';
+import { CheckIcon, DownloadSimpleIcon } from '@phosphor-icons/react';
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
@@ -12,8 +12,8 @@ import { useStore } from '../store/AppStore';
 const STEP_MS = 3600;
 
 /**
- * 07 — Sent. MOCK sending animation: the plane flies while a green bar fills linearly (as on processing),
- * then the green check pops in. Reduced motion shows the final state straight away.
+ * 07 — Sent. MOCK sending: the meeting name and a green bar that fills linearly (as on processing),
+ * then the green check pops in above. Reduced motion shows the final state straight away.
  */
 export function Sent() {
   const { t, lang } = useI18n();
@@ -44,8 +44,13 @@ export function Sent() {
   return (
     <div className="page sent">
       <div className="sent__done">
-        <span className={`sent__badge${done ? ' is-done' : ''}`} aria-hidden>
-          {done ? <CheckIcon size={28} className="sent__check-icon" /> : <PaperPlaneTiltIcon size={26} className="sent__plane" />}
+        {/* Nothing here while sending (space kept so the text doesn't jump); the green check pops in when the bar is full. */}
+        <span className="sent__slot" aria-hidden>
+          {done && (
+            <span className="sent__badge is-done">
+              <CheckIcon size={28} className="sent__check-icon" />
+            </span>
+          )}
         </span>
         <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
           <h1 className="t-h1" role="status" aria-live="polite">

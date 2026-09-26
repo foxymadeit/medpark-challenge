@@ -318,16 +318,15 @@
 /* ── Sent ── */
 .sent { align-items: center; }
 .sent__done { display: flex; flex-direction: column; align-items: center; gap: var(--sm-space-6); width: 464px; margin-top: 48px; }
-/* Sending animation: plane flies out of a neutral circle, rows tick off, then the circle turns green with a check. */
+/* Sending: bar fills; then the green check pops into the reserved slot. */
+.sent__slot { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; }
 .sent__badge { display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; overflow: hidden; border-radius: 50%; background: var(--sm-surface-hairline); color: var(--sm-ink-primary); transition: background-color 280ms ease; }
 .sent__badge.is-done { background: var(--sm-success); color: var(--sm-surface-panel); animation: sent-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1); }
-.sent__plane { animation: sent-fly 1.2s ease-in-out infinite; }
 .sent__check-icon { animation: sent-check 320ms ease-out 120ms both; }
-@keyframes sent-fly { 0% { transform: translate(-6px, 6px); opacity: 0; } 25% { opacity: 1; } 70% { transform: translate(10px, -10px); opacity: 1; } 100% { transform: translate(22px, -22px); opacity: 0; } }
 @keyframes sent-pop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
 @keyframes sent-check { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .sent__after { display: flex; flex-direction: column; align-items: center; gap: var(--sm-space-4); }
-@media (prefers-reduced-motion: reduce) { .sent__badge.is-done, .sent__plane, .sent__check-icon { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .sent__badge.is-done, .sent__check-icon { animation: none; } }
 
 /* ── History ── */
 .history-tools { display: flex; align-items: center; gap: var(--sm-space-4); margin: 22px 0 24px; }
