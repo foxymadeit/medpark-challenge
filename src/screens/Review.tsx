@@ -359,8 +359,9 @@ export function Review() {
               </span>
             </button>
           </h2>
-          {transcriptOpen && (
-          <div id="rv-transcript-body" className="review__transcript-body">
+          {/* Always mounted so it can grow downwards; inert (unfocusable, hidden from AT) while closed. */}
+          <div id="rv-transcript-body" className="review__transcript-body" inert={!transcriptOpen}>
+          <div className="review__transcript-inner">
           <p className="note review__hint">{t('review.word.hint')}</p>
           {removed && (
             <p className="undo-bar" role="status">
@@ -388,7 +389,7 @@ export function Review() {
             }}
           />
           </div>
-          )}
+          </div>
         </section>
       </div>
 
