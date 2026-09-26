@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
+import { PersonProfileDialog } from '../components/PersonProfile';
 import { Segmented } from '../components/Segmented';
 import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
@@ -42,7 +43,7 @@ function ReplacePersonDialog({ person, options, onPick, onNew, onClose }: { pers
 /** T02 — template editor, shown as a centred modal. */
 function EditTemplatePanel({ template, onClose }: { template?: Template; onClose: () => void }) {
   const { t } = useI18n();
-  const { people, resolvePerson, saveTemplate } = useStore();
+  const { account, people, resolvePerson, saveTemplate } = useStore();
   const [name, setName] = useState(template?.name ?? '');
   const [type, setType] = useState<MeetingType>(template?.type ?? 'medical');
   const [selected, setSelected] = useState<string[]>(template?.participantIds ?? people.map((p) => p.id));
@@ -91,6 +92,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
             <label className="tpl-person__main">
               <input type="checkbox" className="checkbox" checked={selected.includes(p.id)} onChange={() => toggle(p.id)} />
               <span className="t-strong">{p.name}</span>
+              {p.id === account?.personId && <span className="tag tag--me">{t('common.me')}</span>}
               <span className="note truncate">{p.role}</span>
             </label>
             <button type="button" className="icon-btn" aria-label={t('templates.replace', { name: p.name })} title={t('templates.replace', { name: p.name })} onClick={() => setReplacing(p)}>
@@ -126,30 +128,32 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
 /** Overlapping avatars + first names, so each template shows who it invites. */
 function TemplatePeople({ ids }: { ids: string[] }) {
   const { t } = useI18n();
-  const { resolvePerson } = useStore();
+  const { account, resolvePerson } = useStore();
+  const [profileId, setProfileId] = useState<string | null>(null);
   const people = ids.map(resolvePerson).filter((p): p is Person => !!p);
-  const shown = people.slice(0, 2).map((p) => p.name);
+  const label = (p: Person) => (p.id === account?.personId ? t('common.meName', { name: p.name }) : p.name);
+  const shown = people.slice(0, 2).map(label);
   const rest = people.length - shown.length;
-  const names = people.map((p) => p.name).join(', ');
   return (
     <div className="tpl-people-preview">
-      {/* Hover an avatar for that name; keyboard focus on the stack shows everyone. */}
-      <span className="avatar-stack" tabIndex={0} aria-label={`${t('templates.participants')}: ${names}`} data-names={names}>
+      {/* Hover or focus an avatar for the name; click opens the profile. */}
+      <span className="avatar-stack">
         {people.slice(0, 5).map((p) => (
-          <span key={p.id} className="avatar-tip" data-name={p.name}>
+          <button key={p.id} type="button" className="avatar-tip" data-name={label(p)} aria-label={t('profile.open', { name: label(p) })} onClick={() => setProfileId(p.id)}>
             <Avatar name={p.name} />
-          </span>
+          </button>
         ))}
       </span>
-      <span className="note truncate" aria-hidden>
+      <span className="note truncate">
         {shown.join(', ')}
         {rest > 0 && ` ${t('templates.more', { n: rest })}`}
       </span>
+      {profileId && <PersonProfileDialog personId={profileId} onClose={() => setProfileId(null)} />}
     </div>
   );
 }
 
-/** T01 — Templates grid + T02 edit side panel. */
+/** T01 — Templates grid + T02 edit modal. */
 export function Templates() {
   const { t } = useI18n();
   const navigate = useNavigate();

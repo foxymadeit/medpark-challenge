@@ -4,6 +4,8 @@
     "participantsCount_few": "{count} участника",
     "participantsCount_many": "{count} участников",
     "appName": "Liminal",
+    "me": "я",
+    "meName": "{name} (я)",
     "skipToContent": "Перейти к содержимому",
     "mainNav": "Главное меню",
     "menu": "Меню",
@@ -298,6 +300,22 @@
     "replaceHint": "Выберите, кто займёт это место в шаблоне.",
     "noOthers": "Все люди из списка уже есть в этом шаблоне.",
     "newPerson": "Новый человек"
+  },
+  "profile": {
+    "meetingsCount_one": "{count} встреча",
+    "meetingsCount_few": "{count} встречи",
+    "meetingsCount_many": "{count} встреч",
+    "title": "Профиль",
+    "open": "Открыть профиль: {name}",
+    "email": "Эл. почта",
+    "access": "Доступ",
+    "templates": "Шаблоны",
+    "noTemplates": "Нет ни в одном шаблоне",
+    "meetings": "Встречи",
+    "meetingsCount": "{count} встречи",
+    "last": "последняя: {title}, {date}",
+    "noMeetings": "Встреч пока нет",
+    "manage": "Открыть в разделе «Участники»"
   },
   "account": {
     "menu": "Аккаунт",

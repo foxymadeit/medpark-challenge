@@ -305,13 +305,12 @@
 .avatar-stack { display: flex; flex-shrink: 0; }
 .avatar-stack .avatar { box-shadow: 0 0 0 2px var(--sm-surface-panel); }
 .avatar-stack .avatar-tip + .avatar-tip { margin-left: -8px; }
-.avatar-stack { position: relative; border-radius: 16px; }
-
-/* Name tooltips: one name per hovered avatar; the full list when the stack has keyboard focus. */
-.avatar-tip { position: relative; display: inline-flex; }
-.avatar-tip:hover { z-index: 1; }
-.avatar-tip::after,
-.avatar-stack::after {
+/* Avatars are buttons (open the profile) with a name tooltip on hover / keyboard focus. */
+.avatar-tip { position: relative; display: inline-flex; padding: 0; border: 0; border-radius: 16px; background: none; cursor: pointer; }
+.avatar-tip:hover, .avatar-tip:focus-visible { z-index: 1; }
+.avatar-tip:hover .avatar { color: var(--sm-ink-primary); }
+.avatar-tip::after {
+  content: attr(data-name);
   position: absolute;
   bottom: calc(100% + 8px);
   left: 50%;
@@ -328,10 +327,21 @@
   visibility: hidden;
   transition: opacity 0.12s ease;
 }
-.avatar-tip::after { content: attr(data-name); }
-.avatar-stack::after { content: attr(data-names); left: 0; transform: none; }
-.avatar-tip:hover::after,
-.avatar-stack:focus-visible::after { opacity: 1; visibility: visible; }
-.avatar-stack:focus-visible .avatar-tip::after { opacity: 0; visibility: hidden; }
-@media (prefers-reduced-motion: reduce) { .avatar-tip::after, .avatar-stack::after { transition: none; } }
+.avatar-tip:hover::after, .avatar-tip:focus-visible::after { opacity: 1; visibility: visible; }
+@media (prefers-reduced-motion: reduce) { .avatar-tip::after { transition: none; } }
+
+/* "me" marker next to the signed-in user's own name. */
+.tag--me { flex-shrink: 0; margin-left: 4px; }
+
+/* ── Person profile ── */
+.profile__name { display: flex; align-items: center; gap: var(--sm-space-2); }
+.profile__name .tag--me { margin-left: 0; }
+.profile__head { display: flex; align-items: center; gap: var(--sm-space-4); }
+.profile__head .avatar { width: 56px; height: 56px; border-radius: 28px; font-size: 18px; line-height: 24px; }
+.profile__facts { display: flex; flex-direction: column; margin: 0; }
+.profile__facts > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: var(--sm-space-4); padding: var(--sm-space-3) 0; border-top: 1px solid var(--sm-surface-hairline); }
+.profile__facts dt { color: var(--sm-ink-secondary); font: 400 14px/20px var(--sm-font-body); }
+.profile__facts dd { margin: 0; overflow-wrap: anywhere; font: 400 14px/20px var(--sm-font-body); color: var(--sm-ink-primary); }
+.profile__facts .link-btn { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 640px) { .profile__facts > div { grid-template-columns: 1fr; gap: 2px; } }
 .sent__download { align-self: center; margin-top: 4px; }

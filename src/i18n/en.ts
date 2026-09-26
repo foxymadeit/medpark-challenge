@@ -5,6 +5,8 @@
 export const en = {
   common: {
     appName: 'Liminal',
+    me: 'me',
+    meName: '{name} (me)',
     skipToContent: 'Skip to content',
     mainNav: 'Main',
     menu: 'Menu',
@@ -296,6 +298,20 @@ export const en = {
     replaceHint: 'Choose who takes their place in this template.',
     noOthers: 'Everyone in the directory is already in this template.',
     newPerson: 'New person',
+  },
+  profile: {
+    title: 'Profile',
+    open: 'Open profile of {name}',
+    email: 'Email',
+    access: 'Access',
+    templates: 'Templates',
+    noTemplates: 'Not in any template',
+    meetings: 'Meetings',
+    meetingsCount: '{count} meetings',
+    meetingsCount_one: '{count} meeting',
+    last: 'last {title}, {date}',
+    noMeetings: 'No meetings yet',
+    manage: 'Open in Participants',
   },
   account: {
     menu: 'Account',

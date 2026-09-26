@@ -3,6 +3,8 @@
     "participantsCount_one": "{count} participant",
     "participantsCount_few": "{count} participanți",
     "appName": "Liminal",
+    "me": "eu",
+    "meName": "{name} (eu)",
     "skipToContent": "Salt la conținut",
     "mainNav": "Principal",
     "menu": "Meniu",
@@ -297,6 +299,21 @@
     "replaceHint": "Alegeți cine îi ia locul în acest șablon.",
     "noOthers": "Toate persoanele din listă sunt deja în acest șablon.",
     "newPerson": "Persoană nouă"
+  },
+  "profile": {
+    "meetingsCount_one": "{count} ședință",
+    "meetingsCount_few": "{count} ședințe",
+    "title": "Profil",
+    "open": "Deschide profilul lui {name}",
+    "email": "Email",
+    "access": "Acces",
+    "templates": "Șabloane",
+    "noTemplates": "Nu este în niciun șablon",
+    "meetings": "Ședințe",
+    "meetingsCount": "{count} de ședințe",
+    "last": "ultima: {title}, {date}",
+    "noMeetings": "Încă nicio ședință",
+    "manage": "Deschide în Participanți"
   },
   "account": {
     "menu": "Cont",
