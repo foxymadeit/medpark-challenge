@@ -19,13 +19,13 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 4px; /* tighter than Figma's 8px, by request: the name sits close to the mark */
+  gap: 6px; /* tighter than Figma's 8px, by request: the name sits close to the mark */
   color: var(--sm-ink-primary);
   text-decoration: none;
   border-radius: var(--sm-radius-inner);
 }
 /* Wordmark: bold, and its cap-height box centred on the 25.5px sign. */
-.brand__name { position: relative; top: 1px; font: 600 16px/22px var(--sm-font-sign); letter-spacing: -0.08px; }
+.brand__name { position: relative; top: 1px; font: 600 21px/28px var(--sm-font-sign); letter-spacing: -0.2px; } /* bigger than Figma (25.5px mark / 16px), by request */
 /* Figma "Brand": "min" bold in the logo blue. */
 .wordmark__min { color: var(--sm-brand); font-weight: 700; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
