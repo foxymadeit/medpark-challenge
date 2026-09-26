@@ -106,14 +106,13 @@ function useStoreValue() {
 
   const finishOnboarding = useCallback(() => setState((s) => ({ ...s, onboarded: true })), []);
 
+  /** Returns the person's id (an existing one when the email matches a known colleague). */
   const addPerson = useCallback((p: Omit<Person, 'id'> & { id?: string }) => {
-    setState((s) => {
-      // Same email as a known colleague → same person (keeps template/history links intact).
-      const known = p.email ? demoPeople.find((d) => d.email?.toLowerCase() === p.email!.toLowerCase()) : undefined;
-      const id = p.id ?? known?.id ?? uid('p');
-      if (s.people.some((x) => x.id === id)) return s;
-      return { ...s, people: [...s.people, { ...p, id }] };
-    });
+    // Same email as a known colleague → same person (keeps template/history links intact).
+    const known = p.email ? demoPeople.find((d) => d.email?.toLowerCase() === p.email!.toLowerCase()) : undefined;
+    const id = p.id ?? known?.id ?? uid('p');
+    setState((s) => (s.people.some((x) => x.id === id) ? s : { ...s, people: [...s.people, { ...p, id }] }));
+    return id;
   }, []);
 
   const updatePerson = useCallback((id: string, patch: Partial<Person>) => {

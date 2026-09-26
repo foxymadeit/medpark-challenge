@@ -1,4 +1,4 @@
-import { ListChecksIcon, MicrophoneIcon, PencilSimpleIcon } from '@phosphor-icons/react';
+import { ArrowsLeftRightIcon, ListChecksIcon, MicrophoneIcon, PencilSimpleIcon, PlusIcon, UserPlusIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
@@ -7,9 +7,39 @@ import { Dialog } from '../components/Dialog';
 import { Segmented } from '../components/Segmented';
 import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
+import { AddParticipantModal } from './Participants';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES, type MeetingType, type Person, type Template } from '../types';
 
+/** Pick who takes a participant's place: someone not in the template yet, or a new person. */
+function ReplacePersonDialog({ person, options, onPick, onNew, onClose }: { person: Person; options: Person[]; onPick: (id: string) => void; onNew: () => void; onClose: () => void }) {
+  const { t } = useI18n();
+  return (
+    <Dialog title={t('templates.replaceTitle', { name: person.name })} onClose={onClose}>
+      <p className="note">{options.length ? t('templates.replaceHint') : t('templates.noOthers')}</p>
+      {options.length > 0 && (
+        <ul className="replace-list">
+          {options.map((p) => (
+            <li key={p.id}>
+              <button type="button" className="replace-list__item" onClick={() => onPick(p.id)}>
+                <Avatar name={p.name} />
+                <span className="who__text">
+                  <span className="who__name">{p.name}</span>
+                  {p.role && <span className="who__sub">{p.role}</span>}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Button icon={<UserPlusIcon size={20} aria-hidden />} onClick={onNew}>
+        {t('templates.newPerson')}
+      </Button>
+    </Dialog>
+  );
+}
+
+/** T02 — template editor, shown as a centred modal. */
 function EditTemplatePanel({ template, onClose }: { template?: Template; onClose: () => void }) {
   const { t } = useI18n();
   const { people, resolvePerson, saveTemplate } = useStore();
@@ -17,6 +47,9 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
   const [type, setType] = useState<MeetingType>(template?.type ?? 'medical');
   const [selected, setSelected] = useState<string[]>(template?.participantIds ?? people.map((p) => p.id));
   const [error, setError] = useState<string>();
+  const [replacing, setReplacing] = useState<Person | null>(null);
+  // 'add' = + button; a Person = "new person" chosen while replacing them.
+  const [creating, setCreating] = useState<'add' | Person | null>(null);
 
   // Everyone in the directory plus anyone the template already references.
   const candidates = [...people.map((p) => p.id), ...(template?.participantIds ?? [])]
@@ -25,6 +58,10 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
     .filter((p): p is Person => !!p);
 
   const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  const add = (id: string) => setSelected((s) => (s.includes(id) ? s : [...s, id]));
+  // The newcomer takes the old participant's slot, so the template order is kept.
+  const replace = (oldId: string, newId: string) =>
+    setSelected((s) => (s.includes(newId) ? s.filter((x) => x !== oldId) : s.includes(oldId) ? s.map((x) => (x === oldId ? newId : x)) : [...s, newId]));
 
   const save = () => {
     if (!name.trim()) return setError(t('common.required'));
@@ -33,7 +70,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
   };
 
   return (
-    <Dialog title={template ? t('templates.panelTitle') : t('templates.new')} onClose={onClose} variant="panel">
+    <Dialog title={template ? t('templates.panelTitle') : t('templates.new')} onClose={onClose} wide>
       <TextField label={t('templates.name')} value={name} onChange={(e) => setName(e.target.value)} error={error} />
       <div className="field">
         <span className="field__label">{t('templates.type')}</span>
@@ -42,20 +79,46 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
       <fieldset className="tpl-people">
         <legend className="tpl-people__head">
           <span className="t-strong">{t('templates.participants')}</span>
-          <span className="note">{t('templates.selected', { n: selected.length, total: candidates.length })}</span>
+          <span className="tpl-people__tools">
+            <span className="note">{t('templates.selected', { n: selected.length, total: candidates.length })}</span>
+            <button type="button" className="icon-btn" aria-label={t('templates.addPerson')} title={t('templates.addPerson')} onClick={() => setCreating('add')}>
+              <PlusIcon size={20} aria-hidden />
+            </button>
+          </span>
         </legend>
         {candidates.map((p) => (
-          <label key={p.id} className="tpl-person">
-            <input type="checkbox" className="checkbox" checked={selected.includes(p.id)} onChange={() => toggle(p.id)} />
-            <span className="t-strong">{p.name}</span>
-            <span className="note">{p.role}</span>
-          </label>
+          <div key={p.id} className="tpl-person">
+            <label className="tpl-person__main">
+              <input type="checkbox" className="checkbox" checked={selected.includes(p.id)} onChange={() => toggle(p.id)} />
+              <span className="t-strong">{p.name}</span>
+              <span className="note truncate">{p.role}</span>
+            </label>
+            <button type="button" className="icon-btn" aria-label={t('templates.replace', { name: p.name })} title={t('templates.replace', { name: p.name })} onClick={() => setReplacing(p)}>
+              <ArrowsLeftRightIcon size={20} aria-hidden />
+            </button>
+          </div>
         ))}
       </fieldset>
-      <span style={{ flex: 1 }} />
       <Button variant="primary" block onClick={save}>
         {t('templates.save')}
       </Button>
+
+      {replacing && (
+        <ReplacePersonDialog
+          person={replacing}
+          options={candidates.filter((p) => p.id !== replacing.id && !selected.includes(p.id))}
+          onPick={(id) => (replace(replacing.id, id), setReplacing(null))}
+          onNew={() => (setCreating(replacing), setReplacing(null))}
+          onClose={() => setReplacing(null)}
+        />
+      )}
+      {creating && (
+        <AddParticipantModal
+          title={creating === 'add' ? undefined : t('templates.replaceTitle', { name: creating.name })}
+          onAdded={(id) => (creating === 'add' ? add(id) : replace(creating.id, id))}
+          onClose={() => setCreating(null)}
+        />
+      )}
     </Dialog>
   );
 }

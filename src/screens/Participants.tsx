@@ -11,7 +11,8 @@ import { roleSuggestions } from '../mocks';
 import { useStore } from '../store/AppStore';
 import { ACCESS_LEVELS, type Access, type Person } from '../types';
 
-function AddParticipantModal({ onClose }: { onClose: () => void }) {
+/** Also used by the template editor, which passes onAdded to select the new person. */
+export function AddParticipantModal({ onClose, onAdded, title }: { onClose: () => void; onAdded?: (id: string) => void; title?: string }) {
   const { t } = useI18n();
   const { addPerson } = useStore();
   const [name, setName] = useState('');
@@ -27,7 +28,8 @@ function AddParticipantModal({ onClose }: { onClose: () => void }) {
     if (email.trim() && !isEmail(email)) next.email = t('common.emailInvalid');
     setErrors(next);
     if (Object.keys(next).length) return;
-    addPerson({ name: name.trim(), role: role.trim(), email: email.trim() || undefined, access });
+    const id = addPerson({ name: name.trim(), role: role.trim(), email: email.trim() || undefined, access });
+    onAdded?.(id);
     onClose();
   };
 
@@ -38,7 +40,7 @@ function AddParticipantModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <Dialog title={t('addParticipant.title')} onClose={onClose}>
+    <Dialog title={title ?? t('addParticipant.title')} onClose={onClose}>
       <form className="stack" style={{ gap: 16 }} onSubmit={submit} noValidate>
         <TextField label={t('addParticipant.name')} placeholder={t('addParticipant.namePh')} value={name} onChange={(e) => setName(e.target.value)} error={errors.name} />
         <div className="row" style={{ gap: 16, alignItems: 'flex-start' }}>

@@ -290,6 +290,12 @@ export const en = {
     selected: '{n} of {total} selected',
     more: '+{n} more',
     save: 'Save template',
+    addPerson: 'Add participant',
+    replace: 'Replace {name}',
+    replaceTitle: 'Replace {name}',
+    replaceHint: 'Choose who takes their place in this template.',
+    noOthers: 'Everyone in the directory is already in this template.',
+    newPerson: 'New person',
   },
   account: {
     menu: 'Account',

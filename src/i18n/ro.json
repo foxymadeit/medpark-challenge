@@ -290,7 +290,13 @@
     "participants": "Participanți",
     "selected": "{n} din {total} selectați",
     "more": "+încă {n}",
-    "save": "Salvează șablonul"
+    "save": "Salvează șablonul",
+    "addPerson": "Adaugă participant",
+    "replace": "Înlocuiește pe {name}",
+    "replaceTitle": "Înlocuiește pe {name}",
+    "replaceHint": "Alegeți cine îi ia locul în acest șablon.",
+    "noOthers": "Toate persoanele din listă sunt deja în acest șablon.",
+    "newPerson": "Persoană nouă"
   },
   "account": {
     "menu": "Cont",

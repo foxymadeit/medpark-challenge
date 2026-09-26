@@ -245,9 +245,15 @@
 .tpl-card { display: flex; flex-direction: column; gap: var(--sm-space-4); }
 .tpl-card__actions { display: flex; justify-content: flex-end; gap: var(--sm-space-2); }
 .tpl-people { display: flex; flex-direction: column; margin: 0; padding: 0; border: 0; min-width: 0; }
-.tpl-people__head { display: flex; justify-content: space-between; align-items: baseline; width: 100%; padding: 0 0 8px; float: left; }
-.tpl-person { display: flex; align-items: center; gap: var(--sm-space-3); height: 48px; border-top: 1px solid var(--sm-surface-hairline); cursor: pointer; clear: both; }
-.tpl-person .t-strong { margin-right: -4px; }
+.tpl-people__head { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 0 8px; float: left; }
+.tpl-people__tools { display: flex; align-items: center; gap: var(--sm-space-2); }
+.tpl-person { display: flex; align-items: center; gap: var(--sm-space-2); height: 48px; border-top: 1px solid var(--sm-surface-hairline); clear: both; }
+.tpl-person__main { display: flex; flex: 1; align-items: center; gap: var(--sm-space-3); min-width: 0; height: 100%; cursor: pointer; }
+.tpl-person__main .t-strong { margin-right: -4px; white-space: nowrap; }
+.replace-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.replace-list li + li { border-top: 1px solid var(--sm-surface-hairline); }
+.replace-list__item { display: flex; align-items: center; gap: var(--sm-space-3); width: 100%; padding: var(--sm-space-2) 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
+.replace-list__item:hover .who__name { text-decoration: underline; text-underline-offset: 3px; }
 
 /* ── Clickable transcript words ── */
 .word {
