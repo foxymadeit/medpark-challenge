@@ -1,5 +1,8 @@
 import { Link, Navigate } from "react-router-dom";
-import { DownloadSimple, EnvelopeSimple } from "@phosphor-icons/react";
+import {
+  FiDownload as DownloadSimple,
+  FiMail as EnvelopeSimple,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
 import MeetingHeader from "../components/MeetingHeader";

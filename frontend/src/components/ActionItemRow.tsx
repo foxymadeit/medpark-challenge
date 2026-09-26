@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { PencilSimple } from "@phosphor-icons/react";
+import { FiEdit2 as PencilSimple } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import type { ActionItem, Meeting } from "../types/meeting";
 import { toggleActionItem, updateActionItem } from "../api/meetings";

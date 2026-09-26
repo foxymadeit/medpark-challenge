@@ -1,6 +1,11 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Check, Microphone, Stop, Warning } from "@phosphor-icons/react";
+import {
+  FiCheck as Check,
+  FiMic as Microphone,
+  FiSquare as Stop,
+  FiAlertTriangle as Warning,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { enrollVoice, getPeople } from "../api/meetings";
 import { DEMO_MODE, departments } from "../api/config";
@@ -9,16 +14,22 @@ import { useRecorder } from "../hooks/useRecorder";
 import StatePanel from "../components/StatePanel";
 import Button from "../components/Button";
 import { formatTime } from "../utils";
-import type { MeetingType, Participant } from "../types/meeting";
+import type { MeetingType } from "../types/meeting";
+import {
+  EnrollmentMessage,
+  LanguageChoice,
+  PersonCard,
+  PersonHeader,
+  SpeechProgress,
+  type PassageLanguage,
+} from "../components/enrollment";
 import {
   clearSpeechSeconds,
   DEMO_SIMILARITY_PERCENT,
   ENROLLMENT_TARGET_SECONDS,
-  MINIMUM_CLEAR_SPEECH_SECONDS,
   resultState,
   type EnrollmentState,
 } from "./enrollment";
-type PassageLanguage = "en" | "ro" | "ru";
 const passages: Record<PassageLanguage, string> = {
   en: "Today our team reviews the plan for the coming week. We will speak clearly, listen carefully, and agree on the next steps for every patient.",
   ro: "Astăzi echipa noastră verifică planul pentru săptămâna următoare. Vom vorbi clar, vom asculta cu atenție și vom stabili pașii următori pentru fiecare pacient.",
@@ -352,91 +363,6 @@ export default function EnrollVoicePage() {
           {DEMO_MODE && <p className="muted">{t("demoSpeechActivity")}</p>}
         </>
       )}
-    </section>
-  );
-}
-
-function LanguageChoice({
-  value,
-  onChange,
-  label,
-}: {
-  value: PassageLanguage;
-  onChange: (value: PassageLanguage) => void;
-  label: string;
-}) {
-  return (
-    <fieldset className="language-choice">
-      <legend>{label}</legend>
-      {(["en", "ro", "ru"] as const).map((item) => (
-        <button
-          type="button"
-          className={value === item ? "selected" : ""}
-          onClick={() => onChange(item)}
-          key={item}
-        >
-          {item.toUpperCase()}
-        </button>
-      ))}
-    </fieldset>
-  );
-}
-function PersonCard({ person }: { person: Participant }) {
-  return (
-    <div className="person-card">
-      <strong>{person.name}</strong>
-      <small>{person.role ?? person.department}</small>
-    </div>
-  );
-}
-function PersonHeader({
-  person,
-  language,
-  onChange,
-}: {
-  person: Participant;
-  language: PassageLanguage;
-  onChange: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <header className="enrollment-person">
-      <PersonCard person={person} />
-      <span>{language.toUpperCase()}</span>
-      <Button variant="quiet" onClick={onChange}>
-        {t("change")}
-      </Button>
-    </header>
-  );
-}
-function SpeechProgress({ seconds }: { seconds: number }) {
-  const { t } = useTranslation();
-  return (
-    <div className="speech-progress">
-      <div>
-        <strong>{t("clearSpeech")}</strong>
-        <span>
-          {seconds} s {t("ofTwenty")}
-        </span>
-      </div>
-      <progress max={MINIMUM_CLEAR_SPEECH_SECONDS} value={seconds} />
-    </div>
-  );
-}
-function EnrollmentMessage({
-  icon,
-  title,
-  children,
-}: {
-  icon?: ReactNode;
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="panel enrollment-flow enrollment-message">
-      {icon && <div className="enrollment-state-icon">{icon}</div>}
-      <h1>{title}</h1>
-      {children}
     </section>
   );
 }

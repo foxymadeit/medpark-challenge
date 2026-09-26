@@ -6,11 +6,11 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import {
-  Check,
-  Microphone,
-  UploadSimple,
-  UserPlus,
-} from "@phosphor-icons/react";
+  FiCheck as Check,
+  FiMic as Microphone,
+  FiUpload as UploadSimple,
+  FiUserPlus as UserPlus,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { createMeeting, getPeople } from "../api/meetings";
 import { departments, distribution } from "../api/config";
@@ -82,9 +82,9 @@ export default function NewMeetingPage() {
             onClick={() => setMode(m)}
           >
             {m === "record" ? (
-              <Microphone size={32} weight="bold" />
+              <Microphone size={32} strokeWidth={2.5} />
             ) : (
-              <UploadSimple size={32} weight="bold" />
+              <UploadSimple size={32} strokeWidth={2.5} />
             )}
             {mode === m && (
               <span className="selection-check">

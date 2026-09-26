@@ -1,6 +1,10 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Check, DownloadSimple, Warning } from "@phosphor-icons/react";
+import {
+  FiCheck as Check,
+  FiDownload as DownloadSimple,
+  FiAlertTriangle as Warning,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
 import { getRecording, startProcessing } from "../api/meetings";

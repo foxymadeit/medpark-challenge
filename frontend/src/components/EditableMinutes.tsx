@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PencilSimple } from "@phosphor-icons/react";
+import { FiEdit2 as PencilSimple } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import type { Meeting } from "../types/meeting";
 import { updateMinutes } from "../api/meetings";

@@ -1,4 +1,4 @@
-import { ShieldCheck } from "@phosphor-icons/react";
+import { FiShield as ShieldCheck } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { getSystem } from "../api/meetings";
 import { DEMO_MODE, departments, distribution } from "../api/config";
@@ -12,7 +12,7 @@ export default function SystemPage() {
     <>
       <h1>{t("system")}</h1>
       <section className="panel delivery-banner">
-        <ShieldCheck size={40} weight="bold" className="success" />
+        <ShieldCheck size={40} strokeWidth={2.5} className="success" />
         <div>
           <h2>
             {t(

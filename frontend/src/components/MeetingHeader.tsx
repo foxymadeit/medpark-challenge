@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft } from "@phosphor-icons/react";
+import { FiArrowLeft as ArrowLeft } from "react-icons/fi";
 import type { Meeting } from "../types/meeting";
 import DepartmentTile from "./DepartmentTile";
 import RouteProgress, { type Stage } from "./RouteProgress";

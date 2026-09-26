@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { Clock, ShieldCheck } from "@phosphor-icons/react";
+import { FiClock as Clock, FiShield as ShieldCheck } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/useAuth";
 import TopBar from "../components/TopBar";
@@ -71,7 +71,7 @@ export default function LoginPage() {
       </Button>
       {!timedOut && (
         <p className="login-note">
-          <ShieldCheck size={18} weight="bold" />
+          <ShieldCheck size={18} strokeWidth={2.5} />
           {t("network")}
         </p>
       )}

@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Check,
-  FileAudio,
-  UploadSimple,
-  Warning,
-  X,
-} from "@phosphor-icons/react";
+  FiCheck as Check,
+  FiFile as FileAudio,
+  FiUpload as UploadSimple,
+  FiAlertTriangle as Warning,
+  FiX as X,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
 import { inspectAudio } from "../api/audio";
@@ -68,7 +68,7 @@ export default function UploadPage() {
             void choose(e.dataTransfer.files[0]);
           }}
         >
-          <UploadSimple size={24} weight="bold" />
+          <UploadSimple size={24} strokeWidth={2.5} />
           <h2>{t("dropAudio")}</h2>
           <p>{t("audioFormats")}</p>
           <input

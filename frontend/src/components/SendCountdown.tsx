@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { EnvelopeSimple, Pause } from "@phosphor-icons/react";
+import { FiMail as EnvelopeSimple, FiPause as Pause } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { sendNow, stopScheduledSend } from "../api/meetings";
 import { distribution } from "../api/config";

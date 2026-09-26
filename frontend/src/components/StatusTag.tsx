@@ -1,12 +1,12 @@
 import {
-  Check,
-  Clock,
-  EnvelopeSimple,
-  Microphone,
-  PencilSimple,
-  Warning,
-  X,
-} from "@phosphor-icons/react";
+  FiCheck as Check,
+  FiClock as Clock,
+  FiMail as EnvelopeSimple,
+  FiMic as Microphone,
+  FiEdit2 as PencilSimple,
+  FiAlertTriangle as Warning,
+  FiX as X,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import type { MeetingStatus } from "../types/meeting";
 export default function StatusTag({ status }: { status: MeetingStatus }) {
@@ -27,7 +27,7 @@ export default function StatusTag({ status }: { status: MeetingStatus }) {
                 : Clock;
   return (
     <span className={`status-tag ${status}`}>
-      <Icon size={14} weight="bold" />
+      <Icon size={14} strokeWidth={2.5} />
       {t(status)}
     </span>
   );

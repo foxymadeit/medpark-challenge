@@ -1,4 +1,7 @@
-import { Warning, WifiSlash } from "@phosphor-icons/react";
+import {
+  FiAlertTriangle as Warning,
+  FiWifiOff as WifiSlash,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import Button from "./Button";

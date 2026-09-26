@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
-  Microphone,
-  Pause,
-  Play,
-  Stop,
-  WifiSlash,
-} from "@phosphor-icons/react";
+  FiMic as Microphone,
+  FiPause as Pause,
+  FiPlay as Play,
+  FiSquare as Stop,
+  FiWifiOff as WifiSlash,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
 import { useRecorder } from "../hooks/useRecorder";

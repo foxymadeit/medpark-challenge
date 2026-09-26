@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { ShieldCheck, SignOut } from "@phosphor-icons/react";
+import { FiShield as ShieldCheck, FiLogOut as SignOut } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/useAuth";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -37,7 +37,7 @@ export default function TopBar({
       )}
       <div className="top-right">
         <span className="network">
-          <ShieldCheck size={18} weight="bold" />
+          <ShieldCheck size={18} strokeWidth={2.5} />
           {t("network")}
         </span>
         <LanguageSwitcher />

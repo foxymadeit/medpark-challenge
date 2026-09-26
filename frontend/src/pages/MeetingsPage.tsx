@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { CalendarBlank, Microphone, UploadSimple } from "@phosphor-icons/react";
+import {
+  FiCalendar as CalendarBlank,
+  FiMic as Microphone,
+  FiUpload as UploadSimple,
+} from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { getMeetings } from "../api/meetings";
 import { departments } from "../api/config";

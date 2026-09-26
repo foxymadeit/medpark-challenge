@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import { X } from "@phosphor-icons/react";
+import { FiX as X } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import Button from "./Button";
 export default function Modal({

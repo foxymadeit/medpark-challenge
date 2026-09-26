@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { UserPlus } from "@phosphor-icons/react";
+import { FiUserPlus as UserPlus } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { getPeople } from "../api/meetings";
 import { useData } from "../hooks/useData";

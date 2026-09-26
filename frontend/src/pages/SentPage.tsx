@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { Check } from "@phosphor-icons/react";
+import { FiCheck as Check } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useMeeting } from "../hooks/useMeeting";
 import { DEMO_MODE } from "../api/config";
