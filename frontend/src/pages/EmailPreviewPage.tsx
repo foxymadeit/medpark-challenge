@@ -39,7 +39,8 @@ export default function EmailPreviewPage() {
     return <Navigate to={`/meetings/${meeting.id}/minutes`} replace />;
 
   const date = formatDay(meeting.createdAt, i18n.language);
-  const subject = `${t("minutes")}: ${meeting.title}, ${date}`;
+  // default titles already end with the date; never repeat it
+  const subject = `${t("minutes")}: ${meeting.title.includes(date) ? meeting.title : `${meeting.title}, ${date}`}`;
   const participantNames = meeting.participantSnapshots
     ?.map((person) => person.nameAtMeeting)
     .join(", ");
