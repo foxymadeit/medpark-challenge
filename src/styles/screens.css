@@ -329,12 +329,11 @@
 .sent__row { display: flex; align-items: center; gap: var(--sm-space-3); padding: 8px; border-radius: var(--sm-radius-tile); transition: opacity 200ms ease; }
 .sent__row + .sent__row { border-top: 1px solid var(--sm-surface-hairline); border-radius: 0; }
 .sent__row.is-waiting { opacity: 0.5; }
-.sent__state { display: inline-flex; align-items: center; justify-content: flex-end; min-width: 24px; }
+.sent__state { display: inline-flex; align-items: center; justify-content: flex-end; min-width: 56px; }
 .sent__tick { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--sm-success); color: var(--sm-surface-panel); animation: sent-check 240ms ease-out; }
-.sent__bar { position: relative; display: block; height: 4px; margin-top: 6px; border-radius: 2px; background: var(--sm-surface-hairline); overflow: hidden; }
+.sent__bar { position: relative; display: block; width: 56px; height: 6px; border-radius: 3px; background: var(--sm-surface-hairline); overflow: hidden; }
 .sent__bar-fill { position: absolute; inset: 0; width: 0; border-radius: 2px; background: var(--sm-success); }
 .sent__row.is-sending .sent__bar-fill { animation-name: sent-fill; animation-timing-function: ease-in-out; animation-fill-mode: forwards; }
-.sent__row.is-sent .sent__bar-fill { width: 100%; }
 @keyframes sent-fill { from { width: 0; } to { width: 100%; } }
 .sent__tick { animation: sent-pop-check 360ms cubic-bezier(0.34, 1.56, 0.64, 1); }
 @keyframes sent-pop-check { 0% { transform: scale(0); } 100% { transform: scale(1); } }

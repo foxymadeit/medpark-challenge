@@ -60,12 +60,6 @@ export function Sent() {
                 <span className="who__text" style={{ flex: 1, minWidth: 0 }}>
                   <span className="who__name truncate">{p.name}</span>
                   <span className="who__sub truncate">{p.email ?? t('review.noEmail')}</span>
-                  {/* Green bar fills while this email goes out; stays full once sent. */}
-                  {p.email && (
-                    <span className="sent__bar" aria-hidden>
-                      <span className="sent__bar-fill" style={{ animationDuration: `${STEP_MS}ms` }} />
-                    </span>
-                  )}
                 </span>
                 <span className="sent__state">
                   {state === 'sent' && (
@@ -73,8 +67,12 @@ export function Sent() {
                       <CheckIcon size={12} weight="bold" aria-hidden />
                     </span>
                   )}
-                  {state === 'sending' && <span className="sr-only">{t('sent.stateSending')}</span>}
-                  {state === 'waiting' && <span className="sent__wait" aria-hidden />}
+                  {/* Same slot as the check: an empty bar while waiting, it fills green while sending, then gives way to the check. */}
+                  {(state === 'sending' || state === 'waiting') && (
+                    <span className="sent__bar" role={state === 'sending' ? 'img' : undefined} aria-label={state === 'sending' ? t('sent.stateSending') : undefined} aria-hidden={state === 'waiting' || undefined}>
+                      <span className="sent__bar-fill" style={{ animationDuration: `${STEP_MS}ms` }} />
+                    </span>
+                  )}
                   {state === 'skipped' && <span className="note">{t('sent.stateSkipped')}</span>}
                 </span>
               </li>
