@@ -55,7 +55,14 @@ export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
         <strong>
           {t(reviewed ? "reviewComplete" : "reviewBeforeSending")}
         </strong>
-        <p>{t(reviewed ? "readyToSendDetail" : waitingFor(meeting))}</p>
+        {/* red once the person has tried to finish, calm before that */}
+        <p
+          className={
+            !reviewed && error === waitingFor(meeting) ? "error" : undefined
+          }
+        >
+          {t(reviewed ? "readyToSendDetail" : waitingFor(meeting))}
+        </p>
       </div>
       <div className="button-row">
         {!reviewed && (
@@ -93,7 +100,7 @@ export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
           </Button>
         )}
       </div>
-      {error && (
+      {error && error !== waitingFor(meeting) && (
         <p className="error" role="alert">
           {t(error, { defaultValue: t("requestFailed") })}
         </p>

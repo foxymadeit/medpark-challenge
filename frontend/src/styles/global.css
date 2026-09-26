@@ -397,6 +397,9 @@ svg {
   flex-basis: 100%;
   margin: 0;
 }
+.manual-review-bar p.error {
+  color: var(--sm-signal-danger);
+}
 .owner-missing {
   color: var(--sm-signal-danger);
   font-weight: 600;
@@ -1576,6 +1579,13 @@ textarea {
   font-size: 56px;
   line-height: 64px;
   margin: 0 0 32px;
+}
+/* words, not a clock: the heading face at a calmer size */
+.estimate .mono.estimate-soon {
+  font-family: var(--sm-heading);
+  font-size: 28px;
+  line-height: 34px;
+  font-weight: 600;
 }
 .minutes-grid {
   display: grid;
