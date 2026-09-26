@@ -148,10 +148,10 @@ checked by back-translation (`back_ok`). Runtime only reads the merged JSON. The
 fusion and minutes prompts get the ~24 rows that match the text, the best five with
 a short definition.
 
-Until the Qwen translation runs, `build_glossary.py merge` takes the Harvard terms whose
-Romanian **and** Russian names both come from Wikidata's human labels: 806 terms, which
-with the ICD-10, ICU and hospital rows makes 892 trilingual rows. The 1,373 Harvard terms
-without both labels stay in `english_extra`, English only.
+Until the Qwen translation runs, `build_glossary.py merge` takes the Harvard and ICU terms
+whose Romanian **and** Russian names both come from Wikidata's human labels: 806 terms (774
+Harvard, 32 ICU), which with the ICD-10 and hospital rows makes 892 trilingual rows. The 1,308
+Harvard and ICU terms without both labels stay in `english_extra`, English only.
 
 ### Snapping misheard terms back (`asr_llm/correct.py`, on by default)
 
