@@ -176,7 +176,11 @@
     "micOk": "Microfon extern conectat",
     "upload": "Încarcă audio",
     "uploadHint": "WAV, MP3 sau M4A, până la 3 ore",
-    "untitled": "Ședință {type}"
+    "defaultName": {
+      "medical": "Vizita de dimineață",
+      "executive": "Ședința săptămânală a conducerii",
+      "administrative": "Planificarea operațională"
+    }
   },
   "recording": {
     "recording": "Se înregistrează",

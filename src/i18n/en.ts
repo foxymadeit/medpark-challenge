@@ -179,7 +179,12 @@ export const en = {
     micOk: 'External microphone connected',
     upload: 'Upload audio',
     uploadHint: 'WAV, MP3 or M4A, up to 3 hours',
-    untitled: '{type} meeting',
+    // Realistic default names per type, used until the user renames the meeting.
+    defaultName: {
+      medical: 'Morning ward round',
+      executive: 'Weekly management meeting',
+      administrative: 'Operations planning',
+    },
   },
   recording: {
     recording: 'Recording',

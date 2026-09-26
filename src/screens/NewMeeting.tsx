@@ -14,8 +14,8 @@ export function NewMeeting() {
   const { draft, setDraft, templates } = useStore();
   const navigate = useNavigate();
   const selectedTemplate = templates.find((x) => x.id === draft.templateId);
-  // Until the user types a name, the template's name (or "Medical meeting") is used.
-  const suggestedName = selectedTemplate?.name ?? t('newMeeting.untitled', { type: t(`types.${draft.type}`) });
+  // Until the user types a name, the template's name (or a realistic default for the type) is used.
+  const suggestedName = selectedTemplate?.name ?? t(`newMeeting.defaultName.${draft.type}`);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
   const startName = () => (setNameDraft(draft.title?.trim() || suggestedName), setEditingName(true));

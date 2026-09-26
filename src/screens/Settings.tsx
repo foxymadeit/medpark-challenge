@@ -152,10 +152,12 @@ export function Settings() {
             {t('settings.saved')}
           </p>
         )}
-        {/* Dimmed until something differs from what is saved. */}
-        <Button variant="primary" icon={<CheckIcon size={20} aria-hidden />} onClick={save} disabled={!dirty}>
-          {t('settings.save')}
-        </Button>
+        {/* Appears only once something differs from what is saved. */}
+        {dirty && (
+          <Button variant="primary" icon={<CheckIcon size={20} aria-hidden />} onClick={save}>
+            {t('settings.save')}
+          </Button>
+        )}
       </div>
 
     </div>

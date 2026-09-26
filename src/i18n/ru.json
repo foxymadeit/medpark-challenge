@@ -177,7 +177,11 @@
     "micOk": "Внешний микрофон подключён",
     "upload": "Загрузить аудио",
     "uploadHint": "WAV, MP3 или M4A, до 3 часов",
-    "untitled": "Совещание · {type}"
+    "defaultName": {
+      "medical": "Утренний обход",
+      "executive": "Еженедельное совещание руководства",
+      "administrative": "Планирование работы отделения"
+    }
   },
   "recording": {
     "recording": "Идёт запись",
