@@ -47,9 +47,15 @@ class EmailServiceTests(unittest.TestCase):
 		smtp_factory.assert_called_once_with("localhost", 1025, timeout=10)
 		sent_message = message_from_bytes(smtp.send_message.call_args.args[0].as_bytes(), policy=default)
 		self.assertEqual(sent_message["From"], "mom-bot@hospital.local")
-		self.assertEqual(sent_message["To"], "undisclosed-recipients:;")
+		self.assertEqual(sent_message["To"], "board@hospital.local, admin@hospital.local")
+		self.assertIsNone(sent_message["Cc"])
+		self.assertIsNone(sent_message["Bcc"])
 		self.assertEqual(sent_message["Subject"], "MoM | Medical | Cardiology Board")
-		self.assertIn("Summary", sent_message.get_body(preferencelist=("plain",)).get_content())
+		plain = sent_message.get_body(preferencelist=("plain",)).get_content()
+		self.assertIn("Summary", plain)
+		# the items are in the meeting's own words, often mixed: no language claim
+		self.assertNotIn("Language:", plain)
+		self.assertNotIn("Language:", sent_message.get_body(preferencelist=("html",)).get_content())
 		self.assertIn(
 			"&lt;ICU&gt;",
 			sent_message.get_body(preferencelist=("html",)).get_content(),
@@ -63,9 +69,7 @@ class EmailServiceTests(unittest.TestCase):
 		self.assertEqual(result.refused, ())
 
 	@patch("services.EmailService.smtplib.SMTP")
-	def test_sends_separate_participant_copies_and_deduplicates_board_addresses(
-		self, smtp_factory
-	) -> None:
+	def test_list_in_to_participants_in_cc_one_message_no_duplicates(self, smtp_factory) -> None:
 		recipients = ("board@hospital.local", "admin@hospital.local")
 		settings = SMTPSettings(recipients_by_meeting_type={"medical": recipients})
 		service = EmailService(settings)
@@ -82,23 +86,40 @@ class EmailServiceTests(unittest.TestCase):
 			),
 		)
 
-		calls = smtp.send_message.call_args_list
-		self.assertEqual(len(calls), 2)
-		self.assertEqual(calls[0].kwargs["to_addrs"], list(recipients))
-		self.assertEqual(calls[1].kwargs["to_addrs"], ["doctor@hospital.local"])
-		board_message = message_from_bytes(calls[0].args[0].as_bytes(), policy=default)
-		participant_message = message_from_bytes(calls[1].args[0].as_bytes(), policy=default)
-		self.assertEqual(board_message["To"], "undisclosed-recipients:;")
-		self.assertEqual(participant_message["To"], "doctor@hospital.local")
+		smtp.send_message.assert_called_once()
+		message = message_from_bytes(smtp.send_message.call_args.args[0].as_bytes(), policy=default)
+		self.assertEqual(message["To"], "board@hospital.local, admin@hospital.local")
+		self.assertEqual(message["Cc"], "doctor@hospital.local")
+		self.assertIsNone(message["Bcc"])
 		self.assertEqual(
-			board_message.get_body(preferencelist=("plain",)).get_content(),
-			participant_message.get_body(preferencelist=("plain",)).get_content(),
+			smtp.send_message.call_args.kwargs["to_addrs"],
+			["board@hospital.local", "admin@hospital.local", "doctor@hospital.local"],
 		)
 		self.assertEqual(
 			result.accepted,
 			("board@hospital.local", "admin@hospital.local", "doctor@hospital.local"),
 		)
 		self.assertEqual(result.refused, ())
+
+	@patch("services.EmailService.smtplib.SMTP")
+	def test_a_list_address_cannot_inject_headers(self, smtp_factory) -> None:
+		for bad in ("board@hospital.local\r\nBcc: spy@evil.example", "Board <board@hospital.local>", "not-an-email"):
+			settings = SMTPSettings(recipients_by_meeting_type={"medical": (bad,)})
+			minutes = Minutes(title="Board", meeting_type="medical", summary="Summary")
+			with self.assertRaisesRegex(ValueError, "valid email addresses"):
+				EmailService(settings).send_mom_email(minutes)
+		smtp_factory.assert_not_called()
+
+	@patch("services.EmailService.smtplib.SMTP")
+	def test_a_title_cannot_inject_headers(self, smtp_factory) -> None:
+		smtp = smtp_factory.return_value.__enter__.return_value
+		smtp.send_message.return_value = {}
+		settings = SMTPSettings(recipients_by_meeting_type={"medical": ("board@hospital.local",)})
+		minutes = Minutes(title="Board\r\nBcc: spy@evil.example", meeting_type="medical", summary="Summary")
+		EmailService(settings).send_mom_email(minutes)
+		message = message_from_bytes(smtp.send_message.call_args.args[0].as_bytes(), policy=default)
+		self.assertIsNone(message["Bcc"])
+		self.assertEqual(smtp.send_message.call_args.kwargs["to_addrs"], ["board@hospital.local"])
 
 	@patch("services.EmailService.smtplib.SMTP")
 	def test_rejects_invalid_participant_email_before_connecting(self, smtp_factory) -> None:
