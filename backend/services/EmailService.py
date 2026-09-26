@@ -1,6 +1,8 @@
 import os
 import smtplib
 from dataclasses import dataclass, field
+from email.errors import HeaderParseError
+from email.headerregistry import Address
 from email.message import EmailMessage
 from html import escape
 from pathlib import Path
@@ -70,6 +72,33 @@ def _split_csv(value: str) -> tuple[str, ...]:
 	return tuple(item.strip() for item in value.split(",") if item.strip())
 
 
+def _unique_recipients(addresses: tuple[str, ...]) -> tuple[str, ...]:
+	unique: list[str] = []
+	seen: set[str] = set()
+	for address in addresses:
+		key = address.casefold()
+		if key not in seen:
+			unique.append(address)
+			seen.add(key)
+	return tuple(unique)
+
+
+def _validate_participant_emails(addresses: tuple[str, ...]) -> tuple[str, ...]:
+	validated: list[str] = []
+	for value in addresses:
+		address = value.strip()
+		if not address:
+			continue
+		try:
+			parsed = Address(addr_spec=address)
+		except (HeaderParseError, TypeError, ValueError) as error:
+			raise ValueError("Participant email addresses must be valid email addresses.") from error
+		if parsed.addr_spec != address or not parsed.username or not parsed.domain:
+			raise ValueError("Participant email addresses must be valid email addresses.")
+		validated.append(address)
+	return _unique_recipients(tuple(validated))
+
+
 class EmailService:
 	"""Send meeting-minutes email through a configurable SMTP server."""
 
@@ -81,38 +110,52 @@ class EmailService:
 		minutes: Minutes,
 		attachment_path: str | Path | None = None,
 		attachment: tuple[str, bytes] | None = None,
+		*,
+		participant_emails: tuple[str, ...] = (),
 	) -> EmailDeliveryResult:
-		"""Send structured minutes to the configured distribution list."""
+		"""Send minutes to the board list and separate participant copies."""
 		if attachment_path is not None and attachment is not None:
 			raise ValueError("Provide either an attachment path or attachment data, not both.")
-		recipients = self._settings.recipients_by_meeting_type.get(minutes.meeting_type, ())
-		if not recipients:
+		distribution_recipients = _unique_recipients(
+			self._settings.recipients_by_meeting_type.get(minutes.meeting_type, ())
+		)
+		if not distribution_recipients:
 			raise DistributionListNotConfiguredError(
 				f"No recipients are configured for {minutes.meeting_type} meetings."
 			)
+		participant_recipients = _validate_participant_emails(participant_emails)
+		distribution_keys = {address.casefold() for address in distribution_recipients}
+		individual_recipients = tuple(
+			address
+			for address in participant_recipients
+			if address.casefold() not in distribution_keys
+		)
+		recipients = (*distribution_recipients, *individual_recipients)
 
 		text_body, html_body = _render_minutes(minutes)
 		safe_title = " ".join(minutes.title.splitlines()).strip()
 
-		message = EmailMessage()
-		message["From"] = self._settings.from_address
-		message["To"] = "undisclosed-recipients:;"
-		message["Subject"] = f"MoM | {minutes.meeting_type.title()} | {safe_title}"
-		message.set_content(text_body)
-		message.add_alternative(html_body, subtype="html")
+		attachment_data: tuple[str, bytes] | None = attachment
+		if attachment_path is not None:
+			path = Path(attachment_path)
+			attachment_data = path.name, path.read_bytes()
 
-		if attachment_path is not None or attachment is not None:
-			if attachment is not None:
-				filename, content = attachment
-			else:
-				path = Path(attachment_path)
-				filename, content = path.name, path.read_bytes()
-			message.add_attachment(
-				content,
-				maintype="application",
-				subtype="octet-stream",
-				filename=filename,
-			)
+		def build_message(to_address: str | None = None) -> EmailMessage:
+			message = EmailMessage()
+			message["From"] = self._settings.from_address
+			message["To"] = to_address or "undisclosed-recipients:;"
+			message["Subject"] = f"MoM | {minutes.meeting_type.title()} | {safe_title}"
+			message.set_content(text_body)
+			message.add_alternative(html_body, subtype="html")
+			if attachment_data is not None:
+				filename, content = attachment_data
+				message.add_attachment(
+					content,
+					maintype="application",
+					subtype="octet-stream",
+					filename=filename,
+				)
+			return message
 
 		refused: dict[str, tuple[int, bytes]]
 		with smtplib.SMTP(self._settings.host, self._settings.port, timeout=10) as server:
@@ -122,16 +165,28 @@ class EmailService:
 				server.login(self._settings.username, self._settings.password)
 			try:
 				refused = server.send_message(
-					message,
+					build_message(),
 					from_addr=self._settings.from_address,
-					to_addrs=list(recipients),
+					to_addrs=list(distribution_recipients),
 				)
 			except smtplib.SMTPRecipientsRefused as error:
 				refused = error.recipients
+			for address in individual_recipients:
+				try:
+					refused.update(
+						server.send_message(
+							build_message(address),
+							from_addr=self._settings.from_address,
+							to_addrs=[address],
+						)
+					)
+				except smtplib.SMTPRecipientsRefused as error:
+					refused.update(error.recipients)
 
+		refused_keys = {address.casefold() for address in refused}
 		return EmailDeliveryResult(
-			accepted=tuple(address for address in recipients if address not in refused),
-			refused=tuple(address for address in recipients if address in refused),
+			accepted=tuple(address for address in recipients if address.casefold() not in refused_keys),
+			refused=tuple(address for address in recipients if address.casefold() in refused_keys),
 		)
 
 

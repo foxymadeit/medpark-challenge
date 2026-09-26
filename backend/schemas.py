@@ -24,6 +24,7 @@ class Minutes(BaseModel):
 
 class EmailSendRequest(BaseModel):
 	minutes: Minutes
+	participant_emails: list[str] = Field(default_factory=list)
 
 
 class EmailSendResponse(BaseModel):

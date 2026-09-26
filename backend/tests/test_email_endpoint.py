@@ -36,12 +36,19 @@ class EmailEndpointTests(unittest.TestCase):
 		}
 
 	@patch("main.email_service.send_mom_email")
-	def test_sends_pipeline_minutes_without_accepting_request_recipients(self, send_mom_email) -> None:
+	def test_sends_minutes_to_confirmed_participants_and_ignores_generic_recipients(
+		self, send_mom_email
+	) -> None:
 		send_mom_email.return_value = EmailDeliveryResult(
-			accepted=("board@hospital.local", "admin@hospital.local"),
+			accepted=(
+				"board@hospital.local",
+				"admin@hospital.local",
+				"doctor@hospital.local",
+			),
 			refused=(),
 		)
 		payload = self._payload()
+		payload["participant_emails"] = ["doctor@hospital.local"]
 		payload["to_addresses"] = ["outside@example.com"]
 
 		response = self.client.post(
@@ -54,7 +61,7 @@ class EmailEndpointTests(unittest.TestCase):
 			response.json(),
 			{
 				"status": "sent",
-				"accepted_count": 2,
+				"accepted_count": 3,
 				"refused_count": 0,
 				"message": "Email sent.",
 			},
@@ -62,6 +69,23 @@ class EmailEndpointTests(unittest.TestCase):
 		send_mom_email.assert_called_once()
 		self.assertIsInstance(send_mom_email.call_args.args[0], Minutes)
 		self.assertEqual(send_mom_email.call_args.args[0].title, "Cardiology Board")
+		self.assertEqual(
+			send_mom_email.call_args.kwargs["participant_emails"],
+			("doctor@hospital.local",),
+		)
+
+	@patch("main.email_service.send_mom_email")
+	def test_maps_invalid_participant_email_to_422(self, send_mom_email) -> None:
+		payload = self._payload()
+		payload["participant_emails"] = ["not-an-email"]
+		send_mom_email.side_effect = ValueError(
+			"Participant email addresses must be valid email addresses."
+		)
+
+		response = self.client.post("/email/send", json=payload)
+
+		self.assertEqual(response.status_code, 422)
+		send_mom_email.assert_called_once()
 
 	@patch("main.email_service.send_mom_email")
 	def test_reports_partial_delivery(self, send_mom_email) -> None:

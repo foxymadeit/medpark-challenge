@@ -28,7 +28,11 @@ async def send_mom_email(
 ) -> EmailSendResponse | JSONResponse:
     """Email structured minutes to the configured meeting-type distribution list."""
     try:
-        result = await run_in_threadpool(email_service.send_mom_email, request.minutes)
+        result = await run_in_threadpool(
+            email_service.send_mom_email,
+            request.minutes,
+            participant_emails=tuple(request.participant_emails),
+        )
     except DistributionListNotConfiguredError as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
     except (OSError, smtplib.SMTPException) as error:

@@ -63,6 +63,57 @@ class EmailServiceTests(unittest.TestCase):
 		self.assertEqual(result.refused, ())
 
 	@patch("services.EmailService.smtplib.SMTP")
+	def test_sends_separate_participant_copies_and_deduplicates_board_addresses(
+		self, smtp_factory
+	) -> None:
+		recipients = ("board@hospital.local", "admin@hospital.local")
+		settings = SMTPSettings(recipients_by_meeting_type={"medical": recipients})
+		service = EmailService(settings)
+		smtp = smtp_factory.return_value.__enter__.return_value
+		smtp.send_message.return_value = {}
+		minutes = Minutes(title="Board", meeting_type="medical", summary="Summary")
+
+		result = service.send_mom_email(
+			minutes,
+			participant_emails=(
+				"doctor@hospital.local",
+				"admin@hospital.local",
+				"DOCTOR@HOSPITAL.LOCAL",
+			),
+		)
+
+		calls = smtp.send_message.call_args_list
+		self.assertEqual(len(calls), 2)
+		self.assertEqual(calls[0].kwargs["to_addrs"], list(recipients))
+		self.assertEqual(calls[1].kwargs["to_addrs"], ["doctor@hospital.local"])
+		board_message = message_from_bytes(calls[0].args[0].as_bytes(), policy=default)
+		participant_message = message_from_bytes(calls[1].args[0].as_bytes(), policy=default)
+		self.assertEqual(board_message["To"], "undisclosed-recipients:;")
+		self.assertEqual(participant_message["To"], "doctor@hospital.local")
+		self.assertEqual(
+			board_message.get_body(preferencelist=("plain",)).get_content(),
+			participant_message.get_body(preferencelist=("plain",)).get_content(),
+		)
+		self.assertEqual(
+			result.accepted,
+			("board@hospital.local", "admin@hospital.local", "doctor@hospital.local"),
+		)
+		self.assertEqual(result.refused, ())
+
+	@patch("services.EmailService.smtplib.SMTP")
+	def test_rejects_invalid_participant_email_before_connecting(self, smtp_factory) -> None:
+		settings = SMTPSettings(
+			recipients_by_meeting_type={"medical": ("board@hospital.local",)},
+		)
+		service = EmailService(settings)
+		minutes = Minutes(title="Board", meeting_type="medical", summary="Summary")
+
+		with self.assertRaisesRegex(ValueError, "Participant email addresses"):
+			service.send_mom_email(minutes, participant_emails=("not-an-email",))
+
+		smtp_factory.assert_not_called()
+
+	@patch("services.EmailService.smtplib.SMTP")
 	def test_requires_a_configured_distribution_list(self, smtp_factory) -> None:
 		service = EmailService(SMTPSettings())
 		minutes = Minutes(title="Board", meeting_type="medical", summary="Summary")
