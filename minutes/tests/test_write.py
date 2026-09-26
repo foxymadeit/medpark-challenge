@@ -11,7 +11,8 @@ FACTS = [
     Fact("N9", "note", "dropped", ["L0009"], quote="x", topic="T1", status="dropped"),
 ]
 EVIDENCE = {"N1": "contractul expiră la sfârșitul lunii", "D1": "aprobăm, pro 4, contra 0", "A1": "verific eu până pe 30", "A2": "cineva trimite"}
-GOOD = r"""\begin{agenda}
+GOOD = r"""\summary{S1}{Consiliul a examinat contractul RMN și a aprobat reînnoirea lui.}
+\begin{agenda}
 \agendaitem{T1}{Contractul RMN}
 \end{agenda}
 \topic{T1}{Contractul RMN}
@@ -23,9 +24,9 @@ GOOD = r"""\begin{agenda}
 
 def test_plan_orders_facts_localises_owners_and_dates_and_hides_dropped_ones():
     rows = plan(FACTS, "ru")
-    assert [r["id"] for r in rows] == ["T1", "N1", "D1", "A1", "C1"]
-    assert rows[3]["owner"] == "Участник 3" and rows[3]["deadline"] == "30.09.2026"
-    assert plan(FACTS, "en")[3]["deadline"] == "30 September 2026"
+    assert [r["id"] for r in rows] == ["S1", "T1", "N1", "D1", "A1", "C1"]
+    assert rows[4]["owner"] == "Участник 3" and rows[4]["deadline"] == "30.09.2026"
+    assert plan(FACTS, "en")[4]["deadline"] == "30 September 2026"
     assert owner_display("SPEAKER_07", "ro") == "Participantul 07" and owner_display("dna Ana Popescu", "ro") == "dna Ana Popescu"
 
 
@@ -66,3 +67,17 @@ def test_write_body_repairs_once_then_falls_back():
     assert rep["source"] == "model, repaired"
     body, rep = write_body(FakeLLM(["\\input{x}", "\\input{y}"]), FACTS, "ro", EVIDENCE)
     assert rep["source"] == "fallback" and latexcheck.parse(body)
+
+
+def test_summary_with_an_invented_number_is_rejected():
+    rows = plan(FACTS, "ro")
+    assert rows[0] == {"id": "S1", "kind": "summary", "text": ""}
+    body = GOOD.replace("a examinat contractul RMN și a aprobat reînnoirea lui.", "a aprobat 7 paturi noi.")
+    _, errors = check_body(body, rows, EVIDENCE, lang="ro")
+    assert any("number 7" in e for e in errors)
+
+
+def test_fallback_body_has_a_summary_in_the_document_language():
+    body = fallback_body(plan(FACTS, "ru"), "ru")
+    assert body.startswith("\\summary{S1}{Рассмотрено вопросов: 1")
+    latexcheck.parse(body)

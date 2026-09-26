@@ -26,13 +26,15 @@ _NUM = re.compile(r"\d+(?:[.,]\d+)?")
 
 EXAMPLE = {  # one small, impersonal example per language (see research/rules.md)
     "facts": [
+        {"id": "S1", "kind": "summary", "text": ""},
         {"id": "T1", "kind": "topic", "text": "Contractul de mentenanță RMN"},
         {"id": "N1", "kind": "note", "topic": "T1", "text": "Contractul actual de mentenanță pentru RMN expiră la sfârșitul lunii."},
         {"id": "D1", "kind": "decision", "topic": "T1", "text": "Se începe reînnoirea contractului în această săptămână.", "vote": "pro 4, contra 0"},
         {"id": "A1", "kind": "action", "topic": "T1", "text": "Verifică condițiile de reînnoire.", "owner": "{P} 3", "deadline": "{DATE}"},
         {"id": "C1", "kind": "confirm", "text": "Cine trimite documentele la Minister (nu s-a spus)."},
     ],
-    "ro": r"""\begin{agenda}
+    "ro": r"""\summary{S1}{Consiliul a examinat contractul de mentenanță pentru aparatul RMN, care expiră la sfârșitul lunii, și a aprobat inițierea reînnoirii lui în această săptămână.}
+\begin{agenda}
 \agendaitem{T1}{Contractul de mentenanță pentru aparatul RMN}
 \end{agenda}
 \topic{T1}{Contractul de mentenanță pentru aparatul RMN}
@@ -40,7 +42,8 @@ EXAMPLE = {  # one small, impersonal example per language (see research/rules.md
 \decision{D1}{Se aprobă inițierea procedurii de reînnoire a contractului în această săptămână.}{pro 4, contra 0}
 \action{A1}{Participantul 3}{30.09.2026}{Verifică condițiile de reînnoire a contractului.}
 \needsconfirmation{C1}{Persoana care transmite documentele la Minister nu a fost numită.}""",
-    "ru": r"""\begin{agenda}
+    "ru": r"""\summary{S1}{Рассмотрен договор на техническое обслуживание аппарата МРТ, который истекает в конце месяца; принято решение начать его продление на этой неделе.}
+\begin{agenda}
 \agendaitem{T1}{Договор на техническое обслуживание аппарата МРТ}
 \end{agenda}
 \topic{T1}{Договор на техническое обслуживание аппарата МРТ}
@@ -48,7 +51,8 @@ EXAMPLE = {  # one small, impersonal example per language (see research/rules.md
 \decision{D1}{Начать процедуру продления договора на этой неделе.}{«за» - 4, «против» - 0}
 \action{A1}{Участник 3}{30.09.2026}{Проверить условия продления договора.}
 \needsconfirmation{C1}{Не названо, кто направляет документы в Министерство.}""",
-    "en": r"""\begin{agenda}
+    "en": r"""\summary{S1}{The Board considered the maintenance contract for the MRI scanner, which expires at the end of the month, and agreed to start its renewal this week.}
+\begin{agenda}
 \agendaitem{T1}{Maintenance contract for the MRI scanner}
 \end{agenda}
 \topic{T1}{Maintenance contract for the MRI scanner}
@@ -56,6 +60,14 @@ EXAMPLE = {  # one small, impersonal example per language (see research/rules.md
 \decision{D1}{The Board agreed to start the renewal of the contract this week.}{4 for, 0 against}
 \action{A1}{Participant 3}{30 September 2026}{Check the renewal terms of the contract.}
 \needsconfirmation{C1}{No one was named to send the documents to the Ministry.}""",
+}
+
+
+SAID_DEADLINE = {"ro": "termen spus", "ru": "срок со слов", "en": "deadline as said"}
+SUMMARY = {
+    "ro": "Ședința a examinat {t} subiecte: {titles}. S-au adoptat {d} hotărâri și s-au stabilit {a} acțiuni.",
+    "ru": "Рассмотрено вопросов: {t} ({titles}). Принято решений: {d}, поручений: {a}.",
+    "en": "The meeting considered {t} items: {titles}. It took {d} decisions and agreed {a} actions.",
 }
 
 
@@ -70,6 +82,8 @@ def plan(facts, lang: str) -> list:
     kept = [f for f in facts if f.status in ("ok", "confirm")]
     topics = [f for f in kept if f.kind == "topic"]
     out, n_confirm = [], 0
+    if topics:
+        out.append({"id": "S1", "kind": "summary", "text": ""})
     for t in topics:
         out.append({"id": t.id, "kind": "topic", "text": t.text})
         for kind in ("note", "decision", "action"):
@@ -81,7 +95,7 @@ def plan(facts, lang: str) -> list:
                     row["owner"] = owner_display(f.owner, lang)
                     row["deadline"] = format_date(f.deadline, lang)
                     if f.deadline_phrase and not f.deadline:
-                        row["text"] = f"{f.text} (termen spus: {f.deadline_phrase})"
+                        row["text"] = f"{f.text} ({SAID_DEADLINE[lang]}: {f.deadline_phrase})"
                 out.append(row)
     for f in kept:
         if f.status == "confirm" or (f.kind != "topic" and f.topic not in {t.id for t in topics}):
@@ -113,7 +127,7 @@ def write_body(llm, facts, lang: str, evidence_text: dict, patients=(), names=()
         body, errors2 = check_body(_strip_fences(llm.chat(system, repair, max_tokens=3500, think=False)),
                                    rows, evidence_text, patients, names, lang)
         if errors2:
-            return fallback_body(rows), {"source": "fallback", "errors": errors2}
+            return fallback_body(rows, lang), {"source": "fallback", "errors": errors2}
         return body, {"source": "model, repaired", "errors": errors}
     return body, {"source": "model", "errors": []}
 
@@ -130,7 +144,7 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
         if b.fact_id:
             seen.setdefault(b.fact_id, []).append(b.kind)
     for fid, r in expected.items():
-        want = {"topic": 2, "note": 1, "decision": 1, "action": 1, "confirm": 1}[r["kind"]]
+        want = {"summary": 1, "topic": 2, "note": 1, "decision": 1, "action": 1, "confirm": 1}[r["kind"]]
         got = len(seen.get(fid, []))
         if got != want:
             errors.append(f"{fid} appears {got} times; it must appear {want} time(s)")
@@ -138,6 +152,7 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
         if fid not in expected:
             errors.append(f"{fid} is not one of the given facts; remove it")
 
+    everything = " ".join(f"{r.get('text', '')} {r.get('vote', '')} {r.get('deadline', '')}" for r in rows) + " " + " ".join(evidence_text.values())
     fixed = []
     allowed_names = {w for n in names for w in fold(n).split()}
     for b in blocks:
@@ -152,7 +167,8 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
             text = anonymize_text(args[key], list(patients))
             text = text.replace(" — ", ", ").replace("—", ", ").replace(" – ", ", ")
             args[key] = text
-            source = f"{r.get('text', '')} {r.get('vote', '')} {r.get('deadline', '')} " + evidence_text.get(r.get("source", b.fact_id), "")
+            source = everything if b.kind == "summary" else (
+                f"{r.get('text', '')} {r.get('vote', '')} {r.get('deadline', '')} " + evidence_text.get(r.get("source", b.fact_id), ""))
             for n in _NUM.findall(latexcheck.unescape(text)):
                 if n.replace(",", ".") not in source.replace(",", "."):
                     errors.append(f"{b.fact_id}: the number {n} is not in the fact")
@@ -165,10 +181,13 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
     return latexcheck.serialise(fixed), errors
 
 
-def fallback_body(rows) -> str:
+def fallback_body(rows, lang: str = "en") -> str:
     """Plain body from the facts themselves, used only if the model's body fails twice."""
     e = latexcheck.escape
-    out = ["\\begin{agenda}"] + [f"\\agendaitem{{{r['id']}}}{{{e(r['text'])}}}" for r in rows if r["kind"] == "topic"] + ["\\end{agenda}"]
+    count = lambda k: sum(r["kind"] == k for r in rows)  # noqa: E731
+    titles = "; ".join(r["text"] for r in rows if r["kind"] == "topic")
+    out = [f"\\summary{{S1}}{{{e(SUMMARY[lang].format(t=count('topic'), titles=titles, d=count('decision'), a=count('action')))}}}"] if count("topic") else []
+    out += ["\\begin{agenda}"] + [f"\\agendaitem{{{r['id']}}}{{{e(r['text'])}}}" for r in rows if r["kind"] == "topic"] + ["\\end{agenda}"]
     for r in rows:
         k = r["kind"]
         if k == "topic":

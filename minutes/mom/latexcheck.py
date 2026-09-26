@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 # name -> argument names; the first argument of a fact command is its fact ID
 COMMANDS = {
+    "summary": ("id", "text"),
     "agendaitem": ("id", "title"),
     "topic": ("id", "title"),
     "presented": ("id", "who", "text"),
@@ -25,7 +26,7 @@ COMMANDS = {
 }
 ENVIRONMENTS = {"agenda"}
 _ESCAPES = {"%", "&", "#", "_", "$"}
-_ID = re.compile(r"^[TNDAC]\d{1,3}$")
+_ID = re.compile(r"^[TNDACS]\d{1,3}$")
 
 
 class BodyError(ValueError):

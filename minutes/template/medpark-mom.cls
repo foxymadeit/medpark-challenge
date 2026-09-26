@@ -82,6 +82,7 @@
 \momdefstring {secretary} {Secretar}                     {Секретарь}                   {Secretary}
 \momdefstring {present}   {Au participat}                {Присутствовали}              {Present}
 \momdefstring {apologies} {Absenți motivat}              {Отсутствовали}               {Apologies}
+\momdefstring {summary}   {Rezumat}                      {Краткое содержание}          {Summary}
 \momdefstring {agenda}    {Ordinea de zi}                {Повестка заседания}          {Agenda}
 \momdefstring {decisions} {Hotărâri}                     {Решения}                     {Decisions}
 \momdefstring {decision}  {Hotărârea}                    {Решение}                     {Decision}
@@ -212,6 +213,7 @@
   {\par\vspace{4pt}{\momlabel\color{mpteal}\momstr{agenda}}\par\vspace{-2pt}\begin{enumerate}}
   {\end{enumerate}}
 \newcommand\agendaitem[2]{\item #2}
+\newcommand\summary[2]{\par\vspace{4pt}{\momlabel\color{mpteal}\momstr{summary}}\par\vspace{2pt}#2\par}
 
 \newcommand\mom@tablehead[1]{\rowcolor{mpteal}#1\\}
 \newcommand\mom@h[1]{\leavevmode\textcolor{white}{\momsans\small\bfseries #1}}

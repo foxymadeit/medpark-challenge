@@ -64,7 +64,10 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
     decisions, actions, confirm, n_topic = [], [], [], 0
     for b in blocks:
         a = {k: unescape(v) for k, v in b.args.items()}
-        if b.kind == "begin" and a.get("env") == "agenda":
+        if b.kind == "summary":
+            _para(doc, s["summary"], HEAD, 10.5, TEAL, before=8, after=2)
+            _para(doc, a["text"], BODY, 10.5, CHARCOAL, after=4)
+        elif b.kind == "begin" and a.get("env") == "agenda":
             _para(doc, s["agenda"], HEAD, 10.5, TEAL, before=8, after=2)
         elif b.kind == "agendaitem":
             doc.add_paragraph(a["title"], style="List Number")
