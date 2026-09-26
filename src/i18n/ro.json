@@ -226,6 +226,8 @@
     "pause": "Pauză",
     "resume": "Reia",
     "stop": "Oprește și scrie PV",
+    "startingIn": "Înregistrarea începe în",
+    "startNow": "Începe acum",
     "noteLive": "Înregistrarea rămâne pe acest calculator până la oprire.",
     "notePaused": "Înregistrarea de până acum este păstrată pe acest calculator.",
     "micError": "Microfonul este blocat. Permiteți-l în browser pentru a înregistra.",

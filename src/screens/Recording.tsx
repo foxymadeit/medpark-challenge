@@ -39,6 +39,8 @@ interface Bar {
   speaker: string | null;
 }
 
+const COUNTDOWN = 3;
+
 /** 02 / 02b — live recording with waveform coloured by current speaker. */
 export function Recording() {
   const { t, lang } = useI18n();
@@ -54,14 +56,22 @@ export function Recording() {
   const paused = rec.state === 'paused';
   const current = rec.state === 'recording' ? speakerAt(rec.elapsed) : null;
 
-  // Start the microphone once.
+  // 3‥2‥1 before the mic opens, so nobody is cut off mid-sentence. "Start now" skips it.
+  const [countdown, setCountdown] = useState(COUNTDOWN);
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const id = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(id);
+  }, [countdown]);
+
+  // Start the microphone once, when the countdown ends.
   const started = useRef(false);
   useEffect(() => {
-    if (started.current) return;
+    if (countdown > 0 || started.current) return;
     started.current = true;
     void rec.start(preferences.micId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rec]);
+  }, [countdown, rec]);
 
   // Waveform + talk-time sampling.
   useEffect(() => {
@@ -98,6 +108,23 @@ export function Recording() {
             {typeLabel} · {t('common.participantsCount', { count })}
           </p>
         </div>
+        {countdown > 0 ? (
+          <>
+            <p className="recorder__state t-plate" role="status">
+              <span className="c-secondary">{t('recording.startingIn')}</span>
+            </p>
+            <p key={countdown} className="recorder__timer recorder__countdown" aria-live="assertive">
+              {countdown}
+            </p>
+            <div className="recorder__actions">
+              <Button onClick={() => navigate('/new')}>{t('common.cancel')}</Button>
+              <Button variant="primary" icon={<PlayIcon size={20} aria-hidden />} onClick={() => setCountdown(0)}>
+                {t('recording.startNow')}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
         <p className="recorder__state t-plate" role="status">
           {paused ? <PauseIcon size={16} aria-hidden /> : <span className="rec-dot" aria-hidden />}
           <span className={paused ? 'c-secondary' : ''}>{paused ? t('recording.paused') : t('recording.recording')}</span>
@@ -142,6 +169,8 @@ export function Recording() {
         <p className={`recorder__note note${rec.micError ? ' c-danger' : ''}`} role={rec.micError ? 'alert' : undefined}>
           {rec.micError ? t('recording.micError') : paused ? t('recording.notePaused') : t('recording.noteLive')}
         </p>
+          </>
+        )}
       </section>
 
       <aside className="card live-details" aria-label={t('recording.voices')}>

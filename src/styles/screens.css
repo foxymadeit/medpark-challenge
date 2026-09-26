@@ -156,6 +156,10 @@
 @media (prefers-reduced-motion: reduce) { .rec-dot { animation: none; } }
 .recorder__timer { font: 500 72px/normal var(--sm-font-data); color: var(--sm-ink-primary); font-variant-numeric: tabular-nums; }
 .recorder__timer.is-paused { color: var(--sm-ink-tertiary); }
+/* Each number re-mounts (key) so it pops in once per second. */
+.recorder__countdown { animation: countdown-pop 1s ease-out both; }
+@keyframes countdown-pop { 0% { opacity: 0; transform: scale(1.4); } 25% { opacity: 1; transform: scale(1); } 85% { opacity: 1; } 100% { opacity: 0.2; } }
+@media (prefers-reduced-motion: reduce) { .recorder__countdown { animation: none; } }
 .waveform { display: flex; align-items: center; gap: 3px; height: 56px; }
 .waveform__bar { width: 3px; border-radius: 1.5px; transition: height 90ms linear; }
 .recorder__actions { display: flex; gap: var(--sm-space-4); margin-top: 40px; }

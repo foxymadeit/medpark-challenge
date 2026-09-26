@@ -228,6 +228,8 @@ export const en = {
     pause: 'Pause',
     resume: 'Resume',
     stop: 'Stop and write minutes',
+    startingIn: 'Recording starts in',
+    startNow: 'Start now',
     noteLive: 'Recording stays on this computer until you stop.',
     notePaused: 'The recording so far is kept on this computer.',
     micError: 'Microphone is blocked. Allow it in the browser to record audio.',
