@@ -48,6 +48,62 @@ starts. Liminal passes that gate by construction: no part of it can open a
 connection to anything outside the machine, and tests fail the build if one
 tries.
 
+## The business case
+
+**Who it is for.** Medpark is Moldova's first and largest private
+multidisciplinary hospital: 200+ doctors, 160,000+ patients a year, and level 6
+of 7 on the HIMSS digital-maturity scale
+([Medpark via Bupa](https://www.bupaglobal.com/en/facilities/1001918/medpark-international),
+[NewsMaker](https://newsmaker.md/ro/comunitatea-tech-a-testat-aplica%C8%9Bia-medpark-%C3%AEn-cadrul-deeptech-gigahack-2026)).
+Its medical, executive and administrative boards meet regularly, and each
+meeting's decisions are only as good as the minutes that carry them to the
+people who must act.
+
+**Where the value comes from.**
+
+| Driver | Today | With Liminal |
+|---|---|---|
+| Writing the minutes | someone listens again and types for an hour or more | drafted, checked and sent within minutes of the meeting ending |
+| Decisions reaching owners | days later, or never | the same day, each action with a named owner and a date |
+| Language | the writer translates in their head between RO and RU | the same minutes in Romanian, Russian and English |
+| Data risk | a cloud note-taker makes a vendor a processor of patient-adjacent data | no third party ever holds the audio or text |
+| Cost | per seat, per month, forever | one server the hospital already runs |
+
+**Time returned, with the assumptions on the table.** We have not measured
+Medpark's own meetings, so these are assumptions to replace with its numbers:
+
+| Board meetings a week | Hours to write one set of minutes | Hours returned a year | Full-time staff equivalent (1,700 h) |
+|---|---|---|---|
+| 10 (low) | 1.0 | 520 | 0.3 |
+| 25 (base) | 1.5 | 1,950 | 1.1 |
+| 50 (high) | 2.0 | 5,200 | 3.1 |
+
+<p align="center"><img src="docs/readme/charts/cost.png" alt="Three-year cost: Otter and Fireflies grow per seat to about $137k-$144k at 200 users; Liminal stays at one server" width="100%"></p>
+
+**Risk avoided.** A healthcare data breach costs
+[$7.42 million on average](https://www.hipaajournal.com/average-cost-of-a-healthcare-data-breach-2025/),
+and the PJ&A case shows how: the hospitals were breached through their
+transcription vendor. Liminal has no vendor in the data path.
+
+**How we would roll it out, and what we would measure.**
+
+| Step | Scope | Success measure |
+|---|---|---|
+| Week 1 | IT installs one compose stack; one medical board, a table microphone | minutes emailed under 15 min after the meeting |
+| Weeks 2 to 4 | the same board every week | items a person had to change per meeting falls week on week; zero patient names in any email |
+| Month 2 | executive and administrative boards | share of meetings that go out with no edits |
+| Month 3 | every board; Active Directory sign-in; the hospital's mail relay | adoption: share of board meetings processed |
+
+**What could go wrong, and the answer.**
+
+| Risk | Answer |
+|---|---|
+| A far microphone lowers speaker accuracy (66.5% on AMI) | a table microphone near the speakers puts meetings in the 93% range; the room check picks settings by itself |
+| The model gets an item wrong | code checks every fact; anything unproven waits for a person; the 60 s window lets anyone stop the email |
+| People do not adopt it | three steps, no training, the type suggested for them; the minutes arrive in the reader's language |
+| IT burden | one Docker Compose stack, a status page, no internet dependency to break |
+| Compliance | DPIA draft, AI Act marking, consent for voiceprints, retention purge (see [Medical and legal context](#5-medical-and-legal-context-10)) |
+
 ## The scorecard, criterion by criterion
 
 | Jury criterion | Weight | What Liminal delivers | Proof |
@@ -58,6 +114,19 @@ tries.
 | User experience | 10% | Upload or Rec, confirm the suggested meeting type, done; minutes send themselves after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
 | Presentation and domain | 10% | Minutes modelled on 41 published hospital and council minutes in three languages; GDPR, AI Act and MDR paperwork written | [Domain](#5-medical-and-legal-context-10) |
 | Bonus: speaker diarization | strong bonus | **93% accurate** on mixed RO/RU/EN meetings, live, 1 s behind the voice, on a laptop CPU | [Who spoke when](#bonus-who-spoke-when) |
+
+## Every requirement in the brief, delivered
+
+| The challenge asks for | Liminal | Where |
+|---|---|---|
+| Runs 100% locally, zero external API calls | socket guard in every process; the jury can pull the cable | [Security](#3-security-and-architecture-20) |
+| Hybrid ASR for RO/RU/EN code-switching and medical terms | Whisper large-v3 decoded per utterance as RO and RU, phrase-level merge, 892-term medical dictionary, per-language specialists | [Transcription](#1-linguistic-accuracy-30) |
+| Local LLM: summary, decisions, owners, deadlines | qwen3:8b through Ollama on 127.0.0.1, every fact checked in code | [Minutes](#2-output-quality-30) |
+| Automation and routing engine (e.g. n8n) that reads the meeting-type tag and emails a predefined list | self-hosted n8n 2.40.7 (free Community Edition): webhook → switch on the type tag → email to that type's list with the RO/RU/EN PDFs; the type itself is also detected from the first 3 minutes | [Routing](#routing-n8n) |
+| Minimal web app: upload or Rec, pick the type, wait | three steps, auto-send after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
+| Email without internet | local SMTP (Mailpit in the demo, the hospital's relay in production) | [Routing](#routing-n8n) |
+| Under 15 min for a 60-min recording, reported in the README | measured per stage on a T4 (the reference card) | [Speed](#4-user-experience-10) |
+| Bonus: speaker diarization | live, 93% on mixed-language meetings, on a laptop CPU | [Who spoke when](#bonus-who-spoke-when) |
 
 ## Where every number comes from
 
@@ -178,6 +247,8 @@ later, owners known only by voice, relative deadlines, named patients. Round
 | gemma3:12b | 80% / 100% | 100% / 94% | 80% | 0 | 19.4 GB |
 | EuroLLM-22B | 53% / 100% | 87% / 100% | 92% | 0 | 16.9 GB |
 
+<p align="center"><img src="docs/readme/charts/minutes_models.png" alt="Minutes models: decisions and actions found vs GPU memory; qwen3:8b finds 96% in 7.2 GB" width="100%"></p>
+
 **Deadlines: 27 of 27** answer-key deadlines (15 in the six short meetings,
 12 in the 60-minute one) now resolve to the right date,
 after round 1 showed the resolver missing "today" and "within N days". Round 2,
@@ -189,13 +260,8 @@ the model we run locally invents content **less often than the flagship cloud
 models**. Every model summarises the same documents and Vectara's HHEM judge
 scores each summary against its source:
 
-| Model | Adds unsupported content |
-|---|---|
-| **qwen3-8b (ours, local, 7.2 GB)** | **4.8%** |
-| Gemini 2.5 Pro | 7.0% |
-| GPT-5.4 Pro | 8.3% |
-| Claude Sonnet 4 | 10.3% |
-| Claude Opus 4.5 | 10.9% |
+<p align="center"><img src="docs/readme/charts/hallucination.png" alt="Hallucination rate: qwen3-8b 4.8% vs Gemini 2.5 Pro 7.0%, GPT-5.4 Pro 8.3%, Claude Sonnet 4 10.3%, Claude Opus 4.5 10.9%" width="100%"></p>
+
 
 Then our verifier checks every fact the model returns against the
 transcript, so a fact reaches the minutes only if someone said it.
@@ -212,6 +278,8 @@ transcript and as its first 3 minutes, so 16 variants:
 | **Local model, first 3 minutes** | **8 / 8** | 2 / 2 | **2 to 4 s on a CPU** |
 | Local model, all 16 variants | 15 / 16 | 4 / 4 | the miss was a timeout on a 60-min transcript |
 | Laya zero-shot, all 16 | 10 / 16 | 0 / 4 | 1 to 4 s |
+
+<p align="center"><img src="docs/readme/charts/meeting_type.png" alt="Meeting type by category: local model 15/16, Laya 10/16 and 0/4 administrative" width="100%"></p>
 
 So Liminal reads the first 3 minutes, suggests the type, and the person
 confirms with one tap. It needs no extra model and no extra memory.
@@ -235,14 +303,60 @@ proxy settings and refuses redirects. Docker Compose binds every port to
 server (Mailpit in the demo). `backend/scripts/offline_check.sh` proves all
 three, and the jury can pull the cable during the demo.
 
-**Reproducible on the reference hardware.**
+**The architecture, and the line nothing crosses.**
 
-| | Needs | Reference server |
-|---|---|---|
-| Minutes model (qwen3:8b) | 7.2 GB GPU peak | one 16 GB GPU |
-| Transcription (Whisper large-v3, int8) | runs beside the minutes model on the same card | same GPU |
-| Speaker labels | CPU only: 232 MB RAM, 52 MB of models | spare CPU |
-| Everything else | Python, SQLite, XeLaTeX, local SMTP | any Linux server |
+```mermaid
+flowchart LR
+  subgraph H["Hospital network: no route to the internet"]
+    direction LR
+    U["Web app<br/>upload or Rec"] --> B["Backend<br/>FastAPI + SQLite queue"]
+    B --> A["Transcription<br/>Whisper large-v3, RO+RU decodes"]
+    B --> D["Who spoke when<br/>pyannote seg + TitaNet, CPU"]
+    A --> M["Minutes<br/>qwen3:8b on 127.0.0.1<br/>+ code checks"]
+    D --> M
+    M --> R["60 s window<br/>or a person confirms"]
+    R --> N["n8n<br/>switch on meeting type"]
+    N --> S["Hospital mail server<br/>(Mailpit in the demo)"]
+    S --> I["Inboxes: Medical,<br/>Executive, Administrative"]
+  end
+  X["Internet, cloud AI"] -. "blocked in every process" .- H
+```
+
+**Hardware for the whole product.**
+
+| | Reference GPU server | Reference CPU server | Demo laptop |
+|---|---|---|---|
+| The challenge's target | one 16 GB GPU | CPU only, 32 GB RAM | none given |
+| Transcription | Whisper large-v3 (CTranslate2), 3.1 GB of weights | Whisper turbo, int8 | Whisper small, int8, short clips |
+| Minutes model | qwen3:8b, 7.2 GB GPU peak (5.2 GB on disk) | the CPU tier's round-2 winner | a 4B model, short clips |
+| Speaker labels | CPU: 232 MB RAM, 52 MB of models | same | same (runs live on a 2017 dual-core laptop) |
+| PDF and DOCX | XeLaTeX, 4.3 s per language on a 2017 laptop | same | same |
+| Services | Docker Compose: backend, Ollama, n8n (1.0 GB image), Mailpit | same | same |
+| Disk | about 15 GB with models and TeX | about 12 GB | about 8 GB |
+
+The speaker labeller needs no GPU at all, so on the GPU server the card is
+shared only by transcription and the minutes model.
+
+### Routing: n8n
+
+The challenge suggests n8n for routing, so the email step is a real n8n
+workflow ([backend/n8n/liminal-routing.json](backend/n8n/liminal-routing.json)),
+self-hosted in the same compose stack. n8n's Community Edition is free for a
+hospital's internal use.
+
+1. **Webhook.** The backend posts the checked minutes and the three PDFs.
+2. **Prepare.** One Code node writes the subject ("MoM | Medical | …") and body
+   and attaches the RO, RU and EN PDFs. An unknown type tag fails the webhook
+   on purpose, so the backend mails directly instead of recording a delivery
+   that never happened.
+3. **Switch on the meeting type.** Medical, Executive or Administrative.
+4. **Email that list** through the hospital mail server, participants on copy.
+
+Hospital IT changes a distribution list in n8n's editor, with no code.
+Telemetry, update checks, templates and community packages are switched off,
+and `offline_check.sh` fails if any comes back on. Tested against Mailpit:
+each type reached its own list with all three PDFs attached
+(`backend/n8n/test_routing.py`).
 
 The speaker labeller runs on a 2017 dual-core laptop in real time, so it adds
 no GPU load. The end-to-end hour test (below) measures the rest on one T4.
@@ -343,6 +457,8 @@ Accuracy is 100 minus the diarization error rate, scored strictly: every 10 ms,
 no forgiveness collar, overlapping speech counted. Answer keys are in
 `diarization/eval/references/`.
 
+<p align="center"><img src="docs/readme/charts/speakers.png" alt="Speaker accuracy: far mic vs pyannoteAI paid and open; close-mic 93.0% and 93.6%" width="100%"></p>
+
 **Against the paid leader.** pyannoteAI's paid Precision-2 scores 15.6% DER on
 AMI far-field, the open community-1 19.9%, ours 33.5% on 4 of the 16 test
 meetings. On distant microphones the paid model is twice as accurate, and we
@@ -399,6 +515,10 @@ first and a heartbeat every minute showing progress, time left and warnings.
 About 166 hours of speech and 5,900 speakers went into the multilingual voice
 run. A tenth of Common Voice speakers, and everyone who recorded both Romanian
 and Russian, were held out of all training; the test meetings use only them.
+
+<p align="center"><img src="docs/readme/charts/training_data.png" alt="Training speech by dataset, 166 hours" width="100%"></p>
+
+<p align="center"><img src="docs/readme/charts/training_gains.png" alt="Speaker accuracy: about 80% with one setting, 90.1% with settings by microphone distance, 93.0% with fine-tuned segmentation" width="100%"></p>
 
 What training taught us, scored on the 18 mixed meetings unless noted:
 
