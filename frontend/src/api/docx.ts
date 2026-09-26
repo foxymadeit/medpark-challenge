@@ -9,7 +9,8 @@ import {
   TableRow,
   TextRun,
 } from "docx";
-import type { Meeting } from "../types/meeting";
+import type { Meeting, MinutesLanguage } from "../types/meeting";
+import { serverDocument } from "./pdf";
 import { formatTime } from "../utils";
 
 function safeFilename(value: string) {
@@ -147,7 +148,11 @@ export async function createMinutesDocx(meeting: Meeting): Promise<Blob> {
   return Packer.toBlob(document);
 }
 
-export async function downloadMinutesDocx(meeting: Meeting) {
+export async function downloadMinutesDocx(
+  meeting: Meeting,
+  lang?: MinutesLanguage,
+) {
+  if (serverDocument(meeting, "docx", lang)) return;
   const blob = await createMinutesDocx(meeting);
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");

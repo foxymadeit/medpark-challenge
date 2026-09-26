@@ -1,4 +1,23 @@
-import type { Meeting } from "../types/meeting";
+import type { Meeting, MinutesLanguage } from "../types/meeting";
+import { DEMO_MODE } from "./config";
+import { documentUrl } from "./meetings";
+
+/** In real mode the server holds the Medpark-template documents in every
+ * language; the in-browser file is only the demo stand-in. */
+export function serverDocument(
+  meeting: Meeting,
+  kind: "pdf" | "docx",
+  lang?: MinutesLanguage,
+): boolean {
+  const langs = meeting.documents ?? [];
+  if (DEMO_MODE || !langs.length) return false;
+  const chosen = lang && langs.includes(lang) ? lang : langs[0];
+  const anchor = document.createElement("a");
+  anchor.href = documentUrl(meeting.id, chosen, kind);
+  anchor.download = "";
+  anchor.click();
+  return true;
+}
 
 function clean(value: string) {
   return value
@@ -49,7 +68,8 @@ export function createMinutesPdf(meeting: Meeting) {
   return new Blob([pdf], { type: "application/pdf" });
 }
 
-export function downloadMinutesPdf(meeting: Meeting) {
+export function downloadMinutesPdf(meeting: Meeting, lang?: MinutesLanguage) {
+  if (serverDocument(meeting, "pdf", lang)) return;
   const blob = createMinutesPdf(meeting);
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

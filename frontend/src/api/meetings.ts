@@ -1,6 +1,9 @@
 import { invalidMinutes } from "./validation";
 import type {
   ActionItem,
+  MinutesLanguage,
+  ProcessingStage,
+  StageId,
   CorrectionFeedback,
   CreateMeetingInput,
   Meeting,
@@ -25,17 +28,103 @@ import {
   readStore,
 } from "../mock/store";
 const path = (id: string) => `/meetings/${encodeURIComponent(id)}`;
+// The server names three pipeline stages and keeps them as a map; the UI
+// shows them in order, pending ones included.
+const SERVER_STAGES: [string, StageId][] = [
+  ["asr", "transcribe"],
+  ["diarize", "speakers"],
+  ["minutes", "minutes"],
+];
+type ServerMeeting = Meeting & {
+  processingStages?: Record<
+    string,
+    { state: ProcessingStage["state"]; startedAt?: string; endedAt?: string }
+  >;
+  needsConfirmation?: { id: string; text: string; problems?: string[] }[];
+  documents?: MinutesLanguage[] | Partial<Record<MinutesLanguage, unknown>>;
+};
+/** Server meeting (backend/README.md, "Endpoints beyond the contract") to
+ * the frontend model. Already-shaped fields pass through unchanged. */
+export function fromServer(raw: ServerMeeting): Meeting {
+  const { processingStages, needsConfirmation, documents, ...m } = raw;
+  const out: Meeting = { ...m };
+  if (processingStages && !m.stages)
+    out.stages = SERVER_STAGES.map(([key, id]) => ({
+      id,
+      state: processingStages[key]?.state ?? "pending",
+      finishedAt: processingStages[key]?.endedAt,
+    }));
+  if (needsConfirmation && !m.confirmItems)
+    out.confirmItems = needsConfirmation.map((c) => ({
+      id: c.id,
+      text: c.text,
+      reason: (c.problems ?? []).join(". "),
+    }));
+  if (documents)
+    out.documents = Array.isArray(documents)
+      ? documents
+      : (["ro", "ru", "en"] as const).filter((l) => l in documents);
+  return out;
+}
+async function meetingRequest(
+  url: string,
+  options?: RequestInit,
+): Promise<Meeting> {
+  return fromServer(await request<ServerMeeting>(url, options));
+}
+// A 3-hour, 500 MB recording on a slow hospital network needs far more than
+// the 20 s default.
+const UPLOAD_TIMEOUT_MS = 15 * 60 * 1000;
+export async function getCapabilities(): Promise<{
+  autoModeAvailable: boolean;
+}> {
+  return DEMO_MODE
+    ? { autoModeAvailable: AUTO_MODE_AVAILABLE }
+    : request("/capabilities");
+}
+/** Keep or take out an item the checks could not confirm. */
+export async function decideConfirmation(
+  id: string,
+  itemId: string,
+  keep: boolean,
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return meetingRequest(
+      `${path(id)}/confirmations/${encodeURIComponent(itemId)}`,
+      {
+        method: "POST",
+        body: JSON.stringify({ action: keep ? "keep" : "remove" }),
+      },
+    );
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    const item = m.confirmItems?.find((c) => c.id === itemId);
+    if (!item) throw new ApiError("notFound");
+    item.decision = keep ? "keep" : "remove";
+    return m;
+  });
+}
+/** Server-rendered minutes (Medpark template, PDF/A or DOCX). */
+export function documentUrl(
+  id: string,
+  lang: MinutesLanguage,
+  kind: "pdf" | "docx",
+): string {
+  return `/api${path(id)}/documents/${lang}.${kind}`;
+}
 export async function getMeetings(): Promise<Meeting[]> {
-  return DEMO_MODE ? readStore().meetings : request("/meetings");
+  return DEMO_MODE
+    ? readStore().meetings
+    : (await request<ServerMeeting[]>("/meetings")).map(fromServer);
 }
 export async function getMeeting(id: string): Promise<Meeting> {
-  return DEMO_MODE ? findMeeting(readStore(), id) : request(path(id));
+  return DEMO_MODE ? findMeeting(readStore(), id) : meetingRequest(path(id));
 }
 export async function createMeeting(
   input: CreateMeetingInput,
 ): Promise<Meeting> {
   if (!DEMO_MODE)
-    return request("/meetings", {
+    return meetingRequest("/meetings", {
       method: "POST",
       body: JSON.stringify(input),
     });
@@ -52,7 +141,7 @@ export async function createMeeting(
       id: crypto.randomUUID(),
       title: input.title.trim().slice(0, 120),
       status: "draft",
-      sendMode: "manual",
+      sendMode: AUTO_MODE_AVAILABLE ? (input.sendMode ?? "manual") : "manual",
       reviewState: "not_ready",
       createdAt: new Date().toISOString(),
       participants,
@@ -77,7 +166,7 @@ export async function updateMeeting(
   changes: Partial<Meeting>,
 ): Promise<Meeting> {
   if (!DEMO_MODE)
-    return request(path(id), {
+    return meetingRequest(path(id), {
       method: "PATCH",
       body: JSON.stringify(changes),
     });
@@ -95,7 +184,11 @@ export async function saveRecording(id: string, blob: Blob): Promise<void> {
   else {
     const body = new FormData();
     body.append("audio", blob, "recording.webm");
-    await request(`${path(id)}/recording`, { method: "POST", body });
+    await request(`${path(id)}/recording`, {
+      method: "POST",
+      body,
+      signal: AbortSignal.timeout(UPLOAD_TIMEOUT_MS),
+    });
   }
 }
 export async function uploadRecording(
@@ -114,7 +207,11 @@ export async function uploadRecording(
   } else {
     const body = new FormData();
     body.append("audio", file);
-    await request(`${path(id)}/upload`, { method: "POST", body });
+    await request(`${path(id)}/upload`, {
+      method: "POST",
+      body,
+      signal: AbortSignal.timeout(UPLOAD_TIMEOUT_MS),
+    });
   }
 }
 export async function getRecording(id: string): Promise<Blob | undefined> {
@@ -126,7 +223,8 @@ export async function getRecording(id: string): Promise<Blob | undefined> {
   return r.blob();
 }
 export async function startProcessing(id: string): Promise<Meeting> {
-  if (!DEMO_MODE) return request(`${path(id)}/process`, { method: "POST" });
+  if (!DEMO_MODE)
+    return meetingRequest(`${path(id)}/process`, { method: "POST" });
   return mutate((s) => {
     const m = findMeeting(s, id);
     if (!m.durationSeconds) throw new ApiError("invalidAudio");
@@ -142,14 +240,14 @@ export async function startProcessing(id: string): Promise<Meeting> {
   });
 }
 export async function getProcessingState(id: string): Promise<Meeting> {
-  return DEMO_MODE ? getMeeting(id) : request(`${path(id)}/processing`);
+  return DEMO_MODE ? getMeeting(id) : meetingRequest(`${path(id)}/processing`);
 }
 export async function updateMinutes(
   id: string,
   changes: Pick<Partial<Meeting>, "summary" | "decisions">,
 ): Promise<Meeting> {
   if (!DEMO_MODE)
-    return request(`${path(id)}/minutes`, {
+    return meetingRequest(`${path(id)}/minutes`, {
       method: "PATCH",
       body: JSON.stringify(changes),
     });
@@ -183,10 +281,13 @@ export async function updateActionItem(
   changes: Partial<ActionItem>,
 ): Promise<Meeting> {
   if (!DEMO_MODE)
-    return request(`${path(id)}/actions/${encodeURIComponent(actionId)}`, {
-      method: "PATCH",
-      body: JSON.stringify(changes),
-    });
+    return meetingRequest(
+      `${path(id)}/actions/${encodeURIComponent(actionId)}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(changes),
+      },
+    );
   return mutate((s) => {
     const m = findMeeting(s, id);
     const a = m.actionItems?.find((a) => a.id === actionId);
@@ -221,7 +322,8 @@ export async function toggleActionItem(id: string, actionId: string) {
   return updateActionItem(id, actionId, { completed: !a.completed });
 }
 export async function stopScheduledSend(id: string): Promise<Meeting> {
-  if (!DEMO_MODE) return request(`${path(id)}/stop-send`, { method: "POST" });
+  if (!DEMO_MODE)
+    return meetingRequest(`${path(id)}/stop-send`, { method: "POST" });
   return mutate((s) => {
     const m = findMeeting(s, id);
     if (m.status === "sending_soon") {
@@ -236,7 +338,7 @@ export async function stopScheduledSend(id: string): Promise<Meeting> {
 }
 export async function sendNow(id: string): Promise<Meeting> {
   if (!DEMO_MODE)
-    return request(`${path(id)}/send`, {
+    return meetingRequest(`${path(id)}/send`, {
       method: "POST",
       headers: { "Idempotency-Key": `minutes-${id}` },
     });
@@ -262,7 +364,8 @@ export async function sendNow(id: string): Promise<Meeting> {
   });
 }
 export async function markReviewed(id: string): Promise<Meeting> {
-  if (!DEMO_MODE) return request(`${path(id)}/review`, { method: "POST" });
+  if (!DEMO_MODE)
+    return meetingRequest(`${path(id)}/review`, { method: "POST" });
   return mutate((store) => {
     const meeting = findMeeting(store, id);
     if (
@@ -281,7 +384,7 @@ export async function updateParticipants(
   participants: Participant[],
 ): Promise<Meeting> {
   if (!DEMO_MODE)
-    return request(`${path(id)}/participants`, {
+    return meetingRequest(`${path(id)}/participants`, {
       method: "PATCH",
       body: JSON.stringify({ participants }),
     });

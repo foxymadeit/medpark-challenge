@@ -16,6 +16,11 @@ export async function request<T>(
       credentials: "include",
       headers: {
         Accept: "application/json",
+        // With SameSite=Strict cookies, a custom header on writes blocks
+        // cross-site form posts (the server rejects writes without it).
+        ...(options.method && options.method !== "GET"
+          ? { "X-Requested-With": "Liminal" }
+          : {}),
         ...(options.body && !(options.body instanceof FormData)
           ? { "Content-Type": "application/json" }
           : {}),

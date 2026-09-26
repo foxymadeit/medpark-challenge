@@ -167,6 +167,35 @@ export interface ActionItem {
   sourceTimestampSeconds?: number;
   completed: boolean;
 }
+export type MinutesLanguage = "ro" | "ru" | "en";
+export type StageId =
+  | "transcribe"
+  | "speakers"
+  | "extract"
+  | "verify"
+  | "write"
+  | "render"
+  | "minutes"
+  | "send";
+export interface ProcessingStage {
+  id: StageId;
+  state: "pending" | "running" | "done" | "failed";
+  done?: number;
+  total?: number;
+  finishedAt?: string;
+  etaAt?: string;
+}
+export interface ConfirmItem {
+  id: string;
+  text: string;
+  reason: string;
+  decision?: "keep" | "remove";
+}
+export interface LocalizedMinutes {
+  summary: string;
+  decisions: Decision[];
+  actionItems: { id: string; task: string }[];
+}
 export interface SpeakerSegment {
   speakerId: string;
   startSeconds: number;
@@ -211,6 +240,11 @@ export interface Meeting {
   agendaTopics?: AgendaTopic[];
   delivery?: MeetingDelivery;
   artifacts?: MeetingArtifact[];
+  stages?: ProcessingStage[];
+  confirmItems?: ConfirmItem[];
+  minutesByLanguage?: Partial<Record<MinutesLanguage, LocalizedMinutes>>;
+  documents?: MinutesLanguage[];
+  checked?: { verified: number; total: number };
 }
 export interface CreateMeetingInput {
   title: string;
@@ -219,6 +253,7 @@ export interface CreateMeetingInput {
   participants?: Participant[];
   templateId?: string;
   agendaTopics?: AgendaTopic[];
+  sendMode?: SendMode;
 }
 export interface SystemState {
   local: boolean;
