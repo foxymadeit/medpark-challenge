@@ -59,11 +59,32 @@ tries.
 | Presentation and domain | 10% | Minutes modelled on 41 published hospital and council minutes in three languages; GDPR, AI Act and MDR paperwork written | [Domain](#5-medical-and-legal-context-10) |
 | Bonus: speaker diarization | strong bonus | **93% accurate** on mixed RO/RU/EN meetings, live, 1 s behind the voice, on a laptop CPU | [Who spoke when](#bonus-who-spoke-when) |
 
+## Where every number comes from
+
+No number in this README comes from hospital audio sent anywhere, and none is
+an estimate. Each comes from one of these test sets, and each set's answer key
+or build script is in the repository.
+
+| Test set | What it is | Size | Languages | Measures | Source |
+|---|---|---|---|---|---|
+| Medpark sample | the challenge's only recording, anonymised by the organisers | 11 min 42 s, 4 speakers; first 181 s hand-corrected | Romanian with Russian, medical terms | transcription failures, language choice | challenge Drive folder, never uploaded anywhere |
+| Mixed meetings | synthetic meetings from real held-out voices | 24 meetings, 86.9 min, 654 turns, 3 to 7 people (18 scored, 6 to tune) | RO, RU, EN, 4 bilingual RO/RU voices | who spoke when | Common Voice 22, LibriSpeech; `diarization/eval/make_mix.py` |
+| Large meetings | same, with many people | 4 × 30 min (120.5 min), 844 turns, 11 to 14 people | RO, RU, EN | who spoke when | same |
+| AMI far field | real meetings, one table microphone | 4 test meetings, 92 min, 1,443 turns, 16 speakers (8 more to tune; 22 meetings, 11.2 h in the repo) | English | who spoke when, the paid comparison | AMI Meeting Corpus, CC BY 4.0 |
+| Scripted minutes meetings | meetings written with traps and an answer key | 6 meetings, 16.4 min, 112 lines, 997 words; 15 decisions, 15 actions, 6 traps | RO with RU inside sentences, EN terms | the minutes model | `minutes/eval/meetings.py` |
+| 60-minute meeting | one long meeting with no names said | 59.5 min, 878 lines, 8,773 words, 7 speakers; 12 decisions, 12 actions, 5 traps | RO, RU, EN | minutes at full length, round 2 | `minutes/eval/long.py` |
+| Our mock medical board | a 10-minute script we wrote and recorded | recording 1: 8 min 25 s, one reader; recording 2: 6 min 24 s, three of us; 6 decisions, 9 actions, 4 traps, 2 patients, 21 medical terms | RO, RU, EN switching mid-sentence | end to end, audio to minutes | `minutes/eval/team_recording/script.md`; our own voices |
+| Four public hours | one hour each, for the 15-minute target | 4 × 60 min | English meeting (ICSI), Russian government meeting on medical graduates (kremlin.ru), Moldovan Parliament plenary, ROMPAR parliament corpus (643 Moldovan and 77 Romanian utterances) | upload-to-email time, error rate | `minutes/eval/hour_tests/` |
+| 41 published minutes | real minutes from hospitals and public bodies | 13 English, 18 Romanian, 10 Russian | EN, RO, RU | how the minutes are worded | `minutes/research/corpus.md` |
+| Hallucination leaderboard | public benchmark, same documents for every model | as published by Vectara, 22 Sep 2026 | English | the paid-model comparison | github.com/vectara/hallucination-leaderboard |
+
 ## 1. Linguistic accuracy (30%)
 
 The challenge names the hard part itself: Whisper picks one language per chunk.
-We measured exactly how badly that goes on Medpark's own 11 min 42 s sample
-before changing anything:
+We measured exactly how badly that goes before changing anything, on the
+challenge's only recording: Medpark's anonymised sample, 11 min 42 s (702 s),
+4 speakers, Romanian with Russian and medical terms. Its first 181 s were
+corrected by hand by a Romanian and Russian speaker to serve as the reference:
 
 | Off-the-shelf setup | What happened |
 |---|---|
@@ -79,7 +100,8 @@ What Liminal does instead:
   changed). Each piece is decoded as Romanian and as Russian, plus English when
   that is the top guess, and the decode with the higher average log-probability
   is kept, with a +0.1 bonus for Romanian as the meeting's main language. On the
-  first 113 s, Whisper's detector called 12 of 14 Romanian utterances Russian.
+  first 113 s of the Medpark sample (14 utterances, nearly all Romanian),
+  Whisper's detector called 12 of the 14 Russian.
   Scores alone picked right on 10 of 14; the bonus fixes the other 4, which
   were all within 0.06.
 - **Phrase-level switching.** With the language merge on, a run of two or more
@@ -138,9 +160,13 @@ transcript and that the text was drafted locally by AI (EU AI Act, Art. 50).
 
 **The bake-off.** 14 local models, on Kaggle T4 GPUs (16 GB, the reference
 card), over six scripted meetings that mix the three languages inside
-sentences. The meetings hold 15 decisions and 15 actions with known owners and
+sentences: 2 medical, 2 executive, 2 administrative; 16.4 minutes of meeting,
+112 transcript lines, 997 words, 4 to 5 speakers each, Russian lines in every
+meeting. They hold 15 decisions and 15 actions with known owners and
 deadlines, and traps: six proposals nobody adopts, two decisions reversed
-later, owners known only by voice, relative deadlines, named patients.
+later, owners known only by voice, relative deadlines, named patients. Round
+2 adds a 60-minute meeting: 878 lines, 8,773 words, 7 speakers, 12 decisions,
+12 actions and 5 traps.
 
 | Model | Decisions found / correct | Actions found / correct | Owner right | Trap errors | GPU memory |
 |---|---|---|---|---|---|
@@ -152,14 +178,16 @@ later, owners known only by voice, relative deadlines, named patients.
 | gemma3:12b | 80% / 100% | 100% / 94% | 80% | 0 | 19.4 GB |
 | EuroLLM-22B | 53% / 100% | 87% / 100% | 92% | 0 | 16.9 GB |
 
-**Deadlines: 27 of 27** answer-key deadlines now resolve to the right date,
+**Deadlines: 27 of 27** answer-key deadlines (15 in the six short meetings,
+12 in the 60-minute one) now resolve to the right date,
 after round 1 showed the resolver missing "today" and "within N days". Round 2,
 running now, re-scores the top eight with that fix; its numbers replace these.
 
 **Against paid models.** On Vectara's grounded-summary hallucination
 leaderboard ([22 Sep 2026](https://github.com/vectara/hallucination-leaderboard)),
 the model we run locally invents content **less often than the flagship cloud
-models**:
+models**. Every model summarises the same documents and Vectara's HHEM judge
+scores each summary against its source:
 
 | Model | Adds unsupported content |
 |---|---|
@@ -174,7 +202,10 @@ transcript, so a fact reaches the minutes only if someone said it.
 
 **The meeting type, detected.** The type decides who gets the email. We
 compared a zero-shot classifier (Laya) with the local model Liminal already
-has loaded:
+has loaded (qwen3:8b, CPU only, Kaggle). Test set: 8 meetings (the six
+scripted ones, the 60-minute one and our 10-minute mock board; 4 medical,
+2 executive, 2 administrative), each tried as the full
+transcript and as its first 3 minutes, so 16 variants:
 
 | | Correct | Administrative meetings | Time |
 |---|---|---|---|
@@ -262,9 +293,9 @@ fixed and under test.
 
 | Stage | Measured |
 |---|---|
-| Speaker labels, one hour | 7 to 13 min on a 2017 dual-core laptop CPU; in parallel with transcription on the server |
-| Meeting type | 2 to 4 s |
-| PDF, per language | 4.3 s on the 2017 laptop; the three languages in parallel |
+| Speaker labels, one hour | 7 to 13 min on a 2017 dual-core laptop CPU (0.12 to 0.21× real time over the 28 test meetings, 207 min); in parallel with transcription on the server |
+| Meeting type | 2 to 4 s on a CPU, first 3 minutes of each of 8 meetings |
+| PDF, per language | 4.3 s on the 2017 laptop for the sample minutes; the three languages in parallel |
 | Email | a local SMTP send, seconds |
 | **Upload to email, 60-minute recording, one T4** | **hour test running now** on four public hours (English meeting, Russian government meeting, Moldovan parliament, Romanian/Moldovan parliament); lands here tonight |
 
@@ -293,13 +324,20 @@ voice, on a laptop CPU**. In the recording above, five voices nobody in our
 training set spoke hold a meeting in three languages, and all 17 turns went to
 the right person.
 
-| Test | Result |
-|---|---|
-| Mixed RO/RU/EN meetings, 3 to 7 people, close microphone | **93.0% accurate**, 96.3% of turns to the right person |
-| 30-minute meetings, 11 to 14 people | **93.6% accurate**, 95.9% of turns |
-| AMI, one far microphone | 66.5% accurate |
-| Live, three people mixing languages in a room | worked end to end |
-| Our team's recording, one voice for 8 min 25 s | 1 speaker found, in 70 s on a laptop |
+| Test | Measured on | Result |
+|---|---|---|
+| Mixed RO/RU/EN meetings, close microphone | 18 meetings, 65 min, 497 turns, 61 voices, 3 to 7 people each; 6 more meetings used only to tune | **93.0% accurate**, 96.3% of turns to the right person |
+| Large meetings | 4 meetings of 30 min (120.5 min), 844 turns, 49 voices, 11 to 14 people each | **93.6% accurate**, 95.9% of turns |
+| AMI, one far microphone | 4 AMI test meetings (ES2004a, IS1009a, TS3003a, EN2002a): 92 min, 1,443 turns, 16 speakers; tuned on 8 other AMI meetings | 66.5% accurate |
+| Live in a room | three people mixing RO, RU and EN at a laptop microphone | worked end to end, labels 1 s behind the voice |
+| Our team, one reader | 8 min 25 s, one voice reading the whole mock board | 1 speaker, in 70 s on the 2017 laptop |
+| Our team, three voices | 6 min 24 s, three of us at a table | 3 speakers, plus one 7.8 s fragment at the hand-overs |
+
+The mixed and large meetings are built from voices no model here trained on:
+held-out Common Voice 22 Romanian and Russian speakers and LibriSpeech
+test-clean English (100 distinct voices across the 28 meetings, 4 of them
+people who recorded both Romanian and Russian), with answer keys committed in
+`diarization/eval/references/`.
 
 Accuracy is 100 minus the diarization error rate, scored strictly: every 10 ms,
 no forgiveness collar, overlapping speech counted. Answer keys are in
@@ -310,7 +348,9 @@ AMI far-field, the open community-1 19.9%, ours 33.5% on 4 of the 16 test
 meetings. On distant microphones the paid model is twice as accurate, and we
 say so. It also needs an H100 or its cloud, and waits for the whole file.
 Ours runs on a 2017 laptop, labels people as they speak, costs nothing per
-hour, and sends nothing anywhere. Put a microphone on the table near the
+hour, and sends nothing anywhere. Their number covers all 16 AMI test
+meetings; ours covers 4 of them (92 min), scored the same strict way. Put a
+microphone on the table near the
 speakers and Liminal is in its 93% rows. Sources:
 [pyannote benchmark](https://github.com/pyannote/pyannote-audio#benchmark),
 [pyannoteAI pricing](https://www.pyannote.ai/md/models).
@@ -322,7 +362,7 @@ not leave the building. Here is what was missing and what we did about it.
 
 | Missing | What we did |
 |---|---|
-| **Labelled Romanian/Russian meeting audio.** No public corpus has RO/RU meetings with who-spoke-when labels. | Built 24 test meetings (88 min, 1,498 turns, 3 to 14 people) from held-out Common Voice Romanian and Russian voices plus LibriSpeech English, with answer keys committed. For training, 300 synthetic RO/RU meetings, each voice through its own room echo and noise. |
+| **Labelled Romanian/Russian meeting audio.** No public corpus has RO/RU meetings with who-spoke-when labels. | Built 28 test meetings (207 min, 1,498 turns, 100 distinct voices, 3 to 14 people) from held-out Common Voice Romanian and Russian voices plus LibriSpeech English, with answer keys committed. For training, 300 synthetic RO/RU meetings, each voice through its own room echo and noise. |
 | **Hour-long recordings in our languages.** The speed target is for 60 minutes; the sample is 11. | Found public hours: the Moldovan Parliament's plenary sessions (Romanian with Russian), the ROMPAR parliamentary corpus (643 Moldovan and 77 Romanian utterances), a Russian government meeting on medical graduates (kremlin.ru, CC BY 4.0, official transcript), and an ICSI research meeting in English. |
 | **Code-switched training speech.** There are hours of Romanian and hours of Russian, but almost none that switch mid-sentence. | Speech Collage: words force-aligned, then 1 to 4 words of a real sentence replaced by a phrase in the other language, 20 ms crossfades, loudness matched, and the same speaker used on both sides whenever Common Voice has them in both languages. |
 | **A medical dictionary in Romanian and Russian.** | Scraped 2,050 Harvard Health terms, kept the 806 whose RO and RU names are human-written Wikidata labels, added ICD-10, ICU and hospital terms: 892 rows. |
@@ -360,14 +400,14 @@ About 166 hours of speech and 5,900 speakers went into the multilingual voice
 run. A tenth of Common Voice speakers, and everyone who recorded both Romanian
 and Russian, were held out of all training; the test meetings use only them.
 
-What training taught us:
+What training taught us, scored on the 18 mixed meetings unless noted:
 
 | Change | Effect |
 |---|---|
 | Fine-tuning segmentation | mixed-language accuracy **90.1% → 93.0%**, turns 94.6% → 96.3% (close profile only; far field lost 3.3 points) |
 | Choosing settings by microphone distance | about **80% → 90%**, with no training at all |
 | Fine-tuning the voice model, three ways | never helped (separation d′ 4.41 → 3.67, 3.90, 4.28); original kept |
-| Telling the diarizer how many people are present | worse, 93.6% → 89.2%; removed |
+| Telling the diarizer how many people are present | worse, 93.6% → 89.2% on the 4 large meetings; removed |
 
 ## What we tried and dropped
 
