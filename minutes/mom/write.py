@@ -15,6 +15,7 @@ from pathlib import Path
 
 from . import latexcheck
 from .anonymize import anonymize_text
+from .glossary import terms_for
 from .schemas import format_date
 from .verify import fold
 
@@ -120,6 +121,9 @@ def write_body(llm, facts, lang: str, evidence_text: dict, patients=(), names=()
         return "", {"source": "empty", "errors": []}
     system = prompt(lang)
     user = "Facts:\n" + "\n".join(json.dumps({k: v for k, v in r.items() if k != "source"}, ensure_ascii=False) for r in rows)
+    terms = [f"{t['matched']} → {t[lang]}" for t in terms_for([r["text"] for r in rows], lang) if fold(t["matched"]) != fold(t[lang])]
+    if terms:
+        user += "\n\nMedical terms to use (standard forms):\n" + "\n".join(terms)
     body = _strip_fences(llm.chat(system, user, max_tokens=3500, think=False))
     body, errors = check_body(body, rows, evidence_text, patients, names, lang)
     if errors:
