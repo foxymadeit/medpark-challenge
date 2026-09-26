@@ -90,7 +90,7 @@ export function NewMeeting() {
             options={MEETING_TYPES.map((type) => ({ value: type, label: t(`types.${type}`), icon: <MeetingTypeIcon type={type} /> }))}
           />
           {/* What the selected type changes: the vocabulary the minutes are written in. */}
-          <p className="note" id="nm-type-hint" aria-live="polite">
+          <p className="note note--soft" id="nm-type-hint" aria-live="polite">
             {t(`newMeeting.typeDesc.${draft.type}`)}
           </p>
         </div>

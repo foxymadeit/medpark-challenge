@@ -125,6 +125,8 @@
 .page__actions--stack { flex-direction: column; gap: var(--sm-space-2); }
 .lead { font: 400 15px/22px var(--sm-font-body); color: var(--sm-ink-secondary); }
 .note { font: 400 13px/18px var(--sm-font-body); color: var(--sm-ink-secondary); }
+/* Descriptive hints under a control: 30% lighter than regular secondary text. */
+.note--soft { opacity: 0.7; }
 .row { display: flex; align-items: center; gap: var(--sm-space-2); }
 .stack { display: flex; flex-direction: column; }
 
