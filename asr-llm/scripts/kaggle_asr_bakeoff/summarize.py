@@ -1,11 +1,13 @@
-"""Bake-off output -> one table and the default it implies.
+"""Bake-off output -> one table per recording and the default it implies.
 
     kaggle kernels output coflaz/liminal-asr-bakeoff -p runs/asr-bakeoff
     python scripts/kaggle_asr_bakeoff/summarize.py runs/asr-bakeoff
 
 Rule for the default: among setups that transcribe an hour in at most BUDGET_S on the T4, the lowest
-CER on the hand-corrected gold, provided it inserts no more words than the current pipeline
-(whisper large-v3); LLM correction ships only if it lowers CER without adding insertions.
+mean CER over the hand-corrected gold and the team's code-switched reading (weighted equally: the
+team recording is the closest thing to the judges' audio), provided it inserts no more words on those
+two than the current pipeline (whisper large-v3). LLM correction ships only if it lowers that CER
+without adding insertions.
 """
 
 from __future__ import annotations
@@ -14,72 +16,71 @@ import json
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # asr-llm/, for asr_llm
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from specialists import score_text  # noqa: E402
+
 BUDGET_S = 360.0
 BASELINE = "whisper-large-v3"
-
-
-def fold(text: str) -> str:
-    import re
-
-    return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", (text or "").casefold())).strip()
-
-
-def insertions(ref: str, hyp: str) -> int:
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from specialists import ops
-
-    return ops(fold(ref).split(), fold(hyp).split())["ins"]
+GROUPS = ("gold", "clip_team1", "clip_team2", "clip_synthetic")
+DECISIVE = ("gold", "clip_team1")
+COLS = ("cer", "wer", "cer_ro_part", "cer_ru_part", "word_ins", "script_mismatch", "key_terms")
 
 
 def main(root: Path) -> None:
     out = next(root.rglob("report.json")).parent
-    rows: dict[str, dict] = {}
-    for f in out.glob("result_whisper-*.json"):
-        name = f.stem.removeprefix("result_")
-        r = json.loads(f.read_text())
-        gold = r["sets"].get("gold", {})
-        hyp = next(iter(json.loads(p.read_text()) for p in out.glob(f"hyp_{name}_gold.json")), [{}])[0]
+    rows: dict[str, dict] = {}  # config -> group -> scores, plus hour_s
+    for group in GROUPS:  # engines scored by asr_train.zeroshot: whole-recording hypotheses
+        for f in out.glob(f"hyp_*_{group}.json"):
+            name = f.stem.removeprefix("hyp_").removesuffix(f"_{group}")
+            pair = json.loads(f.read_text(encoding="utf-8"))[0]
+            if pair.get("ref"):
+                rows.setdefault(name, {})[group] = score_text(pair["ref"], pair.get("hyp") or "")
+    for name in list(rows):
         hour = out / f"result_hour-{name.removeprefix('whisper-')}.json"
-        rows[name] = {"gold_cer": gold.get("cer"), "gold_wer": gold.get("wer"),
-                      "ins": insertions(hyp.get("ref", ""), hyp.get("hyp", "")) if hyp else None,
-                      **{k: r["sets"].get(k, {}).get("wer") for k in ("fleurs_ro", "fleurs_ru", "fleurs_en", "cs_ru_en", "cs_ro_en", "rompar_md")},
-                      "hour_s": json.loads(hour.read_text())["seconds"] if hour.exists() else None}
+        if hour.exists():
+            rows[name]["hour_s"] = json.loads(hour.read_text())["seconds"]
+        res = out / f"result_{name}.json"
+        if res.exists() and "medpark_60min" in json.loads(res.read_text()):
+            rows[name]["hour_s"] = json.loads(res.read_text())["medpark_60min"]["seconds"]
     spec = out / "result_specialists.json"
     if spec.exists():
         for name, r in json.loads(spec.read_text())["configs"].items():
-            g = r.get("gold", {})
-            rows[name] = {"gold_cer": g.get("cer"), "gold_wer": g.get("wer"), "ins": g.get("word_ins"),
-                          "cer_ro_part": g.get("cer_ro_part"), "cer_ru_part": g.get("cer_ru_part"),
-                          "script_mismatch": g.get("script_mismatch"), "terms": f"{g.get('terms_hit')}/{g.get('terms_in_gold')}",
-                          **{k: r.get(k, {}).get("wer") for k in ("fleurs_ro", "fleurs_ru", "fleurs_en", "cs_ru_en", "cs_ro_en", "rompar_md")},
-                          "hour_s": r.get("hour_seconds")}
+            rows[name] = {g: r[g] for g in GROUPS if g in r} | {"hour_s": r.get("hour_seconds")}
     ger = out / "result_ger.json"
     if ger.exists():
-        for key, r in json.loads(ger.read_text())["sets"].items():
-            if key.endswith("_gold"):
-                a = r["after"]
-                rows["ger:" + key.removesuffix("_gold")] = {"gold_cer": a.get("cer"), "gold_wer": a.get("wer"), "ins": a.get("word_ins"),
-                                                            "cer_ro_part": a.get("cer_ro_part"), "cer_ru_part": a.get("cer_ru_part"),
-                                                            "script_mismatch": a.get("script_mismatch"),
-                                                            "terms": f"{a.get('terms_hit')}/{a.get('terms_in_gold')}",
-                                                            "ger_changed": r["changed"], "ger_s_per_min": round(60 * r["seconds"] / max(r["audio_s"], 1), 1)}
-    cols = ["gold_cer", "gold_wer", "cer_ro_part", "cer_ru_part", "ins", "script_mismatch", "terms",
-            "fleurs_ro", "fleurs_ru", "fleurs_en", "cs_ro_en", "cs_ru_en", "rompar_md", "hour_s"]
-    print("| config | " + " | ".join(cols) + " |")
-    print("|" + "---|" * (len(cols) + 1))
-    for name, r in sorted(rows.items(), key=lambda kv: (kv[1].get("gold_cer") is None, kv[1].get("gold_cer") or 9)):
-        print(f"| {name} | " + " | ".join("" if r.get(c) is None else str(r.get(c)) for c in cols) + " |")
-    base_ins = (rows.get(BASELINE) or {}).get("ins")
-    ok = {n: r for n, r in rows.items() if r.get("gold_cer") is not None and not n.startswith("ger:")
+        for r in json.loads(ger.read_text())["sets"].values():
+            rows.setdefault("ger:" + r["config"], {"hour_s": None})[r["group"]] = {**r["after"], "ger_changed": r["changed"]}
+
+    def cell(s: dict, c: str) -> str:
+        if c == "key_terms":
+            return f"{s.get('key_terms_heard')}/{s.get('key_terms_said')}" if s.get("key_terms_said") else ""
+        return "" if s.get(c) is None else str(s[c])
+
+    for group in GROUPS:
+        print(f"\n### {group}\n\n| config | " + " | ".join(COLS) + " | hour_s |\n|" + "---|" * (len(COLS) + 2))
+        for name, r in sorted(rows.items(), key=lambda kv: kv[1].get(group, {}).get("cer", 9)):
+            if group in r:
+                print(f"| {name} | " + " | ".join(cell(r[group], c) for c in COLS) + f" | {r.get('hour_s') or ''} |")
+
+    def mean(r: dict, key: str) -> float | None:
+        vals = [r[g][key] for g in DECISIVE if g in r and r[g].get(key) is not None]
+        return sum(vals) / len(vals) if len(vals) == len([g for g in DECISIVE if any(g in x for x in rows.values())]) else None
+
+    base_ins = mean(rows.get(BASELINE, {}), "word_ins")
+    ok = {n: r for n, r in rows.items() if mean(r, "cer") is not None and not n.startswith("ger:")
           and (r.get("hour_s") is None or r["hour_s"] <= BUDGET_S)
-          and (base_ins is None or r.get("ins") is None or r["ins"] <= base_ins)}
-    best = min(ok, key=lambda n: ok[n]["gold_cer"]) if ok else None
-    print(f"\nreport: {json.loads((out / 'report.json').read_text()).get('peak_gpu_gb')}")
-    print(f"default by the rule: {best} ({ok[best] if best else ''})")
+          and (base_ins is None or mean(r, "word_ins") is None or mean(r, "word_ins") <= base_ins)}
+    ranked = sorted(ok, key=lambda n: mean(ok[n], "cer"))
+    print(f"\npeak GPU GB: {json.loads((out / 'report.json').read_text()).get('peak_gpu_gb')}")
+    print("ranking by mean CER over " + " + ".join(DECISIVE) + ":")
+    for n in ranked[:8]:
+        print(f"  {n}: {mean(ok[n], 'cer'):.3f} (insertions {mean(ok[n], 'word_ins')}, hour {ok[n].get('hour_s')} s)")
     for n, r in rows.items():
-        if n.startswith("ger:") and best and r["gold_cer"] is not None:
-            base = rows.get(n.removeprefix("ger:").replace("_", ":", 1).replace("_", "+"), {})
-            print(f"{n}: CER {base.get('gold_cer')} -> {r['gold_cer']}, insertions {base.get('ins')} -> {r['ins']}")
+        if n.startswith("ger:"):
+            base = rows.get(n.removeprefix("ger:"), {})
+            print(f"{n}: mean CER {mean(base, 'cer')} -> {mean(r, 'cer')}, insertions {mean(base, 'word_ins')} -> {mean(r, 'word_ins')}")
+    print(f"default by the rule: {ranked[0] if ranked else None}")
 
 
 if __name__ == "__main__":

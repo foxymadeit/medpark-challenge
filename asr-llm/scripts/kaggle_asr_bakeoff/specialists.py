@@ -21,8 +21,25 @@ HERE = Path(__file__).resolve()
 ASR = HERE.parents[2]  # asr-llm/
 SPED = ("gabrielpirlo/Sped_ParakeetRomanian_110M_TDT-CTC", "SpeD-ParakeetRo_110M_TDT-CTC.nemo")
 SPED_LM = ("gabrielpirlo/SpeD-Romanian_6gram", "SpeD-Ro_6gram-tokens-prune0135.bin")
-LONG = ("gold", "clip_synthetic", "hour")  # whole recordings, cut into utterances
-SYSTEMS = ("sped", "gigaam", "parakeet")
+# The team recording's answer key (minutes/eval/team_recording/script.md, "Medical terms to check").
+KEY_TERMS = ["supradenivelare de segment ST", "infarct miocardic acut", "ecocardiografie", "fracția de ejecție",
+             "troponina", "creatinina", "insuficiență renală", "coronarografie", "substanța de contrast", "варфарин",
+             "МНО", "abord radial", "ventilație mecanică", "sepsis", "hemoculturi", "Klebsiella", "meropenem",
+             "HME фильтры", "AVC ischemic", "JCI", "hand hygiene compliance"]
+
+
+def key_terms(ref: str, hyp: str) -> dict:
+    """Answer-key terms said (in the reference) and heard (in the transcript). A word matches on its stem,
+    all but its last two letters (at least 3), so "ecocardiografia" counts for "ecocardiografie"."""
+    from asr_llm.clean import _fold
+
+    def has(text: set[str], term: str) -> bool:
+        return all(any(w.startswith(t[: max(3, len(t) - 2)]) for w in text) for t in _fold(term).split())
+
+    r, h = set(_fold(ref).split()), set(_fold(hyp).split())
+    said = [t for t in KEY_TERMS if has(r, t)]
+    heard = [t for t in said if has(h, t)]
+    return {"key_terms_said": len(said), "key_terms_heard": len(heard), "key_terms_missed": [t for t in said if t not in heard]}
 
 
 def load(path: Path):
@@ -45,7 +62,8 @@ def cut(work: Path) -> None:
     from asr_llm.vad import speech_spans
 
     sets = {**load(work / "sets.json"), **load(work / "run_sets.json")}
-    recordings = {"gold": sets["gold"][0], "clip_synthetic": sets["clip_synthetic"][0],
+    # Whole recordings, cut into the product's VAD utterances: the gold, every --clip (synthetic, team), an hour.
+    recordings = {"gold": sets["gold"][0], **{k: v[0] for k, v in sets.items() if k.startswith("clip_")},
                   "hour": {"audio": str(work / "data" / "medpark_60min.wav"), "text": None}}
     index: dict[str, list[dict]] = {}
     for name, rec in recordings.items():
@@ -169,18 +187,25 @@ def ops(ref: list, hyp: list) -> dict:
     return {"sub": s, "del": de, "ins": ins}
 
 
-def score_long(segments, ref: str) -> dict:
-    """asr_llm's report, plus insertions and CER on the Latin-only and Cyrillic-only parts."""
+def score_text(ref: str, hyp: str) -> dict:
+    """CER/WER, insertions, CER on the Latin-only (RO/EN) and Cyrillic-only (RU) parts, answer-key terms."""
     from asr_llm.clean import _fold
-    from asr_llm.score import error_rate, report
+    from asr_llm.score import error_rate
 
-    out = report(segments, ref)
-    hyp = " ".join(s.text for s in segments)
-    out.update({f"word_{k}": v for k, v in ops(_fold(ref).split(), _fold(hyp).split()).items()})
+    r, h = _fold(ref), _fold(hyp)
+    out = {"cer": round(error_rate(list(r), list(h)), 3), "wer": round(error_rate(r.split(), h.split()), 3)}
+    out.update({f"word_{k}": v for k, v in ops(r.split(), h.split()).items()})
     for part, cyr in (("ro_part", False), ("ru_part", True)):
-        pick = lambda t: " ".join(w for w in _fold(t).split() if any("Ѐ" <= c <= "ӿ" for c in w) == cyr)  # noqa: E731
-        out[f"cer_{part}"] = round(error_rate(list(pick(ref)), list(pick(hyp))), 3)
-    return out
+        pick = lambda t: " ".join(w for w in t.split() if any("Ѐ" <= c <= "ӿ" for c in w) == cyr)  # noqa: E731
+        out[f"cer_{part}"] = round(error_rate(list(pick(r)), list(pick(h))), 3)
+    return {**out, **key_terms(ref, hyp)}
+
+
+def score_long(segments, ref: str) -> dict:
+    """asr_llm's report (script mismatch, glossary term hits) plus score_text."""
+    from asr_llm.score import report
+
+    return {**report(segments, ref), **score_text(ref, " ".join(s.text for s in segments))}
 
 
 def score_items(refs: list[str], hyps: list[str]) -> dict:
@@ -239,10 +264,13 @@ def combine(work: Path) -> None:
 
     configs: dict[str, dict[str, dict]] = {k: {i: {"text": v["text"]} for i, v in e["hyps"].items()} for k, e in engines.items()}
     members: dict[str, tuple[str, ...]] = {k: (k,) for k in engines}
-    # The Romanian member: whichever SpeD decoding scored best on the gold wins a place in the ensemble.
+    # The Romanian member: the SpeD decoding with the lowest mean CER on the gold and the team's code-switched
+    # reading (weighted equally: the team recording is the closest thing to the judges' audio).
     ro_candidates = [k for k in ("sped", "sped-ctc", "sped-ctc-lm") if k in engines]
     if ro_candidates and "gigaam" in engines:
-        gold_cer = {k: score_long(_segments(index["gold"], configs[k]), refs["gold"])["cer"] for k in ro_candidates}
+        decisive = [g for g in ("gold", "clip_team1") if refs.get(g)]
+        gold_cer = {k: round(sum(score_long(_segments(index[g], configs[k]), refs[g])["cer"] for g in decisive) / len(decisive), 3)
+                    for k in ro_candidates}
         ro_specialist = min(gold_cer, key=gold_cer.get)
         result["ro_specialist"] = {"chosen": ro_specialist, "gold_cer": gold_cer}
         for label, team in (("ensemble:ro+ru", (ro_specialist, "gigaam")), ("ensemble:ro+ru+multi", (ro_specialist, "gigaam", "parakeet"))):
@@ -258,7 +286,7 @@ def combine(work: Path) -> None:
     for name, texts in configs.items():
         row = {}
         for group, items in index.items():
-            if group == "hour":
+            if group in refs and not refs[group]:  # the hour (and any clip without a reference): timing only
                 continue
             if group in refs:
                 row[group] = score_long(_segments(items, texts, {i: v.get("language") for i, v in texts.items()}), refs[group])
@@ -274,7 +302,7 @@ def combine(work: Path) -> None:
     for key in ("ensemble:ro+ru+multi", "ensemble:ro+ru"):
         if key not in configs:
             continue
-        for group in ("gold", "clip_synthetic"):
+        for group in [g for g, ref in refs.items() if ref]:
             segs = []
             for it in index[group]:
                 c = configs[key].get(it["id"])
@@ -284,10 +312,11 @@ def combine(work: Path) -> None:
                         for m, t in c["hypotheses"].items() if t]
                 segs.append(SpeechSegment(start=it["start"], end=it["end"], text=c["text"],
                                           language=c["language"], hypotheses=hyps).model_dump())
-            save(work / "ens" / f"{key.replace(':', '_').replace('+', '_')}_{group}.json", {"segments": segs, "text": ""})
+            save(work / "ens" / f"{key.replace(':', '_').replace('+', '_')}__{group}.json", {"config": key, "group": group, "segments": segs})
         break
     save(work / "out" / "result_specialists.json", result)
-    save(work / "out" / "specialist_texts_gold.json", {k: [v.get(i["id"], {}).get("text", "") for i in index["gold"]] for k, v in configs.items()})
+    for group in [g for g, ref in refs.items() if ref]:
+        save(work / "out" / f"specialist_texts_{group}.json", {k: [v.get(i["id"], {}).get("text", "") for i in index[group]] for k, v in configs.items()})
 
 
 # ---------------------------------------------------------------- LLM error correction
@@ -303,13 +332,15 @@ def ger(work: Path, llm_spec: str) -> None:
     llm = make_llm(llm_spec)
     result = {"llm": llm_spec, "margin": settings.fuse_margin, "floor": settings.fuse_floor, "sets": {}}
     for f in sorted((work / "ens").glob("*.json")):
-        group = "gold" if f.stem.endswith("_gold") else "clip_synthetic"
-        segs = [SpeechSegment.model_validate(s) for s in load(f)["segments"]]
+        data = load(f)
+        group = data["group"]
+        segs = [SpeechSegment.model_validate(s) for s in data["segments"]]
         unclear = sum(is_unclear(s, settings.fuse_margin, settings.fuse_floor) for s in segs)
         t0 = time.perf_counter()
         fused = fuse_single(llm, segs)
         took = time.perf_counter() - t0
-        result["sets"][f.stem] = {"before": score_long(segs, refs[group]), "after": score_long(fused, refs[group]),
+        result["sets"][f.stem] = {"config": data["config"], "group": group,
+                                  "before": score_long(segs, refs[group]), "after": score_long(fused, refs[group]),
                                   "unclear": unclear, "changed": sum(a.text != b.text for a, b in zip(segs, fused)),
                                   "seconds": round(took, 1), "audio_s": round(segs[-1].end if segs else 0.0, 1)}
         print(f.stem, result["sets"][f.stem]["before"].get("cer"), "->", result["sets"][f.stem]["after"].get("cer"), flush=True)

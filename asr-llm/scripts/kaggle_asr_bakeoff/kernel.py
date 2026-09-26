@@ -113,8 +113,21 @@ def whisper_env(model: str, merge: bool, joint: bool = False) -> dict:
     return env
 
 
+def team_clips() -> str:
+    """The team's code-switched readings (dataset coflaz/liminal-team-recordings), scored like the gold."""
+    clips = []
+    for name, stem in (("team1", "team_rec1_cristina_all"), ("team2", "team_rec2_no_cristina")):
+        audio = next(Path("/kaggle/input").rglob(f"{stem}.m4a"), None)
+        ref = next(Path("/kaggle/input").rglob(f"{stem}.ref.txt"), None)
+        if audio and ref:
+            clips.append(f"--clip {name}={audio},{ref}")
+        else:
+            STATE["warnings"].append(f"{stem} not attached")
+    return " ".join(clips)
+
+
 BENCH = f"{sys.executable} -m asr_train.zeroshot --work {WORK} --sets all " \
-        "--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md"
+        f"--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md {team_clips()}"
 
 
 def run_whisper(model: str, merge: bool, joint: bool) -> None:
