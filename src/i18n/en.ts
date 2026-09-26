@@ -361,6 +361,9 @@ export const en = {
     processing: 'Processing',
   },
   record: {
+    saveTemplate: 'Save as template',
+    saveTemplateLead: 'Keeps the type and {count} participants for next time.',
+    saveTemplateLead_one: 'Keeps the type and {count} participant for next time.',
     back: 'History',
     meta: '{type} · {date} · {n} min · Sent to {sent} of {total}',
     metaUnsent: '{type} · {date} · {n} min',

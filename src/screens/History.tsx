@@ -1,10 +1,11 @@
-import { ArrowLeftIcon, DownloadSimpleIcon, FileAudioIcon, FilePdfIcon, LockSimpleIcon, MagnifyingGlassIcon, MicrophoneIcon, UploadSimpleIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, DownloadSimpleIcon, FileAudioIcon, FilePdfIcon, ListChecksIcon, LockSimpleIcon, MagnifyingGlassIcon, MicrophoneIcon, UploadSimpleIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
 import { Avatar } from '../components/Avatar';
 import { TranscriptLines } from '../components/Minutes';
+import { TextField } from '../components/TextField';
 import { StatusTag } from '../components/StatusTag';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { useI18n } from '../i18n/I18nProvider';
@@ -143,11 +144,24 @@ export function History() {
 export function HistoryRecord() {
   const { t, lang } = useI18n();
   const { id } = useParams();
-  const { meetings, resolvePerson } = useStore();
+  const { meetings, resolvePerson, saveTemplate } = useStore();
+  const navigate = useNavigate();
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [pdfBusy, setPdfBusy] = useState(false);
   const meeting = meetings.find((m) => m.id === id);
+  const [tplName, setTplName] = useState<string | null>(null); // null = dialog closed
   if (!meeting) return <Navigate to="/history" replace />;
+
+  const saveAsTemplate = () => {
+    if (!tplName?.trim()) return;
+    saveTemplate({
+      name: tplName.trim(),
+      type: meeting.type,
+      // Only people in the directory can be template members (not one-off email guests).
+      participantIds: meeting.participants.map((p) => p.personId).filter((pid) => resolvePerson(pid)),
+    });
+    navigate('/templates');
+  };
 
   const nameOf = speakerNamer(meeting, resolvePerson, t);
   const fullDate = formatFullDate(meeting.date, lang);
@@ -241,8 +255,11 @@ export function HistoryRecord() {
       </div>
 
       <div className="page__actions no-print">
+        <Button variant="ink" icon={<ListChecksIcon size={20} aria-hidden />} onClick={() => setTplName(meeting.title)}>
+          {t('record.saveTemplate')}
+        </Button>
         <Button
-          variant="primary"
+          variant="ink"
           icon={<DownloadSimpleIcon size={20} aria-hidden />}
           disabled={pdfBusy}
           aria-busy={pdfBusy}
@@ -259,6 +276,17 @@ export function HistoryRecord() {
         </Button>
       </div>
 
+      {tplName !== null && (
+        <Dialog title={t('record.saveTemplate')} onClose={() => setTplName(null)}>
+          <form className="stack" style={{ gap: 16 }} onSubmit={(e) => (e.preventDefault(), saveAsTemplate())}>
+            <p className="note">{t('record.saveTemplateLead', { count: meeting.participants.filter((p) => resolvePerson(p.personId)).length })}</p>
+            <TextField editable label={t('templates.name')} value={tplName} onChange={(e) => setTplName(e.target.value)} />
+            <Button type="submit" variant="ink" block disabled={!tplName.trim()}>
+              {t('templates.save')}
+            </Button>
+          </form>
+        </Dialog>
+      )}
       {transcriptOpen && (
         <Dialog title={t('review.transcript')} onClose={() => setTranscriptOpen(false)} wide>
           <p className="note">{t('review.highlighted')}</p>
