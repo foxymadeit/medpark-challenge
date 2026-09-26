@@ -57,7 +57,7 @@ describe("sent meeting exports", () => {
 
 describe("failed delivery retry", () => {
   it("retries at 30 seconds and remains idempotent after success", async () => {
-    const failedAt = new Date("2026-09-26T12:00:00.000Z");
+    const failedAt = new Date(Date.now());
     await updateMeeting("meeting-001", {
       status: "ready",
       deliveryState: "failed",

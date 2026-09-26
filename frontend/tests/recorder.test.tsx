@@ -99,7 +99,9 @@ describe("MediaRecorder lifecycle", () => {
 it("supports automatic recording inside React StrictMode and recovers after refresh", async () => {
   const { StrictMode } = await import("react");
   const { render, screen, fireEvent } = await import("@testing-library/react");
-  const { default: App } = await import("../src/App");
+  const { createMemoryRouter, RouterProvider } =
+    await import("react-router-dom");
+  const { routes } = await import("../src/router");
   const { default: i18n } = await import("../src/i18n/i18n");
   const { createMeeting, getPeople, getMeeting } =
     await import("../src/api/meetings");
@@ -112,10 +114,12 @@ it("supports automatic recording inside React StrictMode and recovers after refr
     inputMode: "record",
     participants: await getPeople(),
   });
-  window.history.replaceState({}, "", `/meetings/${m.id}/record`);
+  const router = createMemoryRouter(routes, {
+    initialEntries: [`/meetings/${m.id}/record`],
+  });
   const view = render(
     <StrictMode>
-      <App />
+      <RouterProvider router={router} />
     </StrictMode>,
   );
   await screen.findByRole("button", { name: "Pause" });

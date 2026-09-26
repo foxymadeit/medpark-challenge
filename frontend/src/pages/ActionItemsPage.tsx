@@ -19,10 +19,9 @@ export default function ActionItemsPage() {
     .flatMap((meeting) =>
       (meeting.actionItems ?? []).map((item) => ({ meeting, item })),
     )
-    .filter(({ meeting, item }) =>
+    .filter(({ item }) =>
       filter === "mine"
-        ? meeting.participants.find((p) => p.id === item.ownerParticipantId)
-            ?.email === user?.email
+        ? item.ownerStaffId === user?.staffProfileId
         : filter === "overdue"
           ? Boolean(!item.completed && item.deadline && item.deadline < today)
           : true,

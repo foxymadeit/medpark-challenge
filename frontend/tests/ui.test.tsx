@@ -9,8 +9,9 @@ import {
 } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import App from "../src/App";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import i18n from "../src/i18n/i18n";
+import { routes } from "../src/router";
 import { getMeeting, getMeetings, updateMeeting } from "../src/api/meetings";
 import { readStore, writeStore } from "../src/mock/store";
 import { notifyUpdate } from "../src/hooks/useData";
@@ -19,8 +20,8 @@ beforeEach(async () => {
 });
 function mount(path = "/meetings", auth = true) {
   if (auth) saveDemoSession();
-  window.history.replaceState({}, "", path);
-  return render(<App />);
+  const router = createMemoryRouter(routes, { initialEntries: [path] });
+  return render(<RouterProvider router={router} />);
 }
 describe("application flows", () => {
   it("keeps the signed-out page free of participant data and supports keyboard login", async () => {

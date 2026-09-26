@@ -25,6 +25,7 @@ export interface CorrectionFeedback {
 }
 export interface Participant {
   id: string;
+  staffId?: string;
   name: string;
   email?: string;
   role?: string;
@@ -51,6 +52,7 @@ export interface ActionItem {
   id: string;
   task: string;
   ownerParticipantId: string | null;
+  ownerStaffId?: string | null;
   deadline: string | null;
   sourceTimestampSeconds?: number;
   completed: boolean;

@@ -183,7 +183,18 @@ export async function updateActionItem(
       Object.keys(changes).some((k) => k !== "completed")
     )
       throw new ApiError("alreadySent");
-    Object.assign(a, changes, { id: actionId });
+    const owner =
+      changes.ownerParticipantId === undefined
+        ? undefined
+        : changes.ownerParticipantId === null
+          ? null
+          : m.participants.find(
+              (participant) => participant.id === changes.ownerParticipantId,
+            );
+    Object.assign(a, changes, {
+      id: actionId,
+      ...(owner === undefined ? {} : { ownerStaffId: owner?.staffId ?? null }),
+    });
     restartWindow(m);
     return m;
   });

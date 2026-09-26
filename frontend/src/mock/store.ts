@@ -126,6 +126,18 @@ export function readStore(): DemoStore {
   }
   store.feedback ??= [];
   for (const meeting of store.meetings) {
+    for (const participant of meeting.participants) {
+      participant.staffId ??= participant.id;
+    }
+    for (const action of meeting.actionItems ?? []) {
+      if (action.ownerStaffId === undefined) {
+        action.ownerStaffId =
+          meeting.participants.find(
+            (participant) => participant.id === action.ownerParticipantId,
+          )?.staffId ?? null;
+        migrated = true;
+      }
+    }
     if (!meeting.sendMode) {
       meeting.sendMode = "manual";
       meeting.reviewState =

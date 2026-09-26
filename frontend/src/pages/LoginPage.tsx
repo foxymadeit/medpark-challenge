@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
-import { FiClock as Clock, FiShield as ShieldCheck } from "react-icons/fi";
+import { FiClock as Clock } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/useAuth";
 import TopBar from "../components/TopBar";
@@ -69,18 +69,12 @@ export default function LoginPage() {
       <Button type="submit" variant="primary" disabled={busy}>
         {t(busy ? "signingIn" : "signIn")}
       </Button>
-      {!timedOut && (
-        <p className="login-note">
-          <ShieldCheck size={18} strokeWidth={2.5} />
-          {t("network")}
-        </p>
-      )}
     </form>
   );
   if (timedOut)
     return (
       <main className="timeout-login">
-        <strong className="timeout-brand">Secure MOM</strong>
+        <strong className="timeout-brand">Liminal</strong>
         {form}
       </main>
     );

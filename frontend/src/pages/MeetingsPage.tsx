@@ -24,12 +24,7 @@ export default function MeetingsPage() {
   if (!data) return <StatePanel error={error} retry={refresh} />;
   const actions = data.flatMap((m) =>
     (m.actionItems ?? [])
-      .filter(
-        (a) =>
-          !a.completed &&
-          m.participants.find((p) => p.id === a.ownerParticipantId)?.email ===
-            user?.email,
-      )
+      .filter((a) => !a.completed && a.ownerStaffId === user?.staffProfileId)
       .map((item) => ({ meeting: m, item })),
   );
   return (

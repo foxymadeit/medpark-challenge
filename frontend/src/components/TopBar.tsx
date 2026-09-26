@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/useAuth";
 import LanguageSwitcher from "./LanguageSwitcher";
 import Button from "./Button";
+import LiminalLogo from "./LiminalLogo";
 export default function TopBar({
   publicOnly = false,
 }: {
@@ -15,9 +16,7 @@ export default function TopBar({
   const [open, setOpen] = useState(false);
   return (
     <header className="top-bar">
-      <Link className="wordmark" to={publicOnly ? "/login" : "/meetings"}>
-        Secure MOM
-      </Link>
+      <LiminalLogo publicOnly={publicOnly} />
       {!publicOnly && (
         <nav className="desktop-nav">
           {[
