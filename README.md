@@ -390,6 +390,12 @@ test behind for each control.
   <img src="docs/readme/screens.png" alt="Liminal's screens" width="100%">
 </p>
 
+**Five actions from the meetings list to a delivered email, and none after the
+upload:** pick the meeting type, choose Upload, Continue, choose the file,
+"Write the minutes". A browser test (`frontend/tests/e2e/steps.spec.ts`) counts
+them and fails if the flow ever grows. Recording is shorter still: pick the
+type, Start recording, Stop and write the minutes.
+
 1. **Upload or press Rec.** WAV, MP3, M4A, FLAC or a browser recording.
 2. **Confirm the meeting type.** Liminal suggests it from the first 3 minutes.
 3. **Wait.** The minutes arrive, wait 60 seconds so anyone can stop
