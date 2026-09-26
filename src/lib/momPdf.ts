@@ -145,12 +145,8 @@ export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
   (await buildMomPdf(meeting, t, lang)).download(fileName(meeting));
 }
 
-/**
- * Opens the MoM PDF in a new tab, exactly as it will be sent.
- * `win` must be opened synchronously in the click handler (before the lazy load), or popup blockers stop it.
- */
-export async function previewMomPdf(meeting: Meeting, t: T, lang: Lang, win: Window | null) {
+/** The MoM PDF as an object URL, for the in-app preview. Revoke it when the preview closes. */
+export async function momPdfUrl(meeting: Meeting, t: T, lang: Lang): Promise<string> {
   const pdf = await buildMomPdf(meeting, t, lang);
-  if (win) pdf.open({}, win);
-  else pdf.download(fileName(meeting)); // popup blocked: fall back to a download
+  return new Promise((resolve) => pdf.getBlob((blob: Blob) => resolve(URL.createObjectURL(blob))));
 }
