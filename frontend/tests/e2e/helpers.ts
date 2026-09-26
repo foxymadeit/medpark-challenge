@@ -24,8 +24,9 @@ export function silentWav(seconds = 2, rate = 16000): Buffer {
 }
 
 export async function shot(page: Page, name: string) {
-  if (SHOTS)
-    await page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true });
+  if (!SHOTS) return;
+  await page.waitForTimeout(300); // after the 200 ms fade, not in the middle of it
+  await page.screenshot({ path: `${SHOTS}/${name}.png`, fullPage: true });
 }
 
 export async function login(page: Page) {

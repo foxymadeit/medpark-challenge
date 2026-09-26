@@ -51,6 +51,13 @@ test("main screens at five widths: no sideways scroll, no serious axe issues, no
       await page.waitForTimeout(250); // let the 200 ms page fade finish
       await noHorizontalScroll(page);
       await noNestedCards(page);
+      // A title squeezed into a narrow column wraps a word per line.
+      for (const title of await page
+        .locator(".meeting-list-row strong")
+        .all()) {
+        const box = await title.boundingBox();
+        if (box) expect(box.width).toBeGreaterThan(120);
+      }
       if (SHOTS)
         await page.screenshot({
           path: `${SHOTS}/w${width}-${name}.png`,

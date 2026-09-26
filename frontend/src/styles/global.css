@@ -1047,7 +1047,7 @@ svg {
 }
 .meeting-list-row {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 16px;
   padding: 20px;
@@ -2202,7 +2202,6 @@ blockquote {
     padding: 16px;
   }
   .meeting-list-row .status-tag {
-    grid-column: 2/-1;
     justify-self: end;
   }
   .meeting-list-row small {
@@ -2466,7 +2465,7 @@ blockquote {
     margin-bottom: 28px;
   }
   .meeting-list-row {
-    grid-template-columns: 8px 1fr;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: 10px;
     padding: 18px;
   }
@@ -2474,9 +2473,7 @@ blockquote {
     font-size: 14px;
   }
   .meeting-list-row .status-tag {
-    grid-column: 2;
     justify-self: end;
-    margin-top: -24px;
     font-size: 12px;
     padding: 0;
     background: transparent;
@@ -2488,7 +2485,6 @@ blockquote {
     display: none;
   }
   .meeting-list-row small {
-    max-width: 48%;
     font-size: 12px;
   }
   .department-doors {
