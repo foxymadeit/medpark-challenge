@@ -1,0 +1,878 @@
+[00:00:03] Speaker 1: Bună ziua, colegi. Începem ședința Consiliului Medical. Avem șase subiecte pe agendă: cazurile clinice, capacitatea ATI, infecțiile nosocomiale, lista de așteptare la endoscopie, stocurile farmaciei și graficul de gărzi al rezidenților.
+[00:00:15] Speaker 1: Добрый день всем, кто подключился онлайн. Мы начинаем.
+[00:00:18] Speaker 1: Кто-нибудь видел пульт от проектора? Mai așteptăm un coleg de la chirurgie.
+[00:00:23] Speaker 1: Коллеги онлайн, включите, пожалуйста, микрофоны только когда говорите.
+[00:00:27] Speaker 1: Коллеги онлайн, вас слышно?
+[00:00:28] Speaker 1: Кто-нибудь видел пульт от проектора? Microfonul face ecou.
+[00:00:31] Speaker 1: Cafeaua de la etajul trei s-a stricat din nou.
+[00:00:35] Speaker 1: Se aude și în spatele sălii? Am trimis materialele aseară pe e-mail.
+[00:00:40] Speaker 6: Cafeaua de la etajul trei a fost reparată ieri, dar tot curge.
+[00:00:45] Speaker 6: Кто-нибудь видел пульт от проектора? Microfonul face ecou.
+[00:00:48] Speaker 1: Se aude și în spatele sălii? Microfonul face ecou.
+[00:00:52] Speaker 3: Кто-нибудь видел пульт от проектора? Microfonul face ecou.
+[00:00:55] Speaker 3: Se aude și în spatele sălii? Am trimis materialele aseară pe e-mail.
+[00:01:00] Speaker 1: Кто-нибудь видел пульт от проектора? Mulțumesc.
+[00:01:02] Speaker 1: Microfonul face ecou. Continuăm.
+[00:01:04] Speaker 1: Mulțumesc. Continuăm.
+[00:01:05] Speaker 1: Кто-нибудь видел пульт от проектора? Am trimis materialele aseară pe e-mail.
+[00:01:09] Speaker 1: Primul subiect, cazurile clinice. Vă rog, cardiologia.
+[00:01:12] Speaker 2: Pacientul Vasile Ceban, 72 de ani, salonul 8, internat cu insuficiență cardiacă decompensată și pneumonie.
+[00:01:18] Speaker 4: The family asked again about the discharge plan.
+[00:01:21] Speaker 4: Мы продолжаем инотропную поддержку, динамика пока слабая.
+[00:01:24] Speaker 6: BNP-ul a fost peste 1500, deci decompensarea e clară.
+[00:01:28] Speaker 7: The family asked again about visiting hours.
+[00:01:31] Speaker 5: Radiografia arată revărsat pleural bilateral mic.
+[00:01:33] Speaker 6: BNP-ul a fost aproape 3000, deci decompensarea e clară.
+[00:01:37] Speaker 6: Radiografia arată revărsat pleural bilateral mic.
+[00:01:39] Speaker 3: Pacientul din salonul 8 are și boală cronică de rinichi.
+[00:01:43] Speaker 2: Мы продолжаем диуретики внутривенно, динамика пока слабая.
+[00:01:46] Speaker 4: Echipa de gardă a notat noaptea trecută un episod de tahicardie.
+[00:01:51] Speaker 6: Tensiunea arterială se menține în jur de 90 pe 55.
+[00:01:55] Speaker 5: Echipa de gardă a notat noaptea trecută un episod de tahicardie.
+[00:01:59] Speaker 5: BNP-ul a fost în jur de 2200, deci decompensarea e clară.
+[00:02:04] Speaker 4: Креатинин вырос до 180, диурез снижен.
+[00:02:06] Speaker 3: Tensiunea arterială se menține în jur de 100 pe 65.
+[00:02:10] Speaker 4: Pacienta din patul 5 are drenul cu secreție tulbure.
+[00:02:14] Speaker 2: BNP-ul a fost în jur de 2200, deci decompensarea e clară.
+[00:02:18] Speaker 4: La internare avea saturația 82 la sută, acum e 95 cu oxigen pe mască.
+[00:02:24] Speaker 2: The family asked again about the discharge plan.
+[00:02:27] Speaker 7: La internare avea saturația 84 la sută, acum e 94 cu oxigen pe mască.
+[00:02:33] Speaker 5: Hemoleucograma arată leucocite 16 mii, proteina C reactivă 210.
+[00:02:37] Speaker 5: Pacienta din patul 5 are drenul cu debit mic.
+[00:02:40] Speaker 4: Hemoleucograma arată leucocite 14 mii, proteina C reactivă 150.
+[00:02:44] Speaker 3: Tensiunea arterială se menține în jur de 100 pe 65.
+[00:02:48] Speaker 2: Tensiunea arterială se menține în jur de 90 pe 55.
+[00:02:52] Speaker 2: Pacienta din patul 5 are drenul cu debit mic.
+[00:02:56] Speaker 2: Pacientul din salonul 8 are și boală cronică de rinichi.
+[00:03:00] Speaker 5: Echipa de gardă a notat noaptea trecută o febră de 38,6.
+[00:03:04] Speaker 4: Echipa de gardă a notat noaptea trecută o febră de 38,6.
+[00:03:09] Speaker 5: Pacientul din salonul 8 are și fibrilație atrială permanentă.
+[00:03:13] Speaker 4: Echipa de gardă a notat noaptea trecută o febră de 38,6.
+[00:03:17] Speaker 5: La internare avea saturația 82 la sută, acum e 93 cu oxigen pe mască.
+[00:03:23] Speaker 3: The family asked again about visiting hours.
+[00:03:26] Speaker 6: BNP-ul a fost peste 1500, deci decompensarea e clară.
+[00:03:29] Speaker 3: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:03:33] Speaker 3: The family asked again about visiting hours.
+[00:03:36] Speaker 2: La internare avea saturația 84 la sută, acum e 93 cu oxigen pe mască.
+[00:03:42] Speaker 6: BNP-ul a fost peste 1500, deci decompensarea e clară.
+[00:03:45] Speaker 3: The family asked again about visiting hours.
+[00:03:48] Speaker 2: Tensiunea arterială se menține în jur de 100 pe 65.
+[00:03:52] Speaker 3: Radiografia arată infiltrat bazal drept.
+[00:03:54] Speaker 6: Мы продолжаем диуретики внутривенно, динамика пока слабая.
+[00:03:57] Speaker 6: Мы продолжаем антибиотикотерапию, динамика пока слабая.
+[00:04:00] Speaker 7: Pacientul din salonul 8 are și fibrilație atrială permanentă.
+[00:04:03] Speaker 2: Propun să-l transferăm în terapia intensivă cardiologică pentru monitorizare continuă.
+[00:04:07] Speaker 3: Avem un pat liber în terapia intensivă cardiologică din seara asta.
+[00:04:12] Speaker 1: Deci transferăm pacientul din salonul 8 în terapia intensivă cardiologică astăzi. De acord?
+[00:04:17] Speaker 4: De acord.
+[00:04:18] Speaker 3: Pregătesc eu patul și anunț echipa de gardă mâine dimineață.
+[00:04:22] Speaker 5: Echipa de gardă a notat noaptea trecută o febră de 38,6.
+[00:04:27] Speaker 5: Echipa de gardă a notat noaptea trecută o febră de 38,6.
+[00:04:31] Speaker 3: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:04:35] Speaker 3: Tensiunea arterială se menține în jur de 95 pe 60.
+[00:04:39] Speaker 3: Мы продолжаем диуретики внутривенно, динамика пока слабая.
+[00:04:42] Speaker 4: Radiografia arată revărsat pleural bilateral mic.
+[00:04:45] Speaker 7: Pacientul din salonul 8 are și diabet zaharat de tip 2.
+[00:04:49] Speaker 3: Pacienta din patul 5 are drenul cu secreție seroasă.
+[00:04:53] Speaker 7: Креатинин вырос до 180, диурез снижен.
+[00:04:55] Speaker 6: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:04:59] Speaker 5: BNP-ul a fost în jur de 2200, deci decompensarea e clară.
+[00:05:04] Speaker 3: Креатинин вырос до 160, диурез снижен.
+[00:05:06] Speaker 5: Hemoleucograma arată leucocite 18 mii, proteina C reactivă 210.
+[00:05:10] Speaker 5: Pacienta din patul 5 are drenul cu secreție tulbure.
+[00:05:13] Speaker 3: Radiografia arată infiltrat bazal drept.
+[00:05:15] Speaker 7: Radiografia arată infiltrat bazal drept.
+[00:05:17] Speaker 3: BNP-ul a fost peste 1500, deci decompensarea e clară.
+[00:05:21] Speaker 5: Pacientul din salonul 8 are și fibrilație atrială permanentă.
+[00:05:25] Speaker 7: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:05:29] Speaker 4: Pacienta din patul 5 are drenul cu secreție seroasă.
+[00:05:33] Speaker 4: Pacientul din salonul 8 are și diabet zaharat de tip 2.
+[00:05:37] Speaker 4: The family asked again about whether he can go home soon.
+[00:05:41] Speaker 7: La internare avea saturația 86 la sută, acum e 94 cu oxigen pe mască.
+[00:05:47] Speaker 4: Pacienta din patul 5 are drenul cu debit mic.
+[00:05:51] Speaker 3: BNP-ul a fost în jur de 2200, deci decompensarea e clară.
+[00:05:55] Speaker 4: Мы продолжаем антибиотикотерапию, динамика пока слабая.
+[00:05:58] Speaker 4: Креатинин вырос до 160, диурез снижен.
+[00:06:00] Speaker 4: The family asked again about the discharge plan.
+[00:06:03] Speaker 6: The family asked again about the discharge plan.
+[00:06:07] Speaker 4: Al doilea caz. Pacienta Elena Botnaru, 54 de ani, patul 5 în chirurgie, a treia zi după rezecție de colon, cu febră.
+[00:06:16] Speaker 4: Я предлагаю повторную операцию сегодня вечером.
+[00:06:18] Speaker 1: Atunci reintervenția rămâne programată pentru diseară.
+[00:06:21] Speaker 2: Hemoleucograma arată leucocite 14 mii, proteina C reactivă 120.
+[00:06:24] Speaker 2: Radiografia arată congestie pulmonară moderată.
+[00:06:26] Speaker 6: Pacientul din salonul 8 are și boală cronică de rinichi.
+[00:06:30] Speaker 7: Креатинин вырос до 210, диурез снижен.
+[00:06:33] Speaker 7: Tensiunea arterială se menține în jur de 95 pe 60.
+[00:06:37] Speaker 3: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:06:41] Speaker 2: Tensiunea arterială se menține în jur de 95 pe 60.
+[00:06:45] Speaker 3: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:06:49] Speaker 6: Мы продолжаем антибиотикотерапию, динамика пока слабая.
+[00:06:51] Speaker 4: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:06:56] Speaker 6: Radiografia arată revărsat pleural bilateral mic.
+[00:06:58] Speaker 3: The family asked again about the discharge plan.
+[00:07:01] Speaker 3: Pacientul din salonul 8 are și boală cronică de rinichi.
+[00:07:05] Speaker 2: Hemoleucograma arată leucocite 18 mii, proteina C reactivă 120.
+[00:07:09] Speaker 2: BNP-ul a fost în jur de 2200, deci decompensarea e clară.
+[00:07:13] Speaker 5: BNP-ul a fost aproape 3000, deci decompensarea e clară.
+[00:07:17] Speaker 6: The family asked again about visiting hours.
+[00:07:20] Speaker 4: BNP-ul a fost aproape 3000, deci decompensarea e clară.
+[00:07:24] Speaker 7: Креатинин вырос до 210, диурез снижен.
+[00:07:26] Speaker 5: Stați, CT-ul de dimineață nu arată colecție. O reintervenție fără colecție e riscantă.
+[00:07:31] Speaker 3: Лучше сначала сделать пункцию под контролем УЗИ.
+[00:07:34] Speaker 1: Atunci anulăm reintervenția de diseară. Facem puncție ghidată ecografic și reevaluăm după rezultat. Toți de acord?
+[00:07:41] Speaker 4: Da, de acord, anulăm reintervenția.
+[00:07:43] Speaker 4: Programez eu puncția la radiologie pentru mâine la prima oră.
+[00:07:47] Speaker 6: Poate ar trebui să trecem toată secția de chirurgie pe alt antibiotic profilactic?
+[00:07:52] Speaker 1: Asta ține de al treilea subiect, nu acum.
+[00:07:55] Speaker 4: Echipa de gardă a notat noaptea trecută un episod de tahicardie.
+[00:08:00] Speaker 3: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:08:04] Speaker 3: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:08:08] Speaker 4: Pacienta din patul 5 are drenul cu secreție seroasă.
+[00:08:12] Speaker 5: Radiografia arată congestie pulmonară moderată.
+[00:08:14] Speaker 5: BNP-ul a fost în jur de 2200, deci decompensarea e clară.
+[00:08:18] Speaker 5: Hemoleucograma arată leucocite 18 mii, proteina C reactivă 120.
+[00:08:22] Speaker 4: Мы продолжаем антибиотикотерапию, динамика пока слабая.
+[00:08:24] Speaker 7: BNP-ul a fost în jur de 2200, deci decompensarea e clară.
+[00:08:29] Speaker 3: Echipa de gardă a notat noaptea trecută desaturare la 88.
+[00:08:33] Speaker 6: Echipa de gardă a notat noaptea trecută un episod de tahicardie.
+[00:08:37] Speaker 3: La internare avea saturația 88 la sută, acum e 95 cu oxigen pe mască.
+[00:08:43] Speaker 6: Мы продолжаем диуретики внутривенно, динамика пока слабая.
+[00:08:46] Speaker 7: Мы продолжаем инотропную поддержку, динамика пока слабая.
+[00:08:49] Speaker 7: Pacienta din patul 5 are drenul cu secreție seroasă.
+[00:08:52] Speaker 4: The family asked again about whether he can go home soon.
+[00:08:57] Speaker 3: Pacienta din patul 5 are drenul cu secreție seroasă.
+[00:09:00] Speaker 5: La internare avea saturația 88 la sută, acum e 95 cu oxigen pe mască.
+[00:09:06] Speaker 3: Pacienta din patul 5 are drenul cu secreție seroasă.
+[00:09:10] Speaker 4: Echipa de gardă a notat noaptea trecută un episod de tahicardie.
+[00:09:14] Speaker 5: Echipa de gardă a notat noaptea trecută o febră de 38,6.
+[00:09:19] Speaker 1: Al doilea subiect, capacitatea ATI pentru octombrie.
+[00:09:22] Speaker 3: В реанимации двенадцать коек, в среднем занято одиннадцать. В выходные бывает перегрузка.
+[00:09:27] Speaker 2: Durata medie de ședere în ATI este 3,8 zile.
+[00:09:30] Speaker 6: Durata medie de ședere în ATI este 5,1 zile.
+[00:09:34] Speaker 3: Transferurile din raioane au crescut, mai ales din sud.
+[00:09:37] Speaker 3: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:09:42] Speaker 3: Transferurile din raioane au crescut, mai ales din Ungheni și Orhei.
+[00:09:46] Speaker 7: În chirurgie, salonul de lângă sala de operație are nevoie doar de monitoare.
+[00:09:51] Speaker 7: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:09:56] Speaker 4: În chirurgie, salonul de lângă sala de operație e folosit acum ca depozit.
+[00:10:02] Speaker 2: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:10:06] Speaker 7: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:10:13] Speaker 3: The step-down patients mostly need close nursing observation, not full intensive care.
+[00:10:18] Speaker 4: În chirurgie, salonul de lângă sala de operație e folosit acum ca depozit.
+[00:10:23] Speaker 6: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:10:30] Speaker 3: Transferurile din raioane au crescut, mai ales din sud.
+[00:10:34] Speaker 3: Transferurile din raioane au crescut, mai ales din nordul țării.
+[00:10:38] Speaker 4: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:10:42] Speaker 4: Some post-op patients stay in the ICU an extra night just because the ward can't take them.
+[00:10:49] Speaker 5: В выходные к нам поступает до шести пациентов из приёмного.
+[00:10:53] Speaker 6: Durata medie de ședere în ATI este 4,2 zile.
+[00:10:57] Speaker 7: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:11:01] Speaker 4: Ocuparea în ATI a fost de 92 la sută în ultimele 90 zile.
+[00:11:06] Speaker 6: Pe tura de noapte avem patru asistente la douăsprezece paturi.
+[00:11:10] Speaker 4: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:11:14] Speaker 6: Проблема не в койках, а в ночных сменах.
+[00:11:18] Speaker 5: The step-down patients mostly need close nursing observation, not full intensive care.
+[00:11:22] Speaker 3: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:11:27] Speaker 5: Transferurile din raioane au crescut, mai ales din nordul țării.
+[00:11:31] Speaker 6: Ocuparea în ATI a fost de 92 la sută în ultimele 30 zile.
+[00:11:36] Speaker 4: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:11:40] Speaker 3: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:11:44] Speaker 5: The step-down patients mostly need close nursing observation, not full intensive care.
+[00:11:49] Speaker 2: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:11:56] Speaker 4: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:12:02] Speaker 4: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:12:06] Speaker 4: În chirurgie, salonul de lângă sala de operație are deja prize de oxigen.
+[00:12:11] Speaker 3: Propun să deschidem două paturi de terapie intermediară în secția de chirurgie, ca tampon pentru ATI.
+[00:12:18] Speaker 6: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:12:24] Speaker 4: Проблема не в койках, а в ночных сменах.
+[00:12:27] Speaker 6: Some post-op patients stay in the ICU an extra night just because the ward can't take them.
+[00:12:34] Speaker 3: Durata medie de ședere în ATI este 4,2 zile.
+[00:12:37] Speaker 5: Durata medie de ședere în ATI este 5,1 zile.
+[00:12:41] Speaker 5: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:12:45] Speaker 2: Transferurile din raioane au crescut, mai ales din Ungheni și Orhei.
+[00:12:50] Speaker 3: Transferurile din raioane au crescut, mai ales din Ungheni și Orhei.
+[00:12:54] Speaker 4: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:12:58] Speaker 5: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:13:05] Speaker 7: Проблема не в койках, а в персонале.
+[00:13:08] Speaker 3: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:13:13] Speaker 4: Some post-op patients stay in the ICU an extra night just because the ward can't take them.
+[00:13:20] Speaker 3: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:13:24] Speaker 6: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:13:28] Speaker 7: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:13:33] Speaker 7: Durata medie de ședere în ATI este 4,2 zile.
+[00:13:36] Speaker 6: Проблема не в койках, а в ночных сменах.
+[00:13:40] Speaker 7: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:13:44] Speaker 5: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:13:48] Speaker 6: Transferurile din raioane au crescut, mai ales din sud.
+[00:13:51] Speaker 5: Durata medie de ședere în ATI este 3,8 zile.
+[00:13:55] Speaker 4: Ocuparea în ATI a fost de 92 la sută în ultimele 90 zile.
+[00:14:00] Speaker 3: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:14:07] Speaker 3: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:14:11] Speaker 4: Transferurile din raioane au crescut, mai ales din nordul țării.
+[00:14:15] Speaker 4: Проблема не в койках, а в переводах в отделения.
+[00:14:19] Speaker 3: Проблема не в койках, а в персонале.
+[00:14:22] Speaker 5: Проблема не в койках, а в персонале.
+[00:14:25] Speaker 5: Ventilatoarele sunt toate funcționale, doar senzorul de flux al unuia trebuie schimbat.
+[00:14:30] Speaker 6: Проблема не в койках, а в персонале.
+[00:14:33] Speaker 2: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:14:40] Speaker 5: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:14:44] Speaker 2: Pe tura de noapte avem patru asistente la douăsprezece paturi.
+[00:14:48] Speaker 6: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:14:55] Speaker 3: Ocuparea în ATI a fost de 95 la sută în ultimele 60 zile.
+[00:15:00] Speaker 3: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:15:04] Speaker 4: В выходные к нам поступает до шести пациентов из приёмного.
+[00:15:08] Speaker 5: Ocuparea în ATI a fost de 92 la sută în ultimele 30 zile.
+[00:15:14] Speaker 7: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:15:19] Speaker 7: Durata medie de ședere în ATI este 3,8 zile.
+[00:15:22] Speaker 7: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:15:26] Speaker 4: Transferurile din raioane au crescut, mai ales din Ungheni și Orhei.
+[00:15:31] Speaker 2: Проблема не в койках, а в ночных сменах.
+[00:15:34] Speaker 3: В выходные к нам поступает до шести пациентов из приёмного.
+[00:15:38] Speaker 3: Проблема не в койках, а в переводах в отделения.
+[00:15:42] Speaker 7: Ventilatoarele sunt toate funcționale, doar senzorul de flux al unuia trebuie schimbat.
+[00:15:47] Speaker 2: Some post-op patients stay in the ICU an extra night just because the ward can't take them.
+[00:15:53] Speaker 2: Проблема не в койках, а в переводах в отделения.
+[00:15:57] Speaker 4: Проблема не в койках, а в персонале.
+[00:16:00] Speaker 3: Проблема не в койках, а в переводах в отделения.
+[00:16:04] Speaker 5: The step-down patients mostly need close nursing observation, not full intensive care.
+[00:16:09] Speaker 2: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:16:13] Speaker 2: Ocuparea în ATI a fost de 97 la sută în ultimele 60 zile.
+[00:16:18] Speaker 7: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:16:22] Speaker 7: Durata medie de ședere în ATI este 3,8 zile.
+[00:16:26] Speaker 6: В выходные к нам поступает до шести пациентов из приёмного.
+[00:16:30] Speaker 3: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:16:37] Speaker 5: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:16:42] Speaker 7: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:16:46] Speaker 4: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:16:51] Speaker 3: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:16:56] Speaker 2: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:17:03] Speaker 2: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:17:07] Speaker 4: Ocuparea în ATI a fost de 95 la sută în ultimele 60 zile.
+[00:17:12] Speaker 3: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:17:17] Speaker 2: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:17:21] Speaker 2: Durata medie de ședere în ATI este 5,1 zile.
+[00:17:24] Speaker 6: Ocuparea în ATI a fost de 95 la sută în ultimele 60 zile.
+[00:17:30] Speaker 6: Проблема не в койках, а в ночных сменах.
+[00:17:33] Speaker 3: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:17:40] Speaker 3: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:17:44] Speaker 5: Durata medie de ședere în ATI este 5,1 zile.
+[00:17:47] Speaker 5: Transferurile din raioane au crescut, mai ales din nordul țării.
+[00:17:52] Speaker 6: Durata medie de ședere în ATI este 5,1 zile.
+[00:17:55] Speaker 7: Ventilatoarele sunt toate funcționale, doar senzorul de flux al unuia trebuie schimbat.
+[00:18:00] Speaker 6: The step-down patients mostly need close nursing observation, not full intensive care.
+[00:18:05] Speaker 7: Pentru două paturi intermediare ar trebui încă o asistentă pe tură.
+[00:18:09] Speaker 3: Ventilatoarele sunt toate funcționale, doar senzorul de flux al unuia trebuie schimbat.
+[00:18:14] Speaker 5: Проблема не в койках, а в переводах в отделения.
+[00:18:18] Speaker 4: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:18:23] Speaker 5: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:18:30] Speaker 6: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:18:35] Speaker 6: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:18:40] Speaker 2: Transferurile din raioane au crescut, mai ales din Ungheni și Orhei.
+[00:18:45] Speaker 4: În chirurgie, salonul de lângă sala de operație are deja prize de oxigen.
+[00:18:50] Speaker 2: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:18:57] Speaker 2: The step-down patients mostly need close nursing observation, not full intensive care.
+[00:19:02] Speaker 5: Проблема не в койках, а в персонале.
+[00:19:05] Speaker 5: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:19:11] Speaker 4: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:19:15] Speaker 4: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:19:19] Speaker 4: În chirurgie, salonul de lângă sala de operație are deja prize de oxigen.
+[00:19:24] Speaker 7: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:19:28] Speaker 6: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:19:34] Speaker 6: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:19:41] Speaker 2: Pe tura de noapte avem patru asistente la douăsprezece paturi.
+[00:19:45] Speaker 4: В выходные к нам поступает до шести пациентов из приёмного.
+[00:19:49] Speaker 6: Проблема не в койках, а в переводах в отделения.
+[00:19:53] Speaker 3: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:19:58] Speaker 4: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:20:05] Speaker 7: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:20:09] Speaker 4: Проблема не в койках, а в ночных сменах.
+[00:20:13] Speaker 2: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:20:17] Speaker 2: The step-down patients mostly need close nursing observation, not full intensive care.
+[00:20:22] Speaker 4: Some post-op patients stay in the ICU an extra night just because the ward can't take them.
+[00:20:29] Speaker 4: În chirurgie, salonul de lângă sala de operație are nevoie doar de monitoare.
+[00:20:34] Speaker 7: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:20:41] Speaker 2: Pe tura de noapte avem patru asistente la douăsprezece paturi.
+[00:20:45] Speaker 3: Ventilatoarele sunt toate funcționale, doar unul e la verificarea anuală.
+[00:20:49] Speaker 6: Transferurile din raioane au crescut, mai ales din Ungheni și Orhei.
+[00:20:54] Speaker 4: În chirurgie, salonul de lângă sala de operație are nevoie doar de monitoare.
+[00:20:59] Speaker 5: În chirurgie, salonul de lângă sala de operație e folosit acum ca depozit.
+[00:21:04] Speaker 4: Durata medie de ședere în ATI este 3,8 zile.
+[00:21:08] Speaker 2: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:21:12] Speaker 6: В выходные к нам поступает до шести пациентов из приёмного.
+[00:21:16] Speaker 6: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:21:20] Speaker 3: Transferurile din raioane au crescut, mai ales din nordul țării.
+[00:21:24] Speaker 7: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:21:31] Speaker 6: Durata medie de ședere în ATI este 5,1 zile.
+[00:21:35] Speaker 3: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:21:42] Speaker 4: Pe tura de noapte avem patru asistente la douăsprezece paturi.
+[00:21:46] Speaker 5: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:21:52] Speaker 5: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:21:56] Speaker 4: În chirurgie, salonul de lângă sala de operație are deja prize de oxigen.
+[00:22:01] Speaker 4: В выходные к нам поступает до десяти пациентов из приёмного.
+[00:22:05] Speaker 7: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:22:09] Speaker 3: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:22:13] Speaker 7: Transferurile din raioane au crescut, mai ales din Ungheni și Orhei.
+[00:22:18] Speaker 6: Transferurile din raioane au crescut, mai ales din sud.
+[00:22:21] Speaker 6: Проблема не в койках, а в переводах в отделения.
+[00:22:25] Speaker 2: Ocuparea în ATI a fost de 95 la sută în ultimele 60 zile.
+[00:22:30] Speaker 3: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:22:38] Speaker 2: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:22:42] Speaker 5: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:22:49] Speaker 5: Some post-op patients stay in the ICU an extra day just because the ward can't take them.
+[00:22:56] Speaker 2: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:23:01] Speaker 6: Ventilatoarele sunt toate funcționale, doar senzorul de flux al unuia trebuie schimbat.
+[00:23:06] Speaker 6: The step-down patients mostly need a monitor and frequent checks, not full intensive care.
+[00:23:11] Speaker 3: Ventilatoarele sunt toate funcționale, doar senzorul de flux al unuia trebuie schimbat.
+[00:23:16] Speaker 2: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:23:20] Speaker 5: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:23:24] Speaker 3: Pe tura de noapte avem patru asistente la douăsprezece paturi.
+[00:23:28] Speaker 3: În chirurgie, salonul de lângă sala de operație are deja prize de oxigen.
+[00:23:34] Speaker 7: Ocuparea în ATI a fost de 92 la sută în ultimele 30 zile.
+[00:23:39] Speaker 4: Ventilatoarele sunt toate funcționale, doar senzorul de flux al unuia trebuie schimbat.
+[00:23:44] Speaker 3: Transferurile din raioane au crescut, mai ales din nordul țării.
+[00:23:48] Speaker 3: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:23:52] Speaker 7: Ocuparea în ATI a fost de 95 la sută în ultimele 60 zile.
+[00:23:57] Speaker 1: Revenind la propunerea de la începutul subiectului: aprobăm deschiderea a două paturi de terapie intermediară în chirurgie, cu o asistentă în plus pe tură.
+[00:24:07] Speaker 7: Refac eu graficul asistentelor în două săptămâni.
+[00:24:10] Speaker 3: Și în weekendurile cu ocupare peste 90 la sută, propun să suspendăm internările programate care pot ajunge în ATI.
+[00:24:18] Speaker 1: Aprobăm: în weekendurile cu ocupare a ATI peste 90 la sută, internările programate cu risc de ATI se amână.
+[00:24:25] Speaker 3: Trimit eu anunțul către secțiile chirurgicale până la sfârșitul săptămânii.
+[00:24:29] Speaker 2: And maybe we should buy a second portable ultrasound for the ICU?
+[00:24:34] Speaker 1: Asta o discutăm la bugetul pe anul viitor.
+[00:24:38] Speaker 7: Проблема не в койках, а в ночных сменах.
+[00:24:41] Speaker 3: În chirurgie, salonul de lângă sala de operație e folosit acum ca depozit.
+[00:24:46] Speaker 4: Ventilatoarele sunt toate funcționale, doar senzorul de flux al unuia trebuie schimbat.
+[00:24:51] Speaker 2: The step-down patients mostly need monitoring and oxygen, not full intensive care.
+[00:24:56] Speaker 6: Ocuparea în ATI a fost de 95 la sută în ultimele 90 zile.
+[00:25:01] Speaker 4: În chirurgie, salonul de lângă sala de operație are deja prize de oxigen.
+[00:25:07] Speaker 5: Transferurile din raioane au crescut, mai ales din sud.
+[00:25:10] Speaker 5: Transferurile din raioane au crescut, mai ales din nordul țării.
+[00:25:14] Speaker 5: În chirurgie, salonul de lângă sala de operație are deja prize de oxigen.
+[00:25:20] Speaker 5: Some post-op patients stay in the ICU an extra two days just because the ward can't take them.
+[00:25:27] Speaker 5: Pe tura de noapte avem trei asistente la douăsprezece paturi.
+[00:25:31] Speaker 2: Durata medie de ședere în ATI este 3,8 zile.
+[00:25:35] Speaker 7: В выходные к нам поступает до восьми пациентов из приёмного.
+[00:25:39] Speaker 1: Al treilea subiect, infecțiile nosocomiale. Epidemiologia, vă rog.
+[00:25:42] Speaker 5: În septembrie am avut patru cazuri de Klebsiella producătoare de carbapenemaze în ATI și chirurgie.
+[00:25:48] Speaker 7: Personalul de curățenie lucrează după alt grafic de la 1 septembrie.
+[00:25:52] Speaker 7: Doi dintre pacienți au venit transferați din spitalele raionale.
+[00:25:56] Speaker 7: Personalul de curățenie lucrează după alt grafic de la 1 septembrie.
+[00:26:01] Speaker 3: По наблюдениям, гигиену рук соблюдают примерно семьдесят процентов персонала.
+[00:26:04] Speaker 4: Swabs from the ICU sinks came back positive in one.
+[00:26:08] Speaker 5: Personalul de curățenie lucrează după alt grafic de la 1 septembrie.
+[00:26:13] Speaker 5: Swabs from the ICU sinks came back positive in one.
+[00:26:17] Speaker 3: Doi dintre pacienți au venit transferați din spitalele raionale.
+[00:26:21] Speaker 5: Изоляторов у нас всего два, и они почти всегда заняты.
+[00:26:25] Speaker 2: Laboratorul are nevoie de două zile pentru confirmare.
+[00:26:28] Speaker 4: In the surgical ward the gel dispensers were moved to the corridor.
+[00:26:33] Speaker 5: Personalul de curățenie lucrează cu un om mai puțin.
+[00:26:36] Speaker 4: In the surgical ward the gel dispensers are often empty on night shifts.
+[00:26:42] Speaker 7: По наблюдениям, гигиену рук соблюдают меньше семидесяти процентов персонала.
+[00:26:45] Speaker 7: In the surgical ward the gel dispensers are often empty on night shifts.
+[00:26:51] Speaker 2: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o sursă comună.
+[00:26:57] Speaker 7: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o transmitere în interiorul spitalului.
+[00:27:05] Speaker 4: Laboratorul are nevoie de trei zile pentru confirmare.
+[00:27:08] Speaker 3: Laboratorul are nevoie de două zile pentru confirmare.
+[00:27:11] Speaker 3: Laboratorul are nevoie de trei zile pentru confirmare.
+[00:27:14] Speaker 7: Swabs from the ICU sinks came back positive in two of six.
+[00:27:19] Speaker 2: Laboratorul are nevoie de trei zile pentru confirmare.
+[00:27:22] Speaker 5: Swabs from the ICU sinks came back positive in two of six.
+[00:27:27] Speaker 5: Consumul de soluție antiseptică pe secție a fost cu 20 la sută mai puțini litri luna aceasta.
+[00:27:34] Speaker 4: Personalul de curățenie lucrează cu un om mai puțin.
+[00:27:38] Speaker 3: Изоляторов у нас всего два, и они почти всегда заняты.
+[00:27:42] Speaker 5: Personalul de curățenie lucrează după alt grafic de la 1 septembrie.
+[00:27:46] Speaker 4: Swabs from the ICU sinks came back negative this time.
+[00:27:51] Speaker 3: In the surgical ward the gel dispensers are often empty on night shifts.
+[00:27:56] Speaker 6: Swabs from the ICU sinks came back positive in two of six.
+[00:28:01] Speaker 3: Personalul de curățenie lucrează pe două ture.
+[00:28:04] Speaker 5: Laboratorul are nevoie de două zile pentru confirmare.
+[00:28:07] Speaker 5: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o sursă comună.
+[00:28:13] Speaker 7: In the surgical ward the gel dispensers are often empty on night shifts.
+[00:28:19] Speaker 5: Doi dintre pacienți au venit transferați din spitalele raionale.
+[00:28:22] Speaker 5: Изоляторов у нас три, и они почти всегда заняты.
+[00:28:26] Speaker 4: Personalul de curățenie lucrează după alt grafic de la 1 septembrie.
+[00:28:30] Speaker 5: Consumul de soluție antiseptică pe secție a fost aproape la fel ca litri luna aceasta.
+[00:28:36] Speaker 5: Propun screening prin tampon rectal la internare pentru toți pacienții transferați din alte spitale.
+[00:28:42] Speaker 3: Это разумно, у нас половина случаев именно переводы.
+[00:28:45] Speaker 1: Aprobăm screeningul la internare pentru pacienții transferați din alte spitale.
+[00:28:50] Speaker 5: Pregătesc eu procedura și o trimit secțiilor până vineri.
+[00:28:53] Speaker 4: Personalul de curățenie lucrează cu un om mai puțin.
+[00:28:57] Speaker 4: Laboratorul are nevoie de două zile pentru confirmare.
+[00:29:00] Speaker 5: In the surgical ward the gel dispensers were moved to the corridor.
+[00:29:05] Speaker 2: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o sursă comună.
+[00:29:11] Speaker 7: Doi dintre pacienți au venit transferați din spitalele raionale.
+[00:29:15] Speaker 2: Doi dintre pacienți au venit transferați din alte spitale.
+[00:29:19] Speaker 2: Personalul de curățenie lucrează cu un om mai puțin.
+[00:29:22] Speaker 5: Изоляторов у нас всего два, и они почти всегда заняты.
+[00:29:27] Speaker 7: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o sursă comună.
+[00:29:33] Speaker 4: По наблюдениям, гигиену рук соблюдают около шестидесяти процентов персонала.
+[00:29:37] Speaker 6: Consumul de soluție antiseptică pe secție a fost aproape la fel ca litri luna aceasta.
+[00:29:43] Speaker 5: In the surgical ward the gel dispensers are often empty on night shifts.
+[00:29:48] Speaker 7: Laboratorul are nevoie de trei zile pentru confirmare.
+[00:29:51] Speaker 3: Personalul de curățenie lucrează pe două ture.
+[00:29:54] Speaker 7: Personalul de curățenie lucrează pe două ture.
+[00:29:57] Speaker 6: Personalul de curățenie lucrează cu un om mai puțin.
+[00:30:01] Speaker 2: Personalul de curățenie lucrează cu un om mai puțin.
+[00:30:04] Speaker 6: Swabs from the ICU sinks came back positive in one.
+[00:30:08] Speaker 6: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o transmitere în interiorul spitalului.
+[00:30:16] Speaker 4: Consumul de soluție antiseptică pe secție a fost aproape la fel ca litri luna aceasta.
+[00:30:22] Speaker 6: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o sursă comună.
+[00:30:28] Speaker 5: Auditul igienei mâinilor rămâne o dată pe trimestru, ca până acum.
+[00:30:33] Speaker 4: По наблюдениям, гигиену рук соблюдают меньше семидесяти процентов персонала.
+[00:30:37] Speaker 7: По наблюдениям, гигиену рук соблюдают примерно семьдесят процентов персонала.
+[00:30:40] Speaker 4: Swabs from the ICU sinks came back positive in two of six.
+[00:30:45] Speaker 5: Swabs from the ICU sinks came back positive in one.
+[00:30:49] Speaker 5: Swabs from the ICU sinks came back positive in two of six.
+[00:30:54] Speaker 7: Laboratorul are nevoie de două zile pentru confirmare.
+[00:30:57] Speaker 4: Doi dintre pacienți au venit transferați din spitalele raionale.
+[00:31:01] Speaker 3: Personalul de curățenie lucrează cu un om mai puțin.
+[00:31:05] Speaker 5: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o transmitere în interiorul spitalului.
+[00:31:12] Speaker 6: Изоляторов у нас всего два, и они почти всегда заняты.
+[00:31:16] Speaker 7: Consumul de soluție antiseptică pe secție a fost aproape la fel ca litri luna aceasta.
+[00:31:22] Speaker 7: Cu patru cazuri într-o lună, o dată pe trimestru e prea rar. Propun lunar, cel puțin până la final de an.
+[00:31:31] Speaker 1: Corect. Auditul igienei mâinilor devine lunar până la sfârșitul anului. Obiecții? Nu.
+[00:31:36] Speaker 7: Первый ежемесячный аудит проведу до конца месяца.
+[00:31:38] Speaker 6: Поставим дозаторы с антисептиком у каждой кровати?
+[00:31:41] Speaker 1: Vedem după primul audit.
+[00:31:43] Speaker 2: Laboratorul are nevoie de trei zile pentru confirmare.
+[00:31:46] Speaker 6: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o sursă comună.
+[00:31:53] Speaker 6: Consumul de soluție antiseptică pe secție a fost aproape la fel ca litri luna aceasta.
+[00:31:59] Speaker 3: Swabs from the ICU sinks came back positive in one.
+[00:32:03] Speaker 3: Doi dintre pacienți au venit transferați din alte spitale.
+[00:32:06] Speaker 3: По наблюдениям, гигиену рук соблюдают примерно семьдесят процентов персонала.
+[00:32:10] Speaker 5: По наблюдениям, гигиену рук соблюдают примерно семьдесят процентов персонала.
+[00:32:14] Speaker 4: Doi dintre pacienți au venit transferați din alte spitale.
+[00:32:17] Speaker 4: Изоляторов у нас только в реанимации, и они почти всегда заняты.
+[00:32:22] Speaker 3: In the surgical ward the gel dispensers are often empty on night shifts.
+[00:32:27] Speaker 5: Personalul de curățenie lucrează pe două ture.
+[00:32:30] Speaker 7: Personalul de curățenie lucrează după alt grafic de la 1 septembrie.
+[00:32:35] Speaker 2: Personalul de curățenie lucrează cu un om mai puțin.
+[00:32:38] Speaker 2: In the surgical ward the gel dispensers are refilled only twice a day.
+[00:32:43] Speaker 7: Изоляторов у нас три, и они почти всегда заняты.
+[00:32:47] Speaker 3: Consumul de soluție antiseptică pe secție a fost aproape la fel ca litri luna aceasta.
+[00:32:53] Speaker 5: Toate cele patru tulpini au avut același profil de rezistență, ceea ce sugerează o transmitere în interiorul spitalului.
+[00:33:01] Speaker 5: Laboratorul are nevoie de două zile pentru confirmare.
+[00:33:04] Speaker 4: Изоляторов у нас три, и они почти всегда заняты.
+[00:33:08] Speaker 1: Al patrulea subiect, lista de așteptare la endoscopie.
+[00:33:11] Speaker 2: The waiting list for elective colonoscopy is now seven weeks.
+[00:33:15] Speaker 4: The endoscopy suite runs ten sessions a week.
+[00:33:18] Speaker 4: Only only three scopes are working, the fourth is at the service centre.
+[00:33:23] Speaker 4: Only only three scopes are working, the fourth is at the service centre.
+[00:33:29] Speaker 3: Из-за очереди часть пациентов уходит в другие больницы.
+[00:33:32] Speaker 2: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:33:36] Speaker 7: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:33:39] Speaker 4: Из-за очереди часть пациентов уходит в частные клиники.
+[00:33:42] Speaker 6: Only only three scopes are working, the fourth is at the service centre.
+[00:33:47] Speaker 5: Asistenta de endoscopie lipsește în concediu medical.
+[00:33:50] Speaker 2: The endoscopy suite runs ten sessions a week.
+[00:33:53] Speaker 3: The endoscopy suite runs eight sessions a week.
+[00:33:57] Speaker 6: The endoscopy suite runs ten sessions a week.
+[00:34:00] Speaker 5: Lista de așteptare are acum aproape 280 pacienți.
+[00:34:03] Speaker 4: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:34:06] Speaker 3: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:34:10] Speaker 7: Only only three scopes are working, the fourth is at the service centre.
+[00:34:15] Speaker 5: The endoscopy suite runs eight sessions a week.
+[00:34:18] Speaker 7: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:34:22] Speaker 2: Only three scopes are working, the fourth is at the service centre.
+[00:34:27] Speaker 7: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:34:31] Speaker 2: Pacienții se plâng la telefon că не успевают отдыхать после ночи.
+[00:34:36] Speaker 6: Dezinfecția endoscoapelor durează 45 minute per aparat.
+[00:34:39] Speaker 6: Only three scopes are working, the fourth is at the service centre.
+[00:34:44] Speaker 3: The endoscopy suite runs eight sessions a week.
+[00:34:47] Speaker 5: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:34:50] Speaker 7: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:34:54] Speaker 2: Lista de așteptare are acum aproape 280 pacienți.
+[00:34:57] Speaker 7: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:35:00] Speaker 3: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:35:04] Speaker 6: The endoscopy suite runs nine sessions a week.
+[00:35:08] Speaker 3: Asistenta de endoscopie lipsește în concediu medical.
+[00:35:10] Speaker 3: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:35:15] Speaker 6: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:35:18] Speaker 3: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:35:21] Speaker 3: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:35:26] Speaker 2: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:35:30] Speaker 6: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:35:34] Speaker 2: The endoscopy suite runs ten sessions a week.
+[00:35:37] Speaker 4: Propunem să adăugăm o zi de endoscopie sâmbăta, cu o echipă prin rotație.
+[00:35:43] Speaker 4: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:35:46] Speaker 3: Only only three scopes are working, the fourth is at the service centre.
+[00:35:51] Speaker 6: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:35:55] Speaker 4: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:35:59] Speaker 2: Only only three scopes are working, the fourth is at the service centre.
+[00:36:05] Speaker 3: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:36:09] Speaker 2: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:36:13] Speaker 4: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:36:18] Speaker 3: Lista de așteptare are acum peste 300 pacienți.
+[00:36:21] Speaker 6: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:36:25] Speaker 3: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:36:30] Speaker 7: Из-за очереди часть пациентов уходит в другие больницы.
+[00:36:33] Speaker 2: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:36:37] Speaker 2: Из-за очереди часть пациентов уходит в другие больницы.
+[00:36:40] Speaker 4: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:36:45] Speaker 3: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:36:48] Speaker 3: Из-за очереди часть пациентов уходит в другие больницы.
+[00:36:52] Speaker 4: Lista de așteptare are acum peste 300 pacienți.
+[00:36:55] Speaker 7: Lista de așteptare are acum peste 300 pacienți.
+[00:36:58] Speaker 7: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:37:01] Speaker 2: Only only three scopes are working, the fourth is at the service centre.
+[00:37:07] Speaker 7: Lista de așteptare are acum aproape 280 pacienți.
+[00:37:10] Speaker 7: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:37:13] Speaker 5: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:37:16] Speaker 3: Only only three scopes are working, the fourth is at the service centre.
+[00:37:21] Speaker 3: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:37:24] Speaker 7: Pacienții se plâng la telefon că не успевают отдыхать после ночи.
+[00:37:29] Speaker 4: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:37:33] Speaker 2: Lista de așteptare are acum în jur de 320 pacienți.
+[00:37:37] Speaker 6: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:37:40] Speaker 4: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:37:44] Speaker 4: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:37:48] Speaker 5: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:37:52] Speaker 6: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:37:54] Speaker 6: Lista de așteptare are acum peste 300 pacienți.
+[00:37:58] Speaker 5: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:38:00] Speaker 5: The endoscopy suite runs ten sessions a week.
+[00:38:04] Speaker 3: Only three scopes are working, the fourth is at the service centre.
+[00:38:09] Speaker 2: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:38:13] Speaker 7: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:38:16] Speaker 3: Only three scopes are working, the fourth is at the service centre.
+[00:38:21] Speaker 2: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:38:26] Speaker 7: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:38:30] Speaker 7: Asistenta de endoscopie lipsește două zile pe săptămână.
+[00:38:33] Speaker 7: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:38:36] Speaker 3: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:38:40] Speaker 2: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:38:42] Speaker 5: Из-за очереди часть пациентов уходит в другие больницы.
+[00:38:46] Speaker 2: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:38:50] Speaker 4: Из-за очереди часть пациентов уходит в частные клиники.
+[00:38:53] Speaker 2: Из-за очереди часть пациентов уходит в частные клиники.
+[00:38:56] Speaker 2: Lista de așteptare are acum aproape 280 pacienți.
+[00:39:00] Speaker 7: Only three scopes are working, the fourth is at the service centre.
+[00:39:04] Speaker 5: Lista de așteptare are acum aproape 280 pacienți.
+[00:39:08] Speaker 5: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:39:10] Speaker 6: The endoscopy suite runs eight sessions a week.
+[00:39:14] Speaker 7: Asistenta de endoscopie lipsește pentru că e la curs.
+[00:39:17] Speaker 7: Из-за очереди часть пациентов уходит в частные клиники.
+[00:39:21] Speaker 7: The endoscopy suite runs ten sessions a week.
+[00:39:24] Speaker 3: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:39:27] Speaker 7: The endoscopy suite runs nine sessions a week.
+[00:39:30] Speaker 7: Only only three scopes are working, the fourth is at the service centre.
+[00:39:35] Speaker 2: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:39:39] Speaker 6: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:39:44] Speaker 2: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:39:48] Speaker 2: Pacienții se plâng la telefon că не успевают отдыхать после ночи.
+[00:39:53] Speaker 6: The endoscopy suite runs eight sessions a week.
+[00:39:56] Speaker 3: Only only three scopes are working, the fourth is at the service centre.
+[00:40:01] Speaker 4: Only only three scopes are working, the fourth is at the service centre.
+[00:40:07] Speaker 5: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:40:11] Speaker 5: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:40:14] Speaker 2: Asistenta de endoscopie lipsește două zile pe săptămână.
+[00:40:17] Speaker 5: Lista de așteptare are acum aproape 280 pacienți.
+[00:40:20] Speaker 6: Only three scopes are working, the fourth is at the service centre.
+[00:40:25] Speaker 7: Only three scopes are working, the fourth is at the service centre.
+[00:40:30] Speaker 2: Из-за очереди часть пациентов уходит в другие больницы.
+[00:40:34] Speaker 6: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:40:37] Speaker 6: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:40:41] Speaker 7: Dezinfecția endoscoapelor durează 45 minute per aparat.
+[00:40:44] Speaker 2: Lista de așteptare are acum peste 300 pacienți.
+[00:40:47] Speaker 5: На субботу нужен техник по дезинфекции, иначе смену не закрыть.
+[00:40:51] Speaker 4: Lista de așteptare are acum aproape 280 pacienți.
+[00:40:54] Speaker 5: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:40:57] Speaker 3: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:41:01] Speaker 2: Lista de așteptare are acum aproape 280 pacienți.
+[00:41:04] Speaker 6: Only only three scopes are working, the fourth is at the service centre.
+[00:41:10] Speaker 5: The endoscopy suite runs nine sessions a week.
+[00:41:13] Speaker 6: Only only three scopes are working, the fourth is at the service centre.
+[00:41:18] Speaker 6: Asistenta de endoscopie lipsește două zile pe săptămână.
+[00:41:22] Speaker 7: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:41:26] Speaker 3: Lista de așteptare are acum peste 300 pacienți.
+[00:41:29] Speaker 2: Patients with alarm signs should not wait in the same queue as screening.
+[00:41:35] Speaker 1: Aprobăm: pacienții cu semne de alarmă primesc endoscopie în 72 de ore, în afara listei.
+[00:41:41] Speaker 2: Pregătesc criteriile de alarmă săptămâna viitoare.
+[00:41:43] Speaker 7: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:41:47] Speaker 5: The endoscopy suite runs eight sessions a week.
+[00:41:50] Speaker 2: Lista de așteptare are acum aproape 280 pacienți.
+[00:41:54] Speaker 5: Dezinfecția endoscoapelor durează 45 minute per aparat.
+[00:41:57] Speaker 6: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:42:00] Speaker 2: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:42:04] Speaker 4: Dezinfecția endoscoapelor durează 45 minute per aparat.
+[00:42:07] Speaker 4: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:42:11] Speaker 6: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:42:15] Speaker 6: Asistenta de endoscopie lipsește pentru că e la curs.
+[00:42:19] Speaker 3: Asistenta de endoscopie lipsește două zile pe săptămână.
+[00:42:22] Speaker 2: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:42:26] Speaker 5: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:42:31] Speaker 6: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:42:34] Speaker 5: Only three scopes are working, the fourth is at the service centre.
+[00:42:39] Speaker 2: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:42:43] Speaker 5: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:42:46] Speaker 5: Asistenta de endoscopie lipsește în concediu medical.
+[00:42:49] Speaker 5: Asistenta de endoscopie lipsește în concediu medical.
+[00:42:51] Speaker 4: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:42:55] Speaker 2: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:42:58] Speaker 2: Из-за очереди часть пациентов уходит в другие больницы.
+[00:43:01] Speaker 4: Colonoscopiile de screening ocupă cam 25 la sută din program.
+[00:43:05] Speaker 4: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:43:10] Speaker 4: Из-за очереди часть пациентов уходит в частные клиники.
+[00:43:13] Speaker 2: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:43:16] Speaker 3: The endoscopy suite runs eight sessions a week.
+[00:43:19] Speaker 7: Lista de așteptare are acum aproape 280 pacienți.
+[00:43:22] Speaker 3: Из-за очереди часть пациентов уходит в другие больницы.
+[00:43:26] Speaker 5: Lista de așteptare are acum aproape 280 pacienți.
+[00:43:29] Speaker 5: На субботу нужен техник по дезинфекции, иначе смену не закрыть.
+[00:43:33] Speaker 4: Only only three scopes are working, the fourth is at the service centre.
+[00:43:38] Speaker 3: На субботу нужен техник по дезинфекции, иначе смену не закрыть.
+[00:43:42] Speaker 5: Only three scopes are working, the fourth is at the service centre.
+[00:43:47] Speaker 7: The endoscopy suite runs ten sessions a week.
+[00:43:50] Speaker 4: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:43:55] Speaker 5: На субботу нужен анестезиолог, иначе смену не закрыть.
+[00:43:58] Speaker 7: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:44:02] Speaker 4: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:44:06] Speaker 2: На субботу нужен техник по дезинфекции, иначе смену не закрыть.
+[00:44:10] Speaker 6: The endoscopy suite runs nine sessions a week.
+[00:44:14] Speaker 4: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:44:18] Speaker 2: Lista de așteptare are acum peste 300 pacienți.
+[00:44:21] Speaker 6: Lista de așteptare are acum aproape 280 pacienți.
+[00:44:24] Speaker 2: Lista de așteptare are acum peste 300 pacienți.
+[00:44:27] Speaker 7: Only only three scopes are working, the fourth is at the service centre.
+[00:44:33] Speaker 6: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:44:37] Speaker 6: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:44:41] Speaker 3: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:44:45] Speaker 5: Only only three scopes are working, the fourth is at the service centre.
+[00:44:50] Speaker 3: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:44:55] Speaker 7: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:44:59] Speaker 5: The endoscopy suite runs ten sessions a week.
+[00:45:02] Speaker 4: Asistenta de endoscopie lipsește în concediu medical.
+[00:45:05] Speaker 5: Lista de așteptare are acum aproape 280 pacienți.
+[00:45:08] Speaker 5: Asistenta de endoscopie lipsește pentru că e la curs.
+[00:45:12] Speaker 5: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:45:16] Speaker 5: Asistenta de endoscopie lipsește două zile pe săptămână.
+[00:45:20] Speaker 7: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:45:24] Speaker 5: Asistenta de endoscopie lipsește în concediu medical.
+[00:45:26] Speaker 2: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:45:31] Speaker 6: Only only three scopes are working, the fourth is at the service centre.
+[00:45:36] Speaker 2: Lista de așteptare are acum în jur de 320 pacienți.
+[00:45:40] Speaker 7: Lista de așteptare are acum peste 300 pacienți.
+[00:45:43] Speaker 2: Only three scopes are working, the fourth is at the service centre.
+[00:45:48] Speaker 4: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:45:53] Speaker 4: Lista de așteptare are acum aproape 280 pacienți.
+[00:45:56] Speaker 7: Only only three scopes are working, the fourth is at the service centre.
+[00:46:01] Speaker 5: The endoscopy suite runs eight sessions a week.
+[00:46:04] Speaker 2: The endoscopy suite runs ten sessions a week.
+[00:46:08] Speaker 5: Lista de așteptare are acum aproape 280 pacienți.
+[00:46:11] Speaker 6: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:46:15] Speaker 6: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:46:19] Speaker 5: Из-за очереди часть пациентов уходит в частные клиники.
+[00:46:22] Speaker 4: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:46:26] Speaker 5: Colonoscopiile de screening ocupă cam 30 la sută din program.
+[00:46:30] Speaker 7: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:46:33] Speaker 3: На субботу нужен второй эндоскопист, иначе смену не закрыть.
+[00:46:36] Speaker 5: Colonoscopiile de screening ocupă cam 40 la sută din program.
+[00:46:41] Speaker 7: Only three scopes are working, the fourth is at the service centre.
+[00:46:45] Speaker 2: Pacienții se plâng la telefon că nu pot obține o dată.
+[00:46:50] Speaker 7: Из-за очереди часть пациентов уходит в другие больницы.
+[00:46:53] Speaker 4: Pacienții se plâng la telefon că не успевают отдыхать после ночи.
+[00:46:58] Speaker 5: Dezinfecția endoscoapelor durează 45 minute per aparat.
+[00:47:00] Speaker 4: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:47:05] Speaker 5: The endoscopy suite runs ten sessions a week.
+[00:47:08] Speaker 6: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:47:11] Speaker 6: Asistenta de endoscopie lipsește două zile pe săptămână.
+[00:47:14] Speaker 7: Only only three scopes are working, the fourth is at the service centre.
+[00:47:19] Speaker 3: Lista de așteptare are acum peste 300 pacienți.
+[00:47:22] Speaker 2: На субботу нужен техник по дезинфекции, иначе смену не закрыть.
+[00:47:27] Speaker 2: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:47:31] Speaker 1: Să revenim la propunerea cu endoscopia de sâmbătă. Pilotăm o zi de endoscopie sâmbăta timp de o lună, apoi evaluăm lista de așteptare.
+[00:47:40] Speaker 2: Agreed, a one-month pilot makes sense.
+[00:47:42] Speaker 4: I'll draw up the weekend team rota by next Wednesday.
+[00:47:46] Speaker 3: Может, вообще перейти на двухсменную работу эндоскопии?
+[00:47:49] Speaker 1: Prea devreme, întâi vedem pilotul.
+[00:47:51] Speaker 6: Only only three scopes are working, the fourth is at the service centre.
+[00:47:57] Speaker 7: Only only three scopes are working, the fourth is at the service centre.
+[00:48:02] Speaker 6: Lista de așteptare are acum în jur de 320 pacienți.
+[00:48:06] Speaker 5: Only only three scopes are working, the fourth is at the service centre.
+[00:48:11] Speaker 3: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:48:15] Speaker 5: Asistenta de endoscopie lipsește pentru că e la curs.
+[00:48:19] Speaker 7: Pacienții se plâng la telefon că așteaptă prea mult rezultatul.
+[00:48:23] Speaker 3: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:48:26] Speaker 2: Lista de așteptare are acum peste 300 pacienți.
+[00:48:29] Speaker 3: На субботу нужен техник по дезинфекции, иначе смену не закрыть.
+[00:48:33] Speaker 3: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:48:36] Speaker 2: Dezinfecția endoscoapelor durează 40 minute per aparat.
+[00:48:39] Speaker 7: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:48:42] Speaker 7: Из-за очереди часть пациентов уходит с направлением обратно к семейному врачу.
+[00:48:46] Speaker 3: Lista de așteptare are acum peste 300 pacienți.
+[00:48:50] Speaker 7: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:48:52] Speaker 2: Dezinfecția endoscoapelor durează 50 minute per aparat.
+[00:48:55] Speaker 5: Lista de așteptare are acum în jur de 320 pacienți.
+[00:48:59] Speaker 2: Pacienții se plâng la telefon că не успевают отдыхать после ночи.
+[00:49:04] Speaker 7: Only only three scopes are working, the fourth is at the service centre.
+[00:49:09] Speaker 5: The endoscopy suite runs nine sessions a week.
+[00:49:12] Speaker 2: Only only three scopes are working, the fourth is at the service centre.
+[00:49:18] Speaker 1: Al cincilea subiect, farmacia.
+[00:49:19] Speaker 6: Heparina cu greutate moleculară mică se termină. Furnizorul întârzie livrarea cu trei săptămâni.
+[00:49:25] Speaker 3: Stocul actual ajunge pentru zece zile la consumul obișnuit.
+[00:49:28] Speaker 7: Stocul actual ajunge pentru opt zile la consumul obișnuit.
+[00:49:32] Speaker 7: Самый большой расход в реанимации.
+[00:49:34] Speaker 6: Cheltuiala suplimentară ar fi în jur de 40 de mii lei.
+[00:49:38] Speaker 6: Для профилактики тромбозов после операций нужна основная часть запаса.
+[00:49:42] Speaker 5: Cheltuiala suplimentară ar fi în jur de 60 de mii lei.
+[00:49:47] Speaker 4: Stocul actual ajunge pentru opt zile la consumul obișnuit.
+[00:49:50] Speaker 4: Stocul actual ajunge pentru opt zile la consumul obișnuit.
+[00:49:54] Speaker 5: Для профилактики тромбозов после операций используем больше всего.
+[00:49:57] Speaker 5: Stocul actual ajunge pentru opt zile la consumul obișnuit.
+[00:50:01] Speaker 4: Cheltuiala suplimentară ar fi în jur de 60 de mii lei.
+[00:50:05] Speaker 6: Cheltuiala suplimentară ar fi în jur de 60 de mii lei.
+[00:50:10] Speaker 7: Stocul actual ajunge pentru zece zile la consumul obișnuit.
+[00:50:13] Speaker 2: Furnizorul spune că problema e la vamă.
+[00:50:16] Speaker 7: Самый большой расход в кардиологии.
+[00:50:18] Speaker 3: Farmacia a verificat prețurile din ultimele trei luni.
+[00:50:22] Speaker 6: Furnizorul spune că problema e la fabricant.
+[00:50:24] Speaker 2: Для профилактики тромбозов после операций используем больше всего.
+[00:50:28] Speaker 7: Cheltuiala suplimentară ar fi în jur de 60 de mii lei.
+[00:50:32] Speaker 5: The alternative product has the same active substance and dose, only the packaging differs.
+[00:50:38] Speaker 7: Самый большой расход в хирургии.
+[00:50:40] Speaker 4: Для профилактики тромбозов после операций расход самый стабильный.
+[00:50:43] Speaker 6: Самый большой расход в реанимации.
+[00:50:45] Speaker 5: Cheltuiala suplimentară ar fi în jur de 40 de mii lei.
+[00:50:50] Speaker 4: The alternative product has the same strength and route, only the packaging differs.
+[00:50:55] Speaker 6: Furnizorul spune că problema e la fabricant.
+[00:50:58] Speaker 6: Для профилактики тромбозов после операций нужна основная часть запаса.
+[00:51:01] Speaker 2: Consumul pe cardiologie a fost 120 doze săptămâna aceasta.
+[00:51:05] Speaker 2: Самый большой расход в кардиологии.
+[00:51:07] Speaker 4: Самый большой расход в кардиологии.
+[00:51:09] Speaker 7: Farmacia a verificat certificatele produsului.
+[00:51:11] Speaker 7: Cheltuiala suplimentară ar fi în jur de 40 de mii lei.
+[00:51:16] Speaker 4: Stocul actual ajunge pentru douăsprezece zile la consumul obișnuit.
+[00:51:19] Speaker 5: Cheltuiala suplimentară ar fi în jur de 55 de mii lei.
+[00:51:24] Speaker 4: Для профилактики тромбозов после операций расход самый стабильный.
+[00:51:27] Speaker 4: Furnizorul spune că problema e la vamă.
+[00:51:30] Speaker 6: The alternative product has the same active substance and dose, only the packaging differs.
+[00:51:36] Speaker 2: Для профилактики тромбозов после операций используем больше всего.
+[00:51:39] Speaker 3: Cheltuiala suplimentară ar fi în jur de 40 de mii lei.
+[00:51:43] Speaker 4: Farmacia a verificat certificatele produsului.
+[00:51:45] Speaker 2: Consumul pe cardiologie a fost 160 doze săptămâna aceasta.
+[00:51:49] Speaker 4: Farmacia a verificat certificatele produsului.
+[00:51:51] Speaker 5: The alternative product has the same active substance and dose, only the packaging differs.
+[00:51:57] Speaker 3: Для профилактики тромбозов после операций расход самый стабильный.
+[00:52:00] Speaker 4: Furnizorul spune că problema e în transportul din Europa.
+[00:52:04] Speaker 3: Stocul actual ajunge pentru douăsprezece zile la consumul obișnuit.
+[00:52:07] Speaker 6: Предлагаю закупить у второго поставщика на месяц, цена выше на двенадцать процентов.
+[00:52:12] Speaker 1: Aprobăm achiziția de urgență de la al doilea furnizor pentru o lună.
+[00:52:17] Speaker 6: Оформлю заказ до понедельника.
+[00:52:19] Speaker 2: Для профилактики тромбозов после операций используем больше всего.
+[00:52:22] Speaker 2: Cheltuiala suplimentară ar fi în jur de 55 de mii lei.
+[00:52:26] Speaker 5: Farmacia a verificat ce au alte spitale în stoc.
+[00:52:30] Speaker 6: Farmacia a verificat ce au alte spitale în stoc.
+[00:52:34] Speaker 5: Cheltuiala suplimentară ar fi în jur de 55 de mii lei.
+[00:52:38] Speaker 4: Furnizorul spune că problema e în transportul din Europa.
+[00:52:42] Speaker 5: Furnizorul spune că problema e la fabricant.
+[00:52:45] Speaker 7: Stocul actual ajunge pentru zece zile la consumul obișnuit.
+[00:52:48] Speaker 6: Farmacia a verificat certificatele produsului.
+[00:52:50] Speaker 5: Furnizorul spune că problema e la vamă.
+[00:52:53] Speaker 6: Stocul actual ajunge pentru douăsprezece zile la consumul obișnuit.
+[00:52:57] Speaker 3: Cheltuiala suplimentară ar fi în jur de 55 de mii lei.
+[00:53:01] Speaker 3: Для профилактики тромбозов после операций используем больше всего.
+[00:53:05] Speaker 3: Cheltuiala suplimentară ar fi în jur de 55 de mii lei.
+[00:53:09] Speaker 7: Consumul pe cardiologie a fost 160 doze săptămâna aceasta.
+[00:53:13] Speaker 4: Для профилактики тромбозов после операций нужна основная часть запаса.
+[00:53:16] Speaker 2: Farmacia a verificat prețurile din ultimele trei luni.
+[00:53:20] Speaker 2: Stocul actual ajunge pentru douăsprezece zile la consumul obișnuit.
+[00:53:23] Speaker 2: Самый большой расход в кардиологии.
+[00:53:25] Speaker 7: Farmacia a verificat ce au alte spitale în stoc.
+[00:53:29] Speaker 3: Furnizorul spune că problema e la vamă.
+[00:53:32] Speaker 7: Для профилактики тромбозов после операций используем больше всего.
+[00:53:35] Speaker 7: Consumul pe cardiologie a fost 140 doze săptămâna aceasta.
+[00:53:39] Speaker 4: Furnizorul spune că problema e în transportul din Europa.
+[00:53:43] Speaker 5: Farmacia a verificat prețurile din ultimele trei luni.
+[00:53:46] Speaker 6: Consumul pe cardiologie a fost 120 doze săptămâna aceasta.
+[00:53:49] Speaker 2: Și pentru cardiologie, restricționăm heparina la indicațiile stricte până vine livrarea?
+[00:53:54] Speaker 1: Da. Până la livrare, heparina se prescrie doar pentru indicațiile din protocol, cu avizul farmacistului clinician. Aprobat.
+[00:54:01] Speaker 6: Trimit eu lista indicațiilor tuturor secțiilor până marți.
+[00:54:04] Speaker 6: Farmacia a verificat ce au alte spitale în stoc.
+[00:54:08] Speaker 7: Cheltuiala suplimentară ar fi în jur de 40 de mii lei.
+[00:54:12] Speaker 2: Cheltuiala suplimentară ar fi în jur de 55 de mii lei.
+[00:54:17] Speaker 7: Farmacia a verificat ce au alte spitale în stoc.
+[00:54:20] Speaker 7: Cheltuiala suplimentară ar fi în jur de 40 de mii lei.
+[00:54:25] Speaker 2: Cheltuiala suplimentară ar fi în jur de 55 de mii lei.
+[00:54:29] Speaker 6: Furnizorul spune că problema e la vamă.
+[00:54:32] Speaker 2: Furnizorul spune că problema e la fabricant.
+[00:54:35] Speaker 3: Cheltuiala suplimentară ar fi în jur de 60 de mii lei.
+[00:54:40] Speaker 3: The alternative product has the same strength and route, only the packaging differs.
+[00:54:45] Speaker 5: Cheltuiala suplimentară ar fi în jur de 40 de mii lei.
+[00:54:49] Speaker 2: Cheltuiala suplimentară ar fi în jur de 40 de mii lei.
+[00:54:54] Speaker 3: Consumul pe cardiologie a fost 140 doze săptămâna aceasta.
+[00:54:57] Speaker 6: Farmacia a verificat certificatele produsului.
+[00:54:59] Speaker 2: Cheltuiala suplimentară ar fi în jur de 60 de mii lei.
+[00:55:04] Speaker 6: Stocul actual ajunge pentru douăsprezece zile la consumul obișnuit.
+[00:55:08] Speaker 2: Consumul pe cardiologie a fost 120 doze săptămâna aceasta.
+[00:55:11] Speaker 6: Furnizorul spune că problema e la fabricant.
+[00:55:14] Speaker 5: Stocul actual ajunge pentru douăsprezece zile la consumul obișnuit.
+[00:55:18] Speaker 4: Farmacia a verificat prețurile din ultimele trei luni.
+[00:55:21] Speaker 3: Furnizorul spune că problema e la vamă.
+[00:55:24] Speaker 6: Farmacia a verificat prețurile din ultimele trei luni.
+[00:55:27] Speaker 6: The alternative product has the same strength and route, only the packaging differs.
+[00:55:32] Speaker 7: Для профилактики тромбозов после операций используем больше всего.
+[00:55:36] Speaker 1: Ultimul subiect, graficul de gărzi al rezidenților pentru octombrie.
+[00:55:39] Speaker 7: Rezidenții de anul întâi fac acum gărzi singuri în weekend la internare.
+[00:55:44] Speaker 6: Резиденты жалуются, что не успевают отдыхать после ночи.
+[00:55:47] Speaker 3: Anul acesta avem nouă rezidenți noi în primul an.
+[00:55:51] Speaker 7: Weekend nights at admissions see around twenty patients.
+[00:55:54] Speaker 6: Резиденты жалуются, что așteaptă prea mult rezultatul.
+[00:55:57] Speaker 4: Резиденты жалуются, что nu pot obține o dată.
+[00:56:00] Speaker 7: Programul de rezidențiat cere un curs de resuscitare în primul semestru.
+[00:56:05] Speaker 3: Anul acesta avem unsprezece rezidenți noi în primul an.
+[00:56:09] Speaker 5: Anul acesta avem nouă rezidenți noi în primul an.
+[00:56:12] Speaker 5: Programul de rezidențiat cere un număr minim de gărzi supravegheate.
+[00:56:16] Speaker 7: Anul acesta avem doisprezece rezidenți noi în primul an.
+[00:56:20] Speaker 3: Programul de rezidențiat cere un număr minim de gărzi supravegheate.
+[00:56:24] Speaker 6: La ultima gardă, un rezident a rămas singur cu un pacient în stare gravă.
+[00:56:30] Speaker 6: Anul acesta avem doisprezece rezidenți noi în primul an.
+[00:56:33] Speaker 3: Programul de rezidențiat cere un număr minim de gărzi supravegheate.
+[00:56:38] Speaker 4: Medicii seniori acoperă deja șase gărzi pe lună.
+[00:56:41] Speaker 4: La ultima gardă, un rezident a sunat seniorul abia dimineața.
+[00:56:45] Speaker 3: Резиденты жалуются, что așteaptă prea mult rezultatul.
+[00:56:48] Speaker 7: Programul de rezidențiat cere un număr minim de gărzi supravegheate.
+[00:56:52] Speaker 6: Anul acesta avem doisprezece rezidenți noi în primul an.
+[00:56:55] Speaker 4: Anul acesta avem unsprezece rezidenți noi în primul an.
+[00:56:59] Speaker 3: Medicii seniori acoperă deja cinci gărzi pe lună.
+[00:57:02] Speaker 3: Programul de rezidențiat cere un curs de resuscitare în primul semestru.
+[00:57:07] Speaker 3: Weekend nights at admissions see around twenty five patients.
+[00:57:10] Speaker 4: Medicii seniori acoperă deja cinci gărzi pe lună.
+[00:57:14] Speaker 4: Anul acesta avem nouă rezidenți noi în primul an.
+[00:57:17] Speaker 7: Medicii seniori acoperă deja cinci gărzi pe lună.
+[00:57:21] Speaker 6: Anul acesta avem nouă rezidenți noi în primul an.
+[00:57:24] Speaker 4: Anul acesta avem doisprezece rezidenți noi în primul an.
+[00:57:28] Speaker 3: Medicii seniori acoperă deja cinci gărzi pe lună.
+[00:57:31] Speaker 4: Programul de rezidențiat cere un număr minim de gărzi supravegheate.
+[00:57:35] Speaker 7: Резиденты жалуются, что не успевают отдыхать после ночи.
+[00:57:39] Speaker 5: Резиденты жалуются, что не успевают отдыхать после ночи.
+[00:57:42] Speaker 6: Weekend nights at admissions see around twenty patients.
+[00:57:45] Speaker 5: Weekend nights at admissions see around twenty patients.
+[00:57:48] Speaker 4: La ultima gardă, un rezident a rămas singur cu un pacient în stare gravă.
+[00:57:54] Speaker 7: Programul de rezidențiat cere un curs de resuscitare în primul semestru.
+[00:57:58] Speaker 7: La ultima gardă, un rezident a rămas singur cu un pacient în stare gravă.
+[00:58:04] Speaker 4: Programul de rezidențiat cere un număr minim de gărzi supravegheate.
+[00:58:08] Speaker 4: La ultima gardă, un rezident a avut trei internări simultan.
+[00:58:12] Speaker 5: Medicii seniori acoperă deja patru gărzi pe lună.
+[00:58:16] Speaker 5: Medicii seniori acoperă deja patru gărzi pe lună.
+[00:58:19] Speaker 2: Предлагаю, чтобы в первые три месяца резиденты дежурили только в паре со старшим врачом.
+[00:58:25] Speaker 4: Da, de acord, e mai sigur pentru pacienți.
+[00:58:28] Speaker 1: Cine reface graficul?
+[00:58:29] Speaker 2: Îl refac eu, de îndată ce primesc lista rezidenților.
+[00:58:33] Speaker 5: Și cursul de resuscitare pentru rezidenți?
+[00:58:35] Speaker 1: Cursul de resuscitare devine obligatoriu pentru toți rezidenții noi. Aprobat.
+[00:58:39] Speaker 3: Îl organizez eu în zece zile.
+[00:58:42] Speaker 7: Poate facem și o întâlnire informală cu rezidenții noi?
+[00:58:45] Speaker 1: Mai vedem.
+[00:58:46] Speaker 3: Microfonul face ecou. Continuăm.
+[00:58:48] Speaker 6: Sorry, my pager went off, it was the emergency room, nothing urgent.
+[00:58:53] Speaker 1: Коллеги онлайн, вас слышно?
+[00:58:54] Speaker 6: Кто-нибудь видел пульт от проектора? Mai așteptăm un coleg de la chirurgie.
+[00:58:59] Speaker 1: Sorry, my pager went off, it was the emergency room, nothing urgent.
+[00:59:04] Speaker 1: Коллеги онлайн, видите слайды?
+[00:59:06] Speaker 6: Cafeaua de la etajul trei iar nu funcționează.
+[00:59:09] Speaker 3: Se aude și în spatele sălii? Mai așteptăm un coleg de la chirurgie.
+[00:59:14] Speaker 3: Кто-нибудь видел пульт от проектора? Am trimis materialele aseară pe e-mail.
+[00:59:19] Speaker 3: Se aude și în spatele sălii? Mulțumesc.
+[00:59:22] Speaker 1: Кто-нибудь видел пульт от проектора? Microfonul face ecou.
+[00:59:25] Speaker 1: Sorry, my pager went off, it was the emergency room, nothing urgent.
+[00:59:30] Speaker 1: Mulțumesc tuturor. Ne vedem la ședința următoare.

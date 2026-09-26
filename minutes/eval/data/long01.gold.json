@@ -1,0 +1,156 @@
+{
+ "id": "long01",
+ "type": "medical",
+ "date": "2026-09-24",
+ "decisions": {
+  "icu_transfer": [
+   "L0067"
+  ],
+  "reop": [
+   "L0123"
+  ],
+  "intermediate": [
+   "L0335"
+  ],
+  "elective_hold": [
+   "L0338"
+  ],
+  "screening": [
+   "L0397"
+  ],
+  "hand_audit": [
+   "L0433"
+  ],
+  "red_flags": [
+   "L0589"
+  ],
+  "saturday": [
+   "L0684"
+  ],
+  "heparin": [
+   "L0759"
+  ],
+  "heparin_restrict": [
+   "L0788"
+  ],
+  "resident_pairs": [
+   "L0858"
+  ],
+  "bls": [
+   "L0862"
+  ]
+ },
+ "actions": {
+  "bed_prep": {
+   "lines": [
+    "L0068"
+   ],
+   "owner": "Speaker 3",
+   "deadline": "2026-09-25"
+  },
+  "puncture": {
+   "lines": [
+    "L0124"
+   ],
+   "owner": "Speaker 4",
+   "deadline": "2026-09-25"
+  },
+  "nurse_rota": {
+   "lines": [
+    "L0336"
+   ],
+   "owner": "Speaker 7",
+   "deadline": "2026-10-08"
+  },
+  "hold_notice": {
+   "lines": [
+    "L0339"
+   ],
+   "owner": "Speaker 3",
+   "deadline": "2026-09-25"
+  },
+  "screening_sop": {
+   "lines": [
+    "L0398"
+   ],
+   "owner": "Speaker 5",
+   "deadline": "2026-09-25"
+  },
+  "hand_audit_first": {
+   "lines": [
+    "L0434"
+   ],
+   "owner": "Speaker 7",
+   "deadline": "2026-09-30"
+  },
+  "red_flag_criteria": {
+   "lines": [
+    "L0590"
+   ],
+   "owner": "Speaker 2",
+   "deadline": ""
+  },
+  "saturday_rota": {
+   "lines": [
+    "L0685"
+   ],
+   "owner": "Speaker 4",
+   "deadline": "2026-09-30"
+  },
+  "heparin_order": {
+   "lines": [
+    "L0760"
+   ],
+   "owner": "Speaker 6",
+   "deadline": "2026-09-28"
+  },
+  "heparin_list": {
+   "lines": [
+    "L0789"
+   ],
+   "owner": "Speaker 6",
+   "deadline": "2026-09-29"
+  },
+  "resident_rota": {
+   "lines": [
+    "L0860"
+   ],
+   "owner": "Speaker 2",
+   "deadline": ""
+  },
+  "bls_course": {
+   "lines": [
+    "L0863"
+   ],
+   "owner": "Speaker 3",
+   "deadline": "2026-10-04"
+  }
+ },
+ "old": {
+  "reop": [
+   "L0100"
+  ],
+  "hand_audit": [
+   "L0420"
+  ]
+ },
+ "not_decisions": [
+  "L0125",
+  "L0340",
+  "L0435",
+  "L0686",
+  "L0864"
+ ],
+ "patients": [
+  "Vasile Ceban",
+  "Elena Botnaru"
+ ],
+ "proposals": {
+  "intermediate": [
+   "L0185"
+  ],
+  "saturday": [
+   "L0496"
+  ]
+ }
+}

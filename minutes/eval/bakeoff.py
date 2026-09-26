@@ -2,7 +2,7 @@
 and score them. Runs anywhere an Ollama server listens on 127.0.0.1; the
 team runs it on Kaggle (eval/kaggle/kernel.py), never on a laptop.
 
-  python -m eval.bakeoff --models gemma3:4b,qwen3:8b|think --out results/
+  python -m eval.bakeoff --models gemma3:4b,qwen3:8b|think --out results/ [--long]
 """
 
 import argparse
@@ -13,6 +13,8 @@ import threading
 import time
 from pathlib import Path
 
+from eval.long import LONG
+from eval.long import build as build_long
 from eval.meetings import DATE, MEETINGS, build
 from eval.score import score_meeting, summary
 from mom.extract import extract
@@ -55,7 +57,7 @@ def plain_text(body: str) -> str:
     return re.sub(r"\\[a-z]+|\{[TNDAC]\d+\}|[{}]", " ", body)
 
 
-def run_model(spec: str, data: Path, out: Path, tools=None, cpu_only=False, progress=None, only=None) -> dict:
+def run_model(spec: str, data: Path, out: Path, tools=None, cpu_only=False, progress=None, only=None, with_long=False) -> dict:
     model, _, think = spec.partition("|")
     think_arg = {"think": True, "off": False, "low": "low", "medium": "medium"}.get(think) if think else None
     llm = LocalLLM(model, "http://127.0.0.1:11434", ctx=16384)
@@ -64,7 +66,7 @@ def run_model(spec: str, data: Path, out: Path, tools=None, cpu_only=False, prog
     rows, written, t0 = [], {}, time.perf_counter()
     gpu = PeakGPU()
     gpu.start()
-    ids = [m for m in MEETINGS if not only or m in only]
+    ids = [m for m in {**MEETINGS, **LONG} if m in only] if only else list(MEETINGS) + (list(LONG) if with_long else [])
     for i, mid in enumerate(ids):
         lines = load_transcript(data / f"{mid}.txt")
         gold = json.loads((data / f"{mid}.gold.json").read_text(encoding="utf-8"))
@@ -111,13 +113,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--models", required=True)
     ap.add_argument("--out", default="results")
+    ap.add_argument("--long", action="store_true", help="also run the one-hour meeting (eval/long.py)")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     build(HERE / "data")
+    build_long(HERE / "data")
     tools = language_tool()
     for spec in a.models.split(","):
-        r = run_model(spec, HERE / "data", out, tools)
+        r = run_model(spec, HERE / "data", out, tools, with_long=a.long)
         print(json.dumps({"model": spec, **r["score"], "tok_s": r["tokens_per_s"]}, ensure_ascii=False), flush=True)
 
 

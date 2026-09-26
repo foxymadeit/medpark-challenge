@@ -7,6 +7,7 @@ Each line is (speaker, text, tags). Tags mark what minutes must capture:
   NOTD             a proposal or question nobody adopted: citing only this is a false decision
   OLD:key          an earlier version of decision `key` that a later line reverses
   PAT:Name         a patient's name is said on this line (must never reach the minutes)
+  P:key            where decision `key` was first proposed (eval/long.py only; the scorer ignores it)
 The meeting date is Thursday 24 September 2026, so "până vineri" is 2026-09-25.
 
 python -m eval.meetings  writes eval/data/<id>.txt and <id>.gold.json
@@ -145,32 +146,39 @@ MEETINGS = {
 }
 
 
+def write(out: Path, mid: str, mtype: str, script, stamps) -> dict:
+    """Write one meeting's transcript and answer key; stamps[i] is line i's time."""
+    lines, gold = [], {"id": mid, "type": mtype, "date": DATE, "decisions": {}, "actions": {}, "old": {}, "not_decisions": [],
+                       "patients": [], "proposals": {}}
+    for n, ((spk, text, tags), stamp) in enumerate(zip(script, stamps), 1):
+        lines.append(f"[{stamp}] Speaker {spk}: {text}")
+        lid = f"L{n:04d}"
+        for tag in filter(None, tags.split(";")):
+            kind, _, rest = tag.partition(":")
+            if kind == "D":
+                gold["decisions"].setdefault(rest, []).append(lid)
+            elif kind == "A":
+                key, owner, iso = rest.split(":")
+                gold["actions"][key] = {"lines": [lid], "owner": owner, "deadline": iso}
+            elif kind == "OLD":
+                gold["old"].setdefault(rest, []).append(lid)
+            elif kind == "NOTD":
+                gold["not_decisions"].append(lid)
+            elif kind == "PAT":
+                gold["patients"].append(rest)
+            elif kind == "P":
+                gold["proposals"].setdefault(rest, []).append(lid)
+    (out / f"{mid}.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    (out / f"{mid}.gold.json").write_text(json.dumps(gold, ensure_ascii=False, indent=1), encoding="utf-8")
+    return {"type": mtype, "lines": len(lines), "decisions": len(gold["decisions"]), "actions": len(gold["actions"])}
+
+
 def build(out: Path) -> dict:
     out.mkdir(parents=True, exist_ok=True)
     index = {}
     for mid, (mtype, script) in MEETINGS.items():
-        lines, gold = [], {"id": mid, "type": mtype, "date": DATE, "decisions": {}, "actions": {}, "old": {}, "not_decisions": [], "patients": []}
-        for n, (spk, text, tags) in enumerate(script, 1):
-            t = 5 + (n - 1) * 9
-            lines.append(f"[{t // 60:02d}:{t % 60:02d}] Speaker {spk}: {text}")
-            lid = f"L{n:04d}"
-            for tag in filter(None, tags.split(";")):
-                kind, _, rest = tag.partition(":")
-                if kind == "D":
-                    gold["decisions"].setdefault(rest, []).append(lid)
-                elif kind == "A":
-                    key, owner, iso = rest.split(":")
-                    gold["actions"][key] = {"lines": [lid], "owner": owner, "deadline": iso}
-                elif kind == "OLD":
-                    gold["old"].setdefault(rest, []).append(lid)
-                elif kind == "NOTD":
-                    gold["not_decisions"].append(lid)
-                elif kind == "PAT":
-                    gold["patients"].append(rest)
-        (out / f"{mid}.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
-        (out / f"{mid}.gold.json").write_text(json.dumps(gold, ensure_ascii=False, indent=1), encoding="utf-8")
-        index[mid] = {"type": mtype, "lines": len(lines), "decisions": len(gold["decisions"]), "actions": len(gold["actions"])}
-    long = [l for mid in MEETINGS for l in (out / f"{mid}.txt").read_text(encoding="utf-8").splitlines()]
+        stamps = [f"{t // 60:02d}:{t % 60:02d}" for t in (5 + i * 9 for i in range(len(script)))]
+        index[mid] = write(out, mid, mtype, script, stamps)
     return index
 
 

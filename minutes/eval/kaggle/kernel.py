@@ -117,9 +117,11 @@ def run():
     sys.path.insert(0, "/tmp/repo/minutes")
     os.chdir("/tmp/repo/minutes")
     from eval import bakeoff
+    from eval.long import build as build_long
     from eval.meetings import build
     data = Path("/tmp/repo/minutes/eval/data")
     build(data)
+    build_long(data)
     tools = bakeoff.language_tool()
 
     def progress(i, n):
@@ -139,7 +141,7 @@ def run():
             try:
                 sh(f"ollama pull {name}", timeout=2400)
                 r = bakeoff.run_model(spec, data, OUT, None if cpu_only else tools, cpu_only=cpu_only,
-                                      progress=progress, only=["med02"] if cpu_only else None)
+                                      progress=progress, only=["med02"] if cpu_only else None, with_long=not cpu_only)
                 STATE["results"][spec + (" cpu" if cpu_only else "")] = {**r["score"], "tok_s": r["tokens_per_s"], "peak_gpu_gb": r["peak_gpu_gb"],
                                                                           "minutes": r["minutes"]}
                 log(f"{spec}{' (CPU)' if cpu_only else ''}: {json.dumps(STATE['results'][spec + (' cpu' if cpu_only else '')])}")
