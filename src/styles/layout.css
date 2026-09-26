@@ -24,6 +24,8 @@
   text-decoration: none;
   border-radius: var(--sm-radius-inner);
 }
+/* Wordmark: bold, and its cap-height box centred on the 25.5px sign. */
+.brand__name { position: relative; top: 1px; font: 700 17px/1 var(--sm-font-sign); letter-spacing: -0.2px; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
 .account { position: relative; }
 .account__button {

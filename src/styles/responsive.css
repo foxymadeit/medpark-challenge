@@ -83,7 +83,7 @@
   .topbar__right { gap: var(--sm-space-2); }
   .account__button .t-button, .account__button > svg { display: none; }
   .account__button { padding: 0 4px; }
-  .brand .t-h3 { display: none; }
+  .brand__name { display: none; }
 
   .page { padding: 24px 16px; }
   .review { padding: 20px 16px 0; }

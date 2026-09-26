@@ -113,7 +113,7 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
       )}
       <Link to={signedIn ? '/new' : '/'} className="brand">
         <Logo />
-        <span className="t-h3">{t('common.appName')}</span>
+        <span className="brand__name">{t('common.appName')}</span>
       </Link>
       <div className="topbar__right">
         <LanguageSwitch />
@@ -126,9 +126,9 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
 // Sidebar order follows the real screens (New meeting · History · Participants · Templates).
 const NAV = [
   { to: '/new', key: 'nav.newMeeting', Icon: MicrophoneIcon, match: ['/new', '/recording', '/upload', '/processing', '/review', '/sent'] },
-  { to: '/history', key: 'nav.history', Icon: ClockCounterClockwiseIcon, match: ['/history'] },
   { to: '/participants', key: 'nav.participants', Icon: UsersThreeIcon, match: ['/participants'] },
   { to: '/templates', key: 'nav.templates', Icon: ListChecksIcon, match: ['/templates'] },
+  { to: '/history', key: 'nav.history', Icon: ClockCounterClockwiseIcon, match: ['/history'] },
 ];
 
 function SideNav({ open }: { open: boolean }) {
