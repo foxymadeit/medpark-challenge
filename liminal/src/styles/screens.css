@@ -248,6 +248,8 @@
 .review__disclosure-meta { font-weight: 400; letter-spacing: 0; }
 .review__disclosure-action { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; color: var(--sm-brand); font: 600 15px/20px var(--sm-font-body); letter-spacing: 0; white-space: nowrap; }
 .review__disclosure-caret { color: currentColor; transition: transform 150ms; } /* brand blue, like the "min" in the logo */
+/* Open: "Hide" steps back to grey — blue only invites opening. */
+.review__pane--transcript.is-open .review__disclosure-action { color: var(--sm-ink-secondary); }
 .review__pane--transcript.is-open .review__disclosure-caret { transform: rotate(180deg); }
 .review__pane--transcript { gap: 0; }
 /* Header stays put; the body grows downwards (0fr → 1fr). */
