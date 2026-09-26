@@ -182,6 +182,7 @@ export interface ProcessingStage {
   state: "pending" | "running" | "done" | "failed";
   done?: number;
   total?: number;
+  startedAt?: string;
   finishedAt?: string;
   etaAt?: string;
 }

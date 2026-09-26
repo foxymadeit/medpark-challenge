@@ -1,6 +1,7 @@
 import { FiCheck as Check, FiAlertTriangle as Warning } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import type { ProcessingStage } from "../types/meeting";
+import { formatClock } from "../utils";
 
 /** The server's real pipeline stages (Figma M01): what is done, what runs
  * now with its live count, and when the rest should finish. */
@@ -10,13 +11,16 @@ export default function ProcessingStages({
   stages: ProcessingStage[];
 }) {
   const { t, i18n } = useTranslation();
+  const now = Date.now();
+  // A clock time in the past would be a broken promise; say "soon" instead.
   const clock = (iso?: string) =>
-    iso
-      ? new Date(iso).toLocaleTimeString(i18n.language, {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "";
+    iso ? formatClock(new Date(iso), i18n.language) : "";
+  const eta = (iso?: string) =>
+    !iso
+      ? ""
+      : Date.parse(iso) > now
+        ? t("stageAbout", { time: clock(iso) })
+        : t("stageSoon");
   const current = stages.find((s) => s.state === "running");
   return (
     <section className="panel process-timeline">
@@ -45,9 +49,7 @@ export default function ProcessingStages({
                 ? clock(s.finishedAt)
                 : s.state === "running"
                   ? t("stageNow")
-                  : s.etaAt
-                    ? t("stageAbout", { time: clock(s.etaAt) })
-                    : ""}
+                  : eta(s.etaAt)}
             </span>
           </li>
         ))}

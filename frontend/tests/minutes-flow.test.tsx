@@ -58,7 +58,7 @@ describe("real pipeline screens", () => {
             finishedAt: "2026-09-26T12:13:40Z",
           },
           { id: "verify", state: "running", done: 31, total: 45 },
-          { id: "render", state: "pending", etaAt: "2026-09-26T12:18:00Z" },
+          { id: "render", state: "pending", etaAt: new Date(Date.now() + 5 * 60000).toISOString() },
         ]}
       />,
     );

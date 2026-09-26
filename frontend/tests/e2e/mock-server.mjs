@@ -107,7 +107,7 @@ const routes = [
   }],
   ["POST", /^\/api\/meetings\/([^/]+)\/process$/, (req, res, id) => {
     const m = meetings.get(id);
-    Object.assign(m, { status: "processing", processingState: "running", processingStartedAt: iso(), processingEndsAt: iso(STAGES.length * STEP_MS) });
+    Object.assign(m, { status: "processing", processingState: "running", processingStartedAt: iso(), processingEndsAt: iso((60 + 3600 * 0.19) * 1000) });
     send(res, 200, tick(m));
   }],
   ["GET", /^\/api\/meetings\/([^/]+)(\/processing|\/minutes)?$/, (req, res, id) => (meetings.has(id) ? send(res, 200, settle(meetings.get(id))) : send(res, 404, {}))],

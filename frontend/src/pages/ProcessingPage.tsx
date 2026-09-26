@@ -13,6 +13,8 @@ import { DEMO_MODE } from "../api/config";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import ProcessingStages from "../components/ProcessingStages";
+import { displayStages, expectedFinish } from "../api/stages";
+import { formatClock } from "../utils";
 import { formatTime } from "../utils";
 export default function ProcessingPage() {
   const { t, i18n } = useTranslation();
@@ -90,26 +92,41 @@ export default function ProcessingPage() {
     "writingMinutes",
     "preparingDelivery",
   ];
-  const running = m.stages?.find((s) => s.state === "running")?.id;
+  const now = Date.now();
+  const stages = displayStages(m, now);
+  const finish = expectedFinish(m, now);
+  const running = stages.find((s) => s.state === "running")?.id;
+  // The bar follows the server's progress, and between its updates the
+  // time spent against the expected finish, so it never stands still.
+  const started = m.processingStartedAt
+    ? Date.parse(m.processingStartedAt)
+    : now;
+  const byTime =
+    finish > started ? (95 * (now - started)) / (finish - started) : 0;
   // Server progress when given; otherwise finished stages, counting a running
   // stage's own done/total so the bar keeps moving inside long steps.
-  const overall =
-    m.progress ??
-    (m.stages?.length
-      ? (100 *
-          m.stages.reduce(
-            (sum, s) =>
-              sum +
-              (s.state === "done"
-                ? 1
-                : s.state === "running" && s.total
-                  ? (s.done ?? 0) / s.total
-                  : 0),
-            0,
-          )) /
-        m.stages.length
-      : 0);
-  const headerStage = m.stages?.length
+  const overall = Math.min(
+    100,
+    Math.max(
+      byTime,
+      m.progress ??
+        (stages.length
+          ? (100 *
+              stages.reduce(
+                (sum, s) =>
+                  sum +
+                  (s.state === "done"
+                    ? 1
+                    : s.state === "running" && s.total
+                      ? (s.done ?? 0) / s.total
+                      : 0),
+                0,
+              )) /
+            stages.length
+          : 0),
+    ),
+  );
+  const headerStage = stages.length
     ? running === "transcribe" || running === "speakers"
       ? running
       : "minutes"
@@ -122,8 +139,8 @@ export default function ProcessingPage() {
     <>
       <MeetingHeader meeting={m} stage={headerStage} />
       <div className="processing-grid">
-        {m.stages?.length ? (
-          <ProcessingStages stages={m.stages} />
+        {stages.length ? (
+          <ProcessingStages stages={stages} />
         ) : (
           <section className="panel process-timeline">
             {steps.map((s, i) => (
@@ -165,15 +182,19 @@ export default function ProcessingPage() {
           >
             <span style={{ transform: `scaleX(${overall / 100})` }} />
           </div>
-          <p>{t("minutesAbout")}</p>
-          <div className="mono">
-            {new Date(
-              m.processingEndsAt ?? new Date().getTime() + 60000,
-            ).toLocaleTimeString(i18n.language, {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </div>
+          {finish > now ? (
+            <>
+              <p>{t("minutesAbout")}</p>
+              <div className="mono">
+                {formatClock(new Date(finish), i18n.language)}
+              </div>
+            </>
+          ) : (
+            <>
+              <p>{t("minutesSoon")}</p>
+              <div className="mono estimate-soon">{t("almostReady")}</div>
+            </>
+          )}
           <Link to="/meetings" className="button secondary">
             {t("backMeetings")}
           </Link>

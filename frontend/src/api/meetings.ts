@@ -52,6 +52,7 @@ export function fromServer(raw: ServerMeeting): Meeting {
     out.stages = SERVER_STAGES.map(([key, id]) => ({
       id,
       state: processingStages[key]?.state ?? "pending",
+      startedAt: processingStages[key]?.startedAt,
       finishedAt: processingStages[key]?.endedAt,
     }));
   if (needsConfirmation && !m.confirmItems)
