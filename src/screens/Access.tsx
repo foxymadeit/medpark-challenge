@@ -63,10 +63,8 @@ export function Welcome() {
   const navigate = useNavigate();
   return (
     <div className="card access-card welcome">
-      <div className="page__head">
-        <h1 className="t-h1">{t('welcome.title')}</h1>
-        <p className="lead">{t('welcome.lead')}</p>
-      </div>
+      {/* The greeting itself sits above the card (AccessLayout). */}
+      <h1 className="lead welcome__lead">{t('welcome.lead')}</h1>
       <div className="stack" style={{ gap: 12 }}>
         <Button variant="ink" block onClick={() => navigate('/login')}>
           {t('login.submit')}

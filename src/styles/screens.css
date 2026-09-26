@@ -6,6 +6,15 @@
   width: 464px;
   padding: var(--sm-space-8);
 }
+.access-brand { display: flex; flex-direction: column; align-items: center; gap: var(--sm-space-4); margin-bottom: var(--sm-space-8); text-align: center; }
+.access-brand__title { margin: 0; font: 600 36px/44px var(--sm-font-sign); letter-spacing: -0.72px; color: var(--sm-ink-primary); }
+/* Entrance: the greeting first, then the card. */
+.access-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.access-brand { animation: access-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.access-body { animation: access-in 600ms cubic-bezier(0.2, 0.7, 0.2, 1) 550ms both; }
+@keyframes access-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .access-brand, .access-body { animation: none; } }
+.welcome__lead { margin: 0; text-align: center; }
 .access-alt { display: flex; align-items: center; justify-content: center; gap: var(--sm-space-1); }
 .access-alt svg + .note { margin-left: 4px; }
 .access-stack { gap: var(--sm-space-4); width: min(464px, 100%); }

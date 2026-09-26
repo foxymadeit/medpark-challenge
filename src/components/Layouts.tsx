@@ -155,11 +155,20 @@ function SideNav({ open }: { open: boolean }) {
 
 /** Sign up / Log in: top bar without account, no sidebar. */
 export function AccessLayout() {
+  const { t } = useI18n();
   return (
     <div className="app">
       <TopBar showAccount={false} />
       <main id="main" className="main main--center">
-        <Outlet />
+        {/* Brand greeting above every access card (welcome, log in, sign up). */}
+        <div className="access-brand">
+          <Logo size={64} />
+          <p className="access-brand__title">{t('welcome.title')}</p>
+        </div>
+        {/* Stays mounted across welcome / log in / sign up, so the entrance plays once per visit. */}
+        <div className="access-body">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
