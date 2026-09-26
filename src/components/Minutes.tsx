@@ -1,4 +1,4 @@
-import { CheckIcon, PencilSimpleIcon } from '@phosphor-icons/react';
+import { CheckIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
 import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useI18n } from '../i18n/I18nProvider';
@@ -29,7 +29,7 @@ interface MenuState {
 }
 
 /** Popover to pick an alternative reading or type the right word. */
-function WordMenu({ word, alternatives, anchor, onPick, onClose }: { word: string; alternatives: string[]; anchor: DOMRect; onPick: (v: string) => void; onClose: () => void }) {
+function WordMenu({ word, alternatives, anchor, onPick, onRemove, onClose }: { word: string; alternatives: string[]; anchor: DOMRect; onPick: (v: string) => void; onRemove?: () => void; onClose: () => void }) {
   const { t } = useI18n();
   const id = useId();
   const box = useRef<HTMLDivElement>(null);
@@ -108,6 +108,13 @@ function WordMenu({ word, alternatives, anchor, onPick, onClose }: { word: strin
           </button>
         </form>
       )}
+      {/* Offered in both views: pick-a-reading and type-it-yourself. */}
+      {onRemove && (
+        <button type="button" role="menuitem" className="dropdown__option word-menu__item word-menu__remove" onClick={onRemove}>
+          <span>{t('review.word.remove')}</span>
+          <TrashIcon size={16} aria-hidden />
+        </button>
+      )}
     </div>,
     document.body,
   );
@@ -118,9 +125,11 @@ interface LinesProps {
   nameOf: (id: string) => string;
   /** When set, every word/term is clickable and can be corrected. */
   onCorrect?: (line: number, token: number, value: string) => void;
+  /** When set, the word menu also offers "Remove word". */
+  onRemove?: (line: number, token: number) => void;
 }
 
-export function TranscriptLines({ lines, nameOf, onCorrect }: LinesProps) {
+export function TranscriptLines({ lines, nameOf, onCorrect, onRemove }: LinesProps) {
   const { t } = useI18n();
   const [menu, setMenu] = useState<MenuState | null>(null);
   const root = useRef<HTMLOListElement>(null);
@@ -195,6 +204,15 @@ export function TranscriptLines({ lines, nameOf, onCorrect }: LinesProps) {
             onCorrect(menu.line, menu.token, v);
             close();
           }}
+          onRemove={
+            onRemove &&
+            (() => {
+              onRemove(menu.line, menu.token);
+              setMenu(null);
+              // The word's button is gone; keep keyboard users in the transcript.
+              root.current?.querySelector<HTMLElement>('.word[tabindex="0"]')?.focus();
+            })
+          }
         />
       )}
     </>

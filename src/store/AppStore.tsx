@@ -200,6 +200,28 @@ function useStoreValue() {
     }));
   }, []);
 
+  /** Delete one word/term from the transcript, with the space next to it so no double spaces remain. */
+  const removeToken = useCallback((meetingId: string, lineIdx: number, tokenIdx: number) => {
+    setState((s) => ({
+      ...s,
+      meetings: s.meetings.map((m) => {
+        if (m.id !== meetingId) return m;
+        const transcript = m.transcript.map((line, i) => {
+          if (i !== lineIdx) return line;
+          const tokens = [...(line.tokens ?? tokenize(line.text))];
+          const before = tokens[tokenIdx - 1]?.kind === 'space';
+          const after = tokens[tokenIdx + 1]?.kind === 'space';
+          // Prefer dropping the space before; at the start of a line drop the one after.
+          tokens.splice(before ? tokenIdx - 1 : tokenIdx, before || after ? 2 : 1);
+          // Removing the first word must not leave orphan punctuation (": I will…").
+          while (tokens[0] && (tokens[0].kind === 'punct' || tokens[0].kind === 'space')) tokens.shift();
+          return { ...line, tokens };
+        });
+        return { ...m, transcript };
+      }),
+    }));
+  }, []);
+
   const setTasks = useCallback((meetingId: string, tasks: Task[]) => updateMeeting(meetingId, { tasks }), [updateMeeting]);
 
   /** Send: freeze roles as they are today and mark sent. */
@@ -294,6 +316,7 @@ function useStoreValue() {
     updateMeeting,
     setTasks,
     correctToken,
+    removeToken,
     sendMeeting,
     saveTemplate,
   };

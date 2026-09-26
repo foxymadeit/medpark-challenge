@@ -346,6 +346,8 @@
 }
 .word:not(.kw):hover { background: var(--sm-surface-ground); box-shadow: 0 0 0 2px var(--sm-surface-ground); }
 .word.kw { padding: 0 4px; background: var(--sm-surface-hairline); font-weight: 600; }
+.word-menu__remove { color: var(--sm-signal-danger); border-top: 1px solid var(--sm-surface-hairline); }
+.undo-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); margin: 0; padding: 8px 12px; border-radius: var(--sm-radius-tile); background: var(--sm-surface-ground); font: 400 14px/20px var(--sm-font-body); }
 .word.kw:hover { background: #ddd8cf; }
 .word--unsure { text-decoration: underline dotted var(--sm-ink-tertiary); text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
 .word--fixed { text-decoration: underline solid var(--sm-ink-primary); text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
