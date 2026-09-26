@@ -76,7 +76,7 @@ export function NewMeeting() {
         </div>
 
         <div className="stack" style={{ gap: 8 }}>
-          <p className="t-strong" id="nm-type">
+          <p className="section-title" id="nm-type">
             {t('newMeeting.type')}
           </p>
           <Segmented<MeetingType>

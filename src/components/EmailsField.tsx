@@ -74,7 +74,7 @@ export function EmailsField({ emails, onChange }: { emails: string[]; onChange: 
 
   return (
     <div className="stack" style={{ gap: 8 }}>
-      <label className="t-strong" htmlFor={`${id}-in`}>
+      <label className="section-title" htmlFor={`${id}-in`}>
         {t('newMeeting.emails')}
       </label>
       <div className="emails-combo" ref={wrap}>
