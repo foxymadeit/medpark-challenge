@@ -47,7 +47,7 @@ def setup() -> Path:
     sh(f"git clone -q --depth 1 -b samoilov-asr-llm https://github.com/foxymadeit/medpark-challenge {REPO}")
     sh(f"pip install -q -e {REPO}/asr-llm[asr] huggingface_hub soundfile")
     sh("pip install -q -U transformers accelerate bitsandbytes")  # Gemma 4 needs a recent transformers
-    sh(f"cd {REPO}/asr-llm && python scripts/fetch_whisper.py large-v3 turbo")
+    sh(f"cd {REPO}/asr-llm && python scripts/fetch_whisper.py large-v3")
     return next(Path("/kaggle/input").rglob("*.m4a"))
 
 
@@ -88,18 +88,26 @@ def utterances(audio_path: Path):
     return clips
 
 
-def gemma(model_id: str, clips, prompts: dict[str, str], four_bit: bool) -> None:
+def gemma(model_id: str, clips, prompts: dict[str, str], placement: str) -> None:
+    """placement: "4bit" = one T4 like the reference box; "2gpu" = fp16 over both T4s, quality check only."""
     import torch
     from transformers import AutoModelForImageTextToText, AutoProcessor, BitsAndBytesConfig
 
-    kwargs = {"device_map": {"": 0}, "torch_dtype": torch.float16}
-    if four_bit:
-        kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16)
+    if placement == "4bit":
+        kwargs = {
+            "device_map": {"": 0},
+            "torch_dtype": torch.float16,
+            "quantization_config": BitsAndBytesConfig(
+                load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16, llm_int8_skip_modules=["audio_tower", "vision_tower"]
+            ),
+        }
+    else:
+        kwargs = {"device_map": "auto", "torch_dtype": torch.float16}
     t0 = time.perf_counter()
     processor = AutoProcessor.from_pretrained(model_id)
     model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
     load_s = time.perf_counter() - t0
-    tag = model_id.split("/")[-1].lower()
+    tag = f"{model_id.split('/')[-1].lower()}_{placement}"
     for prompt_name, prompt in prompts.items():
         rows, t0 = [], time.perf_counter()
         for start, end, path in clips:
@@ -119,13 +127,20 @@ def gemma(model_id: str, clips, prompts: dict[str, str], four_bit: bool) -> None
 
 def omni(clips) -> None:
     sh("pip install -q omnilingual-asr torch==2.8.0 torchaudio==2.8.0")  # fairseq2 pins torch 2.8
+    script = globals().get("__file__") or sys.argv[0]
+    sh(f"{sys.executable} {script} omni")  # fresh process: this one already loaded the newer torch
+
+
+def omni_child() -> None:
     from omnilingual_asr.models.inference.pipeline import ASRInferencePipeline
+
+    clips = json.loads((WORK / "clips.json").read_text())
 
     t0 = time.perf_counter()
     pipe = ASRInferencePipeline(model_card="omniASR_CTC_1B")
     load_s = time.perf_counter() - t0
     t0 = time.perf_counter()
-    texts = pipe.transcribe([str(p) for _, _, p in clips], batch_size=4)
+    texts = pipe.transcribe([p for _, _, p in clips], batch_size=4)
     rows = [{"start": s, "end": e, "text": t} for (s, e, _), t in zip(clips, texts)]
     save("omniasr_ctc_1b", {"load_s": load_s, "asr_s": time.perf_counter() - t0, "segments": rows})
 
@@ -142,12 +157,15 @@ if __name__ == "__main__":
     if sys.argv[1:2] == ["whisper"]:
         whisper_child(Path(sys.argv[2]), sys.argv[3], sys.argv[4])
         sys.exit(0)
+    if sys.argv[1:2] == ["omni"]:
+        omni_child()
+        sys.exit(0)
     audio_path = setup()
     models = REPO / "asr-llm/models"
     run("whisper_dual", whisper, audio_path, str(models / "whisper"), "whisper_dual")
-    run("whisper_turbo_dual", whisper, audio_path, str(models / "whisper-turbo"), "whisper_turbo_dual")
+    # turbo measured in v2: RTFx 4.2 but 42/108 utterances picked Russian vs 17 for large-v3.
     clips = [(s, e, Path(p)) for s, e, p in json.loads((WORK / "clips.json").read_text())]
     prompts = {"plain": PLAIN_PROMPT, "mixed": MIXED_PROMPT}
-    run("gemma4_e4b", gemma, "google/gemma-4-E4B-it", clips, prompts, False)
-    run("gemma4_12b", gemma, "google/gemma-4-12B-it", clips, prompts, True)
+    run("gemma4_e4b", gemma, "google/gemma-4-E4B-it", clips, prompts, "4bit")
+    run("gemma4_12b", gemma, "google/gemma-4-12B-it", clips, prompts, "2gpu")
     run("omniasr", omni, clips)  # last: its install may change torch
