@@ -64,6 +64,7 @@ def test_clip_only_run_downloads_nothing_and_keeps_the_cache(tmp_path, monkeypat
     monkeypatch.setattr(zeroshot, "build_sets", lambda *a: pytest.fail("clip-only run must not build public sets"))
     seen = {}
     monkeypatch.setattr(zeroshot, "run_nemo", lambda bench, hub, kind, sets, path, device: seen.update(sets))
+    monkeypatch.setattr(zeroshot, "sh", lambda *a, **k: None)  # the VAD cut child
 
     zeroshot.main(["--work", str(work), "--models", "parakeet", "--device", "cpu", "--clip", f"syn={audio},{ref}"])
     assert list(seen) == ["clip_syn"] and seen["clip_syn"][0]["text"] == "Bună ziua"
@@ -85,3 +86,36 @@ def test_clip_args_and_scoring(tmp_path):
     assert matrix("clip_x") == "ro" and matrix("fleurs_ru") == "ru"
     assert score_items([{"audio": "a", "text": None}], ["hyp"]) == {"n": 1, "scored": False}
     assert score_items([{"audio": "a", "text": "a b"}], ["a b"])["wer"] == 0.0
+
+
+def test_long_sets_are_decoded_as_vad_utterances(tmp_path, monkeypatch):
+    import json
+
+    import numpy as np
+
+    import asr_llm.vad
+
+    sf = pytest.importorskip("soundfile")
+    from asr_train import zeroshot
+
+    bench = zeroshot.Bench(tmp_path)
+    sf.write(tmp_path / "rec.wav", np.zeros(48000, dtype=np.float32), 16000)
+    sets = {"clip_syn": [{"audio": str(tmp_path / "rec.wav"), "text": "a b"}]}
+    bench.run_file.write_text(json.dumps(sets))
+    monkeypatch.setattr(asr_llm.vad, "speech_spans", lambda audio: [(0.0, 1.0), (1.5, 3.0)])
+    zeroshot.cut_child(bench)
+    paths = bench.segments()["clip_syn"][0]
+    assert [round(sf.info(p).duration, 2) for p in paths] == [1.0, 1.5]
+
+    class Fake:
+        def transcribe(self, paths, batch_size, **kwargs):
+            return ["a" if p.endswith("00000.wav") else "b" for p in paths]
+
+    import sys
+    from types import SimpleNamespace
+
+    monkeypatch.setitem(sys.modules, "torch", SimpleNamespace(cuda=SimpleNamespace(is_available=lambda: False)))
+    monkeypatch.setattr(zeroshot, "nemo_model", lambda *a: Fake())
+    monkeypatch.setattr(zeroshot, "long_form", lambda model, kind, on: on and pytest.fail("segments need no long-form mode"))
+    zeroshot.run_nemo(bench, None, "jackrabbit", sets, None, "cpu")  # RO-only: skips the timing files
+    assert json.loads((bench.out / "result_jackrabbit.json").read_text())["sets"]["clip_syn"]["cer"] == 0.0

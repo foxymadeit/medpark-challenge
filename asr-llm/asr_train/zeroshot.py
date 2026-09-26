@@ -75,6 +75,14 @@ class Bench:
         return self.work / "sets.json"
 
     @property
+    def segments_file(self) -> Path:
+        """VAD utterance wavs per long set, written by the cut child; NeMo models decode these."""
+        return self.work / "vad_segments.json"
+
+    def segments(self) -> dict[str, list[list[str]]]:
+        return json.loads(self.segments_file.read_text()) if self.segments_file.exists() else {}
+
+    @property
     def run_file(self) -> Path:
         """What this run scores (selected sets + clips); the Whisper child reads it."""
         return self.work / "run_sets.json"
@@ -209,10 +217,14 @@ def run_nemo(bench: Bench, hub: Hub, kind: str, sets: dict[str, list[dict]], pat
     for name, items in sets.items():
         if kind in RO_ONLY and matrix(name) != "ro":
             continue
-        long = is_long(name)
+        segs = bench.segments().get(name)
+        long = is_long(name) and not segs
         long_form(model, kind, long)
         t0 = time.perf_counter()
-        hyps = nemo_transcribe(model, kind, [i["audio"] for i in items], matrix(name), batch=1 if long else 16)
+        if segs:  # a whole recording as the product decodes it: VAD utterances, batched
+            hyps = [" ".join(nemo_transcribe(model, kind, paths, matrix(name))) for paths in segs]
+        else:
+            hyps = nemo_transcribe(model, kind, [i["audio"] for i in items], matrix(name), batch=1 if long else 16)
         seconds = time.perf_counter() - t0
         result["sets"][name] = {**score_items(items, hyps), "seconds": round(seconds, 1)}
         bench.save(f"hyp_{kind}_{name}.json", [{"ref": i["text"], "hyp": h} for i, h in zip(items, hyps)])
@@ -238,6 +250,39 @@ def wav_seconds(path: Path) -> float:
     import soundfile as sf
 
     return sf.info(str(path)).duration
+
+
+def cut_child(bench: Bench) -> None:
+    """Cut every long set at the pipeline's Silero VAD spans. Own process, like whisper_child.
+
+    Fed a 4-minute recording whole, Parakeet dropped most of it and Canary its first third;
+    the product decodes utterances, so the bench does too.
+    """
+    sys.path.insert(0, str(ASR_ROOT))
+    import soundfile as sf
+
+    from asr_llm.audio import decode_audio
+    from asr_llm.config import settings
+    from asr_llm.vad import speech_spans
+
+    sr = settings.sample_rate
+    out: dict[str, list[list[str]]] = {}
+    for name, items in json.loads(bench.run_file.read_text()).items():
+        if not is_long(name):
+            continue
+        out[name] = []
+        for k, item in enumerate(items):
+            audio = decode_audio(Path(item["audio"]))
+            folder = bench.data / "vad" / f"{name}_{k}"
+            folder.mkdir(parents=True, exist_ok=True)
+            paths = []
+            for j, (start, end) in enumerate(speech_spans(audio)):
+                path = folder / f"{j:05d}.wav"
+                sf.write(path, audio[int(start * sr):int(end * sr)], sr)
+                paths.append(str(path))
+            out[name].append(paths)
+        print(f"cut {name}: {[len(p) for p in out[name]]} utterances", flush=True)
+    bench.segments_file.write_text(json.dumps(out))
 
 
 def whisper_child(bench: Bench) -> None:
@@ -327,6 +372,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p.add_argument("--device", default="auto", help="auto | cuda:0 | cpu.")
     p.add_argument("--rebuild-sets", action="store_true")
     p.add_argument("--whisper-child", action="store_true", help=argparse.SUPPRESS)
+    p.add_argument("--cut-child", action="store_true", help=argparse.SUPPRESS)
     args = p.parse_args(argv)
     try:
         args.model_path = parse_model_paths(args.model_path)
@@ -345,6 +391,9 @@ def main(argv: list[str] | None = None) -> None:
     bench = Bench(args.work.expanduser().resolve())
     if args.whisper_child:
         whisper_child(bench)
+        return
+    if args.cut_child:
+        cut_child(bench)
         return
     hub = Hub(mirror=args.hf_mirror)
     sets: dict[str, list[dict]] = {}
@@ -367,6 +416,10 @@ def main(argv: list[str] | None = None) -> None:
         import torch
 
         device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    bench.segments_file.unlink(missing_ok=True)
+    if any(m != "whisper" for m in args.models) and any(is_long(k) for k in sets):
+        cmd = [sys.executable, "-m", "asr_train.zeroshot", "--work", str(bench.work), "--cut-child"]
+        guarded(bench, "cut", sh, cmd, cwd=ASR_ROOT)  # on failure NeMo falls back to whole-file decoding
     for kind in args.models:
         if kind == "whisper":
             cmd = [sys.executable, "-m", "asr_train.zeroshot", "--work", str(bench.work), "--whisper-child"]

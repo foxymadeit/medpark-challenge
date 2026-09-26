@@ -21,7 +21,8 @@ def sh(cmd: str, **kwargs) -> None:
 
 
 sh(f"git clone -q --depth 1 -b {BRANCH} https://github.com/foxymadeit/medpark-challenge {REPO}")
-sh("pip install -q 'nemo_toolkit[asr]' huggingface_hub soundfile pyarrow")
+# faster-whisper + pydantic-settings: the cut child uses asr_llm's Silero VAD to split long recordings.
+sh("pip install -q 'nemo_toolkit[asr]' huggingface_hub soundfile pyarrow faster-whisper pydantic-settings")
 audio = next(Path("/kaggle/input").rglob("*.m4a"))
 # The synthetic medical round ships in the repo; its recording script is the reference until someone corrects it by ear.
 clip = "--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md"
