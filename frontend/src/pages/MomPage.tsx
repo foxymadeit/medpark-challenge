@@ -42,6 +42,7 @@ export default function MomPage() {
                     list: m.distributionList.join(", "),
                   })}
                 </p>
+                <p>{t("deliveryRetryThirty")}</p>
               </div>
               <button
                 className="button primary"

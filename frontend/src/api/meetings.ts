@@ -58,7 +58,13 @@ export async function updateMeeting(
       method: "PATCH",
       body: JSON.stringify(changes),
     });
-  return mutate((s) => Object.assign(findMeeting(s, id), changes, { id }));
+  return mutate((s) => {
+    const meeting = findMeeting(s, id);
+    Object.assign(meeting, changes, { id });
+    if (changes.deliveryState === "failed" && !meeting.deliveryFailedAt)
+      meeting.deliveryFailedAt = new Date().toISOString();
+    return meeting;
+  });
 }
 export async function saveRecording(id: string, blob: Blob): Promise<void> {
   if (!blob.size) throw new ApiError("invalidAudio");
@@ -201,6 +207,7 @@ export async function sendNow(id: string): Promise<Meeting> {
     m.status = "sending";
     m.deliveryState = "sending";
     m.failureReference = undefined;
+    m.deliveryFailedAt = undefined;
     m.sendingStartedAt = new Date().toISOString();
     m.sendScheduledAt = null;
     return m;
@@ -254,22 +261,22 @@ export async function getSystem(): Promise<SystemState> {
           {
             id: "asr",
             available: true,
-            description: "Whisper Large-v3 turbo, local",
+            description: "Simulated local speech-to-text service",
           },
           {
             id: "speakers",
             available: true,
-            description: "Segmentation 3.0 + TitaNet, local",
+            description: "Simulated local speaker timing service",
           },
           {
             id: "automation",
             available: true,
-            description: "Local language model, 8 B",
+            description: "Simulated local minutes service",
           },
           {
             id: "mail",
             available: true,
-            description: "Hospital mail server, internal only",
+            description: "Simulated internal mail service",
           },
           {
             id: "storage",

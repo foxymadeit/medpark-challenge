@@ -163,9 +163,7 @@ function Recorder({ initial: m }: { initial: Meeting }) {
             )}
           </p>
           <div className="record-timer mono">{formatTimer(rec.seconds)}</div>
-          {error && active && (
-            <p className="checkpoint-note">{t("savedCheckpoint")}</p>
-          )}
+          {active && <p className="checkpoint-note">{t("savedCheckpoint")}</p>}
           <Waveform levels={rec.levels} />
           <div className="button-row spread">
             {active || saved ? (

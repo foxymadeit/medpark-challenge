@@ -17,6 +17,20 @@ export function advanceStore(
   let changed = false;
   for (const m of store.meetings) {
     if (
+      m.status === "ready" &&
+      m.deliveryState === "failed" &&
+      m.deliveryFailedAt &&
+      now >= Date.parse(m.deliveryFailedAt) + 30_000
+    ) {
+      m.status = "sending";
+      m.deliveryState = "sending";
+      m.sendingStartedAt = new Date(
+        Date.parse(m.deliveryFailedAt) + 30_000,
+      ).toISOString();
+      m.deliveryFailedAt = undefined;
+      changed = true;
+    }
+    if (
       m.status === "processing" &&
       m.processingEndsAt &&
       m.processingStartedAt

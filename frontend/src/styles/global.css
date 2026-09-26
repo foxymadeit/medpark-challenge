@@ -2,6 +2,7 @@
 * {
   box-sizing: border-box;
 }
+
 body {
   margin: 0;
   min-width: 320px;
@@ -1459,6 +1460,210 @@ textarea {
   padding: 24px 0;
   border-bottom: 1px solid var(--sm-surface-hairline);
 }
+.downloads-card {
+  display: grid;
+  gap: 10px;
+}
+.downloads-card h2 {
+  margin-bottom: 8px;
+}
+.enrollment-flow {
+  width: 680px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 36px 40px;
+  display: grid;
+  gap: 24px;
+}
+.enrollment-flow h1,
+.enrollment-flow h2,
+.enrollment-flow p,
+.enrollment-flow blockquote {
+  margin: 0;
+}
+.enrollment-pick header > div,
+.enrollment-person,
+.speech-progress > div,
+.voice-comparison,
+.enrollment-facts,
+.person-picker button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.optional-chip {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--sm-surface-ground);
+  color: var(--sm-ink-secondary);
+  font-size: 11px;
+}
+.person-picker {
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid var(--sm-surface-hairline);
+  border-radius: 12px;
+}
+.person-picker button {
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid var(--sm-surface-hairline);
+  background: white;
+  color: inherit;
+  text-align: left;
+}
+.person-picker button[aria-selected="true"] {
+  background: #eef8f7;
+}
+.person-picker span:first-child,
+.person-card {
+  display: grid;
+  gap: 4px;
+}
+.person-picker small,
+.person-card small {
+  color: var(--sm-ink-secondary);
+}
+.language-choice {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.language-choice legend {
+  margin-bottom: 8px;
+  color: var(--sm-ink-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+.language-choice button {
+  min-width: 58px;
+  padding: 9px 14px;
+  border: 1px solid var(--sm-surface-hairline);
+  background: white;
+}
+.language-choice button:first-of-type {
+  border-radius: 8px 0 0 8px;
+}
+.language-choice button:last-of-type {
+  border-radius: 0 8px 8px 0;
+}
+.language-choice button.selected {
+  border-color: var(--sm-accent);
+  background: #eef8f7;
+  color: var(--sm-accent);
+}
+.enrollment-person {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--sm-surface-hairline);
+}
+.passage-placeholder {
+  min-height: 150px;
+  padding: 28px;
+  border-radius: 12px;
+  background: var(--sm-surface-ground);
+  color: var(--sm-ink-tertiary);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+.mic-working {
+  color: var(--sm-ink-secondary);
+  font-size: 13px;
+}
+.mic-working span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--sm-signal-success);
+}
+.enrollment-reading blockquote {
+  padding: 28px;
+  border-left: 3px solid var(--sm-accent);
+  background: var(--sm-surface-ground);
+  font-size: 20px;
+  line-height: 1.7;
+}
+.enrollment-timer {
+  font-size: 44px;
+}
+.enrollment-timer small {
+  font: 13px var(--sm-body);
+  color: var(--sm-ink-secondary);
+}
+.speech-progress {
+  display: grid;
+  gap: 10px;
+}
+.speech-progress progress {
+  width: 100%;
+  height: 8px;
+  accent-color: var(--sm-accent);
+}
+.enrollment-message {
+  text-align: center;
+  justify-items: center;
+}
+.enrollment-message > p {
+  max-width: 520px;
+  color: var(--sm-ink-secondary);
+}
+.enrollment-message ol {
+  text-align: left;
+  line-height: 2.2;
+}
+.enrollment-state-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--sm-surface-ground);
+  color: var(--sm-accent);
+}
+.checking-steps {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  gap: 14px;
+}
+.checking-steps p {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.voice-comparison {
+  width: 100%;
+}
+.voice-comparison > strong {
+  font-size: 28px;
+  color: var(--sm-accent);
+  display: grid;
+}
+.voice-comparison > strong small {
+  font-size: 11px;
+  color: var(--sm-ink-secondary);
+}
+.enrollment-facts {
+  width: 100%;
+  margin: 0;
+}
+.enrollment-facts div {
+  flex: 1;
+  padding: 16px;
+  background: var(--sm-surface-ground);
+}
+.enrollment-facts dt {
+  color: var(--sm-ink-secondary);
+  font-size: 12px;
+}
+.enrollment-facts dd {
+  margin: 6px 0 0;
+  font-weight: 600;
+}
 .filter-chips {
   display: flex;
   gap: 8px;
@@ -2369,6 +2574,62 @@ blockquote {
   }
   .door-stack .department-door h2 {
     font-size: 18px;
+  }
+}
+
+/* Enrollment has a dedicated phone composition; keep this final so desktop
+   card rules cannot override it at the 390 px reference width. */
+@media (max-width: 700px) {
+  body {
+    overflow-x: clip;
+  }
+  .enrollment-flow {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 24px 20px;
+    gap: 20px;
+  }
+  .enrollment-reading {
+    min-height: calc(100dvh - 150px);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .enrollment-reading .enrollment-person {
+    padding-bottom: 14px;
+  }
+  .enrollment-reading blockquote {
+    padding: 20px;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .enrollment-timer {
+    font-size: 40px;
+  }
+  .voice-comparison {
+    align-items: stretch;
+  }
+  .voice-comparison .person-card {
+    flex: 1;
+    min-width: 0;
+  }
+  .voice-comparison > strong {
+    font-size: 20px;
+  }
+  .enrollment-message .button-row,
+  .enrollment-pick .button-row {
+    width: 100%;
+  }
+  .enrollment-message .button,
+  .enrollment-pick .button {
+    flex: 1;
+  }
+  .enrollment-facts {
+    gap: 8px;
+  }
+  .downloads-card {
+    grid-column: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MAX_AUDIO_SECONDS } from "../api/audio";
+export const RECORDING_CHECKPOINT_SECONDS = 10;
 export function useRecorder(
   onInterrupted?: (blob: Blob, seconds: number) => void,
   onCheckpoint?: (blob: Blob, seconds: number) => void,
@@ -94,7 +95,10 @@ export function useRecorder(
       recorder.current = r;
       r.ondataavailable = (e) => {
         if (e.data.size) chunks.current.push(e.data);
-        if (r.state === "recording" && chunks.current.length % 5 === 0) {
+        if (
+          r.state === "recording" &&
+          chunks.current.length % RECORDING_CHECKPOINT_SECONDS === 0
+        ) {
           checkpoint.current?.(
             new Blob(chunks.current, { type: r.mimeType }),
             secondsNow(),

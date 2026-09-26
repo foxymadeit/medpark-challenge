@@ -73,6 +73,7 @@ export interface Meeting {
   sendScheduledAt?: string | null;
   sentAt?: string | null;
   sendingStartedAt?: string;
+  deliveryFailedAt?: string;
   processingState?: ProcessingState;
   deliveryState?: DeliveryState;
   failureReference?: string;

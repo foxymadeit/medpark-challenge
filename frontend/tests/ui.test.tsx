@@ -170,9 +170,21 @@ describe("application flows", () => {
     );
     expect(
       screen
-        .getByRole("button", { name: "Save voice" })
+        .getByRole("button", { name: "Record voice" })
         .hasAttribute("disabled"),
     ).toBe(true);
+    fireEvent.change(screen.getByLabelText("Department"), {
+      target: { value: "administrative" },
+    });
+    fireEvent.click(screen.getByRole("option", { name: /Victor Munteanu/ }));
+    fireEvent.click(screen.getByRole("button", { name: "RU" }));
+    expect(
+      screen
+        .getByRole("button", { name: "Record voice" })
+        .hasAttribute("disabled"),
+    ).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Record voice" }));
+    await screen.findByRole("heading", { name: "Ready to record" });
   });
   it("handles history search and missing meetings without a blank page", async () => {
     const view = mount("/history");
