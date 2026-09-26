@@ -161,7 +161,8 @@ function useStoreValue() {
         if (known && !participants.some((x) => x.personId === known.id)) participants.push(snapshot(known.id)!);
         if (!known) participants.push({ personId: uid('guest'), name: email, email, roleThen: '' });
       }
-      const date = draft.date ?? todayISO();
+      // Meetings can't be dated ahead (the picker also blocks it); an older saved future date falls back to today.
+      const date = draft.date && draft.date < todayISO() ? draft.date : todayISO();
       const title = draft.title?.trim() || template?.name || fileName || fallbackTitle;
       const meeting: Meeting = {
         id,

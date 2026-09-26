@@ -14,18 +14,21 @@ function gridStart(month: Date): Date {
 /**
  * Date chip + calendar popover in the app's own style (the native picker looks different on every OS).
  * Keyboard: ← → ↑ ↓ days/weeks, PageUp/PageDown months, Home/End week, Enter picks, Esc closes.
+ * With `max`, later days are disabled and keyboard moves stop at it.
  */
-export function DatePicker({ value, onChange, label }: { value: string; onChange: (iso: string) => void; label: string }) {
+export function DatePicker({ value, onChange, label, max }: { value: string; onChange: (iso: string) => void; label: string; /** Latest pickable day (ISO); later days are disabled. */ max?: string }) {
   const { t, lang } = useI18n();
   const id = useId();
   const [open, setOpen] = useState(false);
-  const [focus, setFocus] = useState(value); // day with keyboard focus
+  const [focus, setFocusRaw] = useState(value); // day with keyboard focus
+  const setFocus = (iso: string) => setFocusRaw(max && iso > max ? max : iso);
   const wrap = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const today = todayISO();
   const locale = lang === 'en' ? 'en-US' : localeFor(lang);
 
   const month = parseDate(focus);
+  const atMaxMonth = !!max && toISODate(new Date(month.getFullYear(), month.getMonth() + 1, 1)) > max;
   const start = gridStart(month);
   const days = Array.from({ length: 42 }, (_, i) => {
     const d = new Date(start);
@@ -108,7 +111,7 @@ export function DatePicker({ value, onChange, label }: { value: string; onChange
             <button type="button" className="icon-btn" aria-label={t('date.prevMonth')} onClick={() => shiftMonth(-1)}>
               <CaretLeftIcon size={16} aria-hidden />
             </button>
-            <button type="button" className="icon-btn" aria-label={t('date.nextMonth')} onClick={() => shiftMonth(1)}>
+            <button type="button" className="icon-btn" aria-label={t('date.nextMonth')} disabled={atMaxMonth} onClick={() => shiftMonth(1)}>
               <CaretRightIcon size={16} aria-hidden />
             </button>
           </div>
@@ -128,6 +131,7 @@ export function DatePicker({ value, onChange, label }: { value: string; onChange
                   {days.slice(row * 7, row * 7 + 7).map((d) => {
                     const iso = toISODate(d);
                     const outside = d.getMonth() !== month.getMonth();
+                    const blocked = !!max && iso > max;
                     const cls = ['datepicker__day', outside && 'is-outside', iso === today && 'is-today', iso === value && 'is-selected'].filter(Boolean).join(' ');
                     return (
                       <td key={iso}>
@@ -139,6 +143,7 @@ export function DatePicker({ value, onChange, label }: { value: string; onChange
                           aria-pressed={iso === value}
                           aria-current={iso === today ? 'date' : undefined}
                           aria-label={formatFullDate(iso, lang)}
+                          disabled={blocked}
                           onClick={() => pick(iso)}
                         >
                           {d.getDate()}

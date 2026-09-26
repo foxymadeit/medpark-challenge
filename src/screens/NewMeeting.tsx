@@ -60,7 +60,7 @@ export function NewMeeting() {
                 </button>
               </div>
             )}
-            <DatePicker label={t('newMeeting.date')} value={draft.date ?? todayISO()} onChange={(v) => setDraft({ date: v === todayISO() ? undefined : v })} />
+            <DatePicker label={t('newMeeting.date')} max={todayISO()} value={draft.date && draft.date < todayISO() ? draft.date : todayISO()} onChange={(v) => setDraft({ date: v === todayISO() ? undefined : v })} />
           </div>
           {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
           {selectedTemplate && (
