@@ -16,7 +16,7 @@ Fictional patients and staff. No real patient data.
   | **V** | Victoria, nurse | Romanian |
 
 - **Read it like a real round, not like a text.** Normal speed, your own accent. Keep the "mhm", "aaa", "da-da", laughter and half sentences. You may say a line in your own words if it comes out more natural.
-- **If you change a line, fix it in this file afterwards** by listening to the recording, the same way you did for `gold_94-181s.txt`. The corrected script becomes the gold transcript.
+- **If you change a line, fix it in this file afterwards** by listening to the recording, the same way you did for `gold_0-181s.txt`. The corrected script becomes the gold transcript.
 - **`⟂` marks a planned overlap:** start that line before the previous speaker has finished.
 - **Numbers:** say them however is natural; they are written as digits here.
 - **Tags:** each line starts with a speaker and the language(s) it uses: `ro`, `ru`, `en`, or `mixed` (switches inside the line). Don't read the tags aloud.

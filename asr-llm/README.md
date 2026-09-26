@@ -99,7 +99,7 @@ Tuning knobs (env `MOM_*`): `HOME_LANGUAGE` / `HOME_BIAS`, `ASR_ALWAYS_DECODE`, 
 
 ```bash
 python -m asr_llm.score transcript.json                        # LID / script checks, no gold needed
-python -m asr_llm.score transcript.json --gold data/gold_0-180s.txt --window 180   # + CER/WER, term hits
+python -m asr_llm.score transcript.json --gold data/gold_0-181s.txt --window 181   # + CER/WER, term hits
 ```
 
 `script_mismatch` counts `ro` lines written in Cyrillic (and `ru` in Latin). The gold file is
@@ -136,8 +136,8 @@ ollama pull qwen3.5:9b && ollama pull gemma4:12b && ollama pull gpt-oss:20b
 MOM_LLM_MODEL=ollama:qwen3.5:9b python -m asr_llm.cli --from-transcript t.json --fusion single --fuse-only --out single.json
 MOM_FUSION_MODELS='["ollama:qwen3.5:9b","ollama:gemma4:12b","ollama:gpt-oss:20b"]' \
   python -m asr_llm.cli --from-transcript t.json --fusion debate --fuse-only --out debate.json
-python -m asr_llm.score single.json --gold data/gold_0-180s.txt --window 180
-python -m asr_llm.score debate.json --gold data/gold_0-180s.txt --window 180
+python -m asr_llm.score single.json --gold data/gold_0-181s.txt --window 181
+python -m asr_llm.score debate.json --gold data/gold_0-181s.txt --window 181
 ```
 
 ## Trilingual medical dictionary

@@ -1,0 +1,58 @@
+# Gold transcript, Medpark_audio.m4a 0:00–3:01 (0–181 s), corrected by hand by listening.
+# 0:00–1:34 corrected by Cristina Miron; 1:34–3:01 by the team.
+# Score with:  python -m asr_llm.score T.json --gold data/gold_0-181s.txt --window 181
+#   (halves: --window 94, or --start 94 --window 181)
+# Lines starting with # are ignored by the scorer.
+# Uncertain words: "?" marks a word the annotator could not make out ("38-?40", "El ? și", "dobu e cu 4 ?");
+#   the scorer drops punctuation, so only the words around it count.
+# Two spans marked unsure with "( … )-?" are left out of the scored text:
+#   123.7  El și-a... Nu prea la gumerite, sunt multe. Câte am amintit, e în toare.
+#   147.9  suport depresor   (the next sentence confirms "suportul depresor")
+# Sentences that appeared twice only because the draft's Canary hint overlapped two blocks are kept once:
+#   56.5/71.3 "Transferat acolo…", 75.3/79.2 "S-a făcut eco, el e gol…",
+#   144.7/147.9 "Eu cred că noi un pic…", 162.7/165.5 "La moment, el e lucid…".
+
+# [0.4-2.9]
+S-o pornit parcă.
+# [3.1-4.8]
+Așa, Pacientul patul 8.
+# [4.8-19.4]
+El a fost pe data de unsprezece și a ajuns la noi cu infarct miocardic, a fost turboaspirație făcută. Mitral A3, fracție de 38-?40. Da, el e pacient de ista..  Cardiac și acolo suspecție. Trivascular, nu?
+# [19.4-32.9]
+Trivascular, da. Și acolo suspecție și la ruptura de cordaj a fost, care nu prea a fost confirmată. El a stat la noi pînă la data de 18. Pe 18 - transferat cu doze mici de noradrenalină.
+# [32.9-40.7]
+Vineri se primește, o fost transferat pe secție. Vineri, da, da. A fost descărcat în continuu destul de activ.
+# [41.3-52.2]
+Da el o fost, el o fost îmi pare că atunci sevrat de, de nor și dobu? La momentul de transfer, dă să văd. La momentul de transfer dacă nu mă greșesc - nu, el o rămas pe doze mici de nor. Așa. Hemodinamic, instabil, norul 001. Mai în scurt, urme.
+# [52.2-56.5]
+2 micro. 2 micro. El ? și a fost.
+# [56.5-71.3]
+Așa. Transferat acolo, acolo în continuu, el a fost descărcat volemic și acum a ajuns pe motivul de instabilitate hemodinamică, tensiunile 80 pe 40, cu dozele 0.22 de nor și dobu e cu 4 ?.
+# [75.3-79.2]
+S-a făcut eco, el e gol, și dreapta și stânga, stânga, dacă încă putem să-l considerăm pe motiv de mitrala care scapă.
+# [79.2-94.0]
+Dreapta e goluță, noi îi dăm volumul acuma și el deja încetișor se restabilește tensiunea. Da scade și noru? Văd că-i puneți arteră?
+# [94.0-112.0]
+Da, punem arteră că ar trebui să monitorizăm totuși mai activ. Bun, și cu el ce facem, nor, arteră? Nor, arteră, tub perivascular, tubo profilaxia, și alte agregate. Dar pe creatinine el cum e?
+# [113.2-118.0]
+Asta e deja ce avem, creatinine 240 și uree 19 la dânsul
+# [120.7-123.5]
+240 și uree 19.
+# [123.7-132.2]
+La dânsul este cineva din membrii familiei vine?
+# [132.2-137.8]
+Vineau. A, soție, cred că e. Veneau, da. Dar azi încă nu a venit nimeni
+# [139.7-143.7]
+90 și acum sun 240 practic, practic s-a triplat aproape.
+# [143.7-144.3]
+Da.
+# [144.7-147.9]
+Dar cred că e un minim voier.
+# [147.9-162.1]
+Eu cred că noi un pic o să-l reâncărcăm voliemic și un pic o să scadă așa cred eu. Mai pe scurt cu dânsul planul este infuzie și. Da, suportul depresor care ușor face o să ieșim de pe dânsul. Da, el e lucid. La moment, da.
+# [162.7-165.5]
+Și are 02 din nou. Da.
+# [165.5-177.7]
+La moment, el e lucid, la moment, destul de cooperant și destul de adecvat. Dar o să vedem ce o să fie până seara, ca a fost elemente de encefalopatie destul de pronunțate cu delir hiperactiv, cât a stat la noi.
+# [178.3-179.4]
+Da, pacientul de pe patul nouă.

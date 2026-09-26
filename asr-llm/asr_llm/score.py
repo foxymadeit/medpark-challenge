@@ -1,6 +1,6 @@
 """ASR ruler: CER/WER against a hand-corrected gold window, plus gold-free LID checks.
 
-    python -m asr_llm.score transcript.json [--gold data/gold_0-180s.txt --window 180]
+    python -m asr_llm.score transcript.json [--gold data/gold_0-181s.txt --window 181]
 """
 
 from __future__ import annotations
