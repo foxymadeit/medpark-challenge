@@ -1,10 +1,10 @@
 """Choose or combine per-utterance hypotheses with local LLMs.
 
-`single`: one LLM, only the unclear utterances, several per call.
-`debate`: every LLM proposes a transcript for every utterance, then each sees
-the others' proposals and revises; the text most of them land on wins.
+One LLM looks only at the unclear utterances, several per call. (A multi-model
+"debate" over every sentence was tried and dropped: 81 min for 11.7 min of audio,
+no CER gain on the hand-corrected gold.)
 
-Both obey one rule enforced in code, not in the prompt: the result must be made
+It obeys one rule enforced in code, not in the prompt: the result must be made
 of words from the hypotheses. Whisper forced to Russian *translates* Romanian
 into fluent Russian, so "does it read well" is not evidence; the acoustic scores
 and the hypothesis words are.
@@ -12,9 +12,7 @@ and the hypothesis words are.
 
 from __future__ import annotations
 
-import json
-from collections import Counter
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from typing import Protocol
 
 from .clean import _fold
@@ -42,12 +40,6 @@ Glossary:
 
 Return ONLY JSON: {{"utterances": [{{"id": int, "text": string, "languages": [string]}}]}}
 """
-
-REVISE_NOTE = """
-Other reviewers proposed these texts for the same utterances. Reconsider yours; keep it if you still think it is right:
-{others}
-"""
-
 
 class ChatModel(Protocol):
     def chat_json(self, system: str, user: str, max_tokens: int) -> dict: ...
@@ -137,31 +129,3 @@ def fuse_single(model: ChatModel, segments: list[SpeechSegment]) -> list[SpeechS
             out[i] = _apply(segments[i], rows.get(i))
     return out
 
-
-def fuse_debate(
-    load_models: list[Callable[[], ChatModel]], segments: list[SpeechSegment], rounds: int = 2, window: int = 1
-) -> list[SpeechSegment]:
-    """Every utterance, every model, `rounds` rounds. One model in memory at a time."""
-    ids = [i for i, s in enumerate(segments) if len(s.hypotheses) >= 2]
-    proposals: list[dict[int, dict]] = [{} for _ in load_models]
-    for round_no in range(rounds):
-        previous = [dict(p) for p in proposals]
-        for m, load in enumerate(load_models):
-            model = load()
-            for chunk in _windows(ids, window):
-                extra = ""
-                if round_no:
-                    others = {
-                        i: [p[i]["text"] for k, p in enumerate(previous) if k != m and i in p] for i in chunk
-                    }
-                    extra = REVISE_NOTE.format(others=json.dumps(others, ensure_ascii=False))
-                proposals[m].update(_proposals(model, chunk, segments, extra))
-            model.close()
-    out = list(segments)
-    for i in ids:
-        valid = [p[i] for p in proposals if i in p and usable(p[i]["text"], segments[i])]
-        if valid:
-            votes = Counter(_fold(row["text"]) for row in valid)
-            best = votes.most_common(1)[0][0]
-            out[i] = _apply(segments[i], next(row for row in valid if _fold(row["text"]) == best))
-    return out

@@ -1,4 +1,4 @@
-from asr_llm.fuse import fuse_debate, fuse_single, grounded, is_unclear
+from asr_llm.fuse import fuse_single, grounded, is_unclear
 from asr_llm.schemas import Hypothesis, SpeechSegment
 
 
@@ -53,17 +53,6 @@ def test_single_only_touches_unclear_and_keeps_guard():
 def test_single_falls_back_when_llm_invents():
     out = fuse_single(FakeLlm({0: "Pacientul primește noradrenalină intravenos"}), [MIXED])
     assert out[0] == MIXED
-
-
-def test_debate_majority_wins_and_second_round_sees_others():
-    good = "Pacientul получает dozile de nor"
-    models = [FakeLlm({0: good, 1: "Facem ecografie mâine"}) for _ in range(2)]
-    models.append(FakeLlm({0: "Pacientul primește dozile de nor", 1: "Facem ecografie mâine"}))
-    out = fuse_debate([lambda m=m: m for m in models], [MIXED, CLEAR], rounds=2, window=1)
-    assert out[0].text == good
-    assert out[1].text == "Facem ecografie mâine"
-    assert any("Other reviewers" in call for call in models[0].calls)
-    assert len(models[0].calls) == 4  # 2 utterances x 2 rounds: every sentence, every round
 
 
 def test_wholesale_swap_to_worse_scored_hypothesis_is_rejected():

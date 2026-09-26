@@ -25,7 +25,7 @@ def main() -> None:
     )
     parser.add_argument("--language", default=None, help="Language of the extracted minutes. Default is MOM_LLM_LANGUAGE (ro).")
     parser.add_argument("--skip-llm", action="store_true")
-    parser.add_argument("--fusion", choices=["off", "single", "debate"], default=None, help="Override MOM_FUSION.")
+    parser.add_argument("--fusion", choices=["off", "single"], default=None, help="Override MOM_FUSION.")
     parser.add_argument("--fuse-only", action="store_true", help="With --from-transcript: fuse and write the transcript, no minutes.")
     parser.add_argument("--diarization", type=Path, default=None, help="Diarizer session JSON with speaker turns.")
     parser.add_argument("--preview-glossary", action="store_true")

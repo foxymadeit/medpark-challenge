@@ -213,7 +213,7 @@ class OllamaLlm(LocalLlm):
             raise ValueError(f"LLM returned invalid JSON ({exc})") from exc
 
     def close(self) -> None:
-        """Unload now, so the next debate model gets the memory."""
+        """Unload now, so the minutes model that follows gets the memory."""
         self._post("/api/generate", {"model": self._model, "keep_alive": 0})
 
 

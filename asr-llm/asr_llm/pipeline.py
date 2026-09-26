@@ -10,7 +10,7 @@ from .batching import pack_batches
 from .clean import collapse_repeat_segments
 from .config import settings
 from .diarization import load_turns, speaker_for, split_at_turns
-from .fuse import fuse_debate, fuse_single
+from .fuse import fuse_single
 from .llm import make_llm
 from .schemas import Minutes, PipelineResult, SpeechSegment, Transcript, format_segments
 from .vad import speech_spans
@@ -72,10 +72,6 @@ def fuse_transcript(transcript: Transcript) -> tuple[Transcript, float]:
         llm = make_llm()
         segments = fuse_single(llm, transcript.segments)
         llm.close()
-    elif settings.fusion == "debate":
-        specs = settings.fusion_models or [settings.llm_model]
-        loaders = [lambda spec=spec: make_llm(spec) for spec in specs]
-        segments = fuse_debate(loaders, transcript.segments, settings.debate_rounds, settings.debate_window)
     else:
         raise ValueError(f"unknown fusion mode {settings.fusion!r}")
     fused = transcript.model_copy(update={"segments": segments, "text": format_segments(segments)})
