@@ -93,7 +93,9 @@ function useStoreValue() {
       account: { personId: YOU_ID, name, email, role: '', department: '', meetingTypes: [] },
       signedIn: true,
       onboarded: false,
-      people: [you], // first user = Admin
+      demo: false,
+      // The new Admin joins the directory; anyone already in it on this device is kept.
+      people: [you, ...s.people.filter((p) => p.id !== YOU_ID)],
     }));
   }, []);
 
