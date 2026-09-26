@@ -2,16 +2,17 @@ import { CheckIcon, DownloadSimpleIcon, PaperPlaneTiltIcon } from '@phosphor-ico
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
+import { ProgressBar } from '../components/ProgressBar';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatDayMonth } from '../lib/format';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 
-/** ms per recipient; the ring around the badge fills over all of them. */
+/** ms per recipient; the bar fills over all of them. */
 const STEP_MS = 3600;
 
 /**
- * 07 — Sent. MOCK sending animation: a paper plane in a ring that fills green over the send,
+ * 07 — Sent. MOCK sending animation: the plane flies while a green bar fills linearly (as on processing),
  * then the green check pops in. Reduced motion shows the final state straight away.
  */
 export function Sent() {
@@ -25,29 +26,26 @@ export function Sent() {
 
   const people = (meeting?.participants ?? []).map((p) => ({ ...p, email: p.email ?? resolvePerson(p.personId)?.email }));
   const withEmail = people.filter((p) => p.email);
-  const [ticked, setTicked] = useState(reduced ? withEmail.length : 0);
-  const done = ticked >= withEmail.length;
+  // Linear progress over the whole send, like the processing screen.
+  const total = Math.max(1, withEmail.length) * STEP_MS;
+  const [elapsed, setElapsed] = useState(reduced ? total : 0);
+  const done = elapsed >= total;
 
   useEffect(() => {
     if (done) return;
-    const timer = window.setTimeout(() => setTicked((n) => n + 1), STEP_MS);
-    return () => window.clearTimeout(timer);
-  }, [ticked, done]);
+    const started = performance.now() - elapsed;
+    const timer = window.setInterval(() => setElapsed(Math.min(total, performance.now() - started)), 100);
+    return () => window.clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done, total]);
 
   if (!meeting) return <Navigate to="/history" replace />;
 
   return (
     <div className="page sent">
       <div className="sent__done">
-        {/* Progress ring around the badge fills green over the whole send, then the check pops in. */}
-        <span className={`sent__badge-wrap${done ? ' is-done' : ''}`} aria-hidden>
-          <svg className="sent__ring" viewBox="0 0 80 80" width="80" height="80">
-            <circle cx="40" cy="40" r="37" className="sent__ring-track" />
-            <circle cx="40" cy="40" r="37" className="sent__ring-fill" pathLength={100} style={{ animationDuration: `${withEmail.length * STEP_MS}ms` }} />
-          </svg>
-          <span className={`sent__badge${done ? ' is-done' : ''}`}>
-            {done ? <CheckIcon size={28} className="sent__check-icon" /> : <PaperPlaneTiltIcon size={26} className="sent__plane" />}
-          </span>
+        <span className={`sent__badge${done ? ' is-done' : ''}`} aria-hidden>
+          {done ? <CheckIcon size={28} className="sent__check-icon" /> : <PaperPlaneTiltIcon size={26} className="sent__plane" />}
         </span>
         <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
           <h1 className="t-h1" role="status" aria-live="polite">
@@ -55,6 +53,14 @@ export function Sent() {
           </h1>
           <p className="lead">{done ? t('sent.lead', { date: formatDayMonth(meeting.date, lang) }) : t('sent.sendingLead', { count: withEmail.length })}</p>
         </div>
+        {!done && (
+          <div className="processing__progress sent__progress">
+            <ProgressBar value={elapsed / total} label={t('sent.sending')} />
+            <span className="processing__pct" aria-hidden>
+              {Math.round((elapsed / total) * 100)}%
+            </span>
+          </div>
+        )}
 
 
         {done && (

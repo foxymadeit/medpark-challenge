@@ -190,7 +190,8 @@
 .step { display: flex; align-items: center; gap: var(--sm-space-3); color: var(--sm-ink-tertiary); font: 400 15px/22px var(--sm-font-body); }
 .step.is-done { color: var(--sm-success); font-weight: 500; }
 /* Processing progress matches the green completed steps. */
-.processing .progress__fill { background: var(--sm-success); }
+.processing .progress__fill, .sent .progress__fill { background: var(--sm-success); }
+.sent__progress { width: 100%; }
 .step__check { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--sm-success); color: var(--sm-surface-panel); }
 .step.is-active { color: var(--sm-ink-primary); font-weight: 600; }
 .step__dot { width: 16px; height: 16px; border: 1.5px solid var(--sm-ink-tertiary); border-radius: 50%; }
@@ -325,16 +326,9 @@
 @keyframes sent-fly { 0% { transform: translate(-6px, 6px); opacity: 0; } 25% { opacity: 1; } 70% { transform: translate(10px, -10px); opacity: 1; } 100% { transform: translate(22px, -22px); opacity: 0; } }
 @keyframes sent-pop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
 @keyframes sent-check { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.sent__badge-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; }
-.sent__badge-wrap .sent__badge { position: relative; }
-.sent__ring { position: absolute; inset: 0; transform: rotate(-90deg); }
-.sent__ring-track { fill: none; stroke: var(--sm-surface-hairline); stroke-width: 4; }
-.sent__ring-fill { fill: none; stroke: var(--sm-success); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 100; animation: sent-ring linear forwards; }
-.sent__badge-wrap.is-done .sent__ring { opacity: 0; transition: opacity 240ms ease; }
-.sent__badge-wrap.is-done .sent__ring-fill { stroke-dashoffset: 0; animation: none; }
-@keyframes sent-ring { to { stroke-dashoffset: 0; } }
 .sent__after { display: flex; flex-direction: column; align-items: center; gap: var(--sm-space-4); }
-@media (prefers-reduced-motion: reduce) { .sent__badge.is-done, .sent__plane, .sent__check-icon, .sent__ring-fill { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .sent__badge.is-done, .sent__plane, .sent__check-icon { animation: none; } }
+
 /* ── History ── */
 .history-tools { display: flex; align-items: center; gap: var(--sm-space-4); margin: 22px 0 24px; }
 .search {
