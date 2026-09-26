@@ -154,7 +154,7 @@ export function NewMeeting() {
         </div>
       </div>
 
-      <aside className="tile templates-side" aria-labelledby="nm-tpl">
+      <aside className="templates-side" aria-labelledby="nm-tpl">
         <div className="stack" style={{ gap: 4 }}>
           <h2 id="nm-tpl" className="section-title">
             {t('newMeeting.templatesTitle')}

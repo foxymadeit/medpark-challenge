@@ -25,8 +25,7 @@
 
 /* ── ≤1200: narrower desktop ── */
 @media (max-width: 1200px) {
-  .new-meeting__main { width: auto; flex: 1 1 520px; min-width: 0; }
-  .templates-side { width: auto; flex: 0 1 360px; }
+  .templates-side { flex: 0 1 360px; }
   .review__pane--transcript { width: auto; flex: 1 1 0; min-width: 0; }
   .record__people { width: auto; flex: 1 1 0; min-width: 0; }
   .live-details { width: 340px; }

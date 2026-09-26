@@ -52,8 +52,9 @@
 .headline__text { min-width: 0; overflow-wrap: anywhere; cursor: text; }
 .headline__pen { flex-shrink: 0; width: 36px; height: 36px; }
 .headline-input { height: 48px; padding: 0 12px; margin-left: -13.5px; width: calc(100% + 13.5px); font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
-.new-meeting { flex-direction: row; align-items: flex-start; justify-content: center; gap: 48px; }
-.new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); width: 656px; flex-shrink: 0; }
+.new-meeting { flex-direction: row; align-items: flex-start; justify-content: center; gap: 48px; padding-top: 34px; }
+/* 656 + 48 + 400 at 1440 (Figma); below that the main column gives way first, the template card stops at 300. */
+.new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); flex: 0 1 656px; min-width: 0; }
 .emails-field {
   display: flex;
   flex-wrap: wrap;
@@ -103,7 +104,7 @@
 .start-tile--upload { border: 1px solid var(--sm-tint-upload-line); background: var(--sm-tint-upload); }
 .start-tile--upload:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-upload-line); }
 .start-tile__status { display: inline-flex; align-items: center; gap: var(--sm-space-2); color: var(--sm-ink-secondary); font: 400 13px/18px var(--sm-font-body); }
-.templates-side { display: flex; flex-direction: column; gap: var(--sm-space-4); width: 400px; margin-top: 56px; padding: var(--sm-space-6); border-radius: var(--sm-radius-panel); }
+.templates-side { display: flex; flex-direction: column; gap: var(--sm-space-4); flex: 0 1 400px; min-width: 300px; margin-top: 90px; /* title level with "Meeting type" */ }
 .templates-side__list { margin: 0; padding: 0; list-style: none; }
 .templates-side__list li + li { border-top: 1px solid var(--sm-surface-hairline); }
 .templates-side__item {
