@@ -327,16 +327,15 @@
     "sendNow": "Trimite acum"
   },
   "sent": {
-    "title_one": "PV trimis la {count} participant",
-    "title_few": "PV trimis la {count} participanți",
     "sendingLead_one": "Se trimite la {count} participant",
     "sendingLead_few": "Se trimite la {count} participanți",
-    "title": "PV trimis la {count} de participanți",
-    "lead": "Salvat în Istoric cu funcțiile valabile la {date}.",
+    "doneLead": "Trimis la {count} de participanți. Salvat în Istoric cu rolurile de la {date}.",
+    "doneLead_one": "Trimis la {count} participant. Salvat în Istoric cu rolurile de la {date}.",
     "sending": "Se trimite procesul-verbal…",
     "sendingLead": "Se trimite la {count} de participanți",
     "toHistory": "Mergi la Istoric",
-    "download": "Descarcă PV (PDF)"
+    "download": "Descarcă PV (PDF)",
+    "doneLead_few": "Trimis la {count} participanți. Salvat în Istoric cu rolurile de la {date}."
   },
   "history": {
     "title": "Istoric",

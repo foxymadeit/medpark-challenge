@@ -53,10 +53,10 @@ export function Sent() {
           )}
         </span>
         <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
-          <h1 className="t-h1" role="status" aria-live="polite">
-            {done ? t('sent.title', { count: meeting.sentTo ?? withEmail.length }) : meeting.title}
+          <h1 className="t-h1">
+            {meeting.title}
           </h1>
-          <p className="lead">{done ? t('sent.lead', { date: formatDayMonth(meeting.date, lang) }) : t('sent.sendingLead', { count: withEmail.length })}</p>
+          <p className="lead" role="status" aria-live="polite">{done ? t('sent.doneLead', { count: meeting.sentTo ?? withEmail.length, date: formatDayMonth(meeting.date, lang) }) : t('sent.sendingLead', { count: withEmail.length })}</p>
         </div>
         {!done && (
           <div className="processing__progress sent__progress">

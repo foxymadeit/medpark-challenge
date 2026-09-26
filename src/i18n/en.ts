@@ -326,9 +326,8 @@ export const en = {
     sendNow: 'Send now',
   },
   sent: {
-    title: 'MoM sent to {count} participants',
-    title_one: 'MoM sent to {count} participant',
-    lead: 'Saved to History with roles as of {date}.',
+    doneLead: 'Sent to {count} participants. Saved to History with roles as of {date}.',
+    doneLead_one: 'Sent to {count} participant. Saved to History with roles as of {date}.',
     sending: 'Sending the minutes…',
     sendingLead: 'Sending to {count} participants',
     sendingLead_one: 'Sending to {count} participant',
