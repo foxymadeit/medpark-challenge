@@ -481,13 +481,9 @@
   },
   "pdf": {
     "title": "Протокол совещания",
-    "colName": "Имя",
-    "colRole": "Должность на совещании",
-    "colEmail": "E-mail",
     "colTask": "Задача",
     "colPatient": "Пациент",
     "colDue": "Срок",
-    "frozen": "Должности и участники на {date}.",
     "noTasks": "Задач нет.",
     "generated": "Создано в Liminal {date}",
     "page": "{n} / {total}",
