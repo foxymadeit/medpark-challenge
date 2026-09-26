@@ -149,7 +149,6 @@ export const en = {
     ro: 'Romanian',
     ru: 'Russian',
     en: 'English',
-    la: 'Latin',
   },
   due: {
     sameDay: 'Same day',

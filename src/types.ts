@@ -61,8 +61,8 @@ export interface TranscriptToken {
 }
 
 /** Languages a word can be flagged as: interface languages plus Latin for medical terms. */
-export type SpokenLang = 'ro' | 'ru' | 'en' | 'la';
-export const SPOKEN_LANGS: SpokenLang[] = ['ro', 'ru', 'en', 'la'];
+export type SpokenLang = 'ro' | 'ru' | 'en';
+export const SPOKEN_LANGS: SpokenLang[] = ['ro', 'ru', 'en'];
 
 export interface Task {
   id: string;

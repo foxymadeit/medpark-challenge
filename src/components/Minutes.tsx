@@ -110,13 +110,16 @@ function WordMenu({ word, alternatives, anchor, onPick, onRemove, lang, onLang, 
       )}
       {/* Language flag: which language this word really is (training label). Click again to clear. */}
       {onLang && (
-        <div className="word-menu__lang" role="radiogroup" aria-label={t('review.word.langLabel')}>
+        <div className="word-menu__lang">
           <span className="word-menu__lang-label">{t('review.word.langLabel')}</span>
-          {SPOKEN_LANGS.map((l) => (
-            <button key={l} type="button" role="radio" aria-checked={lang === l} className="word-menu__lang-btn" title={t(`spoken.${l}`)} onClick={() => onLang(lang === l ? undefined : l)}>
-              {l.toUpperCase()}
-            </button>
-          ))}
+          {/* Same look as the interface-language switch in the top bar. */}
+          <div className="segmented segmented--lang" role="radiogroup" aria-label={t('review.word.langLabel')}>
+            {SPOKEN_LANGS.map((l) => (
+              <button key={l} type="button" role="radio" aria-checked={lang === l} className="segmented__item" title={t(`spoken.${l}`)} onClick={() => onLang(lang === l ? undefined : l)}>
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       )}
       {/* Offered in both views: pick-a-reading and type-it-yourself. */}
