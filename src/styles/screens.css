@@ -39,7 +39,7 @@
 .access-options legend { margin-bottom: var(--sm-space-2); padding: 0; }
 
 /* ── New meeting ── */
-.new-meeting { flex-direction: row; align-items: flex-start; gap: 48px; }
+.new-meeting { flex-direction: row; align-items: flex-start; justify-content: center; gap: 48px; }
 .new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); width: 656px; flex-shrink: 0; }
 .emails-field {
   display: flex;
