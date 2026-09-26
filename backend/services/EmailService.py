@@ -197,23 +197,11 @@ def _render_minutes(minutes: Minutes) -> tuple[str, str]:
 		f"Language: {minutes.language}",
 		"Summary\n" + (minutes.summary or "No summary provided."),
 	]
-	html_parts = [
-		f"<h1>{escape(minutes.title)}</h1>",
-		f"<p>Meeting type: {escape(minutes.meeting_type)}; language: {escape(minutes.language)}</p>",
-		"<h2>Summary</h2>",
-		f"<p>{escape(minutes.summary or 'No summary provided.')}</p>",
-	]
 
 	if minutes.attendees:
 		text_parts.append("Attendees\n" + "\n".join(f"- {person}" for person in minutes.attendees))
-		html_parts.extend(
-			["<h2>Attendees</h2><ul>", *(f"<li>{escape(person)}</li>" for person in minutes.attendees), "</ul>"]
-		)
 	if minutes.decisions:
 		text_parts.append("Decisions\n" + "\n".join(f"- {decision}" for decision in minutes.decisions))
-		html_parts.extend(
-			["<h2>Decisions</h2><ul>", *(f"<li>{escape(decision)}</li>" for decision in minutes.decisions), "</ul>"]
-		)
 	if minutes.action_items:
 		text_parts.append(
 			"Action items\n"
@@ -222,15 +210,60 @@ def _render_minutes(minutes: Minutes) -> tuple[str, str]:
 				for item in minutes.action_items
 			)
 		)
-		html_parts.append("<h2>Action items</h2><ul>")
-		for item in minutes.action_items:
-			details = [
-				f"<strong>Owner:</strong> {escape(item.owner or 'Unassigned')}",
-				f"<strong>Due:</strong> {escape(item.deadline or 'Not specified')}",
-			]
-			if item.source_quote:
-				details.append(f"<blockquote>{escape(item.source_quote)}</blockquote>")
-			html_parts.append(f"<li>{escape(item.text)}<br>{'<br>'.join(details)}</li>")
-		html_parts.append("</ul>")
 
-	return "\n\n".join(text_parts), "\n".join(html_parts)
+	header = (
+		"<div style=\"font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 28px; background: #0b1020; color: #e5e7eb;\">"
+		"<div style=\"max-width: 700px; margin: 0 auto; background: #111827; border: 1px solid #2d3a4f; border-radius: 14px; overflow: hidden;\">"
+		"<div style=\"padding: 26px 28px 18px; border-bottom: 1px solid #2d3a4f; background: #101a2d;\">"
+		f"<h1 style=\"margin: 0; font-size: 30px; line-height: 1.2; color: #f8fafc;\">{escape(minutes.title)}</h1>"
+		f"<p style=\"margin: 10px 0 0; font-size: 13px; color: #b7c6df;\"><strong>Meeting type:</strong> {escape(minutes.meeting_type)} &nbsp;|&nbsp; <strong>Language:</strong> {escape(minutes.language)}</p>"
+		"</div>"
+		"<div style=\"padding: 26px 28px;\">"
+	)
+
+	html_parts = [header]
+	html_parts.append(
+		"<div style=\"margin-bottom: 22px; padding: 18px 20px; background: #151f2f; border: 1px solid #2d3a4f; border-radius: 10px;\">"
+		"<h2 style=\"margin: 0 0 10px; font-size: 18px; color: #f8fafc;\">Summary</h2>"
+		f"<p style=\"margin: 0; line-height: 1.7; font-size: 15px; color: #e2e8f0;\">{escape(minutes.summary or 'No summary provided.')}</p>"
+		"</div>"
+	)
+
+	if minutes.attendees:
+		html_parts.append(
+			"<div style=\"margin-bottom: 22px; padding: 18px 20px; background: #151f2f; border: 1px solid #2d3a4f; border-radius: 10px;\">"
+			"<h2 style=\"margin: 0 0 10px; font-size: 18px; color: #f8fafc;\">Attendees</h2>"
+			"<ul style=\"margin: 0; padding-left: 18px; color: #e2e8f0;\">"
+			+ "".join(f"<li style=\"margin-bottom: 6px;\">{escape(person)}</li>" for person in minutes.attendees)
+			+ "</ul></div>"
+		)
+
+	if minutes.decisions:
+		html_parts.append(
+			"<div style=\"margin-bottom: 22px; padding: 18px 20px; background: #151f2f; border: 1px solid #2d3a4f; border-radius: 10px;\">"
+			"<h2 style=\"margin: 0 0 10px; font-size: 18px; color: #f8fafc;\">Decisions</h2>"
+			"<ul style=\"margin: 0; padding-left: 18px; color: #e2e8f0;\">"
+			+ "".join(f"<li style=\"margin-bottom: 6px;\">{escape(decision)}</li>" for decision in minutes.decisions)
+			+ "</ul></div>"
+		)
+
+	if minutes.action_items:
+		html_parts.append(
+			"<div style=\"padding: 18px 20px; background: #151f2f; border: 1px solid #2d3a4f; border-radius: 10px;\">"
+			"<h2 style=\"margin: 0 0 12px; font-size: 18px; color: #f8fafc;\">Action items</h2>"
+			"<ul style=\"margin: 0; padding-left: 0; list-style: none;\">"
+			+ "".join(
+				f"<li style=\"margin-bottom: 12px; padding: 12px 14px; background: #0f172a; border: 1px solid #2a374d; border-radius: 8px;\">"
+				f"<div style=\"font-weight: 700; color: #f8fafc; margin-bottom: 5px;\">{escape(item.text)}</div>"
+				f"<div style=\"font-size: 13px; color: #d9e3f8; line-height: 1.7;\">"
+				f"<strong>Owner:</strong> {escape(item.owner or 'Unassigned')}<br>"
+				f"<strong>Due:</strong> {escape(item.deadline or 'Not specified')}"
+				+ (f"<br><br><em style=\"color: #b8c7e8;\">{escape(item.source_quote)}</em>" if item.source_quote else "")
+				+ "</div></li>"
+				for item in minutes.action_items
+			)
+			+ "</ul></div>"
+		)
+
+	html_parts.append("</div></div></div>")
+	return "\n\n".join(text_parts), "".join(html_parts)
