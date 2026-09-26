@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next";
 export type Stage = "record" | "transcribe" | "speakers" | "minutes" | "sent";
-const stages: Stage[] = ["record", "transcribe", "speakers", "minutes", "sent"];
+// DESIGN.md: the route has three stops. Transcribing and finding speakers
+// happen inside Minutes; nobody has to learn those words to follow along.
+const stops = ["record", "minutes", "sent"] as const;
+const stopOf = (stage: Stage) =>
+  stage === "transcribe" || stage === "speakers" ? "minutes" : stage;
 export default function RouteProgress({
   stage,
   upload = false,
@@ -9,10 +13,10 @@ export default function RouteProgress({
   upload?: boolean;
 }) {
   const { t } = useTranslation();
-  const at = stages.indexOf(stage);
+  const at = stops.indexOf(stopOf(stage));
   return (
     <ol className="route-progress">
-      {stages.map((s, i) => (
+      {stops.map((s, i) => (
         <li
           key={s}
           className={i < at ? "complete" : i === at ? "current" : ""}
