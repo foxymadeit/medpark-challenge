@@ -349,7 +349,8 @@
     "voicesToName_few": "{count} voci de identificat",
     "voicesToName": "{count} de voci de identificat",
     "transcriptCheck": "Revizuiți",
-    "transcriptHide": "Ascundeți"
+    "transcriptHide": "Ascundeți",
+    "preview": "Previzualizează PV"
   },
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",

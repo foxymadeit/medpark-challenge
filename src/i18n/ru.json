@@ -356,7 +356,8 @@
     "voicesToName_many": "{count} голосов нужно определить",
     "voicesToName": "{count} голоса нужно определить",
     "transcriptCheck": "Просмотреть",
-    "transcriptHide": "Скрыть"
+    "transcriptHide": "Скрыть",
+    "preview": "Просмотр протокола"
   },
   "sent": {
     "sendingLead_one": "Отправка {count} участнику",

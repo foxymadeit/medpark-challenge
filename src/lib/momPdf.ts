@@ -28,11 +28,11 @@ function safeName(s: string) {
 }
 
 /**
- * Builds the Minutes of Meeting as a real PDF file and downloads it.
- * pdfmake is lazy-loaded (≈1 MB) so it only costs anything when someone clicks Download.
+ * Builds the Minutes of Meeting as a real PDF file.
+ * pdfmake is lazy-loaded (≈1 MB) so it only costs anything when someone clicks Download or Preview.
  * Its bundled Roboto covers Romanian diacritics and Cyrillic.
  */
-export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
+async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
   const [{ default: pdfMake }, { default: vfs }] = await Promise.all([import('pdfmake/build/pdfmake'), import('pdfmake/build/vfs_fonts')]);
   pdfMake.vfs = vfs;
 
@@ -135,5 +135,22 @@ export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
     ],
   };
 
-  pdfMake.createPdf(doc).download(`MoM-${safeName(meeting.title)}-${meeting.date}.pdf`);
+  return pdfMake.createPdf(doc);
+}
+
+const fileName = (meeting: Meeting) => `MoM-${safeName(meeting.title)}-${meeting.date}.pdf`;
+
+/** Downloads the MoM PDF. */
+export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
+  (await buildMomPdf(meeting, t, lang)).download(fileName(meeting));
+}
+
+/**
+ * Opens the MoM PDF in a new tab, exactly as it will be sent.
+ * `win` must be opened synchronously in the click handler (before the lazy load), or popup blockers stop it.
+ */
+export async function previewMomPdf(meeting: Meeting, t: T, lang: Lang, win: Window | null) {
+  const pdf = await buildMomPdf(meeting, t, lang);
+  if (win) pdf.open({}, win);
+  else pdf.download(fileName(meeting)); // popup blocked: fall back to a download
 }
