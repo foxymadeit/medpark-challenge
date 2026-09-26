@@ -28,6 +28,10 @@ class MockRecorder {
     queueMicrotask(() => this.onstop?.());
   }
 }
+// Steps that cross the fake IndexedDB, a React commit and the microphone grant
+// are wall-clock bound: on a loaded 2-core machine they take several seconds,
+// so the 1 s default of findBy/waitFor fails before the page has even started.
+const SLOW_STEP = { timeout: 10000 };
 function setup() {
   const stopTrack = vi.fn();
   const media = { getTracks: () => [{ stop: stopTrack }] };
@@ -122,13 +126,17 @@ it("supports automatic recording inside React StrictMode and recovers after refr
       <RouterProvider router={router} />
     </StrictMode>,
   );
-  await screen.findByRole("button", { name: "Pause" });
-  await waitFor(() =>
-    expect(
-      screen
-        .getByRole("button", { name: "Stop and write minutes" })
-        .hasAttribute("disabled"),
-    ).toBe(false),
+  // Load the meeting, commit, grant the microphone and auto-start.
+  await screen.findByRole("button", { name: "Pause" }, SLOW_STEP);
+  // The stop button waits for 0.1 s of real recording clock.
+  await waitFor(
+    () =>
+      expect(
+        screen
+          .getByRole("button", { name: "Stop and write minutes" })
+          .hasAttribute("disabled"),
+      ).toBe(false),
+    SLOW_STEP,
   );
   fireEvent.click(screen.getByRole("button", { name: "Pause" }));
   await screen.findByRole("button", { name: "Resume" });
@@ -137,10 +145,9 @@ it("supports automatic recording inside React StrictMode and recovers after refr
   fireEvent.click(
     screen.getByRole("button", { name: "Stop and write minutes" }),
   );
-  // Saving the audio and opening the processing page can take over the
-  // default 1 s when the whole suite runs in parallel.
-  await screen.findByText("Audio prepared", undefined, { timeout: 5000 });
+  // Save the audio, update the meeting and open processing on its first stage.
+  await screen.findByText("Transcribing", { selector: "strong" }, SLOW_STEP);
   expect((await getMeeting(m.id)).durationSeconds).toBeGreaterThan(0);
   expect((await getMeeting(m.id)).status).toBe("processing");
   view.unmount();
-});
+}, 40000); // Three SLOW_STEP waits back to back; the 15 s default would cut them short.

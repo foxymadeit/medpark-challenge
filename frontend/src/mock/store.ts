@@ -176,7 +176,9 @@ export function advanceStore(
         100,
         Math.max(0, Math.floor(((now - start) / (end - start)) * 100)),
       );
-      if (m.progress !== progress) {
+      // Also on the first read at 0 %: without stages the page drew the old
+      // five-step list, then swapped to the six steps on the next poll.
+      if (m.progress !== progress || !m.stages) {
         m.progress = progress;
         // the server's three stages, so the demo shows the same six steps
         const split = start + (end - start) * AUDIO_SHARE;
