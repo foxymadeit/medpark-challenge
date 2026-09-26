@@ -8,6 +8,21 @@ import { notifyUpdate } from "../hooks/useData";
 import type { Meeting } from "../types/meeting";
 import Button from "./Button";
 
+/** What the minutes still need before they can be sent, most basic first. */
+export function waitingFor(m: Meeting): string {
+  if (!m.participants.length) return "waitingParticipants";
+  if (m.reviewFlags?.length) return "waitingFlags";
+  if (
+    m.actionItems?.some(
+      (a) =>
+        !a.ownerParticipantId ||
+        !m.participants.some((p) => p.id === a.ownerParticipantId),
+    )
+  )
+    return "waitingOwners";
+  return "waitingCheck";
+}
+
 export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -38,7 +53,7 @@ export default function ManualReviewBar({ meeting }: { meeting: Meeting }) {
         <strong>
           {t(reviewed ? "reviewComplete" : "reviewBeforeSending")}
         </strong>
-        <p>{t(reviewed ? "readyToSendDetail" : "reviewChecklist")}</p>
+        <p>{t(reviewed ? "readyToSendDetail" : waitingFor(meeting))}</p>
       </div>
       <div className="button-row">
         {!reviewed && (

@@ -187,7 +187,8 @@ export function advanceStore(
         m.status = auto && !invalidMinutes(m) ? "sending_soon" : "ready";
         m.processingState = "complete";
         m.reviewState = "needs_review";
-        m.deliveryState = auto ? "scheduled" : "stopped";
+        // "stopped" means a person pressed Stop; a manual meeting has no delivery yet
+        m.deliveryState = auto ? "scheduled" : undefined;
         m.sendWindowSeconds = countdown;
         m.sendScheduledAt =
           m.status === "sending_soon"
