@@ -8,7 +8,7 @@ import { lineTokens } from './transcript';
 
 type T = (key: string, vars?: Record<string, string | number>) => string;
 
-// Design tokens (see styles/tokens.css) — ink-primary is the only accent.
+// pdfmake can't read CSS variables: these mirror --sm-ink-primary / --sm-ink-secondary / --sm-surface-hairline in styles/tokens.css.
 const INK = '#101010';
 const INK_2 = '#5B544B';
 const HAIRLINE = '#EAE6DF';
@@ -122,6 +122,9 @@ export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
       { text: t('record.participants'), style: 'h2' },
       participants,
       { text: t('pdf.frozen', { date }), style: 'note', margin: [0, 6, 0, 0] },
+
+      { text: t('review.summary'), style: 'h2' },
+      meeting.summary?.length ? { ul: meeting.summary.map((point) => ({ text: point, margin: [0, 0, 0, 4] })), margin: [0, 0, 0, 4] } : { text: t('review.noSummary'), style: 'note' },
 
       { text: t('review.tasks'), style: 'h2' },
       ...(tasks.length ? tasks : [{ text: t('pdf.noTasks'), style: 'note' } as Content]),

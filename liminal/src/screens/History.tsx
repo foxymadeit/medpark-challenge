@@ -6,7 +6,9 @@ import { Dialog } from '../components/Dialog';
 import { Avatar } from '../components/Avatar';
 import { TranscriptLines } from '../components/Minutes';
 import { TextField } from '../components/TextField';
+import { SummaryPoints } from '../components/SummaryPoints';
 import { StatusTag } from '../components/StatusTag';
+import { Segmented } from '../components/Segmented';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { useI18n } from '../i18n/I18nProvider';
 import { dueRelative, formatDayMonth, formatFullDate, formatWeekdayDate } from '../lib/format';
@@ -48,14 +50,18 @@ export function History() {
           <span className="sr-only">{t('history.search')}</span>
           <input type="search" placeholder={t('history.search')} value={query} onChange={(e) => setQuery(e.target.value)} />
         </label>
-        <div className="chips" role="radiogroup" aria-label={t('history.filter')}>
-          {(['all', ...MEETING_TYPES] as const).map((f) => (
-            <button key={f} type="button" role="radio" aria-checked={filter === f} className="chip chip--sm" onClick={() => setFilter(f)}>
-              {f !== 'all' && <MeetingTypeIcon type={f} />}
-              {f === 'all' ? t('history.all') : t(`typesShort.${f}`)}
-            </button>
-          ))}
-        </div>
+        {/* Same toggle as the interface-language switch: warm track, raised white pill. */}
+        <Segmented<MeetingType | 'all'>
+          label={t('history.filter')}
+          variant="auto"
+          value={filter}
+          onChange={setFilter}
+          options={(['all', ...MEETING_TYPES] as const).map((f) => ({
+            value: f,
+            label: f === 'all' ? t('history.all') : t(`typesShort.${f}`),
+            icon: f === 'all' ? undefined : <MeetingTypeIcon type={f} />,
+          }))}
+        />
       </div>
 
       <div className="table-card">
@@ -133,9 +139,6 @@ export function History() {
           </tbody>
         </table>
       </div>
-      <p className="note" style={{ marginTop: 16 }}>
-        {t('history.hint')}
-      </p>
     </div>
   );
 }
@@ -210,8 +213,10 @@ export function HistoryRecord() {
 
         <section className="card card--pad record__minutes" aria-labelledby="rec-minutes">
           <h2 id="rec-minutes" className="section-title">
-            {t('record.minutes')}
+            {t('review.summary')}
           </h2>
+          <SummaryPoints points={meeting.summary ?? []} />
+          <h3 className="review__sub-title record__tasks-title">{t('review.tasks')}</h3>
           <table className="summary-table">
             <thead>
               <tr>

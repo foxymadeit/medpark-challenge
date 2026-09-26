@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { cardioTasks, cardioTranscript, demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, YOU_ID } from '../mocks';
+import { cardioSummary, cardioTasks, cardioTranscript, demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, YOU_ID } from '../mocks';
 import { todayISO, uid } from '../lib/format';
 import { retokenize, tokenize } from '../lib/transcript';
 import type { Preferences, Account, Meeting, MeetingSource, MeetingType, ParticipantSnapshot, Person, Task, Template, SpokenLang } from '../types';
@@ -33,7 +33,13 @@ interface State {
 
 export type LogInResult = 'ok' | 'receives-only' | 'no-account';
 
-const STORAGE_KEY = 'liminal:state:v1';
+const STORAGE_KEY = 'liminal:state';
+/**
+ * Bump when the shape of the saved data or the seed data changes: browsers holding an older
+ * version start fresh instead of mixing stale meetings with new code.
+ */
+const DATA_VERSION = 2;
+const LEGACY_KEYS = ['liminal:state:v1'];
 
 const initialState = (): State => ({
   account: null,
@@ -47,12 +53,16 @@ const initialState = (): State => ({
 
 function load(): State {
   try {
+    LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
     if (new URLSearchParams(location.search).has('reset')) {
       localStorage.removeItem(STORAGE_KEY);
       history.replaceState(null, '', location.pathname);
     }
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...initialState(), ...JSON.parse(raw) };
+    if (raw) {
+      const saved = JSON.parse(raw) as { v?: number; state?: Partial<State> };
+      if (saved.v === DATA_VERSION && saved.state) return { ...initialState(), ...saved.state };
+    }
   } catch {
     /* ignore corrupt or blocked storage */
   }
@@ -64,7 +74,7 @@ function useStoreValue() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: DATA_VERSION, state }));
     } catch {
       /* storage unavailable — keep in memory */
     }
@@ -174,6 +184,7 @@ function useStoreValue() {
         participants,
         // MOCK: the AI output is the example Cardiology board minutes.
         transcript: cardioTranscript,
+        summary: cardioSummary,
         tasks: materialiseTasks(date, id, cardioTasks),
       };
       // Name, date and added people belong to this meeting only; the next one starts fresh (type and template stay).
@@ -251,6 +262,7 @@ function useStoreValue() {
   }, []);
 
   const setTasks = useCallback((meetingId: string, tasks: Task[]) => updateMeeting(meetingId, { tasks }), [updateMeeting]);
+  const setSummary = useCallback((meetingId: string, summary: string[]) => updateMeeting(meetingId, { summary }), [updateMeeting]);
 
   /** Send: freeze roles as they are today and mark sent. */
   const sendMeeting = useCallback(
@@ -342,6 +354,7 @@ function useStoreValue() {
     createMeetingFromDraft,
     updateMeeting,
     setTasks,
+    setSummary,
     correctToken,
     removeToken,
     flagTokenLang,

@@ -35,6 +35,7 @@ export function MicCheck() {
   const frame = useRef(0);
   const timer = useRef(0);
   const audio = useRef<HTMLAudioElement | null>(null);
+  const clipUrl = useRef<string | null>(null);
 
   const loadMics = useCallback(async () => {
     try {
@@ -56,6 +57,8 @@ export function MicCheck() {
     stream.current?.getTracks().forEach((tr) => tr.stop());
     void ctx.current?.close().catch(() => {});
     audio.current?.pause();
+    if (clipUrl.current) URL.revokeObjectURL(clipUrl.current); // free the test clip
+    clipUrl.current = null;
     stream.current = null;
     ctx.current = null;
     audio.current = null;
@@ -99,8 +102,10 @@ export function MicCheck() {
         cancelAnimationFrame(frame.current);
         s.getTracks().forEach((tr) => tr.stop());
         setLevel(0);
-        const clip = new Audio(URL.createObjectURL(new Blob(chunks, { type: rec.mimeType })));
+        const url = URL.createObjectURL(new Blob(chunks, { type: rec.mimeType }));
+        const clip = new Audio(url);
         audio.current = clip;
+        clipUrl.current = url;
         clip.onended = () => setPhase('done');
         setPhase('playing');
         clip.play().catch(() => setPhase('done'));
