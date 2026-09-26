@@ -43,7 +43,7 @@ interface Bar {
 export function Recording() {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
-  const { createMeetingFromDraft } = useStore();
+  const { createMeetingFromDraft, preferences } = useStore();
   const { title, typeLabel, people, count } = useDraftMeeting();
   const rec = useRecorder();
   const colours = useMemo(speakerColours, []);
@@ -59,7 +59,8 @@ export function Recording() {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    void rec.start();
+    void rec.start(preferences.micId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rec]);
 
   // Waveform + talk-time sampling.

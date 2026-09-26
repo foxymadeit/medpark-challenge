@@ -1,8 +1,9 @@
-import { CheckIcon, MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { MicrophoneIcon, PencilSimpleIcon, UploadSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DatePicker } from '../components/DatePicker';
 import { EmailsField } from '../components/EmailsField';
+import { MicCheck } from '../components/MicCheck';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
 import { Segmented } from '../components/Segmented';
 import { TemplateBadge } from '../components/TemplateBadge';
@@ -98,16 +99,15 @@ export function NewMeeting() {
         <EmailsField emails={draft.emails} onChange={(emails) => setDraft({ emails })} />
 
         <div className="start-options">
-          <button type="button" className="start-tile start-tile--record" onClick={() => navigate('/recording')}>
+          {/* Card, not a button: the mic picker and test sit inside. The title button stretches over the card. */}
+          <div className="start-tile start-tile--record">
             <MicrophoneIcon size={32} aria-hidden />
             <span className="start-tile__spacer" />
-            <span className="t-h2">{t('newMeeting.record')}</span>
-            {/* MOCK: mic status is not probed until recording starts. */}
-            <span className="start-tile__status">
-              <CheckIcon size={16} aria-hidden />
-              {t('newMeeting.micOk')}
-            </span>
-          </button>
+            <button type="button" className="start-tile__main t-h2" onClick={() => navigate('/recording')}>
+              {t('newMeeting.record')}
+            </button>
+            <MicCheck />
+          </div>
           <button type="button" className="start-tile start-tile--upload" onClick={() => navigate('/upload')}>
             <UploadSimpleIcon size={32} aria-hidden />
             <span className="start-tile__spacer" />

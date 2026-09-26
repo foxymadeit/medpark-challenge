@@ -203,7 +203,6 @@
     "removeEmail": "Elimină {email}",
     "suggestions": "Participanți",
     "record": "Începe înregistrarea",
-    "micOk": "Microfon extern conectat",
     "upload": "Încarcă audio",
     "uploadHint": "WAV, MP3 sau M4A, până la 3 ore",
     "defaultName": {
@@ -211,6 +210,15 @@
       "executive": "Ședința săptămânală a conducerii",
       "administrative": "Planificarea operațională"
     }
+  },
+  "mic": {
+    "choose": "Microfon",
+    "test": "Testează microfonul",
+    "stopTest": "Oprește testul",
+    "listening": "Spuneți ceva: barele ar trebui să se miște.",
+    "playing": "Se redă ce s-a auzit…",
+    "done": "Microfonul funcționează.",
+    "blocked": "Microfonul este blocat în browser; testul a fost simulat."
   },
   "recording": {
     "recording": "Se înregistrează",

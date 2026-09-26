@@ -204,7 +204,6 @@ export const en = {
     removeEmail: 'Remove {email}',
     suggestions: 'Participants',
     record: 'Start recording',
-    micOk: 'External microphone connected',
     upload: 'Upload audio',
     uploadHint: 'WAV, MP3 or M4A, up to 3 hours',
     // Realistic default names per type, used until the user renames the meeting.
@@ -213,6 +212,15 @@ export const en = {
       executive: 'Weekly management meeting',
       administrative: 'Operations planning',
     },
+  },
+  mic: {
+    choose: 'Microphone',
+    test: 'Test microphone',
+    stopTest: 'Stop test',
+    listening: 'Say something: the bars should move.',
+    playing: 'Playing back what it heard…',
+    done: 'Microphone works.',
+    blocked: 'Microphone is blocked in the browser; this was a simulated test.',
   },
   recording: {
     recording: 'Recording',

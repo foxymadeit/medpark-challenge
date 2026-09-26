@@ -20,10 +20,12 @@ export function useRecorder() {
   const buf = useRef<Uint8Array<ArrayBuffer> | null>(null);
   const sim = useRef(0.2);
 
-  const start = useCallback(async () => {
+  /** `deviceId` = the mic picked on New meeting; mock ids fall back to the default mic. */
+  const start = useCallback(async (deviceId?: string) => {
     setState('recording');
     try {
-      const s = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      const device = deviceId && !deviceId.startsWith('mock-') ? { deviceId: { exact: deviceId } } : {};
+      const s = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, ...device } });
       stream.current = s;
       const audioCtx = new AudioContext();
       const node = audioCtx.createAnalyser();

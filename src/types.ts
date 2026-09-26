@@ -29,6 +29,8 @@ export interface Account {
 export interface Preferences {
   /** auto = minutes are sent as soon as processing finishes, without review. */
   reviewMode: 'manual' | 'auto';
+  /** Chosen microphone (a browser deviceId, or a mock id before permission). */
+  micId?: string;
 }
 
 export interface Template {

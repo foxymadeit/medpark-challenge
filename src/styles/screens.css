@@ -112,6 +112,23 @@
 .start-tile--record:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-record-line); }
 .start-tile--upload { border: 1px solid var(--sm-tint-upload-line); background: var(--sm-tint-upload); }
 .start-tile--upload:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-upload-line); }
+/* Record card: the title button's ::after covers the card (whole card starts recording);
+   the mic picker/test sit above it so they stay clickable. */
+.start-tile--record { position: relative; height: auto; min-height: 208px; cursor: pointer; }
+.start-tile__main { padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
+.start-tile__main::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.start-tile__main:focus-visible { outline: none; }
+.start-tile--record:has(.start-tile__main:focus-visible) { outline: 2px solid var(--sm-ink-primary); outline-offset: 2px; }
+.mic-check { align-self: stretch; position: relative; z-index: 1; display: flex; flex-direction: column; gap: var(--sm-space-2); margin-top: var(--sm-space-2); cursor: default; }
+.mic-check .dropdown { flex: 1 1 180px; min-width: 0; max-width: 320px; }
+.mic-check__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sm-space-2); }
+.mic-check .dropdown__button .truncate, .mic-check .dropdown__button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mic-check__test { height: 36px; padding: 0 12px; gap: 6px; font-size: 14px; }
+.mic-check__status { display: flex; align-items: center; gap: var(--sm-space-2); min-height: 20px; color: var(--sm-ink-secondary); font: 400 13px/18px var(--sm-font-body); }
+.mic-check__ok { color: var(--sm-success); }
+.mic-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; }
+.mic-meter__bar { width: 4px; height: 100%; border-radius: 2px; background: var(--sm-tint-record-line); transition: background 80ms linear; }
+.mic-meter__bar.is-on { background: var(--sm-success); }
 .start-tile__status { display: inline-flex; align-items: center; gap: var(--sm-space-2); color: var(--sm-ink-secondary); font: 400 13px/18px var(--sm-font-body); }
 
 

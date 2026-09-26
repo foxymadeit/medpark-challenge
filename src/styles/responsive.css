@@ -128,6 +128,7 @@
 
   .start-options { flex-direction: column; }
   .start-tile, .start-tile--record { flex: none; height: 168px; }
+  .start-tile--record { height: auto; min-height: 168px; }
 
   .review__header { height: auto; flex-wrap: wrap; gap: var(--sm-space-3); }
   .review__header .t-h1, .record .t-h1 { font-size: 24px; line-height: 30px; }
