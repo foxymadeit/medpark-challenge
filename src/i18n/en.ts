@@ -151,6 +151,7 @@ export const en = {
     blue: 'Blue',
     violet: 'Violet',
     stone: 'Stone',
+    ink: 'Black',
   },
   accessTitle: {
     receives: 'Participant',
