@@ -203,7 +203,7 @@ export function Review() {
   const { t } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { account, meetings, setTasks, sendMeeting, resolvePerson, correctToken, removeToken, editLine, removeLine, updateMeeting } = useStore();
+  const { account, meetings, setTasks, sendMeeting, resolvePerson, correctToken, removeToken, flagTokenLang, editLine, removeLine, updateMeeting } = useStore();
   // Last removal, so a slip can be undone.
   const [removed, setRemoved] = useState<{ label: string; transcript: Meeting['transcript'] } | null>(null);
   const meeting = meetings.find((m) => m.id === id);
@@ -284,6 +284,7 @@ export function Review() {
               setRemoved({ label: t('review.word.removed', { word: tok?.text ?? '' }), transcript: meeting.transcript });
               removeToken(meeting.id, line, token);
             }}
+            onFlagLang={(line, token, l) => flagTokenLang(meeting.id, line, token, l)}
             onEditLine={(line, text) => (editLine(meeting.id, line, text), setRemoved(null))}
             onRemoveLine={(line) => {
               setRemoved({ label: t('review.sentence.removed', { time: meeting.transcript[line].at }), transcript: meeting.transcript });

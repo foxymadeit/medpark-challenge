@@ -145,6 +145,12 @@ export const en = {
     prevMonth: 'Previous month',
     nextMonth: 'Next month',
   },
+  spoken: {
+    ro: 'Romanian',
+    ru: 'Russian',
+    en: 'English',
+    la: 'Latin',
+  },
   due: {
     sameDay: 'Same day',
     tomorrow: 'Tomorrow',
@@ -309,6 +315,7 @@ export const en = {
       fix: 'Correct the word',
       edit: 'Edit…',
       remove: 'Remove word',
+      langLabel: 'Language',
       removed: 'Removed “{word}”',
       undo: 'Undo',
       save: 'Save',

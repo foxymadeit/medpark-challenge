@@ -3,7 +3,7 @@ import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type Key
 import { createPortal } from 'react-dom';
 import { useI18n } from '../i18n/I18nProvider';
 import { alternativesFor, lineSeconds, lineText, lineTokens, originalText } from '../lib/transcript';
-import type { Task, TranscriptLine, TranscriptToken } from '../types';
+import { SPOKEN_LANGS, type SpokenLang, type Task, type TranscriptLine, type TranscriptToken } from '../types';
 
 /** Read-only token rendering (history record, dialogs). */
 function StaticTokens({ tokens }: { tokens: TranscriptToken[] }) {
@@ -29,7 +29,7 @@ interface MenuState {
 }
 
 /** Popover to pick an alternative reading or type the right word. */
-function WordMenu({ word, alternatives, anchor, onPick, onRemove, onClose }: { word: string; alternatives: string[]; anchor: DOMRect; onPick: (v: string) => void; onRemove?: () => void; onClose: () => void }) {
+function WordMenu({ word, alternatives, anchor, onPick, onRemove, lang, onLang, onClose }: { word: string; alternatives: string[]; anchor: DOMRect; onPick: (v: string) => void; onRemove?: () => void; lang?: SpokenLang; onLang?: (l: SpokenLang | undefined) => void; onClose: () => void }) {
   const { t } = useI18n();
   const id = useId();
   const box = useRef<HTMLDivElement>(null);
@@ -108,6 +108,17 @@ function WordMenu({ word, alternatives, anchor, onPick, onRemove, onClose }: { w
           </button>
         </form>
       )}
+      {/* Language flag: which language this word really is (training label). Click again to clear. */}
+      {onLang && (
+        <div className="word-menu__lang" role="radiogroup" aria-label={t('review.word.langLabel')}>
+          <span className="word-menu__lang-label">{t('review.word.langLabel')}</span>
+          {SPOKEN_LANGS.map((l) => (
+            <button key={l} type="button" role="radio" aria-checked={lang === l} className="word-menu__lang-btn" title={t(`spoken.${l}`)} onClick={() => onLang(lang === l ? undefined : l)}>
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
+      )}
       {/* Offered in both views: pick-a-reading and type-it-yourself. */}
       {onRemove && (
         <button type="button" role="menuitem" className="dropdown__option word-menu__item word-menu__remove" onClick={onRemove}>
@@ -127,6 +138,8 @@ interface LinesProps {
   onCorrect?: (line: number, token: number, value: string) => void;
   /** When set, the word menu also offers "Remove word". */
   onRemove?: (line: number, token: number) => void;
+  /** When set, the word menu lets the reviewer flag the word's language. */
+  onFlagLang?: (line: number, token: number, lang: SpokenLang | undefined) => void;
   /** When set, a sentence can be selected (click its time/speaker) to listen, rewrite or remove it. */
   onEditLine?: (line: number, text: string) => void;
   onRemoveLine?: (line: number) => void;
@@ -166,7 +179,7 @@ function useSegmentPlayer() {
   return { playing, progress, play, stop };
 }
 
-export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onEditLine, onRemoveLine }: LinesProps) {
+export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onFlagLang, onEditLine, onRemoveLine }: LinesProps) {
   const { lang } = useI18n();
   const [selected, setSelected] = useState<number | null>(null);
   const [editing, setEditing] = useState<number | null>(null);
@@ -265,6 +278,7 @@ export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onEditLine
                       }}
                     >
                       {tok.text}
+                      {tok.lang && <span className="word__lang">{tok.lang.toUpperCase()}</span>}
                     </button>
                   );
                 })
@@ -325,6 +339,8 @@ export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onEditLine
         <WordMenu
           key={`${menu.line}-${menu.token}`}
           word={menuWord}
+          lang={menuTokens[menu.token]?.lang}
+          onLang={onFlagLang && ((l) => onFlagLang(menu.line, menu.token, l))}
           alternatives={alternativesFor(menuWord)}
           anchor={menu.anchor}
           onClose={close}

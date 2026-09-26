@@ -402,6 +402,13 @@
 }
 .word:not(.kw):hover { background: var(--sm-surface-ground); box-shadow: 0 0 0 2px var(--sm-surface-ground); }
 .word.kw { padding: 0 4px; background: var(--sm-surface-hairline); font-weight: 600; }
+.word-menu__lang { display: flex; align-items: center; gap: 4px; padding: 8px 12px; border-top: 1px solid var(--sm-surface-hairline); }
+.word-menu__lang-label { margin-right: auto; color: var(--sm-ink-secondary); font: 500 12px/16px var(--sm-font-body); }
+.word-menu__lang-btn { min-width: 34px; height: 28px; padding: 0 6px; border: 1px solid var(--sm-surface-hairline); border-radius: 6px; background: var(--sm-surface-panel); color: var(--sm-ink-primary); font: 600 12px/16px var(--sm-font-data); }
+.word-menu__lang-btn:hover { background: var(--sm-surface-ground); }
+.word-menu__lang-btn[aria-checked='true'] { border: 1.5px solid var(--sm-ink-primary); }
+/* Flagged language: tiny label after the word. */
+.word__lang { margin-left: 3px; padding: 0 3px; border-radius: 3px; background: var(--sm-surface-hairline); color: var(--sm-ink-secondary); font: 600 9px/13px var(--sm-font-data); vertical-align: 2px; }
 .word-menu__remove { color: var(--sm-signal-danger); border-top: 1px solid var(--sm-surface-hairline); }
 .undo-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); margin: 0; padding: 8px 12px; border-radius: var(--sm-radius-tile); background: var(--sm-surface-ground); font: 400 14px/20px var(--sm-font-body); }
 .word.kw:hover { background: #ddd8cf; }

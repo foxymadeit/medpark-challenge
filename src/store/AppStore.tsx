@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { cardioTasks, cardioTranscript, demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, YOU_ID } from '../mocks';
 import { todayISO, uid } from '../lib/format';
 import { retokenize, tokenize } from '../lib/transcript';
-import type { Preferences, Account, Meeting, MeetingSource, MeetingType, ParticipantSnapshot, Person, Task, Template } from '../types';
+import type { Preferences, Account, Meeting, MeetingSource, MeetingType, ParticipantSnapshot, Person, Task, Template, SpokenLang } from '../types';
 
 /**
  * Frontend-only mock store. Everything persists to localStorage so the demo
@@ -200,6 +200,18 @@ function useStoreValue() {
     }));
   }, []);
 
+  /** Flag (or clear) the language of one word — kept on the token as a training label. */
+  const flagTokenLang = useCallback((meetingId: string, lineIdx: number, tokenIdx: number, lang: SpokenLang | undefined) => {
+    setState((s) => ({
+      ...s,
+      meetings: s.meetings.map((m) =>
+        m.id !== meetingId
+          ? m
+          : { ...m, transcript: m.transcript.map((line, i) => (i !== lineIdx ? line : { ...line, tokens: (line.tokens ?? tokenize(line.text)).map((tok, j) => (j === tokenIdx ? { ...tok, lang } : tok)) })) },
+      ),
+    }));
+  }, []);
+
   /** Delete one word/term from the transcript, with the space next to it so no double spaces remain. */
   const removeToken = useCallback((meetingId: string, lineIdx: number, tokenIdx: number) => {
     setState((s) => ({
@@ -331,6 +343,7 @@ function useStoreValue() {
     setTasks,
     correctToken,
     removeToken,
+    flagTokenLang,
     editLine,
     removeLine,
     sendMeeting,

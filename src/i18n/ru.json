@@ -143,18 +143,24 @@
     "prevMonth": "Предыдущий месяц",
     "nextMonth": "Следующий месяц"
   },
+  "spoken": {
+    "ro": "Румынский",
+    "ru": "Русский",
+    "en": "Английский",
+    "la": "Латынь"
+  },
   "due": {
-    "sameDay": "В тот же день",
-    "tomorrow": "Завтра",
-    "inDays": "Через {count} дня",
     "inDays_one": "Через {count} день",
-    "inWeek": "Через неделю",
-    "inWeeks": "Через {count} недели",
     "inWeeks_one": "Через {count} неделю",
     "inDays_few": "Через {count} дня",
     "inDays_many": "Через {count} дней",
     "inWeeks_few": "Через {count} недели",
-    "inWeeks_many": "Через {count} недель"
+    "inWeeks_many": "Через {count} недель",
+    "sameDay": "В тот же день",
+    "tomorrow": "Завтра",
+    "inDays": "Через {count} дня",
+    "inWeek": "Через неделю",
+    "inWeeks": "Через {count} недели"
   },
   "colors": {
     "rose": "Розовый",
@@ -314,6 +320,7 @@
       "fix": "Исправить слово",
       "edit": "Изменить…",
       "remove": "Удалить слово",
+      "langLabel": "Язык",
       "removed": "Удалено «{word}»",
       "undo": "Отменить",
       "save": "Сохранить",

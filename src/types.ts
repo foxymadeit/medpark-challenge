@@ -56,7 +56,13 @@ export interface TranscriptToken {
   kind: 'kw' | 'word' | 'punct' | 'space';
   text: string;
   fixed?: boolean;
+  /** Language the reviewer flagged for this word (training signal for the speech model). */
+  lang?: SpokenLang;
 }
+
+/** Languages a word can be flagged as: interface languages plus Latin for medical terms. */
+export type SpokenLang = 'ro' | 'ru' | 'en' | 'la';
+export const SPOKEN_LANGS: SpokenLang[] = ['ro', 'ru', 'en', 'la'];
 
 export interface Task {
   id: string;

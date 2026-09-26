@@ -142,16 +142,22 @@
     "prevMonth": "Luna precedentă",
     "nextMonth": "Luna următoare"
   },
+  "spoken": {
+    "ro": "Română",
+    "ru": "Rusă",
+    "en": "Engleză",
+    "la": "Latină"
+  },
   "due": {
+    "inDays_one": "Într-o zi",
+    "inWeeks_one": "Într-o săptămână",
+    "inDays_few": "În {count} zile",
+    "inWeeks_few": "În {count} săptămâni",
     "sameDay": "În aceeași zi",
     "tomorrow": "Mâine",
     "inDays": "În {count} de zile",
-    "inDays_one": "Într-o zi",
     "inWeek": "Într-o săptămână",
-    "inWeeks": "În {count} de săptămâni",
-    "inWeeks_one": "Într-o săptămână",
-    "inDays_few": "În {count} zile",
-    "inWeeks_few": "În {count} săptămâni"
+    "inWeeks": "În {count} de săptămâni"
   },
   "colors": {
     "rose": "Roz",
@@ -310,6 +316,7 @@
       "fix": "Corectați cuvântul",
       "edit": "Editează…",
       "remove": "Șterge cuvântul",
+      "langLabel": "Limba",
       "removed": "Ați șters „{word}”",
       "undo": "Anulează",
       "save": "Salvează",
