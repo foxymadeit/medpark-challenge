@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
+import { SummaryPoints } from '../components/SummaryPoints';
 import { Dropdown } from '../components/Dropdown';
 import { TranscriptLines } from '../components/Minutes';
 import { PeopleStack } from '../components/PeopleStack';
@@ -203,7 +204,7 @@ export function Review() {
   const { t } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { account, meetings, setTasks, sendMeeting, resolvePerson, correctToken, removeToken, flagTokenLang, editLine, removeLine, updateMeeting } = useStore();
+  const { account, meetings, setTasks, setSummary, sendMeeting, resolvePerson, correctToken, removeToken, flagTokenLang, editLine, removeLine, updateMeeting } = useStore();
   // Last removal, so a slip can be undone.
   const [removed, setRemoved] = useState<{ label: string; transcript: Meeting['transcript'] } | null>(null);
   const meeting = meetings.find((m) => m.id === id);
@@ -293,11 +294,14 @@ export function Review() {
           />
         </section>
 
-        <section className="card review__pane review__pane--tasks" aria-labelledby="rv-tasks" tabIndex={0}>
-          <div className="summary-head">
-            <h2 id="rv-tasks" className="review__pane-title">
-              {t('review.tasks')}
-            </h2>
+        <section className="card review__pane review__pane--tasks" aria-labelledby="rv-summary" tabIndex={0}>
+          {/* The MoM: written summary first, then the tasks. */}
+          <h2 id="rv-summary" className="review__pane-title">
+            {t('review.summary')}
+          </h2>
+          <SummaryPoints points={meeting.summary ?? []} onChange={(points) => setSummary(meeting.id, points)} />
+          <div className="summary-head summary-head--tasks">
+            <h3 className="review__sub-title">{t('review.tasks')}</h3>
             <button type="button" className="btn btn--ghost summary-head__add" onClick={addTask} disabled={isNew}>
               <PlusIcon size={16} aria-hidden />
               {t('review.addTask')}

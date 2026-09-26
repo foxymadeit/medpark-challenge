@@ -1,7 +1,7 @@
 // EXAMPLE meeting history from Figma. Roles in `participants` are frozen "role then".
 import type { Meeting, ParticipantSnapshot, Task, TranscriptLine } from '../types';
 import { addDays } from '../lib/format';
-import { cardioTasks, cardioTranscript, execTasks, execTranscript, supplyTasks, supplyTranscript } from './minutes';
+import { cardioSummary, cardioTasks, cardioTranscript, execSummary, execTasks, execTranscript, supplySummary, supplyTasks, supplyTranscript } from './minutes';
 import { demoPeople, demoYou, YOU_ID } from './people';
 
 const snap = (id: string, roleThen?: string): ParticipantSnapshot => {
@@ -18,8 +18,8 @@ export function materialiseTasks(
   return list.map(({ dueInDays, ...t }, i) => ({ ...t, id: `${meetingId}-task-${i}`, due: addDays(date, dueInDays) }));
 }
 
-function meeting(m: Omit<Meeting, 'tasks' | 'transcript'>, transcript: TranscriptLine[], tasks: typeof cardioTasks): Meeting {
-  return { ...m, transcript, tasks: materialiseTasks(m.date, m.id, tasks) };
+function meeting(m: Omit<Meeting, 'tasks' | 'transcript' | 'summary'>, transcript: TranscriptLine[], tasks: typeof cardioTasks, summary = cardioSummary): Meeting {
+  return { ...m, transcript, summary, tasks: materialiseTasks(m.date, m.id, tasks) };
 }
 
 const all5 = [YOU_ID, 'p-igor', 'p-elena', 'p-victor', 'p-maria'];
@@ -34,6 +34,7 @@ export const seedMeetings: Meeting[] = [
     { id: 'm-2509', title: 'Weekly executive sync', type: 'executive', date: '2026-09-25', durationMin: 35, source: 'recorded', status: 'sent', sentTo: 5, participants: all5.map((id) => snap(id)) },
     execTranscript,
     execTasks,
+    execSummary,
   ),
   meeting(
     {
@@ -56,6 +57,7 @@ export const seedMeetings: Meeting[] = [
     { id: 'm-2309', title: 'Supply planning', type: 'administrative', date: '2026-09-23', durationMin: 22, source: 'recorded', status: 'sent', sentTo: 3, participants: [YOU_ID, 'p-victor', 'p-maria'].map((id) => snap(id)) },
     supplyTranscript,
     supplyTasks,
+    supplySummary,
   ),
   meeting(
     { id: 'm-2209', title: 'Tumor board', type: 'medical', date: '2026-09-22', durationMin: 41, source: 'uploaded', fileName: 'tumor_board.m4a', status: 'processing', participants: [YOU_ID, 'p-igor', 'p-elena', 'p-victor'].map((id) => snap(id)) },

@@ -282,7 +282,7 @@
     "auto": "Automat",
     "transcript": "Transcriere",
     "highlighted": "Evidențiate: pacienți, paturi, saloane, nume, date",
-    "tasks": "Rezumat",
+    "tasks": "Sarcini",
     "patient": "Pacient · {name}",
     "noEmail": "Fără e-mail",
     "emailFor": "E-mail pentru {name}",
@@ -335,7 +335,14 @@
       "label": "{word} — clic pentru corectare",
       "labelUnsure": "{word} — posibil auzit greșit, clic pentru verificare",
       "labelFixed": "{word} — corectat"
-    }
+    },
+    "summary": "Rezumat",
+    "addPoint": "Adaugă punct",
+    "editPoint": "Editează punctul",
+    "removePoint": "Elimină punctul",
+    "pointLabel": "Punct din rezumat",
+    "pointPh": "Un punct cheie, o decizie sau un rezultat",
+    "noSummary": "Încă nu există rezumat."
   },
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",
@@ -361,7 +368,6 @@
     "colStatus": "Stare",
     "recorded": "Înregistrată",
     "uploaded": "Audio încărcat",
-    "hint": "Faceți clic pe un rând pentru a deschide înregistrarea. „Necesită verificare” deschide ecranul de verificare.",
     "empty": "Nicio ședință găsită.",
     "downloadPdf": "Descarcă PDF: {title}"
   },
@@ -382,7 +388,6 @@
     "participants": "Participanți la ședință",
     "roleThen": "Funcția atunci: {role}",
     "now": "Acum: {role}",
-    "minutes": "Proces-verbal",
     "openTranscript": "Deschide transcrierea",
     "download": "Descarcă PDF"
   },

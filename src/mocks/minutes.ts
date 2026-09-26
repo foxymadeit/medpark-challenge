@@ -33,6 +33,16 @@ export const cardioTranscript: TranscriptLine[] = [
   { at: '00:12:31', speakerId: YOU_ID, text: 'Thank you, [[Dr. Rusu]]. Next review on [[28 Sep]].' },
 ];
 
+/** MOCK AI summary: key points of the meeting, in order. */
+export const cardioSummary: string[] = [
+  'Six patients reviewed. Night shift was calm; two admissions from the emergency department, both stable.',
+  'Bed 3: blood pressure around 130/80 on the new beta blocker; dose kept, discharge planned for Wednesday if labs are fine. Potassium came back at 5.4.',
+  'Bed 8: noradrenaline to be reduced today and the echo repeated tomorrow; lactate checked every four hours. Dr. Popescu will call the family before noon.',
+  'Bed 12: two days after bypass, pain controlled; drains out tomorrow morning, physiotherapy twice a day.',
+  'Room 204: gram-negative bacteraemia; current antibiotic continues with daily CRP until sensitivity is known on Monday.',
+  'Bed 5: INR 2.4; discharge tomorrow with follow-up in two weeks if it stays in range. Discharge letters move to the new system from October.',
+];
+
 /** Tasks with due dates as day offsets from the meeting date. */
 export const cardioTasks: (Omit<Task, 'due' | 'id'> & { dueInDays: number })[] = [
   { ownerId: YOU_ID, patient: 'Bed 8', title: 'Repeat echo', dueInDays: 1 },
@@ -45,6 +55,8 @@ export const execTranscript: TranscriptLine[] = [
   { at: '00:04:22', speakerId: 'p-maria', text: 'I will send the purchase order by [[Wednesday]].' },
 ];
 
+export const execSummary: string[] = ['Budget for the ICU monitors is approved for October.', 'Purchase order to be sent by Wednesday.'];
+
 export const execTasks: (Omit<Task, 'due' | 'id'> & { dueInDays: number })[] = [
   { ownerId: 'p-maria', patient: 'ICU', title: 'Send purchase order for monitors', dueInDays: 5 },
 ];
@@ -52,6 +64,8 @@ export const execTasks: (Omit<Task, 'due' | 'id'> & { dueInDays: number })[] = [
 export const supplyTranscript: TranscriptLine[] = [
   { at: '00:00:40', speakerId: 'p-maria', text: 'Stock of sterile gloves in [[Room 110]] runs out on [[25 Sep]].' },
 ];
+
+export const supplySummary: string[] = ['Sterile gloves in Room 110 run out on 25 Sep; reorder needed.'];
 
 export const supplyTasks: (Omit<Task, 'due' | 'id'> & { dueInDays: number })[] = [
   { ownerId: 'p-maria', patient: 'Room 110', title: 'Reorder sterile gloves', dueInDays: 1 },

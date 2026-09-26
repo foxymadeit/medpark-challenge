@@ -123,6 +123,9 @@ export async function downloadMomPdf(meeting: Meeting, t: T, lang: Lang) {
       participants,
       { text: t('pdf.frozen', { date }), style: 'note', margin: [0, 6, 0, 0] },
 
+      { text: t('review.summary'), style: 'h2' },
+      meeting.summary?.length ? { ul: meeting.summary.map((point) => ({ text: point, margin: [0, 0, 0, 4] })), margin: [0, 0, 0, 4] } : { text: t('review.noSummary'), style: 'note' },
+
       { text: t('review.tasks'), style: 'h2' },
       ...(tasks.length ? tasks : [{ text: t('pdf.noTasks'), style: 'note' } as Content]),
 

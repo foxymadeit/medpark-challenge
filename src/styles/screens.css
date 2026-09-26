@@ -290,6 +290,17 @@
 .review__title-input { height: 44px; max-width: 560px; font: 600 24px/30px var(--sm-font-sign); }
 
 /* Summary: Task · Owner · Deadline. */
+/* MoM summary: key points above the tasks (Review, History record). */
+.summary-points { display: flex; flex-direction: column; gap: var(--sm-space-2); margin: var(--sm-space-3) 0 var(--sm-space-6); }
+.summary-points__list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0 0 0 18px; }
+.summary-points__item { position: relative; padding-right: 64px; color: var(--sm-ink-primary); font: 400 15px/22px var(--sm-font-body); }
+.summary-points__item::marker { color: var(--sm-ink-tertiary); }
+.summary-points__tools { position: absolute; top: -4px; right: 0; display: flex; gap: 2px; opacity: 0; transition: opacity 120ms; }
+.summary-points__item:hover .summary-points__tools, .summary-points__item:focus-within .summary-points__tools { opacity: 1; }
+.summary-points__input { width: 100%; min-height: 60px; padding: 8px 12px; resize: vertical; font: inherit; }
+.summary-points__add { align-self: flex-start; height: 32px; margin-left: -8px; padding: 0 10px; font-size: 14px; }
+.review__sub-title { margin: 0; color: var(--sm-ink-primary); font: 600 16px/22px var(--sm-font-sign); }
+.record__tasks-title { margin: var(--sm-space-2) 0 var(--sm-space-3); }
 .summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
 .summary-head__add { height: 32px; margin: -6px -8px -6px 0; padding: 0 10px; font-size: 14px; }
 .summary-table__patient-input { height: 32px; margin-bottom: 6px; font-size: 13px; }
@@ -376,7 +387,8 @@
 .search:focus-within { border-color: var(--sm-ink-primary); }
 .search input { flex: 1; height: 100%; border: 0; outline: none; background: transparent; font: 400 15px/22px var(--sm-font-body); }
 .search input::placeholder { color: var(--sm-ink-tertiary); opacity: 1; }
-.row-link { color: inherit; text-decoration: none; }
+/* Meeting names in the History list: the brand blue from the wordmark. */
+.row-link { color: var(--sm-brand); text-decoration: none; }
 .row-link:hover { text-decoration: underline; }
 
 /* ── History record ── */
