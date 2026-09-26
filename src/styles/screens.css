@@ -191,6 +191,8 @@
 .steps { display: flex; flex-direction: column; gap: var(--sm-space-3); margin: 0; padding: 0; list-style: none; }
 .step { display: flex; align-items: center; gap: var(--sm-space-3); color: var(--sm-ink-tertiary); font: 400 15px/22px var(--sm-font-body); }
 .step.is-done { color: var(--sm-success); font-weight: 500; }
+/* Processing progress matches the green completed steps. */
+.processing .progress__fill { background: var(--sm-success); }
 .step__check { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--sm-success); color: var(--sm-surface-panel); }
 .step.is-active { color: var(--sm-ink-primary); font-weight: 600; }
 .step__dot { width: 16px; height: 16px; border: 1.5px solid var(--sm-ink-tertiary); border-radius: 50%; }
