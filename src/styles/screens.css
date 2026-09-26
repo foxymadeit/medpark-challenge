@@ -216,6 +216,20 @@
 .transcript { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }
 .transcript__line { display: flex; flex-direction: column; gap: var(--sm-space-1); }
 .transcript__text { line-height: 26px; }
+/* Sentence tools (review): click time/speaker to select the whole sentence. */
+.transcript__line.is-selected { margin: -8px -10px; padding: 8px 10px; border-radius: var(--sm-radius-tile); background: var(--sm-surface-ground); box-shadow: inset 0 0 0 1px var(--sm-surface-hairline); }
+.transcript__head { display: inline-flex; align-items: center; gap: var(--sm-space-2); align-self: flex-start; margin: -2px -6px; padding: 2px 6px; border: 0; border-radius: var(--sm-radius-inner); background: none; color: inherit; text-align: left; cursor: pointer; }
+.transcript__head:hover { background: var(--sm-surface-hairline); }
+.transcript__edited { height: 20px; font-size: 12px; }
+.sentence-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: var(--sm-space-2); }
+.sentence-actions__btn { height: 32px; padding: 0 10px; font-size: 14px; }
+.sentence-actions__remove { color: var(--sm-signal-danger); }
+.sentence-actions__close { margin-left: auto; }
+.sentence-player { display: flex; flex-direction: column; gap: 6px; flex: 1 1 100%; margin-top: 6px; }
+.sentence-player__bar { position: relative; height: 4px; border-radius: 2px; background: var(--sm-surface-hairline); overflow: hidden; }
+.sentence-player__fill { position: absolute; inset: 0 auto 0 0; background: var(--sm-ink-primary); transition: width 100ms linear; }
+.sentence-edit { display: flex; flex-direction: column; gap: var(--sm-space-2); }
+.sentence-edit__input { height: auto; min-height: 72px; padding: 10px 12px; resize: vertical; font: 400 15px/24px var(--sm-font-body); }
 .review__header { gap: var(--sm-space-6); }
 .review__title-input { height: 44px; max-width: 560px; font: 600 24px/30px var(--sm-font-sign); }
 

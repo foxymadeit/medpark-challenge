@@ -1,8 +1,8 @@
-import { CheckIcon, PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react';
+import { CheckIcon, PencilSimpleIcon, PlayIcon, StopIcon, TrashIcon, XIcon } from '@phosphor-icons/react';
 import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useI18n } from '../i18n/I18nProvider';
-import { alternativesFor, lineTokens } from '../lib/transcript';
+import { alternativesFor, lineSeconds, lineText, lineTokens, originalText } from '../lib/transcript';
 import type { Task, TranscriptLine, TranscriptToken } from '../types';
 
 /** Read-only token rendering (history record, dialogs). */
@@ -127,9 +127,57 @@ interface LinesProps {
   onCorrect?: (line: number, token: number, value: string) => void;
   /** When set, the word menu also offers "Remove word". */
   onRemove?: (line: number, token: number) => void;
+  /** When set, a sentence can be selected (click its time/speaker) to listen, rewrite or remove it. */
+  onEditLine?: (line: number, text: string) => void;
+  onRemoveLine?: (line: number) => void;
 }
 
-export function TranscriptLines({ lines, nameOf, onCorrect, onRemove }: LinesProps) {
+/**
+ * MOCK audio: plays the segment's length with a progress bar and reads what the AI originally heard
+ * with the browser's speech voice, so it can be compared with the corrected text. A real build plays
+ * the recording between this line's timestamp and the next.
+ */
+function useSegmentPlayer() {
+  const [playing, setPlaying] = useState<number | null>(null);
+  const [progress, setProgress] = useState(0);
+  const timer = useRef<number | undefined>(undefined);
+  const stop = () => {
+    window.clearInterval(timer.current);
+    window.speechSynthesis?.cancel();
+    setPlaying(null);
+    setProgress(0);
+  };
+  const play = (i: number, seconds: number, text: string, lang: string) => {
+    stop();
+    setPlaying(i);
+    const started = performance.now();
+    timer.current = window.setInterval(() => {
+      const p = (performance.now() - started) / (seconds * 1000);
+      if (p >= 1) stop();
+      else setProgress(p);
+    }, 100);
+    if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      window.speechSynthesis.speak(u);
+    }
+  };
+  useEffect(() => stop, []); // stop on unmount
+  return { playing, progress, play, stop };
+}
+
+export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onEditLine, onRemoveLine }: LinesProps) {
+  const { lang } = useI18n();
+  const [selected, setSelected] = useState<number | null>(null);
+  const [editing, setEditing] = useState<number | null>(null);
+  const [draft, setDraft] = useState('');
+  const player = useSegmentPlayer();
+  const sentences = !!(onEditLine || onRemoveLine);
+  const select = (i: number) => {
+    player.stop();
+    setEditing(null);
+    setSelected((s) => (s === i ? null : i));
+  };
   const { t } = useI18n();
   const [menu, setMenu] = useState<MenuState | null>(null);
   const root = useRef<HTMLOListElement>(null);
@@ -156,12 +204,44 @@ export function TranscriptLines({ lines, nameOf, onCorrect, onRemove }: LinesPro
     <>
       <ol className="transcript" ref={root}>
         {lines.map((l, li) => (
-          <li key={li} className="transcript__line">
-            <p className="row">
-              <span className="t-data-sm c-secondary">{l.at}</span>
-              <span className="t-strong">{nameOf(l.speakerId)}</span>
-            </p>
-            <p className="t-body-md transcript__text">
+          <li key={li} className={`transcript__line${selected === li ? ' is-selected' : ''}`}>
+            {sentences ? (
+              <button type="button" className="transcript__head" aria-pressed={selected === li} aria-label={t('review.sentence.select', { time: l.at, name: nameOf(l.speakerId) })} onClick={() => select(li)}>
+                <span className="t-data-sm c-secondary">{l.at}</span>
+                <span className="t-strong">{nameOf(l.speakerId)}</span>
+                {l.edited && <span className="tag transcript__edited">{t('review.sentence.edited')}</span>}
+              </button>
+            ) : (
+              <p className="row">
+                <span className="t-data-sm c-secondary">{l.at}</span>
+                <span className="t-strong">{nameOf(l.speakerId)}</span>
+              </p>
+            )}
+            {editing === li ? (
+              <form
+                className="sentence-edit"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (draft.trim() && draft.trim() !== lineText(l)) onEditLine?.(li, draft.trim());
+                  setEditing(null);
+                }}
+              >
+                <textarea className="input sentence-edit__input" aria-label={t('review.sentence.edit')} value={draft} autoFocus rows={3} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), setEditing(null))} />
+                <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
+                  <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)}>
+                    {t('common.cancel')}
+                  </button>
+                  {/* Save shows only once the sentence actually changed. */}
+                  {draft.trim() && draft.trim() !== lineText(l) && (
+                    <button type="submit" className="btn btn--primary">
+                      <CheckIcon size={16} aria-hidden />
+                      {t('common.save')}
+                    </button>
+                  )}
+                </div>
+              </form>
+            ) : null}
+            {editing !== li && <p className="t-body-md transcript__text">
               {!onCorrect ? (
                 <StaticTokens tokens={lineTokens(l)} />
               ) : (
@@ -189,7 +269,43 @@ export function TranscriptLines({ lines, nameOf, onCorrect, onRemove }: LinesPro
                   );
                 })
               )}
-            </p>
+            </p>}
+            {sentences && selected === li && editing !== li && (
+              <div className="sentence-actions" role="group" aria-label={t('review.sentence.actions')}>
+                <button
+                  type="button"
+                  className="btn btn--secondary sentence-actions__btn"
+                  aria-pressed={player.playing === li}
+                  onClick={() => (player.playing === li ? player.stop() : player.play(li, lineSeconds(lines, li), originalText(l), lang === 'en' ? 'en-US' : lang === 'ro' ? 'ro-RO' : 'ru-RU'))}
+                >
+                  {player.playing === li ? <StopIcon size={16} aria-hidden /> : <PlayIcon size={16} aria-hidden />}
+                  {player.playing === li ? t('review.sentence.stop') : t('review.sentence.listen')}
+                </button>
+                {onEditLine && (
+                  <button type="button" className="btn btn--ghost sentence-actions__btn" onClick={() => (player.stop(), setDraft(lineText(l)), setEditing(li))}>
+                    <PencilSimpleIcon size={16} aria-hidden />
+                    {t('review.sentence.edit')}
+                  </button>
+                )}
+                {onRemoveLine && (
+                  <button type="button" className="btn btn--ghost sentence-actions__btn sentence-actions__remove" onClick={() => (player.stop(), setSelected(null), onRemoveLine(li))}>
+                    <TrashIcon size={16} aria-hidden />
+                    {t('review.sentence.remove')}
+                  </button>
+                )}
+                <button type="button" className="icon-btn sentence-actions__close" aria-label={t('common.close')} onClick={() => select(li)}>
+                  <XIcon size={16} aria-hidden />
+                </button>
+                {player.playing === li && (
+                  <div className="sentence-player">
+                    <div className="sentence-player__bar">
+                      <div className="sentence-player__fill" style={{ width: `${player.progress * 100}%` }} />
+                    </div>
+                    <span className="note">{t('review.sentence.heard', { text: originalText(l) })}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </li>
         ))}
       </ol>

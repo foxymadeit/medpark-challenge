@@ -128,9 +128,9 @@ export function Review() {
   const { t } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { meetings, setTasks, sendMeeting, resolvePerson, correctToken, removeToken, updateMeeting } = useStore();
+  const { meetings, setTasks, sendMeeting, resolvePerson, correctToken, removeToken, editLine, removeLine, updateMeeting } = useStore();
   // Last removal, so a slip can be undone.
-  const [removed, setRemoved] = useState<{ word: string; transcript: Meeting['transcript'] } | null>(null);
+  const [removed, setRemoved] = useState<{ label: string; transcript: Meeting['transcript'] } | null>(null);
   const meeting = meetings.find((m) => m.id === id);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [row, setRow] = useState<Task | null>(null);
@@ -183,7 +183,7 @@ export function Review() {
           </div>
           {removed && (
             <p className="undo-bar" role="status">
-              <span className="truncate">{t('review.word.removed', { word: removed.word })}</span>
+              <span className="truncate">{removed.label}</span>
               <button type="button" className="link-btn" onClick={() => (updateMeeting(meeting.id, { transcript: removed.transcript }), setRemoved(null))}>
                 {t('review.word.undo')}
               </button>
@@ -195,8 +195,13 @@ export function Review() {
             onCorrect={(line, token, value) => (correctToken(meeting.id, line, token, value), setRemoved(null))}
             onRemove={(line, token) => {
               const tok = lineTokens(meeting.transcript[line])[token];
-              setRemoved({ word: tok?.text ?? '', transcript: meeting.transcript });
+              setRemoved({ label: t('review.word.removed', { word: tok?.text ?? '' }), transcript: meeting.transcript });
               removeToken(meeting.id, line, token);
+            }}
+            onEditLine={(line, text) => (editLine(meeting.id, line, text), setRemoved(null))}
+            onRemoveLine={(line) => {
+              setRemoved({ label: t('review.sentence.removed', { time: meeting.transcript[line].at }), transcript: meeting.transcript });
+              removeLine(meeting.id, line);
             }}
           />
         </section>

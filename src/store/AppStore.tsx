@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { cardioTasks, cardioTranscript, demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, YOU_ID } from '../mocks';
 import { todayISO, uid } from '../lib/format';
-import { tokenize } from '../lib/transcript';
+import { retokenize, tokenize } from '../lib/transcript';
 import type { Preferences, Account, Meeting, MeetingSource, MeetingType, ParticipantSnapshot, Person, Task, Template } from '../types';
 
 /**
@@ -222,6 +222,21 @@ function useStoreValue() {
     }));
   }, []);
 
+  /** Replace a whole sentence (keeps its highlighted terms where they still appear). */
+  const editLine = useCallback((meetingId: string, lineIdx: number, text: string) => {
+    setState((s) => ({
+      ...s,
+      meetings: s.meetings.map((m) =>
+        m.id !== meetingId ? m : { ...m, transcript: m.transcript.map((line, i) => (i !== lineIdx ? line : { ...line, tokens: retokenize(text, line.tokens ?? tokenize(line.text)), edited: true })) },
+      ),
+    }));
+  }, []);
+
+  /** Drop a whole sentence from the transcript (tasks are left as they are). */
+  const removeLine = useCallback((meetingId: string, lineIdx: number) => {
+    setState((s) => ({ ...s, meetings: s.meetings.map((m) => (m.id !== meetingId ? m : { ...m, transcript: m.transcript.filter((_, i) => i !== lineIdx) })) }));
+  }, []);
+
   const setTasks = useCallback((meetingId: string, tasks: Task[]) => updateMeeting(meetingId, { tasks }), [updateMeeting]);
 
   /** Send: freeze roles as they are today and mark sent. */
@@ -316,6 +331,8 @@ function useStoreValue() {
     setTasks,
     correctToken,
     removeToken,
+    editLine,
+    removeLine,
     sendMeeting,
     saveTemplate,
   };

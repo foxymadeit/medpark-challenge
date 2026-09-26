@@ -47,6 +47,8 @@ export interface TranscriptLine {
   text: string;
   /** Present once the reviewer corrected a word; replaces `text` for display. */
   tokens?: TranscriptToken[];
+  /** Set when the whole sentence was rewritten in review. */
+  edited?: boolean;
 }
 
 /** kw = highlighted term (patient, bed, room, name, date); space/punct are not clickable. */

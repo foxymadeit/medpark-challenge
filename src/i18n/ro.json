@@ -269,8 +269,19 @@
     "teach": "Corecturile dvs. instruiesc AI-ul.",
     "sendingIn": "Se trimite la {count} de participanți în",
     "stopReview": "Oprește și verifică",
+    "sentence": {
+      "select": "Selectați propoziția de la {time} a lui {name}",
+      "actions": "Propoziție",
+      "listen": "Ascultă",
+      "stop": "Oprește",
+      "edit": "Editează propoziția",
+      "remove": "Șterge propoziția",
+      "removed": "Ați șters propoziția de la {time}",
+      "edited": "editat",
+      "heard": "AI a auzit: „{text}”"
+    },
     "word": {
-      "hint": "Faceți clic pe un cuvânt pentru a-l corecta.",
+      "hint": "Clic pe un cuvânt pentru a-l corecta sau pe oră pentru toată fraza.",
       "didYouMean": "Ați vrut să spuneți",
       "fix": "Corectați cuvântul",
       "edit": "Editează…",

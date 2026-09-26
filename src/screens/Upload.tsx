@@ -103,7 +103,7 @@ export function Upload() {
         )}
         {/* Appears only once a file is attached, right under it. */}
         {file && (
-          <Button variant="primary" icon={<CpuIcon size={20} aria-hidden />} onClick={submit} className="upload__submit">
+          <Button variant="ink" icon={<CpuIcon size={20} aria-hidden />} onClick={submit} className="upload__submit">
             {t('upload.submit')}
           </Button>
         )}
