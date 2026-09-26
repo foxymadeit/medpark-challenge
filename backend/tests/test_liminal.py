@@ -348,3 +348,64 @@ def test_the_audit_trail_records_who_did_what_and_cannot_be_rewritten(client):
     security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
     login(client, "nurse@medpark.local", "long enough password")
     assert client.get("/api/admin/audit").status_code == 403
+
+
+# ---------------------------------------------------------------- learning from corrections
+def test_an_edit_records_only_the_changed_field_and_who_made_it(client):
+    m = processed(client)
+    me = client.get("/api/auth/me").json()
+    client.patch(f"/api/meetings/{m['id']}/actions/A1", json={"task": "Pacient cu pneumania, control mâine."})
+    client.patch(f"/api/meetings/{m['id']}/actions/A1", json={"task": "Pacient cu pneumonia, control mâine."})
+    client.patch(f"/api/meetings/{m['id']}/actions/A1", json={"completed": True})   # not a correction
+    rows = store.all_docs("corrections")
+    assert len(rows) == 2
+    last = rows[-1]
+    assert (last["meetingId"], last["item"], last["field"]) == (m["id"], "A1", "task")
+    assert last["before"] == "Pacient cu pneumania, control mâine." and last["after"] == "Pacient cu pneumonia, control mâine."
+    assert last["by"] == me["id"] and last["at"]
+    assert set(last) == {"id", "meetingId", "item", "field", "before", "after", "by", "at"}
+
+
+def test_term_fixes_are_word_swaps_not_punctuation_or_case():
+    import corrections
+    assert corrections.term_pairs("Pacient cu pneumania acută.", "Pacient cu pneumonia acută!") == [("pneumania", "pneumonia")]
+    assert corrections.term_pairs("se face coronarografia azi", "se face Coronarografia azi") == []
+    assert corrections.term_pairs("infarct miocradic ieri", "infarct miocardic ieri") == [("miocradic", "miocardic")]
+    assert corrections.term_pairs("un pat", "o masă") == []                         # too short to be a term
+    assert corrections.term_pairs("a b c d e f", "totul a fost rescris complet acum") == []   # a rewrite, not a term
+    assert corrections.term_pairs("Protocolul aprobat.", "Protocolul respins.") == []   # a new word, not a respelling
+
+
+def test_admin_sees_candidates_by_count_and_staff_cannot(client):
+    m = processed(client)
+    url = f"/api/meetings/{m['id']}/minutes"
+    for before, after in [("Pneumania confirmată.", "Pneumonia confirmată."),
+                          ("Suspect pneumania.", "Suspect pneumonia."),
+                          ("Se face coronarografie.", "Se face coronaroangiografie.")]:
+        client.patch(url, json={"summary": before})
+        client.patch(url, json={"summary": after})
+    got = client.get("/api/admin/glossary-candidates").json()
+    assert [(c["heard"], c["corrected"], c["count"]) for c in got][:2] == [
+        ("pneumania", "pneumonia", 2), ("coronarografie", "coronaroangiografie", 1)]
+    assert got[0]["meetingIds"] == [m["id"]] and got[0]["approved"] is False and got[0]["lang"] == "ro"
+    security.create_user("nurse@medpark.local", "Nurse", "staff", "long enough password")
+    login(client, "nurse@medpark.local", "long enough password")
+    assert client.get("/api/admin/glossary-candidates").status_code == 403
+    body = {"heard": "pneumania", "corrected": "pneumonia", "lang": "ro"}
+    assert client.post("/api/admin/glossary-candidates/approve", json=body).status_code == 403
+
+
+def test_approving_writes_the_site_glossary_once(client):
+    m = processed(client)
+    client.patch(f"/api/meetings/{m['id']}/minutes", json={"summary": "Suspect pneumania."})
+    client.patch(f"/api/meetings/{m['id']}/minutes", json={"summary": "Suspect pneumonia."})
+    body = {"heard": "pneumania", "corrected": "pneumonia", "lang": "ro"}
+    assert client.post("/api/admin/glossary-candidates/approve", json=body).status_code == 200
+    assert client.post("/api/admin/glossary-candidates/approve", json=body).status_code == 200
+    site = store.DATA / "site_glossary.json"
+    assert oct(site.stat().st_mode & 0o777) == "0o600"
+    rows = json.loads(site.read_text(encoding="utf-8"))["aligned"]
+    assert rows == [{"source": "site", "ro": "pneumonia", "heard": "pneumania"}]
+    assert client.get("/api/admin/glossary-candidates").json()[0]["approved"] is True
+    assert client.post("/api/admin/glossary-candidates/approve",
+                       json={**body, "lang": "de"}).status_code == 422
