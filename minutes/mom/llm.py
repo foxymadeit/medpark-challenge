@@ -54,6 +54,18 @@ class LocalLLM:
         with _OPENER.open(req, timeout=TIMEOUT) as r:   # noqa: S310 (loopback only, checked above)
             return json.loads(r.read())
 
+    def digest(self) -> str:
+        """The model file's digest, so each report names exactly which weights wrote it."""
+        if self.backend != "ollama":
+            return ""
+        try:
+            with _OPENER.open(self.url + "/api/tags", timeout=10) as r:   # noqa: S310 (loopback only)
+                tags = json.loads(r.read()).get("models", [])
+        except (OSError, ValueError):
+            return ""
+        name = self.model if ":" in self.model else self.model + ":latest"
+        return next((m.get("digest", "") for m in tags if m.get("name") == name), "")
+
     def chat(self, system: str, user: str, schema: dict = None, max_tokens: int = 2048, think=None) -> str:
         t0 = time.perf_counter()
         if self.backend == "ollama":

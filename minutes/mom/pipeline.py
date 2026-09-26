@@ -95,6 +95,7 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
     os.chmod(facts_path, 0o600)
     result = {"files": files, "facts": str(facts_path), "checks": counts, "writing": write_reports,
               "timings_s": {k: round(v, 1) for k, v in timings.items()}, "llm": dict(getattr(llm, "stats", {})),
-              "lines": len(lines), "model": model}
+              "lines": len(lines), "model": model,
+              "model_digest": llm.digest() if hasattr(llm, "digest") else ""}
     (out_dir / f"{stem}.report.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     return result
