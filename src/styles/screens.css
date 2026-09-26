@@ -310,7 +310,7 @@
 .template-tag .tpl-badge { border-radius: 6px; }
 /* Template colour picker: round swatches, selected one ringed + checked. */
 .swatches { display: flex; flex-wrap: wrap; gap: var(--sm-space-2); }
-.swatch { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1.5px solid; border-radius: 50%; }
+.swatch { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; }
 .swatch[aria-checked='true'] { box-shadow: 0 0 0 2px var(--sm-surface-panel), 0 0 0 3.5px var(--sm-ink-primary); }
 .tpl-card__actions { display: flex; justify-content: flex-end; gap: var(--sm-space-2); }
 .tpl-people { display: flex; flex-direction: column; margin: 0; padding: 0; border: 0; min-width: 0; }

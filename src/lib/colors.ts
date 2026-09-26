@@ -1,19 +1,19 @@
 /**
  * Soft tint palette shared by avatars and template colours.
- * bg + fg pairs are all ≥ 5.7:1; `dot` is a stronger mark for swatches and small badges.
+ * bg + fg pairs (avatars) are all ≥ 5.7:1; `solid` is the darker template colour, white on it ≥ 4.7:1.
  * Kept apart from the speaker colours, which are reserved for transcript dots and waveforms.
  */
 export const PALETTE = {
-  rose: { bg: '#fbe3e6', fg: '#8a2a3b', dot: '#d9546c' },
-  peach: { bg: '#fde8d7', fg: '#8a4a1c', dot: '#e07b3a' },
-  amber: { bg: '#fbf0cf', fg: '#6e5208', dot: '#d6a51c' },
-  green: { bg: '#e1f2e4', fg: '#235e33', dot: '#3f9a5a' },
-  teal: { bg: '#ddf1f0', fg: '#1c5f5b', dot: '#2b958e' },
-  blue: { bg: '#e2ecfd', fg: '#274c8f', dot: '#3b6fd4' },
-  violet: { bg: '#ece6fa', fg: '#52408c', dot: '#7a5fc7' },
-  stone: { bg: '#efebe4', fg: '#5b544b', dot: '#8f8579' },
+  rose: { bg: '#fbe3e6', fg: '#8a2a3b', dot: '#d9546c', solid: '#c2334f' },
+  peach: { bg: '#fde8d7', fg: '#8a4a1c', dot: '#e07b3a', solid: '#b8561c' },
+  amber: { bg: '#fbf0cf', fg: '#6e5208', dot: '#d6a51c', solid: '#946800' },
+  green: { bg: '#e1f2e4', fg: '#235e33', dot: '#3f9a5a', solid: '#2e7d4a' },
+  teal: { bg: '#ddf1f0', fg: '#1c5f5b', dot: '#2b958e', solid: '#1c7872' },
+  blue: { bg: '#e2ecfd', fg: '#274c8f', dot: '#3b6fd4', solid: '#2f5fc4' },
+  violet: { bg: '#ece6fa', fg: '#52408c', dot: '#7a5fc7', solid: '#6a4bb8' },
+  stone: { bg: '#efebe4', fg: '#5b544b', dot: '#8f8579', solid: '#6b6258' },
   // Templates only: solid ink badge with white icon (not used for avatars).
-  ink: { bg: '#101010', fg: '#ffffff', dot: '#101010' },
+  ink: { bg: '#101010', fg: '#ffffff', dot: '#101010', solid: '#101010' },
 } as const;
 
 export type ColorKey = keyof typeof PALETTE;

@@ -118,7 +118,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
               aria-label={t(`colors.${c}`)}
               title={t(`colors.${c}`)}
               className="swatch"
-              style={{ background: PALETTE[c].bg, color: PALETTE[c].fg, borderColor: PALETTE[c].dot }}
+              style={{ background: PALETTE[c].solid, color: '#ffffff' }}
               onClick={() => setColor(c)}
             >
               {color === c && <CheckIcon size={16} weight="bold" aria-hidden />}
