@@ -13,7 +13,7 @@ Each is 60:00 of 16 kHz mono FLAC, published as the private Kaggle dataset
 |---|---|---|---|---|
 | `icsi_60` | English | ICSI meeting Bmr005, headset mix ([download](https://groups.inf.ed.ac.uk/ami/icsi/download/)) | CC BY 4.0 | word transcript, speaker turns (RTTM) |
 | `kremlin_60` | Russian | Meeting with Government members, 23 June 2026: mentorship for medical graduates ([kremlin.ru/events/president/news/80090](http://kremlin.ru/events/president/news/80090)) | CC BY 4.0 ([terms](http://en.kremlin.ru/about/copyrights)) | official transcript up to the last chapter that starts inside the hour (57.8 min); lightly edited, so CER is a ceiling |
-| `md_parl_60` | Romanian and Russian | Moldovan Parliament plenary sessions ([YouTube playlist](https://www.youtube.com/playlist?list=PLAVLfBYYrdyTHyFw9wbJz8jrxR4LGOs1a)); up to 8 are scanned with Whisper-tiny language ID and the hour with the most minutes of both languages is kept | public broadcast, internal testing only | none: the stenograms are not reachable by machine |
+| `md_parl_60` | Romanian | Romanian Senate plenary, Romania: USR, 14 Feb 2022, [2CSEs_MZyt8](https://www.youtube.com/watch?v=2CSEs_MZyt8) from 35:00, picked from the USR plenary playlist, which we first took for Moldova's Parliament ([YouTube playlist](https://www.youtube.com/playlist?list=PLAVLfBYYrdyTHyFw9wbJz8jrxR4LGOs1a)); up to 8 are scanned with Whisper-tiny language ID and the hour with the most minutes of both languages is kept | public broadcast, internal testing only | none: the stenograms are not reachable by machine |
 | `rompar_60` | Romanian (Moldova, then Romania) | [ROMPAR](https://huggingface.co/datasets/avramandrei/rompar) test split, Moldovan utterances first, joined in record order | not stated; internal testing only | transcript and utterance times |
 
 A source that fails is kept in the manifest with its error; the rest still
@@ -23,7 +23,7 @@ What the first build found (26 September 2026, 20 minutes on a Kaggle CPU):
 
 - `rompar_60`: 720 utterances, 643 Moldovan and 77 Romanian.
 - `kremlin_60`: 12 speakers in the transcript up to 57.8 min.
-- `md_parl_60`: the seven most recent plenary sessions on the playlist (92 to
+- `md_parl_60` (Romania's Senate, not Moldova's Parliament; the id is historical): the seven most recent plenary sessions on the playlist (92 to
   180 min each) held one minute of Russian between them, by Whisper-tiny's
   count. Plenaries no longer mix the two languages much, so this hour is
   effectively Moldovan Romanian with a trace of Russian. A real RO/RU

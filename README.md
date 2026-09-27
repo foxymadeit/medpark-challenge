@@ -157,7 +157,7 @@ works from stated assumptions, and says so where it does.
 | Scripted minutes meetings | meetings written with traps and an answer key | 6 meetings, 16.4 min, 112 lines, 997 words; 15 decisions, 15 actions, 6 traps | RO with RU inside sentences, EN terms | the minutes model | `minutes/eval/meetings.py` |
 | 60-minute meeting | one long meeting with no names said | 59.5 min, 878 lines, 8,773 words, 7 speakers; 12 decisions, 12 actions, 5 traps | RO, RU, EN | minutes at full length, round 2 | `minutes/eval/long.py` |
 | Our mock medical board | a 10-minute script we wrote and recorded | recording 1: 8 min 25 s, one reader; recording 2: 6 min 24 s, three of us; 6 decisions, 9 actions, 4 traps, 2 patients, 21 medical terms | RO, RU, EN switching mid-sentence | end to end, audio to minutes | `minutes/eval/team_recording/script.md`; our own voices |
-| Four public hours | one hour each, for the 15-minute target | 4 × 60 min | English meeting (ICSI), Russian government meeting on medical graduates (kremlin.ru), Moldovan Parliament plenary, ROMPAR parliament corpus (643 Moldovan and 77 Romanian utterances) | upload-to-email time, error rate | `minutes/eval/hour_tests/` |
+| Four public hours | one hour each, for the 15-minute target | 4 × 60 min | English meeting (ICSI), Russian government meeting on medical graduates (kremlin.ru), a Romanian Senate plenary from Romania (USR broadcast, 14 Feb 2022), ROMPAR parliament corpus (643 Moldovan and 77 Romanian utterances) | upload-to-email time, error rate | `minutes/eval/hour_tests/` |
 | 41 published minutes | real minutes from hospitals and public bodies | 13 English, 18 Romanian, 10 Russian | EN, RO, RU | how the minutes are worded | `minutes/research/corpus.md` |
 | Hallucination leaderboard | public benchmark, same documents for every model | as published by Vectara, 22 Sep 2026 | English | the paid-model comparison | github.com/vectara/hallucination-leaderboard |
 
@@ -195,7 +195,7 @@ What Liminal does instead:
 
   | Hour of audio | Lines | Before | After |
   |---|---|---|---|
-  | Moldovan Parliament, Romanian | 472 | 100% | 100% |
+  | Romanian Senate (Romania), Romanian | 472 | 100% | 100% |
   | Kremlin meeting, Russian | 461 | 100% | 100% |
   | ICSI meeting, English | 785 | 73.1% | 81.4% |
   | ICSI, only the 657 lines with words (not read-out digit strings) | 657 | 85.7% | 93.6% |
@@ -533,7 +533,7 @@ own commands, on three public hours and three shorter recordings, 27 September.
 
 | Hour | Transcription | Transcription + speakers (wall) | Minutes (extract / write) | Total |
 |---|---|---|---|---|
-| Parliament (RO) | 6.3 min | 10.8 | 8.1 (3.7 / 4.4) | 18.9 |
+| Senate, Romania (RO) | 6.3 min | 10.8 | 8.1 (3.7 / 4.4) | 18.9 |
 | Kremlin (RU) | 10.4 | 12.2 | 14.2 (4.8 / 9.3) | 26.4 |
 | ICSI (EN) | 11.5 (1,997 decodes: RO+RU+EN per piece) | 12.3 | 4.7 (3.2 / 1.5) | 17.0 |
 
@@ -543,7 +543,7 @@ words around each citation):
 
 | Hour | Transcription | Transcription + speakers (wall) | Minutes (extract / write) | Total |
 |---|---|---|---|---|
-| Parliament (RO) | 5.0 min (524 decodes, was 903) | 9.5 | 10.1 (3.4 / 6.6) | 19.6 |
+| Senate, Romania (RO) | 5.0 min (524 decodes, was 903) | 9.5 | 10.1 (3.4 / 6.6) | 19.6 |
 | Kremlin (RU) | 6.6 (519 decodes, was 906) | 10.3 | 9.7 (3.7 / 6.0) | 20.0 |
 | ICSI (EN) | 9.8 (1,452 decodes, was 1,997) | 10.5 | 7.6 (3.7 / 3.8) | 18.1 |
 
@@ -554,7 +554,7 @@ All six recordings in hour test 1, upload to minutes:
 
 | Recording | Audio | Transcription | Transcription and speakers, side by side | Minutes in RO, RU, EN | Upload to minutes |
 |---|---|---|---|---|---|
-| Moldovan Parliament plenary, RO with RU | 60 min | 6.3 min | 10.8 min | 8.1 min | **18.9 min** |
+| Romanian Senate plenary (Romania), RO | 60 min | 6.3 min | 10.8 min | 8.1 min | **18.9 min** |
 | Russian government meeting (kremlin.ru) | 60 min | 10.4 min | 12.2 min | 14.2 min | **26.4 min** |
 | ICSI research meeting, English, 8 speakers | 60 min | 11.5 min | 12.3 min | 4.7 min | **17.0 min** |
 | Medpark's sample | 11.7 min | 2.2 min | | 1.4 min | **4.0 min** |
@@ -661,7 +661,7 @@ not leave the building. Here is what was missing and what we did about it.
 | Missing | What we did |
 |---|---|
 | **Labelled Romanian/Russian meeting audio.** No public corpus has RO/RU meetings with who-spoke-when labels. | Built 28 test meetings (208 min, 1,498 turns, 100 distinct voices, 3 to 14 people) from held-out Common Voice Romanian and Russian voices plus LibriSpeech English, with answer keys committed. For training, 300 synthetic RO/RU meetings, each voice through its own room echo and noise. |
-| **Hour-long recordings in our languages.** The speed target is for 60 minutes; the sample is 11. | Found public hours: the Moldovan Parliament's plenary sessions (Moldovan Romanian; the seven latest held only one minute of Russian between them), the ROMPAR parliamentary corpus (643 Moldovan and 77 Romanian utterances), a Russian government meeting on medical graduates (kremlin.ru, CC BY 4.0, official transcript), and an ICSI research meeting in English. |
+| **Hour-long recordings in our languages.** The speed target is for 60 minutes; the sample is 11. | Found public hours: a Romanian Senate plenary (from a playlist we first took for Moldova's Parliament; it is Romania's, published by the USR party), the ROMPAR parliamentary corpus (643 Moldovan and 77 Romanian utterances), a Russian government meeting on medical graduates (kremlin.ru, CC BY 4.0, official transcript), and an ICSI research meeting in English. |
 | **Code-switched training speech.** There are hours of Romanian and hours of Russian, but almost none that switch mid-sentence. | Speech Collage: words force-aligned, then 1 to 4 words of a real sentence replaced by a phrase in the other language, 20 ms crossfades, loudness matched, and the same speaker used on both sides whenever Common Voice has them in both languages. |
 | **A medical dictionary in Romanian and Russian.** | Scraped 2,050 Harvard Health terms and added 115 intensive-care terms, kept the 806 whose RO and RU names are human-written Wikidata labels, then added ICD-10 and hospital terms: 892 rows. |
 | **A reference transcript.** | A Romanian and Russian speaker corrected the first 3 minutes of the Medpark sample by hand. Then we wrote a 10-minute mock medical board in RO/RU/EN with an answer key (6 decisions, 9 actions, 4 traps, 2 patients) and recorded it twice: one voice reading every part, and three of us around a table. |
