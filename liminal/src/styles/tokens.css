@@ -39,6 +39,11 @@
   --sm-signal-danger-tint: #fdf1f0;
   --sm-signal-danger-line: #f1c6c2;
   /* Start tiles, Figma "01 New meeting · Cards A · Soft tint" (2042:2215). Tints only, never for errors. */
+  /* Start cards, Figma "01 New meeting · Wide A · Full-width stack" (2051:2358): white card, coloured outline, icon and title. */
+  --sm-record-line: #e5635a;
+  --sm-record-ink: #d9463d;
+  --sm-upload-line: #4f86f0;
+  --sm-upload-ink: #2f6feb;
   --sm-tint-record: #ffe1de;
   --sm-tint-record-line: #f5b5ae;
   --sm-tint-upload: #ddebff;

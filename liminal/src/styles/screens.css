@@ -106,22 +106,23 @@
   align-items: flex-start;
   gap: var(--sm-space-2);
   flex: 1;
-  height: 208px;
+  height: 164px;
   padding: var(--sm-space-6);
   border: 0;
-  border-radius: var(--sm-radius-panel);
+  border-radius: 18px;
   background: var(--sm-surface-panel);
-  box-shadow: var(--sm-elevation-card);
   color: var(--sm-ink-primary);
   text-align: left;
 }
-.start-tile:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-surface-hairline); }
+.start-tile:hover { box-shadow: var(--sm-elevation-card); }
 .start-tile__spacer { flex: 1; }
-.start-tile--record { flex: 1 1 0; border: 1px solid var(--sm-tint-record-line); background: var(--sm-tint-record); }
-.start-tile--record:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-record-line); }
-.start-tile--upload { border: 1px solid var(--sm-tint-upload-line); background: var(--sm-tint-upload); }
+.start-tile--record { flex: 1 1 0; border: 1.5px solid var(--sm-record-line); }
+.start-tile--record > svg, .start-tile--record .start-tile__main { color: var(--sm-record-ink); }
+.start-tile--record:hover { box-shadow: var(--sm-elevation-card); }
+.start-tile--upload { border: 1.5px solid var(--sm-upload-line); }
+.start-tile--upload > svg, .start-tile--upload > .t-h2 { color: var(--sm-upload-ink); }
 .start-tile--upload.is-over { box-shadow: var(--sm-elevation-card), 0 0 0 2px var(--sm-action); }
-.start-tile--upload:hover { box-shadow: var(--sm-elevation-card), 0 0 0 1px var(--sm-tint-upload-line); }
+.start-tile--upload:hover { box-shadow: var(--sm-elevation-card); }
 /* Record card: the title button's ::after covers the card (whole card starts recording);
    the mic picker/test sit above it so they stay clickable. */
 .start-tile--record { position: relative; cursor: pointer; }
