@@ -65,3 +65,12 @@ def test_no_patient_name_and_serialisable():
     text = json.dumps(build(), ensure_ascii=False)
     assert "Lungu" not in text and "M.L." in text
     assert build()["summary"].startswith("Consiliul a aprobat")
+
+
+def test_an_owner_named_in_the_meeting_shows_by_name_in_the_app():
+    from dataclasses import replace
+    named = FACTS[:3] + [replace(FACTS[3], owner="Roman")]
+    m = meeting_json(Meeting(type="medical", date="2026-09-26"), named, LINES, BODY, "ro")
+    a2 = next(a for a in m["actionItems"] if a["id"] == "A2")
+    person = next(p for p in m["participants"] if p["id"] == a2["ownerParticipantId"])
+    assert person["name"] == "Roman" and "speakerId" not in person
