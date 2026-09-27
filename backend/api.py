@@ -62,6 +62,10 @@ class ActionPatch(BaseModel):
     completed: bool | None = None
 
 
+class TranscriptLine(BaseModel):
+    text: str = Field(max_length=4000)
+
+
 class Confirmation(BaseModel):
     action: str   # "keep" or "remove"
     text: str | None = Field(default=None, max_length=4000)   # kept as rewritten by a person
@@ -593,6 +597,23 @@ def review(meeting_id: str):
 @router.get("/meetings/{meeting_id}/transcript")
 def transcript(meeting_id: str):
     return meeting_for(meeting_id).get("transcript") or []
+
+
+@router.patch("/meetings/{meeting_id}/transcript/{index}")
+def patch_transcript_line(meeting_id: str, index: int, body: TranscriptLine):
+    """A moderator corrects what one transcript line says; the speaker and times stay."""
+    text = _text(body.text, 4000)
+
+    def change(m):
+        _locked(m)
+        lines = m.get("transcript") or []
+        if not 0 <= index < len(lines):
+            raise HTTPException(404, "Transcript line not found.")
+        corrections.record(meeting_id, f"L{index}", "text", lines[index].get("text"), text)
+        lines[index]["text"] = text
+        _restart_window(m)
+
+    return _update(meeting_id, change)
 
 
 @router.post("/meetings/{meeting_id}/send")

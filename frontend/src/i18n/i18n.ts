@@ -208,6 +208,7 @@ const resources = {
       searchTranscript: "Search the transcript",
       allSpeakers: "All speakers",
       backMinutes: "Back to minutes",
+      editLine: "Edit line",
       deliveryConfirmed: "Delivery confirmed",
       sentTo: "Sent to the {{list}} at {{time}}",
       sentToCount_one: "Sent to the {{list}}, {{count}} recipient, at {{time}}",
@@ -691,6 +692,7 @@ const resources = {
       searchTranscript: "Caută în transcriere",
       allSpeakers: "Toți vorbitorii",
       backMinutes: "Înapoi la procesul-verbal",
+      editLine: "Editează rândul",
       deliveryConfirmed: "Trimitere confirmată",
       sentTo: "Trimis către {{list}} la {{time}}",
       sentToCount_one:
@@ -1179,6 +1181,7 @@ const resources = {
       searchTranscript: "Поиск в транскрипции",
       allSpeakers: "Все участники",
       backMinutes: "К протоколу",
+      editLine: "Изменить строку",
       deliveryConfirmed: "Отправка подтверждена",
       sentTo: "Отправлено: {{list}}, в {{time}}",
       sentToCount_one: "Отправлено: {{list}}, {{count}} получатель, в {{time}}",

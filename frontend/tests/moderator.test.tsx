@@ -10,6 +10,7 @@ import {
   nameProblem,
   renameMeeting,
   renameParticipant,
+  updateTranscriptLine,
 } from "../src/api/meetings";
 import type { Meeting } from "../src/types/meeting";
 
@@ -235,6 +236,27 @@ describe("the moderator names people and retitles before sending", () => {
     expect(after.actionItems?.[0].task).toBe("Order new ECG leads by Monday.");
     await expect(decideConfirmation(m.id, "A2", false, "x")).rejects.toThrow(
       "required",
+    );
+  });
+});
+
+describe("the moderator corrects a transcript line", () => {
+  it("saves the new words on that line, keeps the speaker, and stops after sending", async () => {
+    const m = seed();
+    mount(`/meetings/${m.id}/transcript`);
+    const edits = await screen.findAllByRole("button", { name: "Edit line" });
+    fireEvent.click(edits[1]);
+    const box = screen.getByRole("textbox", { name: "Edit line" });
+    fireEvent.change(box, { target: { value: "  Trimit  raportul mâine. " } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(stored(m.id).transcript?.[1].text).toBe("Trimit raportul mâine."),
+    );
+    expect(stored(m.id).transcript?.[1].speakerId).toBe("Speaker 2");
+    expect(await screen.findByText("Trimit raportul mâine.")).toBeTruthy();
+    seed({ status: "sent" });
+    await expect(updateTranscriptLine(m.id, 0, "Too late")).rejects.toThrow(
+      "alreadySent",
     );
   });
 });

@@ -479,6 +479,30 @@ function snapshots(meeting: Meeting) {
 }
 /** Give a participant a real name; the server writes it into the email and
  * rebuilds the PDF and Word files with it. Refused once the minutes are sent. */
+/** A moderator corrects what one transcript line says; speaker and times stay. */
+export async function updateTranscriptLine(
+  id: string,
+  index: number,
+  text: string,
+): Promise<Meeting> {
+  const clean = text.trim().replace(/\s+/g, " ");
+  if (!DEMO_MODE)
+    return meetingRequest(`${path(id)}/transcript/${index}`, {
+      method: "PATCH",
+      body: JSON.stringify({ text: clean }),
+    });
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    if (["sent", "sending"].includes(m.status))
+      throw new ApiError("alreadySent");
+    const line = m.transcript?.[index];
+    if (!line) throw new ApiError("notFound");
+    if (!clean) throw new ApiError("required");
+    line.text = clean;
+    restartWindow(m);
+    return m;
+  });
+}
 export async function renameParticipant(
   id: string,
   participantId: string,
