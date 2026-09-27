@@ -137,7 +137,7 @@ transcription vendor. Liminal has no vendor in the data path.
 | Automation and routing engine (e.g. n8n) that reads the meeting-type tag and emails a predefined list | self-hosted n8n 2.40.7 (free Community Edition): webhook → switch on the type tag → email to that type's list with the RO/RU/EN PDFs; the type itself is also detected from the first 3 minutes | [Routing](#routing-n8n) |
 | Minimal web app: upload or Rec, pick the type, wait | three steps, auto-send after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
 | Email without internet | local SMTP (Mailpit in the demo, the hospital's relay in production) | [Routing](#routing-n8n) |
-| Under 15 min for a 60-min recording, reported in the README | measured per stage on a T4 (the reference card); the full hour test is running now | [Speed](#4-user-experience-10) |
+| Under 15 min for a 60-min recording, reported in the README | measured on one T4, the slowest 16 GB card: 17 to 26 min for a full hour, 4 to 5 min for a 10-minute meeting; not yet under 15 for an hour | [Speed](#4-user-experience-10) |
 | Bonus: speaker diarization | live, 93% on mixed-language meetings, on a laptop CPU | [Who spoke when](#bonus-who-spoke-when) |
 
 ## Where every number comes from
@@ -209,7 +209,7 @@ What Liminal does instead:
 
 | Setup | Our mock board, 1 reader, 8.4 min, 695 words | Our mock board, 3 of us, 6.4 min, 498 words | Synthetic meeting, 4.5 min, 475 words | Medpark sample, first 3 min, 430 words | Russian kept? | One hour of audio |
 |---|---|---|---|---|---|---|
-| **Whisper large-v3, two decodes (ships)** | **20.6%** | **53.5%** | **36.1%** | 44.6% | yes | 23.2 min |
+| **Whisper large-v3, two decodes (ships)** | **20.6%** | **53.5%** | **36.1%** | 44.6% | yes | 23.2 min; batched greedy: 6 to 12 min at 20.7 / 55.6 / 36.6 / 46.2% (Speed) |
 | Whisper large-v3, both language tokens at once | 33.3% | 71.3% | 40.1% | 39.6% | yes | not timed |
 | Whisper turbo, two decodes | 37.2% | 61.4% | 47.1% | 54.1% | garbled on 2 of 3 | 15.3 min |
 | Jackrabbit 110M, Romanian only | 40.5% | 65.0% | 41.5% | **32.6%** | **no, drops it all** | not timed |
@@ -470,15 +470,40 @@ broken links. The first pass scored 89/100 and listed 13 issues; all 13 are
 fixed and under test.
 
 **Speed.** The challenge asks for under 15 minutes from upload to email for a
-60-minute recording.
+60-minute recording on the reference hardware. We measured it on one T4 (Kaggle,
+16 GB, the slowest card that fits the brief, with 4 CPU cores), with the product's
+own commands, on three public hours and three shorter recordings, 27 September:
 
-| Stage | Measured |
-|---|---|
-| Speaker labels, one hour | 7 to 13 min on a 2017 dual-core laptop CPU (0.12 to 0.21× real time over the 28 test meetings, 208 min); in parallel with transcription on the server |
-| Meeting type | 2 to 4 s on a CPU for the first 3 minutes of 7 of 8 meetings; 136 s for the eighth, run straight after a timeout |
-| PDF, per language | 4.3 s on the 2017 laptop for the sample minutes; the three languages in parallel |
-| Email | a local SMTP send, seconds |
-| **Upload to email, 60-minute recording, one T4** | **hour test running now** on four public hours (English meeting, Russian government meeting, Moldovan parliament, Romanian/Moldovan parliament); lands here tonight |
+| Recording | Audio | Transcription | Transcription and speakers, side by side | Minutes in RO, RU, EN | Upload to minutes |
+|---|---|---|---|---|---|
+| Moldovan Parliament plenary, RO with RU | 60 min | 6.3 min | 10.8 min | 8.1 min | **18.9 min** |
+| Russian government meeting (kremlin.ru) | 60 min | 10.4 min | 12.2 min | 14.2 min | **26.4 min** |
+| ICSI research meeting, English, 8 speakers | 60 min | 11.5 min | 12.3 min | 4.7 min | **17.0 min** |
+| Medpark's sample | 11.7 min | 2.2 min | | 1.4 min | **4.0 min** |
+| Our mock board, one reader | 8.4 min | 1.3 min | | 3.1 min | **4.8 min** |
+| Our mock board, three of us | 6.4 min | 1.3 min | | 3.0 min | **4.5 min** |
+
+Add the 60-second window in which anyone can stop the email, and a local SMTP
+send of about a second. So a 10-minute meeting reaches the inbox in about 6
+minutes, and **a full hour in 18 to 27 minutes on this card: not yet under 15.**
+
+Where the time goes, and what changed tonight:
+
+- **Transcription** of an hour went from 23.2 min to 6.3 to 11.5 min. Each
+  utterance is now encoded once and decoded in batches, with greedy decoding
+  (`asr_llm/asr_batched.py`). Against the bake-off table above, the error on
+  our mock board went from 20.6% to 20.7%, on the three-person board from 53.5%
+  to 55.6%, on Medpark's gold from 44.6% to 46.2%, on the synthetic meeting from
+  36.1% to 36.6% (`asr-llm/scripts/kaggle_asr_speed`, run 3). Beam 5 is one
+  setting away (`MOM_ASR_BEAM_SIZE=5`) for a server with time to spare.
+- **Speaker labels** run on the CPU next to transcription. On Kaggle's 4 cores
+  they took up to 12 min for an hour and set the pace.
+- **Minutes**: an hour-long meeting takes 4.7 to 14.2 min, mostly writing the
+  three languages one after another; the Russian government hour produced 92
+  facts to write up.
+
+The next steps to reach 15 minutes: run the speaker models on the GPU, and send
+each language as soon as it is written.
 
 ## 5. Medical and legal context (10%)
 
