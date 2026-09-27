@@ -4,6 +4,7 @@ the AI notice in the footer and document properties. A field that was not
 given is left out, label and all."""
 
 import re
+import threading
 from pathlib import Path
 
 from docx import Document
@@ -31,7 +32,19 @@ def strings(lang: str) -> dict:
     return out
 
 
+# python-docx parses every part with one module-level lxml parser, and lxml parsers must not be
+# shared between threads; the three languages render in parallel (pipeline.render_documents).
+# A live run left a 567-byte Romanian .docx with no officeDocument relationship. One at a time
+# costs well under a second; the PDFs stay parallel.
+_DOCX_LOCK = threading.Lock()
+
+
 def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_path: Path) -> Path:
+    with _DOCX_LOCK:
+        return _render(meeting, blocks, lang, model, verified, out_path)
+
+
+def _render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_path: Path) -> Path:
     s = strings(lang)
     s = {k: v.replace("\\momvalue{model}", model) for k, v in s.items()}
     doc = Document()
