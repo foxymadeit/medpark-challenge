@@ -29,8 +29,15 @@ REPO = Path("/tmp/repo")
 # broken window is read in halves, and the product's GPU settings are on: one GPU, 3 requests at once.
 GPU_MODELS = ["qwen3:8b", "gpt-oss:20b|low"]
 CPU_MODELS = []
-os.environ.update(CUDA_VISIBLE_DEVICES="0", MOM_PARALLEL="3")   # before mom is imported: extract reads MOM_PARALLEL
-STATE = {"step": "setup", "model": "", "note": "", "done": 0, "total": len(GPU_MODELS) + len(CPU_MODELS),
+os.environ.update(CUDA_VISIBLE_DEVICES="0")
+# round 4 (2026-09-27, 04:15): round 3 fixed the empty long meeting (qwen3:8b 8/12 decisions, 11/12
+# actions) but took 48 min on it: qwen3's answers ran past 4,096 tokens and were split again and
+# again (136k output tokens). Only speed and the long meeting are measured here, one GPU:
+# (name, model, window seconds, requests at once)
+CONFIGS = [("a-qwen3-w300-p3", "qwen3:8b", 300, 3), ("b-gptoss-w600-p1", "gpt-oss:20b|low", 600, 1),
+           ("c-gptoss-w300-p2", "gpt-oss:20b|low", 300, 2)]
+ONLY = ["med01", "long01"]
+STATE = {"step": "setup", "model": "", "note": "", "done": 0, "total": 3,
          "warnings": [], "results": {}, "progress": 0}
 
 
@@ -80,9 +87,12 @@ def heartbeat(every=60, stall=900):
             log(f"heartbeat error: {e!r}")
 
 
-def serve():
+def serve(parallel: int = 3):
+    """(Re)start Ollama with room for `parallel` requests: its memory is sized for that many."""
+    subprocess.run("pkill -f 'ollama serve'", shell=True)
+    time.sleep(2)
     env = {**os.environ, "OLLAMA_MODELS": "/tmp/ollama", "OLLAMA_KEEP_ALIVE": "10m", "OLLAMA_HOST": "127.0.0.1:11434",
-           "OLLAMA_NUM_PARALLEL": "3"}
+           "OLLAMA_NUM_PARALLEL": str(parallel)}
     subprocess.Popen("ollama serve > /tmp/ollama.log 2>&1", shell=True, env=env)
     for _ in range(60):
         if subprocess.run("curl -s 127.0.0.1:11434/api/version", shell=True, capture_output=True).returncode == 0:
@@ -126,33 +136,27 @@ def run():
         STATE["note"] = f"meeting {i}/{n}"
         STATE["progress"] += 1
 
-    STATE["step"] = "smoke"
-    sh("ollama pull qwen3:8b", timeout=1800)
-    (OUT / "smoke").mkdir(exist_ok=True)
-    r = bakeoff.run_model("qwen3:8b", data, OUT / "smoke", tools, only=["med01"], progress=progress)  # extraction and writing
-    log(f"smoke test OK: {json.dumps(r['score'])}")
-
-    for cpu_only, models in ((False, GPU_MODELS), (True, CPU_MODELS)):
-        for spec in models:
-            STATE.update(step="CPU" if cpu_only else "GPU", model=spec, note="pull")
-            name = spec.partition("|")[0]
-            try:
-                sh(f"ollama pull {name}", timeout=2400)
-                r = bakeoff.run_model(spec, data, OUT, None if cpu_only else tools, cpu_only=cpu_only,
-                                      progress=progress, only=["med02"] if cpu_only else None, with_long=not cpu_only)
-                STATE["results"][spec + (" cpu" if cpu_only else "")] = {**r["score"], "tok_s": r["tokens_per_s"], "peak_gpu_gb": r["peak_gpu_gb"],
-                                                                          "minutes": r["minutes"]}
-                log(f"{spec}{' (CPU)' if cpu_only else ''}: {json.dumps(STATE['results'][spec + (' cpu' if cpu_only else '')])}")
-            except Exception as e:
-                STATE["warnings"].append(f"{spec}: {e!r}"[:300])
-                log(f"{spec} failed: {e!r}")
-                traceback.print_exc()
-            finally:
-                STATE["done"] += 1
-                subprocess.run(f"ollama stop {name}", shell=True)   # free the GPU before the next model's peak is measured
-                if not cpu_only and spec.partition("|")[0] not in [m.partition("|")[0] for m in CPU_MODELS]:
-                    subprocess.run(f"ollama rm {name}", shell=True)
-                (WORK / "run_report.json").write_text(json.dumps(STATE, indent=1))
+    # no separate smoke test: each configuration starts with the 3-minute med01 before the hour
+    import mom.extract
+    for name, spec, window, parallel in CONFIGS:
+        STATE.update(step="GPU", model=name, note="pull")
+        model = spec.partition("|")[0]
+        try:
+            serve(parallel)
+            sh(f"ollama pull {model}", timeout=2400)
+            mom.extract.WINDOW_S, mom.extract.PARALLEL = float(window), parallel
+            r = bakeoff.run_model(spec, data, OUT / name, None, progress=progress, only=ONLY)
+            STATE["results"][name] = {**r["score"], "tok_s": r["tokens_per_s"], "peak_gpu_gb": r["peak_gpu_gb"],
+                                      "minutes": r["minutes"], "per_meeting": r.get("per_meeting")}
+            log(f"{name}: {json.dumps(STATE['results'][name])[:600]}")
+        except Exception as e:
+            STATE["warnings"].append(f"{name}: {e!r}"[:300])
+            log(f"{name} failed: {e!r}")
+            traceback.print_exc()
+        finally:
+            STATE["done"] += 1
+            subprocess.run(f"ollama stop {model}", shell=True)
+            (WORK / "run_report.json").write_text(json.dumps(STATE, indent=1))
     STATE["step"] = "done"
     (WORK / "run_report.json").write_text(json.dumps({**STATE, "minutes": round((time.time() - T0) / 60, 1)}, indent=1))
     log("done")
