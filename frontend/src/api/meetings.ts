@@ -95,24 +95,39 @@ export async function getCapabilities(): Promise<{
     ? { autoModeAvailable: AUTO_MODE_AVAILABLE }
     : request("/capabilities");
 }
-/** Keep or take out an item the checks could not confirm. */
+/** Keep or take out an item the checks could not confirm. `text` keeps it
+ * as the person rewrote it; the server puts that sentence into the documents. */
 export async function decideConfirmation(
   id: string,
   itemId: string,
   keep: boolean,
+  text?: string,
 ): Promise<Meeting> {
   if (!DEMO_MODE)
     return meetingRequest(
       `${path(id)}/confirmations/${encodeURIComponent(itemId)}`,
       {
         method: "POST",
-        body: JSON.stringify({ action: keep ? "keep" : "remove" }),
+        body: JSON.stringify({
+          action: keep ? "keep" : "remove",
+          ...(text === undefined ? {} : { text }),
+        }),
       },
     );
   return mutate((s) => {
     const m = findMeeting(s, id);
     const item = m.confirmItems?.find((c) => c.id === itemId);
     if (!item) throw new ApiError("notFound");
+    if (["sent", "sending"].includes(m.status))
+      throw new ApiError("alreadySent");
+    if (text !== undefined) {
+      if (!keep || !text.trim()) throw new ApiError("required");
+      item.text = text.trim();
+      for (const a of m.actionItems ?? [])
+        if (a.id === itemId) a.task = item.text;
+      for (const d of m.decisions ?? [])
+        if (d.id === itemId) d.text = item.text;
+    }
     item.decision = keep ? "keep" : "remove";
     // the meeting-type check: taking the chosen type out means using the one it sounded like
     if (!keep && item.detectedType) m.type = item.detectedType;

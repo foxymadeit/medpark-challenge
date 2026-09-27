@@ -5,6 +5,7 @@ import i18n from "../src/i18n/i18n";
 import { routes } from "../src/router";
 import { readStore, writeStore } from "../src/mock/store";
 import {
+  decideConfirmation,
   mergeParticipant,
   nameProblem,
   renameMeeting,
@@ -191,5 +192,49 @@ describe("the moderator names people and retitles before sending", () => {
     await screen.findAllByText("Participant 1");
     expect(screen.queryByRole("button", { name: /^Name for/ })).toBeNull();
     expect(screen.queryByRole("button", { name: "Edit title" })).toBeNull();
+  });
+
+  it("rewrites an item to confirm and keeps it, with the keyboard", async () => {
+    const m = seed({
+      confirmItems: [
+        { id: "A2", text: "Order new leads.", reason: "No owner was named." },
+      ],
+      actionItems: [
+        {
+          id: "A2",
+          task: "Order new leads.",
+          ownerParticipantId: null,
+          deadline: null,
+          completed: false,
+        },
+      ],
+    });
+    mount(`/meetings/${m.id}/minutes`);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Edit: Order new leads." }),
+    );
+    const box = screen.getByRole("textbox", { name: "Sentence" });
+    fireEvent.keyDown(box, { key: "Escape" });
+    expect(screen.queryByRole("textbox", { name: "Sentence" })).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Edit: Order new leads." }),
+    );
+    fireEvent.change(screen.getByRole("textbox", { name: "Sentence" }), {
+      target: { value: " Order new ECG leads by Monday. " },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save and keep" }));
+    expect(
+      await screen.findByText("Order new ECG leads by Monday."),
+    ).toBeTruthy();
+    expect(await screen.findByText("Kept")).toBeTruthy();
+    const after = stored(m.id);
+    expect(after.confirmItems?.[0]).toMatchObject({
+      decision: "keep",
+      text: "Order new ECG leads by Monday.",
+    });
+    expect(after.actionItems?.[0].task).toBe("Order new ECG leads by Monday.");
+    await expect(decideConfirmation(m.id, "A2", false, "x")).rejects.toThrow(
+      "required",
+    );
   });
 });
