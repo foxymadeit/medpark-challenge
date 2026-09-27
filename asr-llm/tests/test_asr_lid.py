@@ -21,7 +21,7 @@ class FakeWhisper:
 
     def transcribe(self, samples, language, **_):
         self.decoded.append(language)
-        text = self.texts.get(language, f"text-{language}")
+        text = self.texts.get(language, "текст-ru" if language == "ru" else f"text-{language}")
         seg = SimpleNamespace(start=0.0, end=1.0, text=text, avg_logprob=self.scores[language], no_speech_prob=0.0)
         return iter([seg]), None
 
@@ -44,7 +44,7 @@ def test_confident_wrong_lid_does_not_decide():
     text, lang, hyps = engine(fake).transcribe_batch(np.zeros(SR * 3))
     assert fake.decoded == ["ro", "ru"]
     assert (text, lang) == ("text-ro", "ro")
-    assert [(h.language, h.text, h.score) for h in hyps] == [("ro", "text-ro", -0.52), ("ru", "text-ru", -0.64)]
+    assert [(h.language, h.text, h.score) for h in hyps] == [("ro", "text-ro", -0.52), ("ru", "текст-ru", -0.64)]
 
 
 def test_home_language_wins_close_calls_only():
