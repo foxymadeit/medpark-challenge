@@ -18,6 +18,9 @@ facts = [
 if os.getenv("FAKE_CONFIRM") == "1":
     facts.append({"id": "A2", "kind": "action", "topic": "T1", "text": "Order new leads.", "evidence": ["L0002"], "owner": "",
                   "deadline": "", "status": "confirm", "problems": ["action without an owner"]})
+if os.getenv("FAKE_NAMED_OWNER") == "1":   # an owner said by name, who is not a detected voice
+    facts.append({"id": "A3", "kind": "action", "topic": "T1", "text": "Roman programează coronarografia.",
+                  "evidence": ["L0001"], "owner": "Roman", "deadline": "", "status": "ok"})
 stem = "MoM_2026-09-26_medical"
 (out / f"{stem}.facts.json").write_text(json.dumps({"meeting": {}, "facts": facts}))
 for lang in ("ro", "ru", "en"):

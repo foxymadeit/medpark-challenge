@@ -766,3 +766,37 @@ def test_once_sent_no_sentence_can_change(client, monkeypatch):
     assert client.post(f"/api/meetings/{m['id']}/confirmations/A2",
                        json={"action": "keep", "text": "Altceva."}).status_code == 409
     assert state_file.read_text() == before
+
+
+
+# ---------------------------------------------------------------- owners named in the meeting
+def test_an_owner_named_in_the_meeting_is_a_participant_who_can_be_renamed_and_merged(client, monkeypatch):
+    monkeypatch.setenv("FAKE_NAMED_OWNER", "1")
+    m = processed(client)
+    roman = next(p for p in m["participants"] if p["name"] == "Roman")
+    assert "speakerId" not in roman and roman["namedInMinutes"] is True
+    action = next(a for a in m["actionItems"] if a["id"] == "A3")
+    assert action["ownerParticipantId"] == roman["id"]
+    assert delivery.payload(store.get("meetings", m["id"]))["minutes"]["action_items"][1]["owner"] == "Roman"
+    # processing again rebuilds the named participant rather than adding a second one
+    client.post(f"/api/meetings/{m['id']}/process")
+    run_queue()
+    again = client.get(f"/api/meetings/{m['id']}").json()
+    assert [p["name"] for p in again["participants"]].count("Roman") == 1
+    state_file = jobs.work_dir(m["id"]) / "minutes" / "MoM_2026-09-26_medical.render.json"
+    state_file.write_text(json.dumps({"meeting": {"type": "medical", "date": "2026-09-26"}, "model": "fake",
+                                      "verified": "1/1", "attendees": {"ro": [{"name": "Participantul 2", "role": "1 min"}]},
+                                      "bodies": {"ro": "\\action{A3}{Roman}{}{Roman programează coronarografia.}\n"
+                                                       "\\noted{N1}{Participantul 2 a prezentat; Romanov lipsea.}\n"}}))
+    r = client.patch(f"/api/meetings/{m['id']}/participants/{roman['id']}", json={"name": "Roman Ceban"})
+    assert r.status_code == 200, r.text
+    body = json.loads(state_file.read_text())["bodies"]["ro"]
+    assert "\\action{A3}{Roman Ceban}{}{Roman Ceban programează" in body and "Romanov lipsea" in body
+    # the voice of Participant 2 was Roman all along
+    two = voice(again, 2)
+    got = client.post(f"/api/meetings/{m['id']}/participants/{two['id']}/merge", json={"into": roman["id"]}).json()
+    merged = next(p for p in got["participants"] if p["id"] == roman["id"])
+    assert merged["speakerId"] == "Speaker 2" and two["id"] not in [p["id"] for p in got["participants"]]
+    state = json.loads(state_file.read_text())
+    assert "Roman Ceban a prezentat" in state["bodies"]["ro"]
+    assert state["attendees"]["ro"] == [{"name": "Roman Ceban", "role": "1 min"}]

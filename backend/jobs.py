@@ -32,6 +32,7 @@ from pathlib import Path
 
 import delivery
 import hardware
+import names
 import store
 from security import now_iso
 
@@ -266,7 +267,7 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
     talk = {}
     for t in turns:
         talk[t["speaker"]] = talk.get(t["speaker"], 0.0) + t["end"] - t["start"]
-    participants = [p for p in m.get("participants", []) if not p.get("detected")]
+    participants = [p for p in m.get("participants", []) if not p.get("detected") and not p.get("namedInMinutes")]
     claimed = {p.get("speakerId") for p in participants}
     for slot, label in enumerate(labels, 1):
         if label in claimed:
@@ -302,6 +303,15 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
     facts_file = next(minutes_dir.glob("*.facts.json"), None)
     facts = json.loads(facts_file.read_text(encoding="utf-8"))["facts"] if facts_file else []
     kept = [f for f in facts if f.get("status") in ("ok", "confirm")]
+    # an owner named in the meeting ("Roman, programează…") who is no voice and no one on the
+    # list becomes a participant with that name and no voice, as the minutes' own meeting file does
+    for f in kept:
+        owner = (f.get("owner") or "").strip()
+        if f.get("kind") == "action" and owner and not owner_of(owner) and not names.GENERIC.match(owner):
+            p = {"id": f"{m['id']}-named-{len(participants) + 1}", "name": owner[:120],
+                 "speakerSlot": len(participants) + 1, "speakingSeconds": 0, "namedInMinutes": True}
+            participants.append(p)
+            by_name[owner.casefold()] = p
     decisions = [{"id": f["id"], "text": f["text"]} for f in kept if f["kind"] == "decision"]
     actions, confirm = [], []
     for f in kept:
