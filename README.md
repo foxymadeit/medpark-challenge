@@ -507,8 +507,15 @@ type, Start recording, Stop and write the minutes.
    them, and go to the type's distribution list with the RO, RU and EN PDFs
    attached. Items the checks could not confirm always wait for a person.
 
-Manual review is one checkbox away: correct an owner or deadline, preview the
-email, send. The interface speaks English, Romanian and Russian, works on
+**Before anything is sent, the moderator can change it.** Rename a speaker, so
+the email never says "Participant 3"; merge two speakers the diarizer split;
+edit the meeting title; correct a transcript line; and edit the summary, any
+decision and any action (its text, owner and deadline). Every edit re-renders
+the RO, RU and EN PDF and DOCX, so the report you download and the one that is
+emailed both carry it, and each edit goes into the audit trail. Once the
+minutes are sent they are locked: the server refuses further edits.
+
+Manual review is one checkbox away: preview the email, then send. The interface speaks English, Romanian and Russian, works on
 desktop, tablet and phone, meets WCAG 2.2 AA contrast, and moves between
 states with short fades.
 
@@ -595,6 +602,7 @@ each language as soon as it is written.
 | GDPR Art. 9 (voiceprints are biometric) | enrollment only with recorded consent; one command deletes a person's voiceprints |
 | GDPR Art. 35 | draft impact assessment, `minutes/compliance/dpia.md` |
 | EU AI Act | limited risk; Art. 50 AI marking in the PDF footer, PDF metadata and DOCX properties |
+| Human oversight | AI Act Art. 14 binds only high-risk systems, and Liminal is limited risk. We keep a person in charge anyway: unproven items wait for a person, every item can be edited before sending, and a 60 s window lets anyone stop the email |
 | Medical Device Regulation | not a medical device: no clinical decisions (MDCG 2019-11 reasoning in `intended-purpose.md`) |
 | Trustworthy AI | ALTAI self-assessment, `altai.md` |
 | NIS2 | an offline design removes most of the external attack surface hospitals must manage |
