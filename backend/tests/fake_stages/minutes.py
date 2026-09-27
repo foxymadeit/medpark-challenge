@@ -23,6 +23,11 @@ if os.getenv("FAKE_NAMED_OWNER") == "1":   # an owner said by name, who is not a
                   "evidence": ["L0001"], "owner": "Roman", "deadline": "", "status": "ok"})
 stem = "MoM_2026-09-26_medical"
 (out / f"{stem}.facts.json").write_text(json.dumps({"meeting": {}, "facts": facts}))
+if os.getenv("FAKE_WRITTEN") == "1":   # the written minutes, in Romanian, as mom's export.py leaves them
+    (out / f"{stem}.meeting.json").write_text(json.dumps({
+        "minutesLanguage": "ro", "summary": "Consiliul a examinat protocolul ATI.",
+        "decisions": [{"id": "D1", "text": "Se aprobă protocolul ATI."}],
+        "actionItems": [{"id": "A1", "task": "Trimite raportul."}]}))
 for lang in ("ro", "ru", "en"):
     (out / f"{stem}_{lang}.pdf").write_bytes(b"%PDF-1.7 fake " + lang.encode())
     (out / f"{stem}_{lang}.docx").write_bytes(b"PK fake")
