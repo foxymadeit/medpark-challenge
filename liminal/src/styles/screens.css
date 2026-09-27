@@ -60,14 +60,18 @@
 .headline { display: flex; align-items: center; gap: var(--sm-space-2); min-width: 0; }
 .headline__text { min-width: 0; overflow-wrap: anywhere; cursor: text; }
 .headline__pen { flex-shrink: 0; width: 36px; height: 36px; }
-.headline-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sm-space-2) var(--sm-space-4); }
-.headline-row .headline-input { flex: 1 1 320px; width: auto; }
-.headline-row .datepicker { margin-top: 0; align-self: center; }
+.headline-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sm-space-3) var(--sm-space-6); }
+.headline-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.headline-block:has(.headline-input) { flex: 1 1 320px; }
+.headline-row .headline-input { width: calc(100% + 13.5px); }
+.headline-row .datepicker { margin-top: 0; align-self: flex-end; }
+.headline .headline__text { line-height: 38px; }
+.headline__pen svg { width: 18px; height: 18px; }
 .template-tag { align-self: flex-start; gap: 6px; margin-top: var(--sm-space-2); }
 .headline-input { height: 48px; padding: 0 12px; margin-left: -13.5px; width: calc(100% + 13.5px); font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
-.new-meeting { flex-direction: row; align-items: flex-start; justify-content: center; gap: 48px; padding-top: 34px; }
-/* One centred 656px column (the template card was removed on request). */
-.new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); flex: 0 1 656px; min-width: 0; }
+/* Figma "01 New meeting · Wide A · Full-width stack" (2051:2358): one left-aligned stack filling the content area (48px gutters), sections 32px apart. */
+.new-meeting { flex-direction: row; align-items: flex-start; justify-content: flex-start; }
+.new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); flex: 1 1 auto; width: 100%; max-width: 1104px; min-width: 0; }
 .emails-field {
   display: flex;
   flex-wrap: wrap;

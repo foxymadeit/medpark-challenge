@@ -37,35 +37,37 @@ export function NewMeeting() {
       <div className="new-meeting__main">
         {/* The meeting's name is the headline; the pen (or a click on it) makes it editable. */}
         <div className="stack" style={{ gap: 4 }}>
-          <p className="section-title">{t('newMeeting.name')}</p>
-          {/* Name and date on one line; the date wraps below on narrow screens. */}
+          {/* Figma "Name row": [label over the name] and the date picker, bottom-aligned; the date wraps below on narrow screens. */}
           <div className="headline-row">
-            {editingName ? (
-              <input
-                autoFocus
-                className="input headline-input"
-                aria-label={t('newMeeting.name')}
-                placeholder={suggestedName}
-                value={nameDraft}
-                maxLength={120}
-                onChange={(e) => setNameDraft(e.target.value)}
-                onFocus={(e) => e.target.select()}
-                onBlur={commitName}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') commitName();
-                  if (e.key === 'Escape') setEditingName(false);
-                }}
-              />
-            ) : (
-              <div className="headline">
-                <h1 className="t-h1 headline__text" onClick={startName}>
-                  {draft.title?.trim() || suggestedName}
-                </h1>
-                <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
-                  <PencilSimpleIcon size={20} aria-hidden />
-                </button>
-              </div>
-            )}
+            <div className="headline-block">
+              <p className="form-label">{t('newMeeting.name')}</p>
+              {editingName ? (
+                <input
+                  autoFocus
+                  className="input headline-input"
+                  aria-label={t('newMeeting.name')}
+                  placeholder={suggestedName}
+                  value={nameDraft}
+                  maxLength={120}
+                  onChange={(e) => setNameDraft(e.target.value)}
+                  onFocus={(e) => e.target.select()}
+                  onBlur={commitName}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitName();
+                    if (e.key === 'Escape') setEditingName(false);
+                  }}
+                />
+              ) : (
+                <div className="headline">
+                  <h1 className="t-h1 headline__text" onClick={startName}>
+                    {draft.title?.trim() || suggestedName}
+                  </h1>
+                  <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
+                    <PencilSimpleIcon size={20} aria-hidden />
+                  </button>
+                </div>
+              )}
+            </div>
             <DatePicker label={t('newMeeting.date')} max={todayISO()} value={draft.date && draft.date < todayISO() ? draft.date : todayISO()} onChange={(v) => setDraft({ date: v === todayISO() ? undefined : v })} />
           </div>
           {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
@@ -80,8 +82,8 @@ export function NewMeeting() {
           )}
         </div>
 
-        <div className="stack" style={{ gap: 8 }}>
-          <p className="section-title" id="nm-type">
+        <div className="stack" style={{ gap: 10 }}>
+          <p className="form-label" id="nm-type">
             {t('newMeeting.type')}
           </p>
           <Segmented<MeetingType>
@@ -112,7 +114,6 @@ export function NewMeeting() {
           <UploadCard />
         </div>
       </div>
-
     </div>
   );
 }

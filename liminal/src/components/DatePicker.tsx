@@ -96,7 +96,7 @@ export function DatePicker({ value, onChange, label, max }: { value: string; onC
         aria-label={`${label}: ${formatFullDate(value, lang)}`}
         onClick={() => (setFocus(value), setOpen((o) => !o))}
       >
-        <CalendarBlankIcon size={18} aria-hidden />
+        <CalendarBlankIcon size={16} aria-hidden />
         <span className="date-chip__value">{formatFullDate(value, lang)}</span>
         {value === today && <span className="date-chip__tag">{t('review.today')}</span>}
         <CaretDownIcon size={14} aria-hidden />

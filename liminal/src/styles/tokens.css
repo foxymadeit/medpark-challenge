@@ -27,7 +27,7 @@
   --sm-brand: #007aff;
   /* Hover shades for the solid buttons, and the warm track behind segmented toggles. */
   --sm-ink-hover: #2b2b2b;
-  --sm-control-track: #f1efea;
+  --sm-control-track: #efede8;
   /* Text/icons on solid colour fills (template badges). */
   --sm-on-solid: #ffffff;
   /* Keyword chip hover in the transcript. */
