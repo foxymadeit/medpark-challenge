@@ -409,7 +409,7 @@
 }
 .modal--wide { width: 640px; }
 /* MoM text preview: reads like the email/PDF that goes out. */
-.modal--mom { width: min(720px, 100%); }
+.modal--mom { width: min(960px, 100%); }
 .modal--mom .page__actions > .btn { min-width: 184px; justify-content: center; } /* Download PDF and Send MoM the same size */
 .mom-email { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); overflow: hidden; }
 .mom-email__head { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 12px var(--sm-space-6); border-bottom: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); font: 400 14px/20px var(--sm-font-body); }
