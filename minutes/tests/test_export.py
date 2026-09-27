@@ -57,7 +57,7 @@ def test_owners_and_deadlines_resolve_or_stay_null():
                   "completed": False, "sourceTimestampSeconds": 40.0}
     assert a2["ownerParticipantId"] is None and a2["deadline"] is None
     assert [a["id"] for a in m["actionItems"]] == ["A1", "A2"]      # confirm items go to reviewFlags instead
-    assert m["reviewFlags"] == ["Cine sună furnizorul."]
+    assert m["reviewFlags"] == ["Sună furnizorul."]   # from the facts: the documents never carry it
     assert m["participants"][1]["name"] == "Participantul 2" and m["participants"][0]["speakingSeconds"] == 60
 
 

@@ -37,9 +37,7 @@
 \definecolor{mpyellow}{HTML}{F5EA61}
 \definecolor{mpslate}{HTML}{515963}
 \definecolor{mpcharcoal}{HTML}{403E3D}
-\definecolor{mpgrey}{HTML}{B3B7BA}
 \definecolor{mprow}{HTML}{F2F6F6}
-\definecolor{mpnote}{HTML}{FCF8DC}
 
 \defaultfontfeatures{Ligatures=TeX}
 \setmainfont{PT_Serif-Web}[Path=\momtemplatedir fonts/, Extension=.ttf,
@@ -91,41 +89,27 @@
 \momdefstring {owner}     {Responsabil}                  {Ответственный}               {Owner}
 \momdefstring {deadline}  {Termen}                       {Срок}                        {Due}
 \momdefstring {vote}      {Vot}                          {Голосование}                 {Vote}
-\momdefstring {notset}    {nestabilit}                   {не установлен}               {not set}
-\momdefstring {confirm}   {De confirmat înainte de trimitere}
-                          {Требует подтверждения до отправки}
-                          {Needs confirmation before sending}
-\momdefstring {confirmhint}
-  {Aceste elemente nu au putut fi verificate integral în transcriere. Președintele le confirmă sau le elimină.}
-  {Эти пункты не удалось полностью проверить по стенограмме. Председатель подтверждает или исключает их.}
-  {These items could not be fully checked against the transcript. The chair confirms or removes them.}
 \momdefstring {next}      {Următoarea ședință}           {Следующее заседание}         {Next meeting}
 \momdefstring {signature} {Semnătura}                    {Подпись}                     {Signature}
 \momdefstring {aifooter}  {Generat local de AI (\momvalue{model}); verificat de președinte înainte de trimitere.}
                           {Составлено локально ИИ (\momvalue{model}); проверено председателем перед отправкой.}
                           {Drafted locally by AI (\momvalue{model}); reviewed by the chair before sending.}
-\momdefstring {verified}  {elemente verificate în transcriere}
-                          {пунктов проверено по стенограмме}
-                          {items checked against the transcript}
 \momdefstring {page}      {Pagina}                       {Страница}                    {Page}
 \momdefstring {of}        {din}                          {из}                          {of}
-\momdefstring {confidential} {Confidențial. Uz intern Medpark.}
-                          {Конфиденциально. Для внутреннего использования Medpark.}
-                          {Confidential. Medpark internal use.}
 
 \ExplSyntaxOn
 % ---------------------------------------------------------------- 4. header fields
-% Set by the generator from checked facts: \momset{key}{value}.
+% Set by the generator from checked facts: \momset{key}{value}. A field that was
+% not given is not set at all, and \momhas leaves out everything that shows it.
 \prop_new:N \g_mom_values_prop
 \NewDocumentCommand \momset { m m } { \prop_gput:Nnn \g_mom_values_prop {#1} {#2} }
 \NewDocumentCommand \momvalue { m } { \prop_item:Nn \g_mom_values_prop {#1} }
-\NewExpandableDocumentCommand \momhas { m m m }
+\NewExpandableDocumentCommand \momhas { m +m +m }
   { \prop_if_in:NnTF \g_mom_values_prop {#1} {#2} {#3} }
 
 % decisions and actions are collected where the model writes them, printed as tables
 \seq_new:N \g_mom_decisions_seq
 \seq_new:N \g_mom_actions_seq
-\seq_new:N \g_mom_confirm_seq
 \int_new:N \g_mom_decision_int
 \int_new:N \g_mom_action_int
 \cs_new_protected:Npn \mom_add_decision:nnn #1#2#3
@@ -133,16 +117,30 @@
     \seq_gput_right:Ne \g_mom_decisions_seq
       { \int_use:N \g_mom_decision_int
         \exp_not:n { & #2 \tl_if_blank:nF {#3} { \enspace{\color{mpslate}\small(#3)} } \\ } } }
+% the owner and deadline columns are printed only when some action has one
+\bool_new:N \g_mom_owners_bool
+\bool_new:N \g_mom_deadlines_bool
+\tl_new:N \g_mom_action_rows_tl
 \cs_new_protected:Npn \mom_add_action:nnnn #1#2#3#4
   { \int_gincr:N \g_mom_action_int
-    \seq_gput_right:Ne \g_mom_actions_seq
-      { \int_use:N \g_mom_action_int \exp_not:n { & #4 & #2 & #3 \\ } } }
+    \tl_if_blank:nF {#2} { \bool_gset_true:N \g_mom_owners_bool }
+    \tl_if_blank:nF {#3} { \bool_gset_true:N \g_mom_deadlines_bool }
+    \seq_gput_right:Ne \g_mom_actions_seq { { \int_use:N \g_mom_action_int } \exp_not:n { {#4} {#2} {#3} } } }
+\cs_new:Npn \mom_action_row:n #1 { \mom_action_row:nnnn #1 }
+\cs_new:Npn \mom_action_row:nnnn #1#2#3#4
+  { \exp_not:n { #1 & #2 }
+    \bool_if:NT \g_mom_owners_bool { \exp_not:n { & #3 } }
+    \bool_if:NT \g_mom_deadlines_bool { \exp_not:n { & #4 } } \exp_not:N \\ }
+\NewDocumentCommand \mom@actioncolumns {}   % O and W: the owner and deadline columns, or nothing
+  { \bool_if:NTF \g_mom_owners_bool { \newcolumntype{O}{>{\raggedright\arraybackslash}p{38mm}} } { \newcolumntype{O}{} }
+    \bool_if:NTF \g_mom_deadlines_bool { \newcolumntype{W}{>{\raggedright\arraybackslash}p{26mm}} } { \newcolumntype{W}{} }
+    \tl_gset:Ne \g_mom_action_rows_tl { \seq_map_function:NN \g_mom_actions_seq \mom_action_row:n } }
+\NewExpandableDocumentCommand \mom@ifowners { +m } { \bool_if:NT \g_mom_owners_bool {#1} }
+\NewExpandableDocumentCommand \mom@ifdeadlines { +m } { \bool_if:NT \g_mom_deadlines_bool {#1} }
 \NewDocumentCommand \mom@decisionrows {} { \seq_use:Nn \g_mom_decisions_seq {} }
-\NewDocumentCommand \mom@actionrows {} { \seq_use:Nn \g_mom_actions_seq {} }
+\NewDocumentCommand \mom@actionrows {} { \tl_use:N \g_mom_action_rows_tl }
 \NewExpandableDocumentCommand \mom@ifdecisions { +m } { \int_compare:nNnT \g_mom_decision_int > 0 {#1} }
 \NewExpandableDocumentCommand \mom@ifactions { +m } { \int_compare:nNnT \g_mom_action_int > 0 {#1} }
-\NewExpandableDocumentCommand \mom@ifconfirm { +m } { \seq_if_empty:NF \g_mom_confirm_seq {#1} }
-\NewDocumentCommand \mom@confirmitems {} { \seq_map_inline:Nn \g_mom_confirm_seq { \item ##1 } }
 
 % ---------------------------------------------------------------- 5. body commands (the model's vocabulary)
 % Every fact command carries the ID of a checked fact (D1, A2, N3, T1, C1).
@@ -157,16 +155,17 @@
     \mom_item:nn { \momstr{decision}~\int_use:N \g_mom_decision_int }
       { #2 \tl_if_blank:nF {#3} { \enspace{\color{mpslate}\small(#3)} } } }
 \NewDocumentCommand \action { m m m m }   % {A1}{owner}{deadline or empty}{what they will do}
-  { \mom_add_action:nnnn {#1} {#2} { \tl_if_blank:nTF {#3} {\textcolor{mpgrey}{\momstr{notset}}} {#3} } {#4}
+  { \mom_add_action:nnnn {#1} {#2} {#3} {#4}
     \mom_item:nn { \momstr{task}~\int_use:N \g_mom_action_int }
-      { #4 \newline {\color{mpslate}\small \momstr{owner}:~#2
-        \tl_if_blank:nF {#3} { \quad \momstr{deadline}:~#3 } } } }
+      { #4 \bool_lazy_and:nnF { \tl_if_blank_p:n {#2} } { \tl_if_blank_p:n {#3} }
+          { \newline {\color{mpslate}\small
+            \tl_if_blank:nF {#2} { \momstr{owner}:~#2 \tl_if_blank:nF {#3} { \quad } }
+            \tl_if_blank:nF {#3} { \momstr{deadline}:~#3 } } } } }
 \cs_new_protected:Npn \mom_item:nn #1#2
   { \par\addvspace{3pt}\noindent
     \makebox[25mm][l]{\color{mpteal}\momlabel\small #1}%
     \parbox[t]{\dimexpr\linewidth-25mm\relax}{\RaggedRight #2 \strut}\par\addvspace{3pt} }
-\NewDocumentCommand \needsconfirmation { m m }   % {C1}{item the checks could not confirm}
-  { \seq_gput_right:Nn \g_mom_confirm_seq {#2} }
+\NewDocumentCommand \needsconfirmation { m m } {}   % bodies written before 2026-09-27: unproven items are never printed
 \NewDocumentCommand \nextmeeting { m }
   { \par\medskip{\color{mpteal}\momlabel\momstr{next}:}\enspace #1\par }
 \ExplSyntaxOff
@@ -182,27 +181,22 @@
   \fancyhf{}%
   \renewcommand\headrulewidth{0pt}%
   \fancyhead[L]{\momlogo[30mm]}%
-  \fancyhead[R]{\momsans\small\color{mpslate}\momstr{doc}\ \momstr{no}\,\momvalue{number}\quad\momvalue{date}}%
   \fancyfoot[L]{\parbox[t]{0.78\textwidth}{\raggedright\momsans\scriptsize\color{mpslate}%
-    \momstr{aifooter}\ \momvalue{verified}\ \momstr{verified}.\\
-    Medpark | Spital Internațional, Sf. Andrei Doga 24, MD-2024 Chișinău, +373 22 40 00 40.\ \momstr{confidential}}}%
+    \momstr{aifooter}}}%   AI Act Art. 50: the text is marked as drafted by AI
   \fancyfoot[R]{\momsans\scriptsize\color{mpslate}\momstr{page}\ \thepage\ \momstr{of}\ \pageref{LastPage}}%
   \renewcommand\footrule{\vspace*{-2pt}{\color{mpgold}\rule{\textwidth}{0.6pt}}\vspace{3pt}}}
 \pagestyle{mom}
 
-\newcommand\mom@meta[2]{\textcolor{mpslate}{\momlabel\small #1}&#2\\[1pt]}
+\newcommand\mom@meta[1]{\momhas{#1}{\par\noindent
+  \parbox[t]{40mm}{\textcolor{mpslate}{\momlabel\small\momstr{#1}}}%
+  \parbox[t]{\dimexpr\textwidth-40mm\relax}{\raggedright\momvalue{#1}}\par}{}}
 \newcommand\mommaketitle{%
-  {\momsans\bfseries\fontsize{19}{23}\selectfont\color{mpteal}\momstr{doc}\ \momstr{no}\,\momvalue{number}\par}
+  {\momsans\fontsize{17}{22}\selectfont\color{mpteal}\raggedright
+    {\bfseries\momstr{doc}\momhas{number}{\ \momstr{no}\,\momvalue{number}}{}}\ \momvalue{title}\par}
   \vspace{2pt}
-  {\momsans\fontsize{12.5}{16}\selectfont\color{mpcharcoal}\momvalue{title}\par}
+  {\momsans\fontsize{12.5}{16}\selectfont\color{mpcharcoal}\momvalue{date}\momhas{time}{,\ \momvalue{time}}{}\par}
   \vspace{8pt}{\color{mpgold}\rule{\textwidth}{0.8pt}}\par\vspace{2pt}
-  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{40mm}@{}>{\raggedright\arraybackslash}p{\dimexpr\textwidth-40mm\relax}@{}}
-    \mom@meta{\momstr{date}}{\momvalue{date}}
-    \mom@meta{\momstr{time}}{\momvalue{time}}
-    \mom@meta{\momstr{place}}{\momvalue{place}}
-    \mom@meta{\momstr{chair}}{\momvalue{chair}}
-    \mom@meta{\momstr{secretary}}{\momvalue{secretary}}
-  \end{tabular}\par}
+  {\setlength\parskip{1pt}\mom@meta{place}\mom@meta{chair}\mom@meta{secretary}}\par}
 
 % attendance: \begin{attendance}{present} \person{Name}{Role} ... \end{attendance}
 \newenvironment{attendance}[1]
@@ -228,24 +222,18 @@
     \end{xltabular}\endgroup}%
   \mom@ifactions{\begingroup
     \section*{\momstr{actions}}
-    \renewcommand\arraystretch{1.25}\rowcolors{2}{white}{mprow}
-    \begin{xltabular}{\textwidth}{@{\hspace{4pt}}>{\raggedleft\arraybackslash}p{6mm}@{\hspace{8pt}}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{38mm}>{\raggedright\arraybackslash}p{26mm}@{\hspace{4pt}}}
-      \mom@tablehead{\mom@h{\#} & \mom@h{\momstr{task}} & \mom@h{\momstr{owner}} & \mom@h{\momstr{deadline}}}
+    \renewcommand\arraystretch{1.25}\rowcolors{2}{white}{mprow}\mom@actioncolumns
+    \begin{xltabular}{\textwidth}{@{\hspace{4pt}}>{\raggedleft\arraybackslash}p{6mm}@{\hspace{8pt}}>{\raggedright\arraybackslash}XOW@{\hspace{4pt}}}
+      \mom@tablehead{\mom@h{\#} & \mom@h{\momstr{task}}\mom@ifowners{ & \mom@h{\momstr{owner}}}\mom@ifdeadlines{ & \mom@h{\momstr{deadline}}}}
       \endhead
       \mom@actionrows
-    \end{xltabular}\endgroup}%
-  \mom@ifconfirm{%
-    \par\vspace{10pt}\noindent\colorbox{mpnote}{\parbox{\dimexpr\textwidth-2\fboxsep}{%
-      {\momlabel\color{mpcharcoal}\momstr{confirm}}\par\vspace{2pt}{\small\momstr{confirmhint}}
-      \begin{itemize}[topsep=3pt,itemsep=1pt,parsep=0pt,partopsep=0pt]\mom@confirmitems\end{itemize}\vspace{-2pt}}}\par}}
-\newcommand\momsignatures{%  % one line of two minipages, about 14 mm tall; it never splits
-  \par\needspace{16mm}\vspace{4pt}\noindent
-  \begin{minipage}[t]{0.47\textwidth}\raggedright
-    \textcolor{mpslate}{\momlabel\small\momstr{chair}}\par\vspace{14pt}
-    \rule{55mm}{0.4pt}\par\small\momvalue{chair}\end{minipage}\hfill
-  \begin{minipage}[t]{0.47\textwidth}\raggedright
-    \textcolor{mpslate}{\momlabel\small\momstr{secretary}}\par\vspace{14pt}
-    \rule{55mm}{0.4pt}\par\small\momvalue{secretary}\end{minipage}\par}
+    \end{xltabular}\endgroup}}
+\newcommand\mom@sign[1]{\momhas{#1}{\begin{minipage}[t]{0.47\textwidth}\raggedright
+    \textcolor{mpslate}{\momlabel\small\momstr{#1}}\par\vspace{14pt}
+    \rule{55mm}{0.4pt}\par\small\momvalue{#1}\end{minipage}\hfill}{}}
+\newcommand\mom@signatures{%  % one line of two minipages, about 14 mm tall; it never splits
+  \par\needspace{16mm}\vspace{4pt}\noindent\mom@sign{chair}\mom@sign{secretary}\par}
+\newcommand\momsignatures{\momhas{chair}{\mom@signatures}{\momhas{secretary}{\mom@signatures}{}}}
 
 % the document: \begin{minutes} (model-written body) \end{minutes}
 \newenvironment{minutes}{\mommaketitle}{\momsummary\momsignatures}

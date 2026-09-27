@@ -4,6 +4,7 @@ render. One function for the command line and for the web backend."""
 import datetime as dt
 import json
 import os
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
@@ -21,20 +22,14 @@ from .verify import verify
 from .write import owner_display, write_body
 
 
+TALK_TIME = re.compile(r"\d+ (?:min|мин)")   # the role render files written before 2026-09-27 carry
+
+
 def attendees(lines, lang: str, patients=()) -> list:
-    """Speakers in order of first appearance, with talk time. No names are
+    """Speakers in order of first appearance, names only. No names are
     invented: an unnamed speaker is 'Participant N'."""
-    talk, order = {}, []
-    for l in lines:
-        who = l.speaker or ""
-        if not who:
-            continue
-        if who not in talk:
-            order.append(who)
-            talk[who] = 0.0
-        talk[who] += max(0.0, l.end - l.start)
-    unit = {"ro": "min", "ru": "мин", "en": "min"}[lang]
-    return [{"name": anonymize_text(owner_display(w, lang), list(patients)), "role": f"{talk[w] / 60:.0f} {unit}" if talk[w] >= 30 else ""} for w in order]
+    order = dict.fromkeys(l.speaker for l in lines if l.speaker)
+    return [{"name": anonymize_text(owner_display(w, lang), list(patients))} for w in order]
 
 
 def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), session=None, think=None) -> dict:
@@ -126,7 +121,8 @@ def render_documents(state: dict, out_dir) -> dict:
     model, verified = state["model"], state["verified"]
 
     def render(lang):
-        m = replace(meeting, attendees=state["attendees"][lang])
+        people = [{**p, "role": ""} if TALK_TIME.fullmatch(p.get("role", "")) else p for p in state["attendees"][lang]]
+        m = replace(meeting, attendees=people)
         body = state["bodies"][lang]
         pdf = render_pdf.compile_pdf(render_pdf.tex_source(m, body, lang, model, verified),
                                      render_pdf.xmp_source(m, lang, model), out_dir / f"{stem}_{lang}.pdf")

@@ -1,6 +1,7 @@
 """The same parsed body and meeting details -> an editable DOCX that matches
-the PDF: logo, teal headings, decisions and action tables, the confirmation
-box, signatures, and the AI notice in the footer and document properties."""
+the PDF: logo, teal headings, decisions and action tables, signatures, and
+the AI notice in the footer and document properties. A field that was not
+given is left out, label and all."""
 
 import re
 from pathlib import Path
@@ -16,7 +17,7 @@ from .latexcheck import unescape
 from .render_pdf import DOC_WORD, TEMPLATE
 from .schemas import Meeting, format_date, fresh
 
-TEAL, SLATE, CHARCOAL, GREY = RGBColor(0x00, 0x82, 0x86), RGBColor(0x51, 0x59, 0x63), RGBColor(0x40, 0x3E, 0x3D), RGBColor(0xB3, 0xB7, 0xBA)
+TEAL, SLATE, CHARCOAL = RGBColor(0x00, 0x82, 0x86), RGBColor(0x51, 0x59, 0x63), RGBColor(0x40, 0x3E, 0x3D)
 HEAD, BODY = "Montserrat", "PT Serif"
 
 
@@ -34,22 +35,24 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
     s = strings(lang)
     s = {k: v.replace("\\momvalue{model}", model) for k, v in s.items()}
     doc = Document()
-    _page(doc, s, meeting, verified)
+    _page(doc, s)
     _styles(doc)
     _properties(doc, meeting, lang, model)
 
-    _para(doc, f"{s['doc']} {s['no']} {meeting.number or '1'}", HEAD, 19, TEAL, bold=True, after=2)
-    _para(doc, meeting.title(lang), HEAD, 12.5, CHARCOAL, after=8)
-    meta = [(s["date"], format_date(meeting.date, lang)),
-            (s["time"], f"{meeting.start}\u2013{meeting.end}" if meeting.start and meeting.end else meeting.start),
-            (s["place"], meeting.place), (s["chair"], meeting.chair), (s["secretary"], meeting.secretary)]
-    table = doc.add_table(rows=0, cols=2)
-    for label, value in meta:
-        row = table.add_row().cells
-        _cell(row[0], label, HEAD, 9, SLATE)
-        _cell(row[1], value, BODY, 10.5, CHARCOAL)
-
-    _widths(table, [Mm(40), Mm(128)])
+    # the title once, then the date and time once, then only the fields that were given
+    title = _para(doc, "", HEAD, 17, TEAL, after=2)
+    _run(title, s["doc"] + (f" {s['no']} {meeting.number}" if meeting.number else ""), HEAD, 17, TEAL, bold=True)
+    _run(title, f" {meeting.title(lang, dated=False)}", HEAD, 17, TEAL)
+    time = f"{meeting.start}\u2013{meeting.end}" if meeting.start and meeting.end else meeting.start
+    _para(doc, ", ".join(x for x in (format_date(meeting.date, lang), time) if x), HEAD, 12.5, CHARCOAL, after=8)
+    meta = [(s[k], v) for k, v in (("place", meeting.place), ("chair", meeting.chair), ("secretary", meeting.secretary)) if v]
+    if meta:
+        table = doc.add_table(rows=0, cols=2)
+        for label, value in meta:
+            row = table.add_row().cells
+            _cell(row[0], label, HEAD, 9, SLATE)
+            _cell(row[1], value, BODY, 10.5, CHARCOAL)
+        _widths(table, [Mm(40), Mm(128)])
     for key, people in (("present", meeting.attendees), ("apologies", meeting.apologies)):
         if people:
             head = s[key] + (f"  ({meeting.quorum})" if key == "present" and meeting.quorum else "")
@@ -61,7 +64,7 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
                     _run(par, f", {p['role']}", BODY, 10.5, SLATE)
                 par.paragraph_format.space_after = Pt(0)
 
-    decisions, actions, confirm, n_topic = [], [], [], 0
+    decisions, actions, n_topic = [], [], 0
     for b in blocks:
         a = {k: unescape(v) for k, v in b.args.items()}
         if b.kind == "summary":
@@ -81,10 +84,8 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
             _item(doc, f"{s['decision']} {len(decisions)}", a["text"], f"({a['vote']})" if a["vote"] else "")
         elif b.kind == "action":
             actions.append(a)
-            detail = f"{s['owner']}: {a['owner']}" + (f"    {s['deadline']}: {a['deadline']}" if a["deadline"] else "")
+            detail = "    ".join(f"{s[k]}: {a[k].strip()}" for k in ("owner", "deadline") if a[k].strip())
             _item(doc, f"{s['task']} {len(actions)}", a["text"], detail, newline=True)
-        elif b.kind == "needsconfirmation":
-            confirm.append(a["text"])
         elif b.kind == "nextmeeting":
             par = _para(doc, "", BODY, 10.5, CHARCOAL, before=6)
             _run(par, f"{s['next']}: ", HEAD, 10.5, TEAL)
@@ -95,29 +96,24 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
         _table(doc, ["#", s["decision"]], [[str(i), d["text"] + (f"  ({d['vote']})" if d["vote"] else "")]
                                           for i, d in enumerate(decisions, 1)], [Mm(9), Mm(159)])
     if actions:
+        # owner and deadline columns only when some action has one
+        cols = [k for k in ("owner", "deadline") if any(x[k].strip() for x in actions)]
+        mm = {"owner": 38, "deadline": 30}
         _para(doc, s["actions"], HEAD, 12.5, TEAL, bold=True, before=14, after=4)
-        _table(doc, ["#", s["task"], s["owner"], s["deadline"]],
-               [[str(i), x["text"], x["owner"], x["deadline"] or s["notset"]] for i, x in enumerate(actions, 1)],
-               [Mm(9), Mm(91), Mm(38), Mm(30)])   # 30 mm: "не установлен" on one line
-    if confirm:
-        doc.add_paragraph().paragraph_format.space_after = Pt(2)   # Word joins touching tables into one
-        box = doc.add_table(rows=1, cols=1)
-        cell = box.rows[0].cells[0]
-        _widths(box, [Mm(168)])
-        _shade(cell, "FCF8DC")
-        _cell(cell, s["confirm"], HEAD, 10, CHARCOAL)
-        _cell(cell, s["confirmhint"], BODY, 9, CHARCOAL, new=True)
-        for text in confirm:
-            _cell(cell, f"\u2022  {text}", BODY, 10, CHARCOAL, new=True)
+        _table(doc, ["#", s["task"]] + [s[k] for k in cols],
+               [[str(i), x["text"]] + [x[k].strip() for k in cols] for i, x in enumerate(actions, 1)],
+               [Mm(9), Mm(159 - sum(mm[k] for k in cols))] + [Mm(mm[k]) for k in cols])
 
-    doc.add_paragraph().paragraph_format.space_after = Pt(10)
-    sig = doc.add_table(rows=3, cols=2)
-    _widths(sig, [Mm(84), Mm(84)])
-    for col, (label, name) in enumerate(((s["chair"], meeting.chair), (s["secretary"], meeting.secretary))):
-        _cell(sig.rows[0].cells[col], label, HEAD, 9, SLATE)
-        _cell(sig.rows[1].cells[col], "\n______________________________", BODY, 10, CHARCOAL)
-        _cell(sig.rows[2].cells[col], name, BODY, 10, CHARCOAL)
-    doc.paragraphs[-1].paragraph_format.space_before = Pt(18)
+    signers = [(s[k], v) for k, v in (("chair", meeting.chair), ("secretary", meeting.secretary)) if v]
+    if signers:
+        doc.add_paragraph().paragraph_format.space_after = Pt(10)
+        sig = doc.add_table(rows=3, cols=2)
+        _widths(sig, [Mm(84), Mm(84)])
+        for col, (label, name) in enumerate(signers):
+            _cell(sig.rows[0].cells[col], label, HEAD, 9, SLATE)
+            _cell(sig.rows[1].cells[col], "\n______________________________", BODY, 10, CHARCOAL)
+            _cell(sig.rows[2].cells[col], name, BODY, 10, CHARCOAL)
+        doc.paragraphs[-1].paragraph_format.space_before = Pt(18)
 
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -127,29 +123,20 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
 
 
 # ---------------------------------------------------------------- helpers
-def _page(doc, s, meeting, verified):
+def _page(doc, s):
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Mm(210), Mm(297)
     sec.left_margin = sec.right_margin = Mm(21)
     sec.top_margin, sec.bottom_margin = Mm(30), Mm(24)
     head = sec.header.paragraphs[0]
     head.add_run().add_picture(str(TEMPLATE / "logo.png"), width=Mm(30))
-    right = sec.header.add_paragraph()
-    right.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    _run(right, f"{s['doc']} {s['no']} {meeting.number or '1'}    {format_date(meeting.date, _lang_of(s))}", HEAD, 8.5, SLATE)
-    foot = sec.footer.paragraphs[0]
-    _run(foot, f"{s['aifooter']} {verified} {s['verified']}.\nMedpark | Spital Internațional, Sf. Andrei Doga 24, "
-               f"MD-2024 Chișinău, +373 22 40 00 40. {s['confidential']}", HEAD, 7, SLATE)
+    _run(sec.footer.paragraphs[0], s["aifooter"], HEAD, 7, SLATE)   # AI Act Art. 50: drafted by AI
     pages = sec.footer.add_paragraph()
     pages.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     _run(pages, f"{s['page']} ", HEAD, 7, SLATE)
     _field(pages, "PAGE")
     _run(pages, f" {s['of']} ", HEAD, 7, SLATE)
     _field(pages, "NUMPAGES")
-
-
-def _lang_of(s):
-    return {"PROCES-VERBAL": "ro", "ПРОТОКОЛ": "ru"}.get(s["doc"], "en")
 
 
 def _styles(doc):
@@ -215,8 +202,7 @@ def _table(doc, head, rows, widths):
     for n, values in enumerate(rows):
         cells = t.add_row().cells
         for i, v in enumerate(values):
-            colour = GREY if values[i] in ("nestabilit", "не установлен", "not set") else CHARCOAL
-            _cell(cells[i], v, BODY, 10, colour)
+            _cell(cells[i], v, BODY, 10, CHARCOAL)
             if n % 2:
                 _shade(cells[i], "F2F6F6")
     _widths(t, widths)
