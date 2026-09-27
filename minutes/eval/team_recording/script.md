@@ -10,7 +10,7 @@ initials. The patients and the case are invented.
 | Speaker | Role in the meeting | Speaks |
 |---|---|---|
 | Cristina Iftodi | Medical director, chairs the meeting | Romanian, Russian, some English |
-| Roman Roman | Head of cardiology | Romanian, some Russian and English |
+| Roman Tabirta | Head of cardiology | Romanian, some Russian and English |
 | Stanislav Gulica | Head of intensive care (ATI) | Romanian, Russian, some English |
 | Volodymyr Samoilov | IT and procurement | Russian and English only, no Romanian |
 | Cagan Oflazoglu | Quality and accreditation consultant | English only |
@@ -162,7 +162,7 @@ Dates are relative to the recording day (call it D).
 
 | # | Owner | Action | Deadline as said | Date |
 |--|------|----------|--------|-----|
-| A1 | Roman Roman | Schedule the angiography and confirm | "până mâine la ora opt" | D+1, 08:00 |
+| A1 | Roman Tabirta | Schedule the angiography and confirm | "până mâine la ora opt" | D+1, 08:00 |
 | A2 | Stanislav Gulica | Check the INR in the morning | "mâine la ora șase" | D+1, 06:00 |
 | A3 | Cristina Iftodi | Sign the financial approval for the filters | "сегодня" | D |
 | A4 | Volodymyr Samoilov | Send the filter order | "завтра" (he first says "до понедельника", then corrects himself) | D+1 |
@@ -170,7 +170,7 @@ Dates are relative to the recording day (call it D).
 | A6 | Cagan Oflazoglu | Send the audit checklist to the head nurses | "by Wednesday" | the next Wednesday |
 | A7 | Volodymyr Samoilov | Build the electronic audit form | "за неделю" | D+7 |
 | A8 | Cagan Oflazoglu | One-page instruction for the doctors | "by October fifteenth" | 15 October |
-| A9 | Roman Roman | Collect the doctors' feedback after the first two pilot meetings | none said | not set |
+| A9 | Roman Tabirta | Collect the doctors' feedback after the first two pilot meetings | none said | not set |
 
 ### Traps: things that must not become decisions
 

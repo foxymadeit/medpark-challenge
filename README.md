@@ -818,7 +818,7 @@ Guides: [speaker labels](diarization/README.md) ·
 | Volodymyr Samoilov | AI / ML, backend |
 | Cagan Oflazoglu | AI / ML, backend |
 | Stanislav Gulica | Cybersecurity |
-| Roman Roman | Backend |
+| Roman Tabirta | Backend |
 | Cristina Iftodi | UI/UX, frontend |
 
 Built for Medpark International Hospital at DeepTech GigaHack 2026.
