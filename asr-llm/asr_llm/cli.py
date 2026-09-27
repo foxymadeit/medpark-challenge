@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import sys
 from pathlib import Path
 
 from .llm import make_llm
@@ -138,3 +140,9 @@ def _emit(text: str, out: Path | None) -> None:
 
 if __name__ == "__main__":
     main()
+    # The output is written. Skip native teardown: on macOS the Metal/ONNX runtimes can abort at
+    # interpreter exit ("recursive_mutex lock failed", SIGABRT), and the backend then discards a
+    # finished transcript. An error inside main() still raises and exits non-zero as before.
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(0)
