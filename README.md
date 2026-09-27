@@ -35,7 +35,7 @@ their audio to someone else. A healthcare breach now costs
 the most of any industry for 14 years running.
 
 The meeting tools a hospital could buy all send audio to a cloud, and most of
-them cannot follow a Moldovan meeting anyway:
+them cannot follow a meeting in Moldova anyway:
 
 | | Romanian | Romanian and Russian in one meeting | Runs inside the hospital | Price |
 |---|---|---|---|---|
@@ -122,7 +122,7 @@ transcription vendor. Liminal has no vendor in the data path.
 
 | Jury criterion | Weight | What Liminal delivers | Proof |
 |---|---|---|---|
-| Linguistic accuracy | 30% | Every utterance decoded twice (as Romanian and as Russian) and the better one kept, because Whisper calls plain Moldovan Romanian "Russian" with up to 0.94 confidence; medical terms snapped back to an 892-term trilingual dictionary | [Transcription](#1-linguistic-accuracy-30) |
+| Linguistic accuracy | 30% | Every utterance decoded twice (as Romanian and as Russian) and the better one kept, because Whisper calls plain Romanian from Moldova "Russian" with up to 0.94 confidence; medical terms snapped back to an 892-term trilingual dictionary | [Transcription](#1-linguistic-accuracy-30) |
 | Output quality | 30% | **100% of decisions found, 100% correct**; 0 traps fallen for across 19 model runs; deadlines computed by code from the words said | [Minutes](#2-output-quality-30) |
 | Security and architecture | 20%, pass/fail gate | Zero external calls, enforced in every process and proven by tests; runs on one 16 GB GPU, down to a 2017 laptop for speaker labels | [Security](#3-security-and-architecture-20) |
 | User experience | 10% | Upload or Rec, confirm the suggested meeting type, done; minutes send themselves after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
@@ -157,7 +157,7 @@ works from stated assumptions, and says so where it does.
 | Scripted minutes meetings | meetings written with traps and an answer key | 6 meetings, 16.4 min, 112 lines, 997 words; 15 decisions, 15 actions, 6 traps | RO with RU inside sentences, EN terms | the minutes model | `minutes/eval/meetings.py` |
 | 60-minute meeting | one long meeting with no names said | 59.5 min, 878 lines, 8,773 words, 7 speakers; 12 decisions, 12 actions, 5 traps | RO, RU, EN | minutes at full length, round 2 | `minutes/eval/long.py` |
 | Our mock medical board | a 10-minute script we wrote and recorded | recording 1: 8 min 25 s, one reader; recording 2: 6 min 24 s, three of us; 6 decisions, 9 actions, 4 traps, 2 patients, 21 medical terms | RO, RU, EN switching mid-sentence | end to end, audio to minutes | `minutes/eval/team_recording/script.md`; our own voices |
-| Four public hours | one hour each, for the 15-minute target | 4 × 60 min | English meeting (ICSI), Russian government meeting on medical graduates (kremlin.ru), a Romanian Senate plenary from Romania (USR broadcast, 14 Feb 2022), ROMPAR parliament corpus (643 Moldovan and 77 Romanian utterances) | upload-to-email time, error rate | `minutes/eval/hour_tests/` |
+| Four public hours | one hour each, for the 15-minute target | 4 × 60 min | English meeting (ICSI), Russian government meeting on medical graduates (kremlin.ru), a Romanian Senate plenary from Romania (USR broadcast, 14 Feb 2022), ROMPAR parliament corpus (643 utterances from Moldova, 77 from Romania) | upload-to-email time, error rate | `minutes/eval/hour_tests/` |
 | 41 published minutes | real minutes from hospitals and public bodies | 13 English, 18 Romanian, 10 Russian | EN, RO, RU | how the minutes are worded | `minutes/research/corpus.md` |
 | Hallucination leaderboard | public benchmark, same documents for every model | as published by Vectara, 22 Sep 2026 | English | the paid-model comparison | github.com/vectara/hallucination-leaderboard |
 
@@ -381,12 +381,12 @@ between scripted transcripts and real rooms, and the first thing the pilot
 measures.
 
 **Written like real minutes.** We collected and coded 41 published sets of
-minutes: 13 English (NHS trust and health boards), 18 Romanian (Moldovan
+minutes: 13 English (NHS trust and health boards), 18 Romanian (Moldova's
 hospital and district councils, Romanian hospital boards), 10 Russian (medical
 councils, hospital protocols). "NOTED" appears 682 times in 12 of the 13
 English sets, so most items are noted, not decided, and the extractor defaults
 to a note. None of the 41 quotes anyone or names a patient, so neither do
-ours. Moldovan votes read "S-a votat: pro-28, contra-0, abținut-0"; modern
+ours. Votes in Moldova read "S-a votat: pro-28, contra-0, abținut-0"; modern
 Russian protocols write "РЕШИЛИ", and "СЛУШАЛИ" turns up in only 1 of the 10. Each language's formulas are in
 the writing prompt.
 
@@ -661,7 +661,7 @@ not leave the building. Here is what was missing and what we did about it.
 | Missing | What we did |
 |---|---|
 | **Labelled Romanian/Russian meeting audio.** No public corpus has RO/RU meetings with who-spoke-when labels. | Built 28 test meetings (208 min, 1,498 turns, 100 distinct voices, 3 to 14 people) from held-out Common Voice Romanian and Russian voices plus LibriSpeech English, with answer keys committed. For training, 300 synthetic RO/RU meetings, each voice through its own room echo and noise. |
-| **Hour-long recordings in our languages.** The speed target is for 60 minutes; the sample is 11. | Found public hours: a Romanian Senate plenary (from a playlist we first took for Moldova's Parliament; it is Romania's, published by the USR party), the ROMPAR parliamentary corpus (643 Moldovan and 77 Romanian utterances), a Russian government meeting on medical graduates (kremlin.ru, CC BY 4.0, official transcript), and an ICSI research meeting in English. |
+| **Hour-long recordings in our languages.** The speed target is for 60 minutes; the sample is 11. | Found public hours: a Romanian Senate plenary (from a playlist we first took for Moldova's Parliament; it is Romania's, published by the USR party), the ROMPAR parliamentary corpus (643 utterances from Moldova, 77 from Romania), a Russian government meeting on medical graduates (kremlin.ru, CC BY 4.0, official transcript), and an ICSI research meeting in English. |
 | **Code-switched training speech.** There are hours of Romanian and hours of Russian, but almost none that switch mid-sentence. | Speech Collage: words force-aligned, then 1 to 4 words of a real sentence replaced by a phrase in the other language, 20 ms crossfades, loudness matched, and the same speaker used on both sides whenever Common Voice has them in both languages. |
 | **A medical dictionary in Romanian and Russian.** | Scraped 2,050 Harvard Health terms and added 115 intensive-care terms, kept the 806 whose RO and RU names are human-written Wikidata labels, then added ICD-10 and hospital terms: 892 rows. |
 | **A reference transcript.** | A Romanian and Russian speaker corrected the first 3 minutes of the Medpark sample by hand. Then we wrote a 10-minute mock medical board in RO/RU/EN with an answer key (6 decisions, 9 actions, 4 traps, 2 patients) and recorded it twice: one voice reading every part, and three of us around a table. |
@@ -690,7 +690,7 @@ first and a heartbeat every minute showing progress, time left and warnings.
 | VoxPopuli | Romanian | 19.6 h, 61 speakers |
 | VoxConverse | broadcast, several languages | 33.5 h |
 | AliMeeting | Mandarin far-field meetings | 2.0 h |
-| ROMPAR | Moldovan and Romanian parliament | ASR training (test split held out) |
+| ROMPAR | from Moldova and Romania parliament | ASR training (test split held out) |
 | FLEURS, CS-FLEURS | RO, RU, EN; Russian-English switching | ASR training and testing |
 | OpenSLR 28 | room echoes and noise | augmentation |
 
