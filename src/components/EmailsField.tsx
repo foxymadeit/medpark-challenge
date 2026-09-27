@@ -73,8 +73,8 @@ export function EmailsField({ emails, onChange }: { emails: string[]; onChange: 
   const showList = open && suggestions.length > 0;
 
   return (
-    <div className="stack" style={{ gap: 8 }}>
-      <label className="section-title" htmlFor={`${id}-in`}>
+    <div className="stack" style={{ gap: 10 }}>
+      <label className="form-label" htmlFor={`${id}-in`}>
         {t('newMeeting.emails')}
       </label>
       <div className="emails-combo" ref={wrap}>
