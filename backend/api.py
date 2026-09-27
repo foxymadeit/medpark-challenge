@@ -27,6 +27,7 @@ import delivery
 import jobs
 import names
 import security
+import sentences
 import store
 from security import NETWORK, now_iso
 
@@ -63,6 +64,7 @@ class ActionPatch(BaseModel):
 
 class Confirmation(BaseModel):
     action: str   # "keep" or "remove"
+    text: str | None = Field(default=None, max_length=4000)   # kept as rewritten by a person
 
 
 class ParticipantName(BaseModel):
@@ -263,7 +265,7 @@ def minutes(meeting_id: str):
 
 
 @router.patch("/meetings/{meeting_id}/minutes")
-def patch_minutes(meeting_id: str, body: MinutesPatch):
+def patch_minutes(meeting_id: str, body: MinutesPatch, request: Request):
     def change(m):
         _locked(m)
         if body.summary is not None:
@@ -285,11 +287,23 @@ def patch_minutes(meeting_id: str, body: MinutesPatch):
                 _resolve(m, gone)
             m["decisions"] = decisions
         _restart_window(m)
-    return _update(meeting_id, change)
+
+    m = meeting_for(meeting_id)   # rewritten sentences also go into the documents
+    edits = {}
+    if body.summary is not None and body.summary.strip() and body.summary.strip() != (m.get("summary") or ""):
+        edits["S1"] = _text(body.summary, 10000)
+    before = {d["id"]: d.get("text") for d in m.get("decisions") or []}
+    for d in body.decisions or []:
+        text = str(d.get("text", "")).strip()
+        if d.get("id") in before and text and text != before[d["id"]]:
+            edits[str(d["id"])] = _text(text)
+    if not edits:
+        return _update(meeting_id, change)
+    return _edit_everywhere(meeting_id, change, _sentences(meeting_id, edits), check=_locked, request=request)
 
 
 @router.patch("/meetings/{meeting_id}/actions/{action_id}")
-def patch_action(meeting_id: str, action_id: str, body: ActionPatch):
+def patch_action(meeting_id: str, action_id: str, body: ActionPatch, request: Request):
     fields = body.model_dump(exclude_unset=True)
 
     def change(m):
@@ -323,6 +337,12 @@ def patch_action(meeting_id: str, action_id: str, body: ActionPatch):
         if set(fields) - {"completed"}:
             _resolve(m, action_id)
             _restart_window(m)
+
+    task = (fields.get("task") or "").strip()
+    current = next((a for a in meeting_for(meeting_id).get("actionItems") or [] if a["id"] == action_id), None)
+    if task and current and task != current.get("task"):   # the rewritten task also goes into the documents
+        return _edit_everywhere(meeting_id, change, _sentences(meeting_id, {action_id: _text(task)}),
+                                check=_locked, request=request)
     return _update(meeting_id, change)
 
 
@@ -335,10 +355,15 @@ def _valid_date(d: str) -> bool:
 
 
 @router.post("/meetings/{meeting_id}/confirmations/{fact_id}")
-def confirm(meeting_id: str, fact_id: str, body: Confirmation):
-    """Settle one item the checks could not confirm: keep it as written, or take it out."""
+def confirm(meeting_id: str, fact_id: str, body: Confirmation, request: Request):
+    """Settle one item the checks could not confirm: keep it as written, keep
+    it as a person rewrote it (body.text), or take it out."""
     if body.action not in ("keep", "remove"):
         raise HTTPException(422, "Use keep or remove.")
+    if body.text is not None:
+        if body.action != "keep" or fact_id == "meeting-type":
+            raise HTTPException(422, "Only an item that is kept can be rewritten.")
+        return _keep_rewritten(meeting_id, fact_id, _text(body.text), request)
     retype = fact_id == "meeting-type" and body.action == "remove"   # not this type: the one it sounded like
     new_type, documents = _render_as_detected(meeting_id) if retype else (None, None)
     old = set()
@@ -362,6 +387,38 @@ def confirm(meeting_id: str, fact_id: str, body: Confirmation):
     for name in old - kept:   # the previous type's files; names come from our own documents map
         (jobs.work_dir(meeting_id) / "minutes" / Path(name).name).unlink(missing_ok=True)
     return m
+
+
+def _keep_rewritten(meeting_id: str, fact_id: str, text: str, request: Request) -> dict:
+    """A rewritten item counts as confirmed: its sentence changes in the app,
+    and in the documents it leaves "needs confirmation" for its own topic."""
+    m = meeting_for(meeting_id)
+    item = next((c for c in m.get("needsConfirmation") or [] if c["id"] == fact_id), None)
+    if item is None:
+        raise HTTPException(404, "Nothing to confirm with that id.")
+    action = next((a for a in m.get("actionItems") or [] if a["id"] == fact_id), None) or {}
+    owner = next((p for p in m["participants"] if p["id"] == action.get("ownerParticipantId")), None)
+    date = names.mom("schemas").format_date
+    keep = {"kind": item.get("kind"), "topic": sentences.topic_of(jobs.work_dir(meeting_id) / "minutes", fact_id),
+            "extra": {lang: {"owner": names.display(owner, lang) if owner else "",
+                             "deadline": date(action["deadline"], lang) if action.get("deadline") else ""}
+                      for lang in names.PARTICIPANT}}
+
+    def change(x):
+        _locked(x)
+        was = next((c for c in x.get("needsConfirmation") or [] if c["id"] == fact_id), None)
+        if was is None:
+            raise HTTPException(404, "Nothing to confirm with that id.")
+        for d in x.get("decisions") or []:
+            if d["id"] == fact_id:
+                d["text"] = text
+        for a in x.get("actionItems") or []:
+            if a["id"] == fact_id:
+                a["task"] = text
+        corrections.record(meeting_id, fact_id, "text", was.get("text"), text)
+        _resolve(x, fact_id)
+    return _edit_everywhere(meeting_id, change, _sentences(meeting_id, {fact_id: text}, keep),
+                            check=_locked, request=request)
 
 
 def _render_as_detected(meeting_id: str) -> tuple[str, dict]:
@@ -408,26 +465,30 @@ def _person(m: dict, participant_id: str) -> dict:
     return p
 
 
-def _rename_everywhere(meeting_id: str, edit_app, edit_state) -> dict:
+def _edit_everywhere(meeting_id: str, edit_app, edit_state, check=None, request: Request | None = None) -> dict:
     """Change the app's meeting with edit_app(m) and the minutes' render state
     with edit_state(state, m), then build the PDFs and DOCX again (no model),
-    so what is emailed carries the change. Until the minutes are sent."""
+    so what is emailed carries the change. Until the minutes are sent.
+    check(m) (default: edit_app on a copy) refuses bad input before a file
+    changes. edit_state returns False when a sentence could not be translated;
+    the audit row then says so."""
     with _NAMING:
         m = meeting_for(meeting_id)
         _locked(m)
-        edit_app(copy.deepcopy(m))   # any 404 or 422 comes now, before a file changes
+        (check or edit_app)(copy.deepcopy(m))
         documents = None
         state_file = next((jobs.work_dir(meeting_id) / "minutes").glob("*.render.json"), None)
         if state_file is not None:
             before = state_file.read_text(encoding="utf-8")
             try:
                 state = json.loads(before)
-                edit_state(state, m)
+                if edit_state(state, m) is False and request is not None:
+                    request.state.audit_status = security.UNTRANSLATED
                 jobs._write_json(state_file, state)
                 documents = jobs.rerender(meeting_id, m["type"])
             except (jobs.StageFailed, ValueError):
                 state_file.write_text(before, encoding="utf-8")
-                raise HTTPException(503, "The documents could not be rebuilt with the new name. Nothing was changed.")
+                raise HTTPException(503, "The documents could not be rebuilt with the change. Nothing was changed.")
 
         def change(x):
             _locked(x)
@@ -437,6 +498,27 @@ def _rename_everywhere(meeting_id: str, edit_app, edit_state) -> dict:
                 x["documents"] = documents
             _restart_window(x)
         return _update(meeting_id, change)
+
+
+def _sentences(meeting_id: str, edits: dict, keep: dict | None = None):
+    """edit_state for rewritten sentences: {fact or block ID: text}."""
+    def edit(state: dict, m: dict) -> bool:
+        langs = list(state.get("bodies") or {})
+        src = m.get("minutesLanguage") if m.get("minutesLanguage") in langs else (langs[0] if langs else "ro")
+        folder, complete = jobs.work_dir(meeting_id) / "minutes", True
+        for item_id, text in edits.items():
+            by_lang, ok = sentences.texts(text, src, langs, ask=complete)
+            complete = complete and ok
+            sentences.set_sentence(state, item_id, sentences.waiting_id(folder, item_id), by_lang, keep)
+        return complete
+    return edit
+
+
+def _text(raw, limit: int = sentences.MAX_TEXT) -> str:
+    try:
+        return sentences.clean(raw, limit)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
 
 
 @router.patch("/meetings/{meeting_id}/participants/{participant_id}")
@@ -455,8 +537,8 @@ def rename_participant(meeting_id: str, participant_id: str, body: ParticipantNa
         names.retext(m, p, name)
         p["name"] = name
 
-    return _rename_everywhere(meeting_id, edit_app,
-                              lambda state, m: names.rename_state(state, _person(m, participant_id), name))
+    return _edit_everywhere(meeting_id, edit_app,
+                            lambda state, m: names.rename_state(state, _person(m, participant_id), name))
 
 
 @router.post("/meetings/{meeting_id}/participants/{participant_id}/merge")
@@ -481,7 +563,7 @@ def merge_participant(meeting_id: str, participant_id: str, body: Merge):
                 a.update(ownerParticipantId=into["id"], ownerStaffId=into.get("staffId"))
         m["participants"] = [p for p in m["participants"] if p is not gone]
 
-    return _rename_everywhere(meeting_id, edit_app, lambda state, m: names.merge_state(
+    return _edit_everywhere(meeting_id, edit_app, lambda state, m: names.merge_state(
         state, _person(m, participant_id), _person(m, body.into)))
 
 

@@ -54,6 +54,7 @@ class OriginCheck(BaseHTTPMiddleware):
 _READS = ("/recording", "/transcript", "/documents/")
 AUTO = "AUTO"
 ALREADY = 208   # recorded (not answered) when a Send finds the minutes already on their way
+UNTRANSLATED = 203   # recorded when a rewritten sentence went into the other languages as written
 _M = "/api/meetings/{meeting_id}"
 ACTIONS = {
     ("POST", "/api/meetings"): "Created a meeting", ("PATCH", _M): "Changed the meeting details",
@@ -103,6 +104,8 @@ def audit_action(method: str, route: str, status: int) -> str:
     if status == ALREADY and route.endswith("/send"):
         return "Asked to send; the minutes were already on their way"
     label = ACTIONS.get((method, route), "Other request")
+    if status == UNTRANSLATED:
+        return f"{label}; the other languages have it as written (the local model did not answer)"
     return f"{label} (refused)" if status >= 400 else label
 
 

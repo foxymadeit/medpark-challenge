@@ -11,12 +11,12 @@ out.mkdir(parents=True, exist_ok=True)
 assert json.loads(Path(args[0]).read_text())["segments"], "transcript.json must hold the segments"
 facts = [
     {"id": "T1", "kind": "topic", "text": "Protocolul ATI", "evidence": ["L0001"], "status": "ok"},
-    {"id": "D1", "kind": "decision", "text": "Se aprobă protocolul ATI.", "evidence": ["L0002", "L0003"], "status": "ok"},
-    {"id": "A1", "kind": "action", "text": "Send the report.", "evidence": ["L0004"], "owner": "Speaker 3",
+    {"id": "D1", "kind": "decision", "topic": "T1", "text": "Se aprobă protocolul ATI.", "evidence": ["L0002", "L0003"], "status": "ok"},
+    {"id": "A1", "kind": "action", "topic": "T1", "text": "Send the report.", "evidence": ["L0004"], "owner": "Speaker 3",
      "deadline": "2026-10-02", "status": "ok"},
 ]
 if os.getenv("FAKE_CONFIRM") == "1":
-    facts.append({"id": "A2", "kind": "action", "text": "Order new leads.", "evidence": ["L0002"], "owner": "",
+    facts.append({"id": "A2", "kind": "action", "topic": "T1", "text": "Order new leads.", "evidence": ["L0002"], "owner": "",
                   "deadline": "", "status": "confirm", "problems": ["action without an owner"]})
 stem = "MoM_2026-09-26_medical"
 (out / f"{stem}.facts.json").write_text(json.dumps({"meeting": {}, "facts": facts}))

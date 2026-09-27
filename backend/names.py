@@ -9,6 +9,7 @@ say "Speaker 4". A name replaces every one of those forms, in the app's text
 minutes' own escape, and every body is parsed again before it is saved.
 """
 
+import importlib
 import re
 import sys
 import unicodedata
@@ -20,15 +21,19 @@ _LABEL = r"(?:participant\w*|участник\w*|speaker|vorbitor\w*|спике�
 MAX_NAME = 80
 
 
-def latexcheck():
-    """The minutes' body checker and escape: installed with the minutes
-    (server image), or from the minutes folder next to the backend."""
+def mom(module: str):
+    """A module of the minutes package: installed with the minutes (server
+    image), or from the minutes folder next to the backend."""
     try:
-        from mom import latexcheck as lx
+        return importlib.import_module(f"mom.{module}")
     except ImportError:
         sys.path.append(str(Path(__file__).resolve().parent.parent / "minutes"))
-        from mom import latexcheck as lx
-    return lx
+        return importlib.import_module(f"mom.{module}")
+
+
+def latexcheck():
+    """The minutes' body checker and escape (minutes/mom/latexcheck.py)."""
+    return mom("latexcheck")
 
 
 def clean_name(raw) -> str:
