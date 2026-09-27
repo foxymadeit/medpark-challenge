@@ -109,10 +109,10 @@ function Transcript({ meeting: m }: { meeting: Meeting }) {
                 <span className="mono">{formatTime(s.startSeconds)}</span>
                 <div>
                   <SpeakerLabel
-                    person={m.participants.find((p) => p.id === s.speakerId)}
+                    person={m.participants.find((p) => speaks(p, s.speakerId))}
                     slot={Math.max(
                       0,
-                      m.participants.findIndex((p) => p.id === s.speakerId),
+                      m.participants.findIndex((p) => speaks(p, s.speakerId)),
                     )}
                   />
                   <p>{s.text}</p>
@@ -127,4 +127,10 @@ function Transcript({ meeting: m }: { meeting: Meeting }) {
       )}
     </>
   );
+}
+
+/** A segment names its voice by the diarizer's label ("Speaker 4"); the
+ * participant carries that label in speakerId, and its own id in demo data. */
+export function speaks(p: { id: string; speakerId?: string }, label?: string | null) {
+  return !!label && (p.id === label || p.speakerId === label);
 }
