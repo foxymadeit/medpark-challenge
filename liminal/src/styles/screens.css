@@ -70,7 +70,7 @@
 .template-tag { align-self: flex-start; gap: 6px; margin-top: var(--sm-space-2); }
 .headline-input { height: 48px; padding: 0 12px; margin-left: -13.5px; width: calc(100% + 13.5px); font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
 /* Figma "01 New meeting · Wide A · Full-width stack" (2051:2358): one left-aligned stack filling the content area (48px gutters), sections 32px apart. */
-.new-meeting { flex-direction: row; align-items: flex-start; justify-content: flex-start; }
+.new-meeting { flex-direction: row; align-items: flex-start; justify-content: flex-start; padding-top: 35px; } /* "Meeting name" lines up with the first menu item (sidebar 24px + 40px item, text centred) */
 .new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); flex: 1 1 auto; width: 100%; max-width: 1104px; min-width: 0; }
 .emails-field {
   display: flex;
