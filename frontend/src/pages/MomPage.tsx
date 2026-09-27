@@ -13,7 +13,7 @@ import ManualReviewBar from "../components/ManualReviewBar";
 import ReviewParticipants from "../components/ReviewParticipants";
 import EditableMinutes from "../components/EditableMinutes";
 import ActionItemRow from "../components/ActionItemRow";
-import SpeakerLabel from "../components/SpeakerLabel";
+import ParticipantRow from "../components/ParticipantRow";
 import NeedsConfirmation from "../components/NeedsConfirmation";
 import DocumentsCard from "../components/DocumentsCard";
 import DeliveryBanner from "../components/DeliveryBanner";
@@ -199,14 +199,17 @@ export default function MomPage() {
           <aside className="panel minutes-people">
             <h2>{t("people")}</h2>
             {m.participants.map((p, i) => (
-              <div key={p.id} className="speaker-row">
-                <SpeakerLabel person={p} slot={i} />
-                <span className="mono">
-                  {total > 0 && p.speakingSeconds !== undefined
+              <ParticipantRow
+                key={p.id}
+                meeting={m}
+                person={p}
+                slot={i}
+                share={
+                  total > 0 && p.speakingSeconds !== undefined
                     ? `${Math.round((p.speakingSeconds / total) * 100)}%`
-                    : ""}
-                </span>
-              </div>
+                    : ""
+                }
+              />
             ))}
             <hr />
             <p className="muted">{t("recording")}</p>

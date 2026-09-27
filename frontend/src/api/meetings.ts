@@ -431,6 +431,121 @@ export async function updateParticipants(
     return meeting;
   });
 }
+// "Participant 3", "Participantul 3", "Speaker 3", "Участник 3": what the
+// server refuses as a name (backend/names.py).
+const NUMBERED =
+  /^(participant(ul)?|speaker|vorbitor(ul)?|участник|спикер)\s*_?\d+$/i;
+export const MAX_NAME = 80;
+/** Why a name cannot be given to this participant, as a translation key, or "". */
+export function nameProblem(
+  meeting: Meeting,
+  participantId: string,
+  raw: string,
+): string {
+  const name = raw.trim().replace(/\s+/g, " ");
+  if (!name || name.length > MAX_NAME) return "required";
+  if (NUMBERED.test(name)) return "nameIsNumber";
+  const taken = meeting.participants.some(
+    (p) =>
+      p.id !== participantId &&
+      p.name.toLocaleLowerCase() === name.toLocaleLowerCase(),
+  );
+  return taken ? "nameTaken" : "";
+}
+function snapshots(meeting: Meeting) {
+  meeting.participantSnapshots = meeting.participants.map((participant) => ({
+    staffId: participant.staffId ?? participant.id,
+    nameAtMeeting: participant.name,
+    emailAtMeeting: participant.email ?? "",
+    roleTitleAtMeeting: participant.role ?? "",
+    departmentAtMeeting: participant.department ?? meeting.type,
+    speakerId: participant.speakerId,
+  }));
+}
+/** Give a participant a real name; the server writes it into the email and
+ * rebuilds the PDF and Word files with it. Refused once the minutes are sent. */
+export async function renameParticipant(
+  id: string,
+  participantId: string,
+  name: string,
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return meetingRequest(
+      `${path(id)}/participants/${encodeURIComponent(participantId)}`,
+      { method: "PATCH", body: JSON.stringify({ name }) },
+    );
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    if (["sent", "sending"].includes(m.status))
+      throw new ApiError("alreadySent");
+    const problem = nameProblem(m, participantId, name);
+    if (problem) throw new ApiError(problem);
+    const p = m.participants.find((x) => x.id === participantId);
+    if (!p) throw new ApiError("notFound");
+    p.name = name.trim().replace(/\s+/g, " ");
+    snapshots(m);
+    restartWindow(m);
+    return m;
+  });
+}
+/** Two participants are one person: `participantId`'s lines and actions
+ * become `intoId`'s, and it leaves the list. */
+export async function mergeParticipant(
+  id: string,
+  participantId: string,
+  intoId: string,
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return meetingRequest(
+      `${path(id)}/participants/${encodeURIComponent(participantId)}/merge`,
+      { method: "POST", body: JSON.stringify({ into: intoId }) },
+    );
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    if (["sent", "sending"].includes(m.status))
+      throw new ApiError("alreadySent");
+    const gone = m.participants.find((x) => x.id === participantId);
+    const into = m.participants.find((x) => x.id === intoId);
+    if (!gone || !into || gone === into) throw new ApiError("notFound");
+    const label = gone.speakerId ?? gone.id;
+    if (!into.speakerId) into.speakerId = label;
+    else
+      for (const line of m.transcript ?? [])
+        if (line.speakerId === label) line.speakerId = into.speakerId;
+    into.speakingSeconds =
+      (into.speakingSeconds ?? 0) + (gone.speakingSeconds ?? 0);
+    for (const a of m.actionItems ?? [])
+      if (a.ownerParticipantId === gone.id) {
+        a.ownerParticipantId = into.id;
+        a.ownerStaffId = into.staffId ?? null;
+      }
+    m.participants = m.participants.filter((x) => x !== gone);
+    snapshots(m);
+    restartWindow(m);
+    return m;
+  });
+}
+/** Retitle the meeting; the email carries the new title. Until it is sent. */
+export async function renameMeeting(
+  id: string,
+  title: string,
+): Promise<Meeting> {
+  if (!DEMO_MODE)
+    return meetingRequest(path(id), {
+      method: "PATCH",
+      body: JSON.stringify({ title }),
+    });
+  return mutate((s) => {
+    const m = findMeeting(s, id);
+    if (["sent", "sending"].includes(m.status))
+      throw new ApiError("alreadySent");
+    if (!title.trim() || title.trim().length > 120)
+      throw new ApiError("required");
+    m.title = title.trim();
+    restartWindow(m);
+    return m;
+  });
+}
 export async function saveCorrectionFeedback(
   feedback: Omit<CorrectionFeedback, "createdAt">,
 ): Promise<void> {
