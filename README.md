@@ -331,6 +331,28 @@ transcript and as its first 3 minutes, so 16 variants:
 The slow eighth was the 60-minute meeting's opening, which ran straight after
 the timed-out full transcript. So Liminal reads the first 3 minutes, suggests
 the type, and the person confirms with one tap. It needs no extra model and no extra memory.
+That test ran with qwen3:8b. With gpt-oss:20b, now the default, the hour test
+suggested "medical" for all three medical recordings (Medpark's sample and our
+two mock boards), in about 11 s each on the GPU.
+
+**End to end, from our own audio.** The numbers above score the minutes model on
+clean transcripts. From real audio, the transcription errors come along. Our
+10-minute mock board has an answer key (6 decisions, 9 actions, 4 traps, 2
+patients); run through the whole product on one T4:
+
+| Recording | Character error | Medical terms heard | Actions found | Owners right | Trap errors | Patient names in the minutes |
+|---|---|---|---|---|---|---|
+| One reader, 8.4 min | 19.9% | 14 of 21 | 4 of 9 | 0 | 1 | 0 |
+| Three of us at one table, 6.4 min | 56.2% | 12 of 21 | 5 of 9 | 2 | 0 | 0 |
+
+Read by hand, three of the six decisions are in the one-reader minutes, one of
+them merged with the monthly-audit trap, and one was held back by the checker
+because transcription wrote "coronografie" for "coronarografie". The owners
+fail for a plain reason: one person read every part, so every line is
+"Speaker 1", and Liminal will not guess a name it did not hear. Nothing
+unproven went out: those items wait in "Needs confirmation". This is the gap
+between scripted transcripts and real rooms, and the first thing the pilot
+measures.
 
 **Written like real minutes.** We collected and coded 41 published sets of
 minutes: 13 English (NHS trust and health boards), 18 Romanian (Moldovan
@@ -712,6 +734,11 @@ Guides: [speaker labels](diarization/README.md) ·
   9 dB above the room).
 - Accuracy on real Medpark meetings is unmeasured until someone labels a few
   minutes of them. We trained on no hospital audio.
+- On one T4 a full hour takes 17 to 26 minutes from upload to minutes, not
+  yet the 15 the brief asks for (see Speed).
+- From real audio, the minutes find about half of the answer key's actions on
+  our mock board (see "End to end"); the checker keeps the rest from going out
+  wrong, but a person still has to confirm them.
 - At most two people are recognised talking at the same moment.
 - A vague deadline ("early next week") is printed as said instead of being
   turned into a made-up date. That is on purpose.
@@ -720,7 +747,7 @@ Guides: [speaker labels](diarization/README.md) ·
 
 | Name | Specialisation |
 |---|---|
-| Volodymyr Samoilov (team leader) | AI / ML, backend |
+| Volodymyr Samoilov | AI / ML, backend |
 | Cagan Oflazoglu | AI / ML, backend |
 | Stanislav Gulica | Cybersecurity |
 | Roman Roman | Backend |
