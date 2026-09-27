@@ -110,3 +110,10 @@ def test_a_long_topic_keeps_every_decision_and_action_but_four_notes():
     facts += [Fact(f"A{i}", "action", f"Acțiunea {i}.", [], topic="T1", owner="Roman", status="ok") for i in range(1, 7)]
     kinds = [r["kind"] for r in plan(facts, "ro")]
     assert kinds.count("note") == 4 and kinds.count("decision") == 6 and kinds.count("action") == 6
+
+
+def test_no_facts_still_writes_a_summary_line():
+    for lang in ("ro", "ru", "en"):
+        body, rep = write_body(FakeLLM([]), [], lang, {})
+        assert rep["source"] == "no-items"
+        assert [b.kind for b in latexcheck.parse(body)] == ["summary"]
