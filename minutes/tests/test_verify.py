@@ -30,6 +30,12 @@ def test_citing_a_line_that_does_not_exist_is_dropped():
     assert run(Fact("N1", "note", "x", ["L0099"], quote="x"))["N1"].status == "dropped"
 
 
+def test_an_unpadded_line_id_is_the_same_line():
+    # Seen live: on a short recording the model cited "L004" for L0004 and the fact was dropped.
+    out = run(Fact("N1", "note", "Schimbarea furnizorului de mentenanță.", ["L004"], quote="schimbăm furnizorul de mentenanță"))
+    assert out["N1"].status == "ok" and out["N1"].evidence == ["L0004"]
+
+
 def test_a_proposal_nobody_accepted_is_a_note_not_a_decision():
     out = run(Fact("D1", "decision", "Se schimbă furnizorul de mentenanță.", ["L0004"], quote="ar trebui să schimbăm furnizorul de mentenanță"))
     assert out["D1"].kind == "note" and "no decision act" in " ".join(out["D1"].problems)
