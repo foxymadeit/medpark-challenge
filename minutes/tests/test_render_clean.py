@@ -75,6 +75,7 @@ def test_title_and_date_are_printed_once_and_no_number_is_invented(documents):
     for lang, kind, text in _each(documents):
         assert text.count(DOC[lang]) == 1 and text.count(DATE[lang]) == 1, (lang, kind)
         assert "09:00" in text and " 1\n" not in text.split(DOC[lang])[1][:40], (lang, kind)
+        assert "09:06" not in text, (lang, kind)   # the start time only, never when the meeting ended
 
 
 @pytest.mark.skipif(not shutil.which("xelatex"), reason="needs TeX Live")

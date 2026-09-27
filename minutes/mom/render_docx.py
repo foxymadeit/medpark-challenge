@@ -43,7 +43,7 @@ def render(meeting: Meeting, blocks, lang: str, model: str, verified: str, out_p
     title = _para(doc, "", HEAD, 17, TEAL, after=2)
     _run(title, s["doc"] + (f" {s['no']} {meeting.number}" if meeting.number else ""), HEAD, 17, TEAL, bold=True)
     _run(title, f" {meeting.title(lang, dated=False)}", HEAD, 17, TEAL)
-    time = f"{meeting.start}\u2013{meeting.end}" if meeting.start and meeting.end else meeting.start
+    time = meeting.start   # when the meeting started; the minutes do not print when it ended
     _para(doc, ", ".join(x for x in (format_date(meeting.date, lang), time) if x), HEAD, 12.5, CHARCOAL, after=8)
     meta = [(s[k], v) for k, v in (("place", meeting.place), ("chair", meeting.chair), ("secretary", meeting.secretary)) if v]
     if meta:

@@ -37,7 +37,7 @@ def creation_date(now: datetime | None = None) -> str:
 
 def tex_source(meeting: Meeting, body: str, lang: str, model: str, verified: str) -> str:
     e = latexcheck.escape
-    time = f"{e(meeting.start)}--{e(meeting.end)}" if meeting.start and meeting.end else e(meeting.start)
+    time = e(meeting.start)   # when the meeting started; the minutes do not print when it ended
     sets = {"number": meeting.number, "title": meeting.title(lang, dated=False), "date": format_date(meeting.date, lang),
             "time": time, "place": meeting.place, "chair": meeting.chair, "secretary": meeting.secretary,
             "model": model, "quorum": meeting.quorum}
