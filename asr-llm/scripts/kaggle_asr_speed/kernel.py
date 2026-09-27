@@ -28,9 +28,16 @@ OUT = WORK / "out"
 T0 = time.time()
 WHISPER = {"large-v3": "models/whisper"}
 BATCHES = [8]
-RETRIES = ["loops", "all"]   # run 1 (26 Sep, 01:41) measured "all": same accuracy, 13.8 min for the hour
+# run 1: beam 5, both languages, retry all: accuracy as the bake-off, 13.8 min for the hour.
+# run 2: retry loops: same accuracy, 13.1 min; only 45 of 1,063 decodes were retried, so the
+# time is the decodes themselves (two languages, beam 5). Run 3 cuts that work.
+CONFIGS = {
+    "g1-beam1": {"MOM_ASR_BEAM_SIZE": "1"},
+    "g2-beam1-gate": {"MOM_ASR_BEAM_SIZE": "1", "MOM_ASR_SECOND_DECODE_BELOW": "-0.5"},
+    "g3-beam5-gate": {"MOM_ASR_BEAM_SIZE": "5", "MOM_ASR_SECOND_DECODE_BELOW": "-0.5"},
+}
 os.environ.setdefault("BENCH_N", "60")
-STEPS = ["setup", "smoke", "whisper:loops"] + [f"hour:{r}" for r in RETRIES]
+STEPS = ["setup", "smoke"] + [f"{k}:{c}" for c in CONFIGS for k in ("whisper", "hour")]
 STATE = {"step": "setup", "done": 0, "last": time.time(), "warnings": []}
 PEAK: dict[str, float] = {}
 
@@ -84,13 +91,13 @@ def step(name: str, fn, *args) -> None:
         STATE["last"] = time.time()
 
 
-def whisper_env(model: str, merge: bool, joint: bool = False, batch: int = 1, retry: str = "loops") -> dict:
+def whisper_env(model: str, merge: bool, joint: bool = False, batch: int = 1, retry: str = "loops", extra: dict | None = None) -> dict:
     env = {**os.environ, "MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16",
            "MOM_ASR_MODEL_DIR": str(ASR / WHISPER[model]), "MOM_CS_MERGE": str(merge).lower(),
            "MOM_CORRECT_TERMS": "false", "MOM_ASR_BATCH_SIZE": str(batch), "MOM_ASR_RETRY": retry, "CUDA_VISIBLE_DEVICES": "0"}  # scored raw here; the corrector is measured separately below
     if joint:
         env["MOM_ASR_JOINT_LANGUAGES"] = '["ro", "ru"]'
-    return env
+    return {**env, **(extra or {})}
 
 
 def team_clips() -> str:
@@ -110,20 +117,20 @@ BENCH = f"{sys.executable} -m asr_train.zeroshot --work {WORK} --sets gold --aud
         f"--clip synthetic=data/syntethic_record.m4a,data/recording_scripts/medical_round.md {team_clips()}"
 
 
-def run_whisper(retry: str) -> None:
-    sh(f"{BENCH} --models whisper", env=whisper_env("large-v3", False, batch=BATCHES[0], retry=retry))
-    (OUT / "result_whisper.json").rename(OUT / f"result_whisper-{retry}.json")
+def run_whisper(name: str) -> None:
+    sh(f"{BENCH} --models whisper", env=whisper_env("large-v3", False, batch=BATCHES[0], extra=CONFIGS[name]))
+    (OUT / "result_whisper.json").rename(OUT / f"result_whisper-{name}.json")
     for f in OUT.glob("hyp_whisper_*.json"):
-        f.rename(OUT / f.name.replace("hyp_whisper_", f"hyp_whisper-{retry}_"))
+        f.rename(OUT / f.name.replace("hyp_whisper_", f"hyp_whisper-{name}_"))
 
 
-def time_hour(retry: str) -> None:
+def time_hour(name: str) -> None:
     code = ("import json,time,pathlib;from asr_llm.pipeline import transcribe_audio;"
             f"w=pathlib.Path('{WORK}/data/medpark_60min.wav');t=time.perf_counter();tr,tm=transcribe_audio(w);"
             "s=time.perf_counter()-t;"
-            f"pathlib.Path('{OUT}/result_hour-{retry}.json').write_text(json.dumps("
+            f"pathlib.Path('{OUT}/result_hour-{name}.json').write_text(json.dumps("
             "{'seconds':round(s,1),'rtfx':round(3600/s,1),'stages':{k:round(v,1) for k,v in tm.items()},'segments':len(tr.segments)}))")
-    sh(f"{sys.executable} -c \"{code}\"", env=whisper_env("large-v3", False, batch=BATCHES[0], retry=retry))
+    sh(f"{sys.executable} -c \"{code}\"", env=whisper_env("large-v3", False, batch=BATCHES[0], extra=CONFIGS[name]))
 
 
 def main() -> None:
@@ -141,9 +148,9 @@ def main() -> None:
                f"--transcript-out {OUT}/smoke_transcript.json", env=whisper_env("large-v3", False, batch=BATCHES[0]))
             log("smoke test passed: " + json.loads((OUT / "smoke_transcript.json").read_text())["text"][:200])
         step("smoke", smoke)
-        step("whisper:loops", run_whisper, "loops")
-        for r in RETRIES:
-            step(f"hour:{r}", time_hour, r)
+        for name in CONFIGS:
+            step(f"whisper:{name}", run_whisper, name)
+            step(f"hour:{name}", time_hour, name)
     finally:
         report = {"minutes": round((time.time() - T0) / 60, 1), "warnings": STATE["warnings"],
                   "peak_gpu_gb": {k: round(v, 1) for k, v in PEAK.items()}, "results": {}}

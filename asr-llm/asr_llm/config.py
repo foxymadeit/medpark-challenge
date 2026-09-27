@@ -48,6 +48,11 @@ class Settings(BaseSettings):
     asr_batch_size: int = 8
     # all | loops: which batched decodes are redone the slow, exact way (asr_batched.py)
     asr_retry: str = "all"
+    asr_beam_size: int = 5
+    # With a value (avg log-probability, e.g. -0.5), the batched decoder decodes the home language
+    # first and adds the other always-decoded language only where the first was less sure than
+    # this. None: always both, as measured in the ASR bake-off.
+    asr_second_decode_below: float | None = None
 
     llm_gguf: Path = ASR_ROOT / "models" / "llm" / "qwen2.5-7b-instruct-q4_k_m.gguf"
     # Minutes/fusion model: "" = llm_gguf, a GGUF path, or "ollama:<name>" (e.g. ollama:qwen3.5:9b).

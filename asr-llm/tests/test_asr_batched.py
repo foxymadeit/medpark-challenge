@@ -54,3 +54,13 @@ def test_a_relative_model_path_means_under_asr_llm(monkeypatch):
     from asr_llm.config import ASR_ROOT, Settings
     monkeypatch.setenv("MOM_ASR_MODEL_DIR", "models/whisper")
     assert Settings().asr_model_dir == ASR_ROOT / "models" / "whisper"
+
+
+def test_the_second_language_waits_for_an_unsure_first_decode(monkeypatch):
+    from asr_llm.asr_batched import BatchedDecoder
+    from asr_llm.config import settings
+
+    assert BatchedDecoder.first_pass(["ro", "ru", "en"]) == ["ro", "ru", "en"]   # off by default
+    monkeypatch.setattr(settings, "asr_second_decode_below", -0.5)
+    assert BatchedDecoder.first_pass(["ro", "ru", "en"]) == ["ro", "en"]
+    assert BatchedDecoder.first_pass(["ru"]) == ["ru"]                            # a short piece's one language

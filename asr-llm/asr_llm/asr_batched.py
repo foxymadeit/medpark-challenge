@@ -20,7 +20,7 @@ import numpy as np
 from .config import settings
 
 # faster-whisper's TranscriptionOptions defaults, which WhisperAsr._decode uses.
-BEAM, PATIENCE, LENGTH_PENALTY = 5, 1.0, 1.0
+PATIENCE, LENGTH_PENALTY = 1.0, 1.0
 COMPRESSION_MAX, LOGPROB_MIN, NO_SPEECH = 2.4, -1.0, 0.6
 MAX_INITIAL_TIMESTAMP_S = 1.0
 
@@ -108,7 +108,7 @@ class BatchedDecoder:
 
         prompts = [self._tok(lang).sot_sequence for lang in languages]
         results = self.fw.model.generate(
-            get_ctranslate2_storage(encoded), prompts, beam_size=BEAM, patience=PATIENCE,
+            get_ctranslate2_storage(encoded), prompts, beam_size=settings.asr_beam_size, patience=PATIENCE,
             length_penalty=LENGTH_PENALTY, repetition_penalty=1.0, no_repeat_ngram_size=0,
             max_length=self.fw.max_length, return_scores=True, return_no_speech_prob=True,
             suppress_blank=True, suppress_tokens=self.suppress, max_initial_timestamp_index=self.max_initial)
@@ -150,10 +150,25 @@ class BatchedDecoder:
             if lid:
                 for k, probs in zip(lid, self.detect(encoded[lid])):
                     wanted[k] = decide(probs)
-            rows = [(k, lang) for k, langs in enumerate(wanted) for lang in langs]
-            for s in range(0, len(rows), self.batch):
-                part = rows[s:s + self.batch]
-                got = self.decode(encoded[[k for k, _ in part]], [lang for _, lang in part], [feats[k][1] for k, _ in part])
-                for (k, lang), res in zip(part, got):
-                    out[idx[k]][lang] = res if res is not None else fallback(pieces[idx[k]], lang)
+            first = [(k, lang) for k, langs in enumerate(wanted) for lang in self.first_pass(langs)]
+            self._decode_rows(first, idx, encoded, feats, pieces, out, fallback)
+            later = [(k, lang) for k, langs in enumerate(wanted) for lang in langs if lang not in self.first_pass(langs)
+                     and max(sc for _, sc in out[idx[k]].values()) < settings.asr_second_decode_below]
+            self.stats["second_language"] = self.stats.get("second_language", 0) + len(later)
+            self._decode_rows(later, idx, encoded, feats, pieces, out, fallback)
         return out
+
+    @staticmethod
+    def first_pass(langs: list[str]) -> list[str]:
+        """With asr_second_decode_below set, the home language (and a detected third language)
+        is decoded first; the other always-decoded language only where that was unsure."""
+        if settings.asr_second_decode_below is None or len(langs) < 2:
+            return langs
+        return [lang for lang in langs if lang == settings.home_language or lang not in settings.asr_always_decode]
+
+    def _decode_rows(self, rows, idx, encoded, feats, pieces, out, fallback) -> None:
+        for s in range(0, len(rows), self.batch):
+            part = rows[s:s + self.batch]
+            got = self.decode(encoded[[k for k, _ in part]], [lang for _, lang in part], [feats[k][1] for k, _ in part])
+            for (k, lang), res in zip(part, got):
+                out[idx[k]][lang] = res if res is not None else fallback(pieces[idx[k]], lang)

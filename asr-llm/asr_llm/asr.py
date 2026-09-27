@@ -134,7 +134,7 @@ class WhisperAsr:
             samples,
             language=language,
             task="transcribe",
-            beam_size=5,
+            beam_size=settings.asr_beam_size,
             condition_on_previous_text=False,
             vad_filter=False,
             word_timestamps=settings.cs_merge,
