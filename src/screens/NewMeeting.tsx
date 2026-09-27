@@ -35,71 +35,77 @@ export function NewMeeting() {
   return (
     <div className="page new-meeting">
       <div className="new-meeting__main">
-        {/* The meeting's name is the headline; the pen (or a click on it) makes it editable. */}
-        <div className="stack" style={{ gap: 4 }}>
-          {/* Figma "Name row": [label over the name] and the date picker, bottom-aligned; the date wraps below on narrow screens. */}
-          <div className="headline-row">
-            <div className="headline-block">
-              <p className="form-label">{t('newMeeting.name')}</p>
-              {editingName ? (
-                <input
-                  autoFocus
-                  className="input headline-input"
-                  aria-label={t('newMeeting.name')}
-                  placeholder={suggestedName}
-                  value={nameDraft}
-                  maxLength={120}
-                  onChange={(e) => setNameDraft(e.target.value)}
-                  onFocus={(e) => e.target.select()}
-                  onBlur={commitName}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') commitName();
-                    if (e.key === 'Escape') setEditingName(false);
-                  }}
-                />
-              ) : (
-                <div className="headline">
-                  <h1 className="t-h1 headline__text" onClick={startName}>
-                    {draft.title?.trim() || suggestedName}
-                  </h1>
-                  <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
-                    <PencilSimpleIcon size={20} aria-hidden />
-                  </button>
+        {/* Top: meeting details on the left, participants on the right (one per row). */}
+        <div className="new-meeting__top">
+          <div className="new-meeting__details">
+            {/* The meeting's name is the headline; the pen (or a click on it) makes it editable. */}
+            <div className="stack" style={{ gap: 4 }}>
+              {/* Figma "Name row": [label over the name] and the date picker, bottom-aligned; the date wraps below on narrow screens. */}
+              <div className="headline-row">
+                <div className="headline-block">
+                  <p className="form-label">{t('newMeeting.name')}</p>
+                  {editingName ? (
+                    <input
+                      autoFocus
+                      className="input headline-input"
+                      aria-label={t('newMeeting.name')}
+                      placeholder={suggestedName}
+                      value={nameDraft}
+                      maxLength={120}
+                      onChange={(e) => setNameDraft(e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      onBlur={commitName}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') commitName();
+                        if (e.key === 'Escape') setEditingName(false);
+                      }}
+                    />
+                  ) : (
+                    <div className="headline">
+                      <h1 className="t-h1 headline__text" onClick={startName}>
+                        {draft.title?.trim() || suggestedName}
+                      </h1>
+                      <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
+                        <PencilSimpleIcon size={20} aria-hidden />
+                      </button>
+                    </div>
+                  )}
                 </div>
+                <DatePicker label={t('newMeeting.date')} max={todayISO()} value={draft.date && draft.date < todayISO() ? draft.date : todayISO()} onChange={(v) => setDraft({ date: v === todayISO() ? undefined : v })} />
+              </div>
+              {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
+              {selectedTemplate && (
+                <span className="tag template-tag">
+                  <TemplateBadge color={templateColor(selectedTemplate)} type={selectedTemplate.type} size={20} />
+                  {t('newMeeting.fromTemplate', { name: selectedTemplate.name })}
+                  <button type="button" className="emails-field__remove" aria-label={t('newMeeting.templateClear')} title={t('newMeeting.templateClear')} onClick={() => setDraft({ templateId: undefined })}>
+                    <XIcon size={12} aria-hidden />
+                  </button>
+                </span>
               )}
             </div>
-            <DatePicker label={t('newMeeting.date')} max={todayISO()} value={draft.date && draft.date < todayISO() ? draft.date : todayISO()} onChange={(v) => setDraft({ date: v === todayISO() ? undefined : v })} />
+
+            <div className="stack" style={{ gap: 10 }}>
+              <p className="form-label" id="nm-type">
+                {t('newMeeting.type')}
+              </p>
+              <Segmented<MeetingType>
+                label={t('newMeeting.type')}
+                variant="auto"
+                value={draft.type}
+                onChange={(type) => setDraft({ type })}
+                options={MEETING_TYPES.map((type) => ({ value: type, label: t(`types.${type}`), icon: <MeetingTypeIcon type={type} /> }))}
+              />
+              {/* What the selected type changes: the vocabulary the minutes are written in. */}
+              <p className="note note--soft" id="nm-type-hint" aria-live="polite">
+                {t(`newMeeting.typeDesc.${draft.type}`)}
+              </p>
+            </div>
           </div>
-          {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
-          {selectedTemplate && (
-            <span className="tag template-tag">
-              <TemplateBadge color={templateColor(selectedTemplate)} type={selectedTemplate.type} size={20} />
-              {t('newMeeting.fromTemplate', { name: selectedTemplate.name })}
-              <button type="button" className="emails-field__remove" aria-label={t('newMeeting.templateClear')} title={t('newMeeting.templateClear')} onClick={() => setDraft({ templateId: undefined })}>
-                <XIcon size={12} aria-hidden />
-              </button>
-            </span>
-          )}
+          <div className="new-meeting__people">
+            <EmailsField emails={draft.emails} onChange={(emails) => setDraft({ emails })} />
+          </div>
         </div>
-
-        <div className="stack" style={{ gap: 10 }}>
-          <p className="form-label" id="nm-type">
-            {t('newMeeting.type')}
-          </p>
-          <Segmented<MeetingType>
-            label={t('newMeeting.type')}
-            variant="auto"
-            value={draft.type}
-            onChange={(type) => setDraft({ type })}
-            options={MEETING_TYPES.map((type) => ({ value: type, label: t(`types.${type}`), icon: <MeetingTypeIcon type={type} /> }))}
-          />
-          {/* What the selected type changes: the vocabulary the minutes are written in. */}
-          <p className="note note--soft" id="nm-type-hint" aria-live="polite">
-            {t(`newMeeting.typeDesc.${draft.type}`)}
-          </p>
-        </div>
-
-        <EmailsField emails={draft.emails} onChange={(emails) => setDraft({ emails })} />
 
         <div className="start-options">
           {/* Card, not a button: the mic picker and test sit inside. The title button stretches over the card. */}
