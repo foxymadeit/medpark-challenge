@@ -423,22 +423,41 @@ flowchart LR
 
 **Hardware for the whole product.**
 
-| | Reference GPU server | Reference CPU server | Demo laptop |
-|---|---|---|---|
-| The challenge's target | one 16 GB GPU | CPU only, 32 GB RAM | none given |
-| Transcription | Whisper large-v3 (CTranslate2), 3.1 GB of weights | Whisper large-v3 turbo, int8 | Whisper large-v3 turbo, int8, short clips |
-| Minutes model | gpt-oss:20b, 12 to 13 GB GPU peak, freed after each meeting | gpt-oss:20b on CPU (a mixture of experts: 3.6 B parameters active per token) | qwen3:4b, short clips |
-| Speaker labels | CPU: 232 MB RAM, 52 MB of models | same | same (runs live on a 2017 dual-core laptop) |
-| PDF and DOCX | XeLaTeX, 4.3 s per language on a 2017 laptop | same | same |
-| Services | Docker Compose: backend, Ollama, n8n (1.0 GB image), Mailpit | same | same |
-| Disk | about 15 GB with models and TeX | about 12 GB | about 8 GB |
+| | Reference GPU server | Reference CPU server | Apple Silicon Mac | Demo laptop |
+|---|---|---|---|---|
+| The challenge's target | one 16 GB GPU | CPU only, 32 GB RAM | not in the brief; our demo machine (M4, 24 GB) | none given |
+| Transcription | Whisper large-v3 (CTranslate2), 3.1 GB of weights | Whisper large-v3 turbo, int8 | Whisper large-v3 on the Apple GPU through MLX (`MOM_ASR_ENGINE=mlx`), 3.1 GB | Whisper large-v3 turbo, int8, short clips |
+| Minutes model | gpt-oss:20b, 12 to 13 GB GPU peak, freed after each meeting | gpt-oss:20b on CPU (a mixture of experts: 3.6 B parameters active per token) | gpt-oss:20b on the Apple GPU through Ollama, 12 GB | qwen3:4b, short clips |
+| Speaker labels | CPU: 232 MB RAM, 52 MB of models | same | same | same (runs live on a 2017 dual-core laptop) |
+| PDF and DOCX | XeLaTeX, 4.3 s per language on a 2017 laptop | same | same (MacTeX) | same |
+| Services | Docker Compose: backend, Ollama, n8n (1.0 GB image), Mailpit | same | backend and Ollama on the Mac, n8n and Mailpit in Docker ([RUN_IT.md](RUN_IT.md)) | same |
+| Disk | about 15 GB with models and TeX | about 12 GB | about 25 GB with MacTeX | about 8 GB |
 
 The backend picks the column by itself (`backend/hardware.py`): a GPU with
-15 GB or more gets the first, 30 GB of RAM without one the second, anything
-smaller the third. `LIMINAL_PROFILE` names one outright, and any model setting
+15 GB or more gets the first, 30 GB of RAM without one the second, an Apple
+Silicon Mac with 20 GB or more the third, anything smaller the last. `LIMINAL_PROFILE` names one outright, and any model setting
 already in the environment wins. The speaker labeller needs no GPU at all, so
 on the GPU server the card is shared only by transcription and the minutes
 model.
+
+**Where our test runs happened.** The live end-to-end tests (browser recording
+to email in Mailpit) ran **locally on a MacBook with an M4 and 24 GB**:
+transcription on the Apple GPU through MLX, the minutes on the Apple GPU
+through Ollama, speaker labels on the CPU, n8n and Mailpit in Docker. Nothing
+left the machine. The GPU numbers come from separate benchmarks on a Kaggle T4
+(16 GB), which stands in for the reference GPU server; the app itself never ran
+there.
+
+| Measured on | What | Result |
+|---|---|---|
+| M4 Mac, MLX (local) | live browser recordings, 47 to 79 s, 3 speakers, RO/RU/EN | transcription 0.7 to 1.4 × real time; minutes 78 to 126 s; stop to finished minutes 2 min 21 s to 3 min 16 s |
+| M4 Mac, CPU (faster-whisper) | the same pipeline before MLX, 6.4-minute recording | transcription 13.5 min (2.1 × real time), so MLX is about 2 × faster |
+| Kaggle T4 | first 60 s of the Medpark sample, the GPU profile | transcription 10 to 13 s |
+| Kaggle T4 | a full hour, transcription only (large-v3, each clip encoded once) | 9.1 min with the product's decoder (`backend/hardware.py`); 8.4 min in our earlier bench |
+
+On the Mac an hour-long meeting takes roughly 65 to 70 minutes end to end, so the
+15-minute target needs the GPU server; the Mac shows that the whole product runs
+offline on a laptop.
 
 ### Routing: n8n
 
