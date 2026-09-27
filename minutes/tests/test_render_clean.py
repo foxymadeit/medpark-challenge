@@ -16,12 +16,15 @@ from mom.write import fallback_body, plan, prompt
 BODY = r"""\summary{S1}{The Board agreed to renew the MRI contract.}
 \begin{agenda}
 \agendaitem{T1}{MRI contract}
+\agendaitem{T2}{Luminal pilot}
 \end{agenda}
 \topic{T1}{MRI contract}
 \decision{D1}{The Board agreed to renew the contract.}{ }
 \action{A1}{Participant 2}{}{Check the renewal terms.}
 \action{A2}{}{}{Send the documents.}
 \needsconfirmation{C1}{Unproven item from an older run.}
+\topic{T2}{Luminal pilot}
+\needsconfirmation{C2}{A topic with nothing proven under it.}
 """
 # no number, place, chair or secretary: none of them may show up
 BARE = Meeting(type="medical", date="2026-09-26", start="09:00", end="09:06")
@@ -83,7 +86,7 @@ def test_attendees_by_name_only_no_talk_time(documents):
 @pytest.mark.skipif(not shutil.which("xelatex"), reason="needs TeX Live")
 def test_unproven_items_and_the_letterhead_are_gone_but_the_ai_notice_stays(documents):
     for lang, kind, text in _each(documents):
-        assert "Unproven item" not in text, (lang, kind)
+        assert "Unproven item" not in text and "Luminal pilot" not in text, (lang, kind)
         assert "Andrei Doga" not in text and "Medpark |" not in text and "+373" not in text, (lang, kind)
         assert AI[lang] in text.replace("\n", " "), (lang, kind)
 

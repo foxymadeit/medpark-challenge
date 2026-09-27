@@ -123,7 +123,7 @@ def render_documents(state: dict, out_dir) -> dict:
     def render(lang):
         people = [{**p, "role": ""} if TALK_TIME.fullmatch(p.get("role", "")) else p for p in state["attendees"][lang]]
         m = replace(meeting, attendees=people)
-        body = state["bodies"][lang]
+        body = printed(state["bodies"][lang])
         pdf = render_pdf.compile_pdf(render_pdf.tex_source(m, body, lang, model, verified),
                                      render_pdf.xmp_source(m, lang, model), out_dir / f"{stem}_{lang}.pdf")
         docx = render_docx.render(m, latexcheck.parse(body), lang, model, verified, out_dir / f"{stem}_{lang}.docx")
@@ -132,6 +132,23 @@ def render_documents(state: dict, out_dir) -> dict:
     langs = list(state["bodies"])
     with ThreadPoolExecutor(len(langs)) as pool:
         return {lang: {"pdf": pdf, "docx": docx} for lang, pdf, docx in pool.map(render, langs)}
+
+
+def printed(body: str) -> str:
+    """The body as the documents print it: without unproven items (bodies written
+    before 2026-09-27 carry them) and without a topic left with nothing under it."""
+    blocks = [b for b in latexcheck.parse(body) if b.kind != "needsconfirmation"]
+    filled, topic = set(), None
+    for b in blocks:
+        if b.kind == "topic":
+            topic = b.fact_id
+        elif b.kind in ("presented", "noted", "decision", "action"):
+            filled.add(topic)
+    empty = {b.fact_id for b in blocks if b.kind == "topic"} - filled
+    blocks = [b for b in blocks if not (b.kind in ("topic", "agendaitem") and b.fact_id in empty)]
+    if not any(b.kind == "agendaitem" for b in blocks):   # an agenda with no item would not compile
+        blocks = [b for b in blocks if b.kind not in ("begin", "end")]
+    return latexcheck.serialise(blocks)
 
 
 def rerender(render_file, meeting_type: str) -> dict:

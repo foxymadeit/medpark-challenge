@@ -188,8 +188,8 @@
 \pagestyle{mom}
 
 \newcommand\mom@meta[1]{\momhas{#1}{\par\noindent
-  \parbox[t]{40mm}{\textcolor{mpslate}{\momlabel\small\momstr{#1}}}%
-  \parbox[t]{\dimexpr\textwidth-40mm\relax}{\raggedright\momvalue{#1}}\par}{}}
+  \parbox[t]{42mm}{\raggedright\textcolor{mpslate}{\momlabel\small\momstr{#1}}}\hspace{3mm}%
+  \parbox[t]{\dimexpr\textwidth-45mm\relax}{\raggedright\momvalue{#1}}\par}{}}
 \newcommand\mommaketitle{%
   {\momsans\fontsize{17}{22}\selectfont\color{mpteal}\raggedright
     {\bfseries\momstr{doc}\momhas{number}{\ \momstr{no}\,\momvalue{number}}{}}\ \momvalue{title}\par}
