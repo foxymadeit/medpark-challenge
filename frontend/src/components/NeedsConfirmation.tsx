@@ -47,6 +47,10 @@ export default function NeedsConfirmation({
     };
   });
   const open = items.filter((i) => !i.decision && !i.settledElsewhere).length;
+  // an item being rewritten, the draft, and what each rewritten item now says
+  const [editing, setEditing] = useState("");
+  const [draft, setDraft] = useState("");
+  const [edited, setEdited] = useState<Record<string, string>>({});
   async function run(key: string, action: () => Promise<unknown>) {
     setBusy(key);
     setError("");
@@ -72,6 +76,22 @@ export default function NeedsConfirmation({
         const next = { ...c };
         if (before) next[itemId] = before;
         else delete next[itemId];
+        return next;
+      });
+  }
+  async function keepRewritten(itemId: string) {
+    const text = draft.trim();
+    setChosen((c) => ({ ...c, [itemId]: "keep" }));
+    const ok = await run(itemId, () =>
+      decideConfirmation(meeting.id, itemId, true, text),
+    );
+    if (ok) {
+      setEdited((e) => ({ ...e, [itemId]: text }));
+      setEditing("");
+    } else
+      setChosen((c) => {
+        const next = { ...c };
+        delete next[itemId];
         return next;
       });
   }
@@ -131,6 +151,19 @@ export default function NeedsConfirmation({
         key="open"
         className={`button-row expand-in ${wide ? "confirm-choice" : ""}`}
       >
+        {!item.detectedType && (
+          <Button
+            variant="quiet"
+            disabled={!!busy}
+            aria-label={t("editSentenceFor", { text: item.text })}
+            onClick={() => {
+              setDraft(edited[item.id] ?? item.text);
+              setEditing(item.id);
+            }}
+          >
+            {t("editSentence")}
+          </Button>
+        )}
         <Button
           disabled={!!busy}
           aria-label={
@@ -190,15 +223,54 @@ export default function NeedsConfirmation({
           <ul className="confirm-list">
             {others.map((item) => (
               <li key={item.id} className="confirm-row">
-                <div>
-                  <strong>{item.text}</strong>
-                  <p>
-                    {item.problems?.length
-                      ? explainProblems(item.problems, t)
-                      : item.reason}
-                  </p>
-                </div>
-                {actions(item)}
+                {editing === item.id ? (
+                  <form
+                    className="sentence-edit expand-in"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void keepRewritten(item.id);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setEditing("");
+                    }}
+                  >
+                    <label htmlFor={`sentence-${item.id}`}>
+                      {t("sentenceLabel")}
+                    </label>
+                    <textarea
+                      id={`sentence-${item.id}`}
+                      rows={3}
+                      maxLength={2000}
+                      value={draft}
+                      autoFocus
+                      onChange={(e) => setDraft(e.target.value)}
+                    />
+                    <div className="button-row">
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        disabled={!!busy || !draft.trim()}
+                      >
+                        {t("saveAndKeep")}
+                      </Button>
+                      <Button variant="quiet" onClick={() => setEditing("")}>
+                        {t("cancel")}
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div>
+                      <strong>{edited[item.id] ?? item.text}</strong>
+                      <p>
+                        {item.problems?.length
+                          ? explainProblems(item.problems, t)
+                          : item.reason}
+                      </p>
+                    </div>
+                    {actions(item)}
+                  </>
+                )}
               </li>
             ))}
           </ul>

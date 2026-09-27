@@ -22,6 +22,8 @@ import api  # noqa: E402
 import delivery  # noqa: E402
 import jobs  # noqa: E402
 import main  # noqa: E402
+import names  # noqa: E402
+import security  # noqa: E402
 import store  # noqa: E402
 from schemas import Minutes  # noqa: E402
 from services.EmailService import EmailDeliveryResult, compose_email  # noqa: E402
@@ -38,6 +40,7 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("LIMINAL_MINUTES_CMD", f"{sys.executable} {FAKE}/minutes.py {{work}}/transcript.json "
                                               "--session {session} --type {type} --out {work}/minutes")
     monkeypatch.setenv("LIMINAL_RENDER_CMD", f"{sys.executable} {FAKE}/render.py {{render}} --type {{type}}")
+    monkeypatch.setenv("MOM_LLM_URL", "http://127.0.0.1:9")   # no model answers unless a test brings one
     with TestClient(main.app, headers=ORIGIN) as c:
         yield c
 
@@ -544,3 +547,264 @@ def test_settled_minutes_get_their_stop_window_on_the_server(client, monkeypatch
     w = r.json()
     assert w["status"] == "sending_soon" and w["sendScheduledAt"] and w["reviewState"] == "reviewed"
     assert client.post(f"/api/meetings/{m['id']}/stop-send").json()["status"] == "ready"
+
+
+# ---------------------------------------------------------------- the moderator names people and retitles
+BODIES = {
+    "ro": "\\summary{S1}{Participantul 3 a prezentat protocolul; Participantul 1 a condus.}\n"
+          "\\action{A1}{Participantul 3}{02.10.2026}{Trimite raportul.}\n"
+          "\\needsconfirmation{C1}{Speaker 3 trimite raportul, Participantul 2 confirmă.}\n",
+    "ru": "\\summary{S1}{Участник 3 представил протокол.}\n\\action{A1}{Участник 3}{02.10.2026}{Отправить отчёт.}\n"
+          "\\noted{N1}{Участник 2 согласен.}\n",
+    "en": "\\summary{S1}{Participant 3 presented; Participant 13 was absent.}\n"
+          "\\action{A1}{Participant 3}{2 October 2026}{Send the report.}\n\\noted{N1}{Participant 2 agreed.}\n",
+}
+UNIT = {"ro": ("Participantul", "min"), "ru": ("Участник", "мин"), "en": ("Participant", "min")}
+
+
+def with_render_state(mid: str) -> Path:
+    """The render state `mom report` leaves next to the minutes (the fake stage writes a stub)."""
+    state = {"meeting": {"type": "medical", "date": "2026-09-26"}, "bodies": BODIES, "model": "fake", "verified": "3/3",
+             "attendees": {lang: [{"name": f"{word} {n}", "role": f"{n} {unit}"} for n in (1, 2, 3)]
+                           for lang, (word, unit) in UNIT.items()}}
+    path = jobs.work_dir(mid) / "minutes" / "MoM_2026-09-26_medical.render.json"
+    path.write_text(json.dumps(state, ensure_ascii=False))
+    return path
+
+
+def voice(m: dict, n: int) -> dict:
+    return next(p for p in m["participants"] if p.get("speakerNumber") == n)
+
+
+def test_naming_a_participant_reaches_the_app_the_email_and_every_document(client):
+    m = processed(client)
+    state_file = with_render_state(m["id"])
+    before = (jobs.work_dir(m["id"]) / "minutes" / "MoM_2026-09-26_medical_ro.pdf").stat().st_mtime_ns
+    r = client.patch(f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}", json={"name": "  Ana Rusu "})
+    assert r.status_code == 200, r.text
+    got = r.json()
+    assert voice(got, 3)["name"] == "Ana Rusu" and got["actionItems"][0]["ownerParticipantId"] == voice(got, 3)["id"]
+    state = json.loads(state_file.read_text())
+    assert "Ana Rusu a prezentat" in state["bodies"]["ro"] and "\\action{A1}{Ana Rusu}" in state["bodies"]["ro"]
+    assert "Ana Rusu trimite" in state["bodies"]["ro"]   # the transcript's "Speaker 3" too
+    assert "Ana Rusu представил" in state["bodies"]["ru"] and "\\action{A1}{Ana Rusu}" in state["bodies"]["ru"]
+    assert "Ana Rusu presented; Participant 13 was absent" in state["bodies"]["en"]   # 13 is someone else
+    assert "Participantul 1 a condus" in state["bodies"]["ro"]
+    for lang, (word, unit) in UNIT.items():
+        assert state["attendees"][lang] == [{"name": f"{word} 1", "role": f"1 {unit}"}, {"name": f"{word} 2", "role": f"2 {unit}"},
+                                            {"name": "Ana Rusu", "role": f"3 {unit}"}]
+    assert (jobs.work_dir(m["id"]) / "minutes" / "MoM_2026-09-26_medical_ro.pdf").stat().st_mtime_ns >= before
+    mail = delivery.payload(store.get("meetings", m["id"]))["minutes"]
+    assert "Ana Rusu" in mail["attendees"] and mail["action_items"][0]["owner"] == "Ana Rusu"
+    assert got["participantSnapshots"][2]["nameAtMeeting"] == "Ana Rusu"
+    assert client.get("/api/admin/audit").json()[0]["action"] == "Named a participant"
+
+
+def test_merging_moves_lines_actions_and_mentions_to_one_person(client):
+    m = processed(client)
+    state_file = with_render_state(m["id"])
+    one, two, three = voice(m, 1), voice(m, 2), voice(m, 3)
+    r = client.post(f"/api/meetings/{m['id']}/participants/{two['id']}/merge", json={"into": one["id"]})
+    assert r.status_code == 200, r.text
+    got = r.json()
+    assert [p["id"] for p in got["participants"]] == [one["id"], three["id"]]
+    assert voice(got, 1)["speakingSeconds"] == one["speakingSeconds"] + two["speakingSeconds"]
+    assert {s["speakerId"] for s in got["transcript"]} == {"Speaker 1", "Speaker 3"}
+    assert {s["speakerId"] for s in got["speakerTimeline"]} == {"Speaker 1", "Speaker 3"}
+    state = json.loads(state_file.read_text())
+    assert "Participantul 1 confirmă" in state["bodies"]["ro"] and "Участник 1 согласен" in state["bodies"]["ru"]
+    assert "Participant 1 agreed" in state["bodies"]["en"]
+    for lang, (word, unit) in UNIT.items():
+        assert state["attendees"][lang] == [{"name": f"{word} 1", "role": f"3 {unit}"}, {"name": f"{word} 3", "role": f"3 {unit}"}]
+    # the action's owner follows a merge, and a named person keeps their name
+    client.patch(f"/api/meetings/{m['id']}/participants/{one['id']}", json={"name": "Ion Popa"})
+    got = client.post(f"/api/meetings/{m['id']}/participants/{three['id']}/merge", json={"into": one["id"]}).json()
+    assert [p["name"] for p in got["participants"]] == ["Ion Popa"]
+    assert got["actionItems"][0]["ownerParticipantId"] == one["id"]
+    state = json.loads(state_file.read_text())
+    assert "\\action{A1}{Ion Popa}" in state["bodies"]["ro"] and "Participant" not in state["bodies"]["ro"]
+    assert state["attendees"]["ru"] == [{"name": "Ion Popa", "role": "6 мин"}]
+    assert client.get("/api/admin/audit").json()[0]["action"] == "Merged two participants into one"
+
+
+def test_names_are_checked_and_cannot_write_latex(client):
+    m = processed(client)
+    state_file = with_render_state(m["id"])
+    url = f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}"
+    for bad in ("", "   ", "x" * 81, "Ana\x00Rusu", "Ana\nRusu", "Ana\u202eRusu", "Participant 7", "Участник 2"):
+        assert client.patch(url, json={"name": bad}).status_code == 422, repr(bad)
+    client.patch(f"/api/meetings/{m['id']}/participants/{voice(m, 1)['id']}", json={"name": "Ion Popa"})
+    assert client.patch(url, json={"name": "ion popa"}).status_code == 422   # the same person: merge instead
+    assert client.patch(f"/api/meetings/{m['id']}/participants/nobody", json={"name": "X"}).status_code == 404
+    merge = f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}/merge"
+    assert client.post(merge, json={"into": voice(m, 3)["id"]}).status_code == 422
+    assert client.post(merge, json={"into": "nobody"}).status_code == 404
+    evil = "Ana \\input{/etc/passwd} \\write18{rm} 100% R&D_x ^^5c ~$"
+    r = client.patch(url, json={"name": evil})
+    assert r.status_code == 200, r.text
+    assert voice(r.json(), 3)["name"] == evil   # the app shows what was typed; React and the email escape it
+    lx = names.latexcheck()
+    for body in json.loads(state_file.read_text())["bodies"].values():
+        lx.parse(body)   # still a clean body: no command got in
+        assert "\\input" not in body and "\\write18" not in body and "100\\% R\\&D\\_x" in body
+
+
+def test_retitling_after_the_minutes_are_written(client):
+    m = processed(client)
+    r = client.patch(f"/api/meetings/{m['id']}", json={"title": "  Consiliul medical, 26 septembrie "})
+    assert r.status_code == 200 and r.json()["title"] == "Consiliul medical, 26 septembrie"
+    assert delivery.payload(store.get("meetings", m["id"]))["minutes"]["title"] == "Consiliul medical, 26 septembrie"
+    assert client.patch(f"/api/meetings/{m['id']}", json={"title": " "}).status_code == 422
+
+
+def test_once_sent_names_merges_and_titles_are_refused(client):
+    m = processed(client)
+    with_render_state(m["id"])
+    store.update("meetings", m["id"], lambda x: x.update(status="sent"))
+    base = f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}"
+    assert client.patch(base, json={"name": "Ana Rusu"}).status_code == 409
+    assert client.post(f"{base}/merge", json={"into": voice(m, 1)["id"]}).status_code == 409
+    assert client.patch(f"/api/meetings/{m['id']}", json={"title": "Too late"}).status_code == 409
+    after = client.get(f"/api/meetings/{m['id']}").json()
+    assert after["title"] == m["title"] and after["participants"] == m["participants"]
+
+
+def test_if_the_documents_cannot_be_rebuilt_the_name_stays(client, monkeypatch):
+    m = processed(client)
+    state_file = with_render_state(m["id"])
+    before = state_file.read_text()
+    monkeypatch.setenv("LIMINAL_RENDER_CMD", f"{sys.executable} -c 'import sys; sys.exit(3)'")
+    r = client.patch(f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}", json={"name": "Ana Rusu"})
+    assert r.status_code == 503
+    assert state_file.read_text() == before and voice(client.get(f"/api/meetings/{m['id']}").json(), 3)["name"] == "Participant 3"
+
+
+
+# ---------------------------------------------------------------- rewriting sentences before sending
+SENTENCE_BODIES = {
+    lang: f"\\summary{{S1}}{{{summary}}}\n\\begin{{agenda}}\n\\agendaitem{{T1}}{{ATI}}\n\\end{{agenda}}\n\\topic{{T1}}{{ATI}}\n"
+          f"\\decision{{D1}}{{{decision}}}{{}}\n\\action{{A1}}{{{who} 3}}{{02.10.2026}}{{{task}}}\n"
+          f"\\needsconfirmation{{C1}}{{{waiting}}}\n"
+    for lang, summary, decision, who, task, waiting in (
+        ("ro", "Rezumat.", "Se aprobă protocolul ATI.", "Participantul", "Trimite raportul.", "Comandă electrozi."),
+        ("ru", "Итог.", "Протокол ОРИТ утверждён.", "Участник", "Отправить отчёт.", "Заказать электроды."),
+        ("en", "Summary.", "The ICU protocol is approved.", "Participant", "Send the report.", "Order new leads."))}
+
+
+def with_sentences(mid: str) -> Path:
+    path = jobs.work_dir(mid) / "minutes" / "MoM_2026-09-26_medical.render.json"
+    path.write_text(json.dumps({"meeting": {"type": "medical", "date": "2026-09-26"}, "bodies": SENTENCE_BODIES,
+                                "attendees": {}, "model": "fake", "verified": "3/3"}, ensure_ascii=False))
+    return path
+
+
+def bodies(path: Path) -> dict:
+    state = json.loads(path.read_text())
+    for body in state["bodies"].values():
+        names.latexcheck().parse(body)
+    return state["bodies"]
+
+
+def test_a_rewritten_action_reaches_every_document_translated(client, monkeypatch):
+    monkeypatch.setattr(api.sentences, "translate", lambda text, src, dst: f"[{dst}] {text}")
+    m = processed(client)
+    state_file = with_sentences(m["id"])
+    r = client.patch(f"/api/meetings/{m['id']}/actions/A1", json={"task": "Trimite raportul până vineri."})
+    assert r.status_code == 200 and r.json()["actionItems"][0]["task"] == "Trimite raportul până vineri."
+    got = bodies(state_file)
+    assert "\\action{A1}{Participantul 3}{02.10.2026}{Trimite raportul până vineri.}" in got["ro"]
+    assert "{[ru] Trimite raportul până vineri.}" in got["ru"] and "{[en] Trimite raportul până vineri.}" in got["en"]
+    assert "Se aprobă protocolul ATI." in got["ro"]   # nothing else moved
+    row = client.get("/api/admin/audit").json()[0]
+    assert row["action"] == "Edited an action item" and row["status"] == 200
+
+
+def test_without_the_model_the_sentence_goes_in_as_written_and_the_audit_says_so(client):
+    m = processed(client)
+    state_file = with_sentences(m["id"])
+    r = client.patch(f"/api/meetings/{m['id']}/minutes",
+                     json={"summary": "Rezumat nou.", "decisions": [{"id": "D1", "text": "Se aprobă protocolul revizuit."}]})
+    assert r.status_code == 200, r.text
+    for body in bodies(state_file).values():
+        assert "\\summary{S1}{Rezumat nou.}" in body and "\\decision{D1}{Se aprobă protocolul revizuit.}{}" in body
+    row = client.get("/api/admin/audit").json()[0]
+    assert row["status"] == security.UNTRANSLATED and "the local model did not answer" in row["action"]
+
+
+def test_keeping_a_rewritten_item_confirms_it_in_the_app_and_the_documents(client, monkeypatch):
+    monkeypatch.setenv("FAKE_CONFIRM", "1")
+    m = processed(client)
+    state_file = with_sentences(m["id"])
+    url = f"/api/meetings/{m['id']}/confirmations/A2"
+    assert client.post(url, json={"action": "remove", "text": "x"}).status_code == 422
+    assert client.post(f"/api/meetings/{m['id']}/confirmations/meeting-type",
+                       json={"action": "keep", "text": "x"}).status_code == 422
+    r = client.post(url, json={"action": "keep", "text": "Comandă electrozi noi până luni."})
+    assert r.status_code == 200, r.text
+    got = r.json()
+    assert not got["needsConfirmation"] and got["actionItems"][1]["task"] == "Comandă electrozi noi până luni."
+    ro = bodies(state_file)["ro"]
+    assert "needsconfirmation" not in ro   # confirmed: it left the "needs confirmation" list for its topic
+    assert ro.rstrip().endswith("\\action{A2}{}{}{Comandă electrozi noi până luni.}")
+    assert ro.index("\\topic{T1}") < ro.index("\\action{A2}")
+
+
+def test_rewritten_sentences_cannot_write_latex(client):
+    m = processed(client)
+    state_file = with_sentences(m["id"])
+    url = f"/api/meetings/{m['id']}/actions/A1"
+    for bad in ("", "   ", "Gata\x00", "Gata\u202e", "x" * 2001):
+        assert client.patch(url, json={"task": bad}).status_code == 422, repr(bad)
+    evil = "Gata \\input{/etc/passwd} }{ \\write18{rm -rf} 50% & R_D ^^5c $x$ #1"
+    assert client.patch(url, json={"task": evil}).status_code == 200
+    for body in bodies(state_file).values():
+        assert "\\input" not in body and "\\write18" not in body and "^^" not in body
+        assert "50\\% \\& R\\_D" in body
+
+
+def test_once_sent_no_sentence_can_change(client, monkeypatch):
+    monkeypatch.setenv("FAKE_CONFIRM", "1")
+    m = processed(client)
+    state_file = with_sentences(m["id"])
+    before = state_file.read_text()
+    store.update("meetings", m["id"], lambda x: x.update(status="sent"))
+    assert client.patch(f"/api/meetings/{m['id']}/actions/A1", json={"task": "Altceva."}).status_code == 409
+    assert client.patch(f"/api/meetings/{m['id']}/minutes",
+                        json={"decisions": [{"id": "D1", "text": "Altceva."}]}).status_code == 409
+    assert client.post(f"/api/meetings/{m['id']}/confirmations/A2",
+                       json={"action": "keep", "text": "Altceva."}).status_code == 409
+    assert state_file.read_text() == before
+
+
+
+# ---------------------------------------------------------------- owners named in the meeting
+def test_an_owner_named_in_the_meeting_is_a_participant_who_can_be_renamed_and_merged(client, monkeypatch):
+    monkeypatch.setenv("FAKE_NAMED_OWNER", "1")
+    m = processed(client)
+    roman = next(p for p in m["participants"] if p["name"] == "Roman")
+    assert "speakerId" not in roman and roman["namedInMinutes"] is True
+    action = next(a for a in m["actionItems"] if a["id"] == "A3")
+    assert action["ownerParticipantId"] == roman["id"]
+    assert delivery.payload(store.get("meetings", m["id"]))["minutes"]["action_items"][1]["owner"] == "Roman"
+    # processing again rebuilds the named participant rather than adding a second one
+    client.post(f"/api/meetings/{m['id']}/process")
+    run_queue()
+    again = client.get(f"/api/meetings/{m['id']}").json()
+    assert [p["name"] for p in again["participants"]].count("Roman") == 1
+    state_file = jobs.work_dir(m["id"]) / "minutes" / "MoM_2026-09-26_medical.render.json"
+    state_file.write_text(json.dumps({"meeting": {"type": "medical", "date": "2026-09-26"}, "model": "fake",
+                                      "verified": "1/1", "attendees": {"ro": [{"name": "Participantul 2", "role": "1 min"}]},
+                                      "bodies": {"ro": "\\action{A3}{Roman}{}{Roman programează coronarografia.}\n"
+                                                       "\\noted{N1}{Participantul 2 a prezentat; Romanov lipsea.}\n"}}))
+    r = client.patch(f"/api/meetings/{m['id']}/participants/{roman['id']}", json={"name": "Roman Ceban"})
+    assert r.status_code == 200, r.text
+    body = json.loads(state_file.read_text())["bodies"]["ro"]
+    assert "\\action{A3}{Roman Ceban}{}{Roman Ceban programează" in body and "Romanov lipsea" in body
+    # the voice of Participant 2 was Roman all along
+    two = voice(again, 2)
+    got = client.post(f"/api/meetings/{m['id']}/participants/{two['id']}/merge", json={"into": roman["id"]}).json()
+    merged = next(p for p in got["participants"] if p["id"] == roman["id"])
+    assert merged["speakerId"] == "Speaker 2" and two["id"] not in [p["id"] for p in got["participants"]]
+    state = json.loads(state_file.read_text())
+    assert "Roman Ceban a prezentat" in state["bodies"]["ro"]
+    assert state["attendees"]["ro"] == [{"name": "Roman Ceban", "role": "1 min"}]

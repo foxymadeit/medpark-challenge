@@ -159,6 +159,7 @@ function settle(m) {
   return tick(m);
 }
 
+const locked = (m) => ["sending", "sent"].includes(m.status);
 const routes = [
   [
     "GET",
@@ -279,10 +280,101 @@ const routes = [
       const m = meetings.get(id);
       if (!["keep", "remove"].includes(b.action))
         return send(res, 422, { error: "Use keep or remove." });
+      if (locked(m)) return send(res, 409, { detail: "already sent" });
+      if (b.action === "keep" && typeof b.text === "string") {
+        // an edited sentence is kept as the person wrote it
+        const a = m.actionItems.find((x) => x.id === item);
+        if (a) a.task = b.text.trim();
+      }
       if (b.action === "remove")
         m.actionItems = m.actionItems.filter((a) => a.id !== item);
       m.needsConfirmation = m.needsConfirmation.filter((c) => c.id !== item);
       send(res, 200, m);
+    },
+  ],
+  // the moderator's edits before sending (backend/api.py); 409 once sent
+  [
+    "PATCH",
+    /^\/api\/meetings\/([^/]+)$/,
+    async (req, res, id) => {
+      const b = await body(req);
+      const m = meetings.get(id);
+      if (b.title !== undefined) {
+        if (locked(m)) return send(res, 409, { detail: "already sent" });
+        const title = String(b.title).trim();
+        if (!title || title.length > 120) return send(res, 422, {});
+        m.title = title;
+      }
+      send(res, 200, m);
+    },
+  ],
+  [
+    "PATCH",
+    /^\/api\/meetings\/([^/]+)\/participants\/([^/]+)$/,
+    async (req, res, id, pid) => {
+      const b = await body(req);
+      const m = meetings.get(id);
+      if (locked(m)) return send(res, 409, { detail: "already sent" });
+      const p = m.participants.find((x) => x.id === pid);
+      const name = String(b.name ?? "")
+        .trim()
+        .replace(/\s+/g, " ");
+      if (!p) return send(res, 404, {});
+      if (!name || name.length > 80) return send(res, 422, {});
+      p.name = name;
+      send(res, 200, m);
+    },
+  ],
+  [
+    "POST",
+    /^\/api\/meetings\/([^/]+)\/participants\/([^/]+)\/merge$/,
+    async (req, res, id, pid) => {
+      const b = await body(req);
+      const m = meetings.get(id);
+      if (locked(m)) return send(res, 409, { detail: "already sent" });
+      const gone = m.participants.find((x) => x.id === pid);
+      const into = m.participants.find((x) => x.id === b.into);
+      if (!gone || !into) return send(res, 404, {});
+      if (gone === into) return send(res, 422, {});
+      into.speakingSeconds += gone.speakingSeconds;
+      for (const a of m.actionItems)
+        if (a.ownerParticipantId === gone.id) a.ownerParticipantId = into.id;
+      m.participants = m.participants.filter((x) => x !== gone);
+      send(res, 200, m);
+    },
+  ],
+  [
+    "PATCH",
+    /^\/api\/meetings\/([^/]+)\/actions\/([^/]+)$/,
+    async (req, res, id, aid) => {
+      const b = await body(req);
+      const m = meetings.get(id);
+      const a = m.actionItems.find((x) => x.id === aid);
+      if (!a) return send(res, 404, {});
+      if (locked(m) && Object.keys(b).some((k) => k !== "completed"))
+        return send(res, 409, { detail: "already sent" });
+      Object.assign(a, b);
+      send(res, 200, m);
+    },
+  ],
+  [
+    "PATCH",
+    /^\/api\/meetings\/([^/]+)\/minutes$/,
+    async (req, res, id) => {
+      const b = await body(req);
+      const m = meetings.get(id);
+      if (locked(m)) return send(res, 409, { detail: "already sent" });
+      if (b.summary !== undefined) m.summary = b.summary;
+      if (b.decisions !== undefined) m.decisions = b.decisions;
+      send(res, 200, m);
+    },
+  ],
+  [
+    "POST",
+    /^\/api\/meetings\/([^/]+)\/feedback$/,
+    async (req, res) => {
+      await body(req);
+      send(res, 204);
     },
   ],
   [
