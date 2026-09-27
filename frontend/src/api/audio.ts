@@ -22,6 +22,10 @@ export function validateDuration(seconds: number) {
     throw new ApiError("audioUnreadable");
   if (seconds > MAX_AUDIO_SECONDS) throw new ApiError("audioTooLong");
 }
+/** Duration in seconds, or 0 when this browser cannot decode the codec (Chrome
+ * cannot play ALAC, which is how Medpark's own .m4a sample is encoded). The
+ * server measures and checks every upload with ffprobe, so an unknown length
+ * here does not block the upload; a damaged file is still refused there. */
 export async function inspectAudio(file: File): Promise<number> {
   validateAudioFile(file);
   return new Promise((resolve, reject) => {
@@ -47,11 +51,11 @@ export async function inspectAudio(file: File): Promise<number> {
     };
     audio.onerror = () => {
       clean();
-      reject(new ApiError("audioUnreadable"));
+      resolve(0);
     };
     timer = setTimeout(() => {
       clean();
-      reject(new ApiError("audioUnreadable"));
+      resolve(0);
     }, 15000);
     audio.preload = "metadata";
     audio.src = url;

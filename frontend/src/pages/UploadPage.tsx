@@ -116,8 +116,8 @@ export default function UploadPage() {
             <div>
               <strong>{file.name}</strong>
               <p className="mono">
-                {formatTime(duration)} · {(file.size / 1024 / 1024).toFixed(1)}{" "}
-                MB
+                {duration > 0 && `${formatTime(duration)} · `}
+                {(file.size / 1024 / 1024).toFixed(1)} MB
               </p>
             </div>
             <Check size={18} className="success" aria-label={t("checked")} />
