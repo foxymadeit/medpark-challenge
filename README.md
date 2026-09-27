@@ -494,7 +494,17 @@ fixed and under test.
 **Speed.** The challenge asks for under 15 minutes from upload to email for a
 60-minute recording on the reference hardware. We measured it on one T4 (Kaggle,
 16 GB, the slowest card that fits the brief, with 4 CPU cores), with the product's
-own commands, on three public hours and three shorter recordings, 27 September:
+own commands, on three public hours and three shorter recordings, 27 September.
+
+**Hour test 1, one T4 (reference).** The hour test on one T4 (current `liminal`) measured:
+
+| Hour | Transcription | Transcription + speakers (wall) | Minutes (extract / write) | Total |
+|---|---|---|---|---|
+| Parliament (RO) | 6.3 min | 10.8 | 8.1 (3.7 / 4.4) | 18.9 |
+| Kremlin (RU) | 10.4 | 12.2 | 14.2 (4.8 / 9.3) | 26.4 |
+| ICSI (EN) | 11.5 (1,997 decodes: RO+RU+EN per piece) | 12.3 | 4.7 (3.2 / 1.5) | 17.0 |
+
+All six recordings in that run, upload to minutes:
 
 | Recording | Audio | Transcription | Transcription and speakers, side by side | Minutes in RO, RU, EN | Upload to minutes |
 |---|---|---|---|---|---|
