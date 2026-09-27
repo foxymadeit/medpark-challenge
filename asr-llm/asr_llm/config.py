@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     # first and adds the other always-decoded language only where the first was less sure than
     # this. None: always both, as measured in the ASR bake-off.
     asr_second_decode_below: float | None = None
+    # Learn the meeting's languages: decode the first asr_probe_pieces utterances in every
+    # always-decoded language, then keep only the languages that won at least
+    # asr_probe_min_share of them. Detected languages are still decoded everywhere.
+    asr_adaptive_languages: bool = False
+    asr_probe_pieces: int = 48
+    asr_probe_min_share: float = 0.05
 
     llm_gguf: Path = ASR_ROOT / "models" / "llm" / "qwen2.5-7b-instruct-q4_k_m.gguf"
     # Minutes/fusion model: "" = llm_gguf, a GGUF path, or "ollama:<name>" (e.g. ollama:qwen3.5:9b).

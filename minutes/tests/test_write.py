@@ -98,3 +98,15 @@ def test_fallback_never_prints_a_patient_name():
              Fact("N1", "note", "Pacienta Maria Lungu are 67 de ani.", ["L0001"], quote="x", topic="T1")]
     body = fallback_body(plan(facts, "ro"), "ro", [{"name": "Maria Lungu", "age": 67, "bed": 12}])
     assert "Lungu" not in body and "M.L." in body
+
+
+def test_a_long_topic_keeps_every_decision_and_action_but_four_notes():
+    from mom.schemas import Fact
+    from mom.write import plan
+
+    facts = [Fact("T1", "topic", "Buget", [], status="ok")]
+    facts += [Fact(f"N{i}", "note", f"Nota {i}.", [], topic="T1", status="ok") for i in range(1, 10)]
+    facts += [Fact(f"D{i}", "decision", f"Decizia {i}.", [], topic="T1", status="ok") for i in range(1, 7)]
+    facts += [Fact(f"A{i}", "action", f"Acțiunea {i}.", [], topic="T1", owner="Roman", status="ok") for i in range(1, 7)]
+    kinds = [r["kind"] for r in plan(facts, "ro")]
+    assert kinds.count("note") == 4 and kinds.count("decision") == 6 and kinds.count("action") == 6

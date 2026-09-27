@@ -68,16 +68,16 @@ class WhisperAsr:
         # Word timings and joint language tokens only exist on the one-at-a-time path.
         self.batched = settings.asr_batch_size > 1 and not settings.cs_merge and not settings.asr_joint_languages
 
-    def _languages(self, probs: list[tuple[str, float]]) -> list[str]:
-        languages = list(settings.asr_always_decode)
+    def _languages(self, probs: list[tuple[str, float]], always: list[str] | None = None) -> list[str]:
+        languages = list(settings.asr_always_decode if always is None else always)
         ranked = rank_languages(probs, settings.asr_languages)
         if ranked and ranked[0][0] not in languages:
             languages.append(ranked[0][0])
-        return languages
+        return languages or [settings.home_language]
 
     def transcribe_all(self, pieces: list[np.ndarray]) -> list[tuple[str, str | None, list[Hypothesis]]]:
         """transcribe_batch over every piece in order, with the GPU work batched (asr_batched.py)."""
-        from .asr_batched import BatchedDecoder, short_languages
+        from .asr_batched import BatchedDecoder, kept_languages, short_languages
 
         decoder = BatchedDecoder(self._model, settings.asr_batch_size)
 
@@ -87,11 +87,19 @@ class WhisperAsr:
 
         short = [p.size < settings.min_lid_s * settings.sample_rate for p in pieces]
         lead = [i for i in range(len(pieces)) if i == 0 or not short[i]]
-        found = dict(zip(lead, decoder.run([pieces[i] for i in lead], {}, self._languages, fallback)))
+        probe = lead[:settings.asr_probe_pieces] if settings.asr_adaptive_languages else lead
+        found = dict(zip(probe, decoder.run([pieces[i] for i in probe], {}, self._languages, fallback)))
+        self.meeting_languages = list(settings.asr_always_decode)
+        rest = lead[len(probe):]
+        if rest:
+            always = kept_languages([_winner(found[i])[1] for i in probe])
+            self.meeting_languages = always
+            decoder.stats["always_decoded_after_probe"] = len(always)
+            found.update(zip(rest, decoder.run([pieces[i] for i in rest], {}, lambda p: self._languages(p, always), fallback)))
         winners = {i: _winner(found[i])[1] for i in lead}
-        rest = short_languages(short, winners)
-        order = sorted(rest)
-        for i, got in zip(order, decoder.run([pieces[i] for i in order], {k: [rest[i]] for k, i in enumerate(order)}, self._languages, fallback)):
+        shorts = short_languages(short, winners)
+        order = sorted(shorts)
+        for i, got in zip(order, decoder.run([pieces[i] for i in order], {k: [shorts[i]] for k, i in enumerate(order)}, self._languages, fallback)):
             found[i] = got
         self.batch_stats = decoder.stats
         out = []

@@ -38,7 +38,7 @@ from pathlib import Path
 ASR_FETCH = "large-v3"                     # scripts/fetch_whisper.py argument: large-v3 | turbo
 ASR_ENV = {"MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16", "MOM_ASR_MODEL_DIR": "models/whisper",
            "MOM_CS_MERGE": "false", "MOM_CORRECT_TERMS": "true", "MOM_ASR_BATCH_SIZE": "8",
-           "MOM_ASR_BEAM_SIZE": "1", "MOM_ASR_RETRY": "loops"}   # kaggle_asr_speed run 3: 9.1 min for 60 min of Medpark audio
+           "MOM_ASR_BEAM_SIZE": "1", "MOM_ASR_RETRY": "loops", "MOM_ASR_ADAPTIVE_LANGUAGES": "true"}   # kaggle_asr_speed run 3: 9.1 min for 60 min of Medpark audio
 PARALLEL = "1"                             # minutes requests at once (MOM_PARALLEL, OLLAMA_NUM_PARALLEL)
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"   # Kaggle gives two T4s; the reference server has one 16 GB GPU
 # gpt-oss:20b: minutes rounds 2 and 3 on the 60-minute meeting (4.5 min alone; no invented decision,
@@ -63,6 +63,7 @@ WORK = Path("/kaggle/working") if Path("/kaggle/working").exists() else Path("/t
 OUT = WORK / "out"
 OUT.mkdir(parents=True, exist_ok=True)
 LIMINAL = ASR = Path("/tmp/liminal")
+sys.path.insert(0, str(LIMINAL / "asr-llm"))   # the scorers below import asr_llm in this process
 OFFLINE_ENV = {"HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1", "HF_DATASETS_OFFLINE": "1",
                "HF_HUB_DISABLE_TELEMETRY": "1", "DO_NOT_TRACK": "1"}
 STATE = {"step": "setup", "hour": "", "note": "", "done": 0, "total": len(HOURS) + 1, "progress": 0,

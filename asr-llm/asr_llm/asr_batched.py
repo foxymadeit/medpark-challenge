@@ -37,6 +37,17 @@ def short_languages(short: list[bool], winners: dict[int, str]) -> dict[int, str
     return out
 
 
+def kept_languages(winners: list[str | None]) -> list[str]:
+    """The always-decoded languages this meeting actually uses: those that won at least
+    asr_probe_min_share of the probe pieces. The rest are decoded only where language
+    detection names them (WhisperAsr._languages adds the detected top language)."""
+    counted = [w for w in winners if w]
+    if not counted:
+        return list(settings.asr_always_decode)
+    return [lang for lang in settings.asr_always_decode
+            if counted.count(lang) / len(counted) >= settings.asr_probe_min_share]
+
+
 def split_window(tokens: list[int], ts_begin: int, content_frames: int, input_stride: int = 2) -> tuple[list[tuple[int, int, list[int]]], bool]:
     """faster-whisper's _split_segments_by_timestamps for a window at seek 0.
     Returns (start, end, tokens) per segment in timestamp positions, and whether the

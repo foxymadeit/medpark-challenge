@@ -13,7 +13,7 @@ PROFILES = {
     # MOM_PARALLEL 1: gpt-oss:20b fills most of a 16 GB card, so one request at a time is fastest.
     "gpu": {"MOM_DEVICE": "cuda", "MOM_ASR_COMPUTE_TYPE": "int8_float16", "MOM_ASR_MODEL_DIR": "models/whisper",
             "MOM_LLM_MODEL": "gpt-oss:20b", "MOM_ASR_BATCH_SIZE": "8", "MOM_ASR_BEAM_SIZE": "1",
-            "MOM_ASR_RETRY": "loops", "MOM_PARALLEL": "1"},
+            "MOM_ASR_RETRY": "loops", "MOM_ASR_ADAPTIVE_LANGUAGES": "true", "MOM_PARALLEL": "1"},
     # Batched decoding pays off on a GPU; on a CPU one utterance at a time is as fast.
     "cpu": {"MOM_DEVICE": "cpu", "MOM_ASR_COMPUTE_TYPE": "int8", "MOM_ASR_MODEL_DIR": "models/whisper-turbo",
             "MOM_LLM_MODEL": "gpt-oss:20b", "MOM_ASR_BATCH_SIZE": "1"},

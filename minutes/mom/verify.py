@@ -45,27 +45,41 @@ def fold(text: str) -> str:
     return " ".join(_WORD.findall(text))
 
 
+NEAR = 2   # lines either side of the cited ones that still count as where a thing was said
+
+
 def verify(facts, lines, meeting_date: str = "", attendees=()) -> list:
     by_id = {l.id: l for l in lines}
     known = [fold(a) for a in attendees if a]
-    return [_check(f, by_id, meeting_date, known) for f in facts]
+    return [_check(f, by_id, meeting_date, known, lines) for f in facts]
 
 
-def _check(f, by_id, meeting_date, known):
+def _near(cited, lines) -> list:
+    """The cited lines and up to NEAR lines on either side: the model often cites the line
+    with the proposal and not the next one, where the deadline or the "agreed" was said."""
+    at = {id(l): i for i, l in enumerate(lines)}
+    spots = [at[id(l)] for l in cited if id(l) in at]
+    if not spots:
+        return cited
+    return lines[max(0, min(spots) - NEAR):max(spots) + NEAR + 1]
+
+
+def _check(f, by_id, meeting_date, known, lines=()):
     problems = list(f.problems)
     cited = [by_id[i] for i in f.evidence if i in by_id]
     if not f.evidence or len(cited) != len(f.evidence):
         return replace(f, status="dropped", problems=problems + ["cites a line that does not exist"])
-    evidence = fold(" ".join(l.text for l in cited))
-    speakers = fold(" ".join(l.speaker for l in cited))
+    evidence = fold(" ".join(l.text for l in _near(cited, list(lines))))
+    said = fold(" ".join(l.text for l in cited))   # a decision act must be in the cited lines themselves
+    speakers = fold(" ".join(l.speaker for l in cited))   # a voice must speak a cited line itself
 
     q = fold(f.quote)
     if len(q) < 8 or fuzz.partial_ratio(q, evidence) < QUOTE_MIN:
         return replace(f, status="dropped", problems=problems + ["quote not found in the cited lines"])
 
     status, kind, owner, who = "ok", f.kind, f.owner, f.who
-    words = set(evidence.split())
-    if kind == "decision" and not any(act in evidence for act in DECISION_ACTS) and not words & set(AGREEMENT_WORDS):
+    words = set(said.split())
+    if kind == "decision" and not any(act in said for act in DECISION_ACTS) and not words & set(AGREEMENT_WORDS):
         kind = "note"
         problems.append("no decision act in the evidence: kept as a note")
 

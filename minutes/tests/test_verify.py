@@ -67,3 +67,22 @@ def test_a_speaker_label_owner_must_be_the_exact_speaker_of_a_cited_line():
     wrong = verify([Fact("A1", "action", "Pregătește raportul.", ["L0001"], quote="mă ocup eu de raport", owner="Speaker 5")], lines, "2026-09-24")
     assert ok[0].status == "ok" and wrong[0].status == "confirm"
     assert verify([Fact("A1", "action", "x", ["L0001"], quote="mă ocup eu de raport", owner="Vorbitorul 2")], lines, "2026-09-24")[0].status == "ok"
+
+
+def test_a_deadline_said_in_the_next_line_is_kept():
+    out = run(Fact("A1", "action", "Programează RMN-ul.", ["L0002"], quote="aprobăm RMN-ul înainte de intervenția",
+                   owner="Igor Rusu", deadline_phrase="până vineri"))
+    assert out["A1"].deadline == "2026-09-25"
+
+
+def test_a_quote_far_from_the_cited_lines_is_still_dropped():
+    far = LINES + [Line(f"L{i:04d}", i * 5, i * 5 + 4, "Speaker 1", "Discutăm alte subiecte.") for i in range(5, 15)] \
+        + [Line("L0015", 75, 80, "Speaker 2", "Bugetul pentru dializă se mărește cu zece procente.")]
+    out = {f.id: f for f in verify([Fact("D1", "decision", "Se mărește bugetul.", ["L0002"],
+                                         quote="bugetul pentru dializă se mărește")], far, "2026-09-24", ATTENDEES)}
+    assert out["D1"].status == "dropped"
+
+
+def test_an_invented_number_is_still_held():
+    out = run(Fact("D1", "decision", "Se aprobă 5 RMN-uri.", ["L0002"], quote="aprobăm RMN-ul înainte de intervenția de luni"))
+    assert out["D1"].status == "confirm"

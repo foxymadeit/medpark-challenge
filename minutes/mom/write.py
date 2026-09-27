@@ -10,6 +10,7 @@ plain one built from the facts, so a document always ships.
 """
 
 import json
+import os
 import re
 from pathlib import Path
 
@@ -82,6 +83,9 @@ def owner_display(owner: str, lang: str) -> str:
     return f"{PARTICIPANT[lang]} {m.group(1)}" if m else owner.strip()
 
 
+MAX_NOTES = int(os.environ.get("MOM_MAX_NOTES", "4"))   # notes per topic in the written minutes
+
+
 def plan(facts, lang: str) -> list:
     """The facts as the writer sees them, in document order, with owners and
     deadlines already written for this language and confirm items as C-IDs."""
@@ -93,7 +97,10 @@ def plan(facts, lang: str) -> list:
     for t in topics:
         out.append({"id": t.id, "kind": "topic", "text": t.text})
         for kind in ("note", "decision", "action"):
-            for f in (x for x in kept if x.topic == t.id and x.kind == kind and x.status == "ok"):
+            rows = [x for x in kept if x.topic == t.id and x.kind == kind and x.status == "ok"]
+            if kind == "note":
+                rows = rows[:MAX_NOTES]   # long meetings: the minutes stay readable; every note stays in facts.json
+            for f in rows:
                 row = {"id": f.id, "kind": kind, "topic": t.id, "text": f.text}
                 if kind == "decision" and f.vote:
                     row["vote"] = f.vote

@@ -64,3 +64,23 @@ def test_the_second_language_waits_for_an_unsure_first_decode(monkeypatch):
     monkeypatch.setattr(settings, "asr_second_decode_below", -0.5)
     assert BatchedDecoder.first_pass(["ro", "ru", "en"]) == ["ro", "en"]
     assert BatchedDecoder.first_pass(["ru"]) == ["ru"]                            # a short piece's one language
+
+
+def test_a_language_the_meeting_never_uses_stops_being_decoded(monkeypatch):
+    from asr_llm.asr_batched import kept_languages
+    from asr_llm.config import settings
+
+    monkeypatch.setattr(settings, "asr_always_decode", ("ro", "ru"))
+    assert kept_languages(["ro"] * 48) == ["ro"]                        # Romanian parliament: no Russian decode
+    assert kept_languages(["ru"] * 47 + ["ro"]) == ["ru"]               # 1 of 48 is under 5%
+    assert kept_languages(["en"] * 48) == []                            # English meeting: only what detection says
+    assert kept_languages(["ro"] * 30 + ["ru"] * 18) == ["ro", "ru"]    # a mixed board keeps both
+    assert kept_languages([]) == ["ro", "ru"]
+
+
+def test_the_detected_language_is_still_decoded_after_the_probe():
+    from asr_llm.asr import WhisperAsr
+
+    asr = WhisperAsr.__new__(WhisperAsr)
+    assert asr._languages([("ru", 0.9), ("ro", 0.1)], always=["ro"]) == ["ro", "ru"]
+    assert asr._languages([("en", 0.9)], always=[]) == ["en"]
