@@ -507,8 +507,15 @@ type, Start recording, Stop and write the minutes.
    them, and go to the type's distribution list with the RO, RU and EN PDFs
    attached. Items the checks could not confirm always wait for a person.
 
-Manual review is one checkbox away: correct an owner or deadline, preview the
-email, send. The interface speaks English, Romanian and Russian, works on
+**Before anything is sent, the moderator can change it.** Rename a speaker, so
+the email never says "Participant 3"; merge two speakers the diarizer split;
+edit the meeting title; correct a transcript line; and edit the summary, any
+decision and any action (its text, owner and deadline). Every edit re-renders
+the RO, RU and EN PDF and DOCX, so the report you download and the one that is
+emailed both carry it, and each edit goes into the audit trail. Once the
+minutes are sent they are locked: the server refuses further edits.
+
+Manual review is one checkbox away: preview the email, then send. The interface speaks English, Romanian and Russian, works on
 desktop, tablet and phone, meets WCAG 2.2 AA contrast, and moves between
 states with short fades.
 
@@ -595,6 +602,7 @@ each language as soon as it is written.
 | GDPR Art. 9 (voiceprints are biometric) | enrollment only with recorded consent; one command deletes a person's voiceprints |
 | GDPR Art. 35 | draft impact assessment, `minutes/compliance/dpia.md` |
 | EU AI Act | limited risk; Art. 50 AI marking in the PDF footer, PDF metadata and DOCX properties |
+| Human oversight | AI Act Art. 14 binds only high-risk systems, and Liminal is limited risk. We keep a person in charge anyway: unproven items wait for a person, every item can be edited before sending, and a 60 s window lets anyone stop the email |
 | Medical Device Regulation | not a medical device: no clinical decisions (MDCG 2019-11 reasoning in `intended-purpose.md`) |
 | Trustworthy AI | ALTAI self-assessment, `altai.md` |
 | NIS2 | an offline design removes most of the external attack surface hospitals must manage |
@@ -732,15 +740,15 @@ Measured, then removed, so nobody has to try them again:
 About 31,000 lines of Python and TypeScript, tests included: web app 11,800,
 transcription 5,900, speaker labels 5,000, minutes 5,100, backend 3,100.
 
-## Tests: 504 passing, 2 skipped
+## Tests: 506 passing, 2 skipped
 
 | Part | Tests |
 |---|---|
 | Minutes | 138, including the full pipeline with sockets blocked, 14 LaTeX injection attempts, a long meeting whose answer breaks, and documents that leave out anything not given |
 | Speaker labels | 79 |
 | Transcription | 101 passing, including the batched decoder, the meeting-language probe, the language pick and the Apple GPU engine; 2 training-data tests skip unless the training extras are installed |
-| Backend | 82: naming, merging and editing before sending, the Romanian email, open access with no sign-in, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, hardware profiles, meeting-type check, audit trail |
-| Web app | 92 unit, 12 end-to-end in a real browser |
+| Backend | 83: naming, merging and editing before sending, correcting a transcript line, the Romanian email, open access with no sign-in, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, hardware profiles, meeting-type check, audit trail |
+| Web app | 93 unit, 12 end-to-end in a real browser |
 
 ```bash
 cd minutes && pytest

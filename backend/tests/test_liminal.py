@@ -669,6 +669,20 @@ def test_once_sent_names_merges_and_titles_are_refused(client):
     assert after["title"] == m["title"] and after["participants"] == m["participants"]
 
 
+def test_the_moderator_corrects_a_transcript_line_until_the_minutes_are_sent(client):
+    m = processed(client)
+    url = f"/api/meetings/{m['id']}/transcript/0"
+    speaker = m["transcript"][0].get("speakerId")
+    r = client.patch(url, json={"text": "  Bună ziua,\n tuturor. "})
+    assert r.status_code == 200
+    line = client.get(f"/api/meetings/{m['id']}/transcript").json()[0]
+    assert line["text"] == "Bună ziua, tuturor." and line.get("speakerId") == speaker
+    assert client.patch(f"/api/meetings/{m['id']}/transcript/9999", json={"text": "x"}).status_code == 404
+    assert client.patch(url, json={"text": "   "}).status_code == 422
+    store.update("meetings", m["id"], lambda x: x.update(status="sent"))
+    assert client.patch(url, json={"text": "Too late"}).status_code == 409
+
+
 def test_if_the_documents_cannot_be_rebuilt_the_name_stays(client, monkeypatch):
     m = processed(client)
     state_file = with_render_state(m["id"])

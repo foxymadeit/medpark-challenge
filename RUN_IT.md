@@ -1,6 +1,6 @@
 # Run Liminal on your machine
 
-It should work, but we've never run the whole product on an Apple Silicon Mac. Every part is tested (504 tests), and the full pipeline has run end to end, but only on Linux with an NVIDIA T4 (Kaggle). An M4 runs it differently:
+It should work, but we've never run the whole product on an Apple Silicon Mac. Every part is tested (506 tests), and the full pipeline has run end to end, but only on Linux with an NVIDIA T4 (Kaggle). An M4 runs it differently:
 
 - Transcription runs Whisper large-v3 on the Apple GPU through MLX (`MOM_ASR_ENGINE=mlx`, the `mac` profile the app picks by itself on Apple Silicon). faster-whisper, used on Linux, has no Apple-GPU backend.
 - The minutes model uses the Apple GPU through Ollama. gpt-oss:20b (13 GB) fits comfortably in 24 GB.
