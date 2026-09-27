@@ -715,15 +715,15 @@ Measured, then removed, so nobody has to try them again:
 About 31,000 lines of Python and TypeScript, tests included: web app 11,800,
 transcription 5,900, speaker labels 5,000, minutes 5,100, backend 3,100.
 
-## Tests: 449 passing, 2 skipped
+## Tests: 497 passing, 2 skipped
 
 | Part | Tests |
 |---|---|
-| Minutes | 126, including the full pipeline with sockets blocked, 14 LaTeX injection attempts and a long meeting whose answer breaks |
+| Minutes | 138, including the full pipeline with sockets blocked, 14 LaTeX injection attempts, a long meeting whose answer breaks, and documents that leave out anything not given |
 | Speaker labels | 79 |
-| Transcription | 91 passing, including the batched decoder; 2 training-data tests skip unless the training extras are installed |
-| Backend | 59: open access with no sign-in, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, hardware profiles, meeting-type check, audit trail |
-| Web app | 83 unit, 11 end-to-end in a real browser |
+| Transcription | 94 passing, including the batched decoder, the meeting-language probe and the Apple GPU engine; 2 training-data tests skip unless the training extras are installed |
+| Backend | 82: naming, merging and editing before sending, the Romanian email, open access with no sign-in, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, hardware profiles, meeting-type check, audit trail |
+| Web app | 92 unit, 12 end-to-end in a real browser |
 
 ```bash
 cd minutes && pytest
