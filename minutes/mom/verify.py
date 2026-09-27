@@ -48,9 +48,17 @@ def fold(text: str) -> str:
 NEAR = 2   # lines either side of the cited ones that still count as where a thing was said
 
 
+def line_id(cited: str) -> str:
+    """Line IDs are L0001, L0002...; the model often drops the zero padding on a short meeting
+    ("L004"). Same line, so read it as L0004 rather than drop a fact that cites it."""
+    m = re.fullmatch(r"L0*(\d+)", cited.strip())
+    return f"L{int(m[1]):04d}" if m else cited
+
+
 def verify(facts, lines, meeting_date: str = "", attendees=()) -> list:
     by_id = {l.id: l for l in lines}
     known = [fold(a) for a in attendees if a]
+    facts = [replace(f, evidence=[line_id(i) for i in f.evidence]) for f in facts]
     return [_check(f, by_id, meeting_date, known, lines) for f in facts]
 
 
@@ -109,7 +117,7 @@ def _check(f, by_id, meeting_date, known, lines=()):
             status = "confirm"
             problems.append(f"name {name!r} appears nowhere in the evidence")
 
-    bad_why = [i for i in re.findall(r"L\d{4}", f.why) if i not in by_id]
+    bad_why = [i for i in re.findall(r"L\d+", f.why) if line_id(i) not in by_id]
     if bad_why:
         problems.append(f"reasoning cites missing lines {bad_why}")
     return replace(f, kind=kind, owner=owner, who=who, deadline_phrase=phrase, deadline=deadline,
