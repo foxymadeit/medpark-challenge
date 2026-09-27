@@ -28,7 +28,7 @@ from schemas import ActionItem, Minutes
 from security import audit_server, now_iso
 from pathlib import Path
 
-from services.EmailService import EmailService, SMTPSettings
+from services.EmailService import EmailService, SMTPSettings, attachment_name, compose_email
 
 log = logging.getLogger("liminal.delivery")
 
@@ -145,17 +145,21 @@ def payload(m: dict) -> dict:
     names = {p["id"]: p["name"] for p in m.get("participants", [])}
     minutes = Minutes(
         title=m["title"], meeting_type=m["type"], language=m.get("minutesLanguage") or "ro", summary=m.get("summary") or "",
+        date=(m.get("startedAt") or m.get("createdAt") or "")[:10] or None,   # the date the PDFs carry (jobs.py)
         attendees=[p["name"] for p in m.get("participants", [])],
         decisions=[d["text"] for d in m.get("decisions") or []],
         action_items=[ActionItem(text=a["task"], owner=names.get(a.get("ownerParticipantId")), deadline=a.get("deadline"))
                       for a in m.get("actionItems") or []])
     docs = []
     folder = store.DATA / "meetings" / m["id"] / "minutes"
-    for lang, files in sorted((m.get("documents") or {}).items()):
+    order = ("ro", "ru", "en")   # Romanian first, as the email lists them
+    for lang, files in sorted((m.get("documents") or {}).items(), key=lambda kv: order.index(kv[0]) if kv[0] in order else 3):
         if files.get("pdf") and (folder / files["pdf"]).is_file():
-            docs.append({"fileName": files["pdf"], "mimeType": "application/pdf",
+            docs.append({"fileName": attachment_name(minutes, lang), "mimeType": "application/pdf",
                          "data": base64.b64encode((folder / files["pdf"]).read_bytes()).decode()})
+    subject, text, _ = compose_email(minutes, [d["fileName"] for d in docs])
     return {"meetingId": m["id"], "minutes": minutes.model_dump(), "documents": docs,
+            "email": {"subject": subject, "text": text},   # n8n sends exactly what the backend would
             "distributionList": list(m.get("distributionList") or []),
             "participant_emails": [p["email"] for p in m.get("participants", []) if p.get("email")]}
 

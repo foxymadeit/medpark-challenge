@@ -8,6 +8,7 @@ SECRET = os.environ.get("LIMINAL_N8N_SECRET") or next(
 MAILPIT = sys.argv[2] if len(sys.argv) > 2 else "http://127.0.0.1:8025/api/v1"
 ROUTING = json.load(open(sys.argv[1]))
 pdf = b"%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n"
+BOARD = {"medical": "Consiliului Medical", "executive": "Comitetului Executiv", "administrative": "Consiliului Administrativ"}
 urllib.request.urlopen(urllib.request.Request(MAILPIT + "/messages", method="DELETE"))
 ok = True
 for t in ("medical", "executive", "administrative"):
@@ -15,8 +16,11 @@ for t in ("medical", "executive", "administrative"):
             "minutes": {"title": f"Test {t} board\r\nBcc: attacker@example.com", "meeting_type": t, "language": "ro", "summary": "The board met.",
                         "attendees": ["Participant 1"], "decisions": ["Se aprobă protocolul ATI."],
                         "action_items": [{"text": "Send the report.", "owner": "Participant 2", "deadline": "2026-10-02", "source_quote": None}]},
-            "documents": [{"fileName": f"MoM_2026-09-26_{t}_{l}.pdf", "mimeType": "application/pdf",
-                           "data": base64.b64encode(pdf).decode()} for l in ("ro", "ru", "en")]}
+            "documents": [{"fileName": f"Proces-verbal_2026-09-26_{l}.pdf", "mimeType": "application/pdf",
+                           "data": base64.b64encode(pdf).decode()} for l in ("RO", "RU", "EN")],
+            # composed by the backend (compose_email); the injected line must not become a header
+            "email": {"subject": f"Proces-verbal al ședinței {BOARD[t]} din 26 septembrie 2026\r\nBcc: attacker@example.com",
+                      "text": f"Stimați membri ai {BOARD[t]},\n\nCu stimă,\nSecretariatul {BOARD[t]}"}}
     r = urllib.request.urlopen(urllib.request.Request(HOOK, data=json.dumps(body).encode(), method="POST",
                                                       headers={"Content-Type": "application/json", "X-Liminal-Secret": SECRET}), timeout=60)
     print(t, "webhook", r.status)
@@ -30,7 +34,7 @@ time.sleep(2)
 msgs = json.load(urllib.request.urlopen(MAILPIT + "/messages"))["messages"]
 for m in msgs:
     to = sorted(a["Address"] for a in m["To"]); cc = sorted(a["Address"] for a in m["Cc"])
-    t = next(k for k in ROUTING if k in m["Subject"].lower() or f"test {k}" in m["Subject"].lower())
+    t = next(k for k in ROUTING if BOARD[k] in m["Subject"])
     right = to == sorted(ROUTING[t])
     bcc = [a["Address"] for a in m.get("Bcc") or []]
     ok &= right and m["Attachments"] == 3 and not bcc and "\n" not in m["Subject"]
