@@ -79,11 +79,21 @@ export function fromServer(raw: ServerMeeting): Meeting {
       : (["ro", "ru", "en"] as const).filter((l) => l in documents);
   return out;
 }
+// An edit is translated by the local model and the documents are rebuilt before the
+// answer comes back; on a laptop that takes longer than the 20 s default.
+const EDIT_TIMEOUT_MS = 3 * 60 * 1000;
+
 async function meetingRequest(
   url: string,
   options?: RequestInit,
 ): Promise<Meeting> {
-  return fromServer(await request<ServerMeeting>(url, options));
+  const edit = options?.method && options.method !== "GET" && !options.signal;
+  return fromServer(
+    await request<ServerMeeting>(
+      url,
+      edit ? { ...options, signal: AbortSignal.timeout(EDIT_TIMEOUT_MS) } : options,
+    ),
+  );
 }
 // A 3-hour, 500 MB recording on a slow hospital network needs far more than
 // the 20 s default.
