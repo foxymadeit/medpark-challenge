@@ -4,6 +4,7 @@ render. One function for the command line and for the web backend."""
 import datetime as dt
 import json
 import os
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
@@ -21,20 +22,14 @@ from .verify import verify
 from .write import owner_display, write_body
 
 
+TALK_TIME = re.compile(r"\d+ (?:min|мин)")   # the role render files written before 2026-09-27 carry
+
+
 def attendees(lines, lang: str, patients=()) -> list:
-    """Speakers in order of first appearance, with talk time. No names are
+    """Speakers in order of first appearance, names only. No names are
     invented: an unnamed speaker is 'Participant N'."""
-    talk, order = {}, []
-    for l in lines:
-        who = l.speaker or ""
-        if not who:
-            continue
-        if who not in talk:
-            order.append(who)
-            talk[who] = 0.0
-        talk[who] += max(0.0, l.end - l.start)
-    unit = {"ro": "min", "ru": "мин", "en": "min"}[lang]
-    return [{"name": anonymize_text(owner_display(w, lang), list(patients)), "role": f"{talk[w] / 60:.0f} {unit}" if talk[w] >= 30 else ""} for w in order]
+    order = dict.fromkeys(l.speaker for l in lines if l.speaker)
+    return [{"name": anonymize_text(owner_display(w, lang), list(patients))} for w in order]
 
 
 def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), session=None, think=None) -> dict:
@@ -126,8 +121,9 @@ def render_documents(state: dict, out_dir) -> dict:
     model, verified = state["model"], state["verified"]
 
     def render(lang):
-        m = replace(meeting, attendees=state["attendees"][lang])
-        body = state["bodies"][lang]
+        people = [{**p, "role": ""} if TALK_TIME.fullmatch(p.get("role", "")) else p for p in state["attendees"][lang]]
+        m = replace(meeting, attendees=people)
+        body = printed(state["bodies"][lang])
         pdf = render_pdf.compile_pdf(render_pdf.tex_source(m, body, lang, model, verified),
                                      render_pdf.xmp_source(m, lang, model), out_dir / f"{stem}_{lang}.pdf")
         docx = render_docx.render(m, latexcheck.parse(body), lang, model, verified, out_dir / f"{stem}_{lang}.docx")
@@ -136,6 +132,23 @@ def render_documents(state: dict, out_dir) -> dict:
     langs = list(state["bodies"])
     with ThreadPoolExecutor(len(langs)) as pool:
         return {lang: {"pdf": pdf, "docx": docx} for lang, pdf, docx in pool.map(render, langs)}
+
+
+def printed(body: str) -> str:
+    """The body as the documents print it: without unproven items (bodies written
+    before 2026-09-27 carry them) and without a topic left with nothing under it."""
+    blocks = [b for b in latexcheck.parse(body) if b.kind != "needsconfirmation"]
+    filled, topic = set(), None
+    for b in blocks:
+        if b.kind == "topic":
+            topic = b.fact_id
+        elif b.kind in ("presented", "noted", "decision", "action"):
+            filled.add(topic)
+    empty = {b.fact_id for b in blocks if b.kind == "topic"} - filled
+    blocks = [b for b in blocks if not (b.kind in ("topic", "agendaitem") and b.fact_id in empty)]
+    if not any(b.kind == "agendaitem" for b in blocks):   # an agenda with no item would not compile
+        blocks = [b for b in blocks if b.kind not in ("begin", "end")]
+    return latexcheck.serialise(blocks)
 
 
 def rerender(render_file, meeting_type: str) -> dict:
