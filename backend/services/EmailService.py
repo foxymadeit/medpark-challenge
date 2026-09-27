@@ -1,6 +1,8 @@
 import os
+import re
 import smtplib
 from dataclasses import dataclass, field
+from datetime import date
 from email.errors import HeaderParseError
 from email.headerregistry import Address
 from email.message import EmailMessage
@@ -15,6 +17,23 @@ from schemas import Minutes
 
 DEFAULT_ALLOWED_SMTP_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
 ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
+
+# The email is official Romanian (Republic of Moldova), whatever the meeting's language.
+# Board names as the Romanian PDF prints them (minutes/mom/schemas.py BODY_NAME): (nominative, genitive).
+BOARD_RO = {
+	"medical": ("Consiliul Medical", "Consiliului Medical"),
+	"executive": ("Comitetul Executiv", "Comitetului Executiv"),
+	"administrative": ("Consiliul Administrativ", "Consiliului Administrativ"),
+}
+MONTHS_RO = ("ianuarie", "februarie", "martie", "aprilie", "mai", "iunie", "iulie", "august",
+	"septembrie", "octombrie", "noiembrie", "decembrie")
+LANGUAGE_RO = {"ro": "română", "ru": "rusă", "en": "engleză"}
+AI_NOTICE_RO = (
+	"Notă: procesul-verbal a fost întocmit automat de un sistem de inteligență artificială care funcționează "
+	"local, pe serverul instituției, iar fiecare punct a fost verificat în raport cu înregistrarea ședinței "
+	"(mențiune de transparență conform art. 50 din Regulamentul (UE) 2024/1689 privind inteligența artificială)."
+)
+_LANGUAGE_IN_NAME = re.compile(r"_(ro|ru|en)\.pdf$", re.IGNORECASE)
 
 
 class DistributionListNotConfiguredError(RuntimeError):
@@ -136,22 +155,20 @@ class EmailService:
 		)
 		recipients = (*distribution_recipients, *individual_recipients)
 
-		text_body, html_body = _render_minutes(minutes)
-		safe_title = " ".join(minutes.title.splitlines()).strip()
-
 		files: list[tuple[str, bytes]] = list(attachments)
 		if attachment is not None:
 			files.append(attachment)
 		if attachment_path is not None:
 			path = Path(attachment_path)
 			files.append((path.name, path.read_bytes()))
+		subject, text_body, html_body = compose_email(minutes, [name for name, _ in files])
 
 		message = EmailMessage()
 		message["From"] = self._settings.from_address
 		message["To"] = ", ".join(distribution_recipients)
 		if individual_recipients:
 			message["Cc"] = ", ".join(individual_recipients)
-		message["Subject"] = f"MoM | {minutes.meeting_type.title()} | {safe_title}"
+		message["Subject"] = " ".join(subject.splitlines()).strip()   # one line: nothing can add a header
 		message.set_content(text_body)
 		message.add_alternative(html_body, subtype="html")
 		for filename, content in files:
@@ -185,79 +202,43 @@ class EmailService:
 		)
 
 
-def _render_minutes(minutes: Minutes) -> tuple[str, str]:
-	text_parts = [
-		minutes.title,
-		f"Meeting type: {minutes.meeting_type}",
-		"Summary\n" + (minutes.summary or "No summary provided."),
+def _meeting_day(value: str | None) -> date | None:
+	"""Only a real ISO date reaches the subject or a file name, never raw text."""
+	try:
+		return date.fromisoformat((value or "")[:10])
+	except ValueError:
+		return None
+
+
+def attachment_name(minutes: Minutes, language: str) -> str:
+	"""Proces-verbal_Consiliul-Medical_2026-09-26_RO.pdf (ASCII, so every mail client shows it)."""
+	day = _meeting_day(minutes.date)
+	parts = ("Proces-verbal", BOARD_RO[minutes.meeting_type][0].replace(" ", "-"), day and day.isoformat(), language.upper())
+	return "_".join(p for p in parts if p) + ".pdf"
+
+
+def compose_email(minutes: Minutes, attachment_names: list[str] | tuple = ()) -> tuple[str, str, str]:
+	"""Subject, plain text and HTML of the cover email, in official Romanian. The minutes
+	themselves, in the meeting's own (often mixed) words, travel only in the attached PDFs."""
+	board = BOARD_RO[minutes.meeting_type][1]
+	day = _meeting_day(minutes.date)
+	meeting = f"ședinței {board}" + (f" din {day.day} {MONTHS_RO[day.month - 1]} {day.year}" if day else "")
+	listed = []
+	for number, name in enumerate(attachment_names, 1):
+		found = _LANGUAGE_IN_NAME.search(name)
+		described = f"Procesul-verbal în limba {LANGUAGE_RO[found.group(1).lower()]} (format PDF)" if found else name
+		listed.append(f"{number}. {described}")
+	paragraphs = [
+		f"Stimați membri ai {board},",
+		(f"Vă transmitem, în anexă, procesul-verbal al {meeting}. Vă rugăm să luați cunoștință de conținutul acestuia."
+		 if listed else f"Procesul-verbal al {meeting} a fost întocmit."),
+		*(["Anexe:\n" + "\n".join(listed)] if listed else []),
+		AI_NOTICE_RO,
+		f"Cu stimă,\nSecretariatul {board}",
 	]
-
-	if minutes.attendees:
-		text_parts.append("Attendees\n" + "\n".join(f"- {person}" for person in minutes.attendees))
-	if minutes.decisions:
-		text_parts.append("Decisions\n" + "\n".join(f"- {decision}" for decision in minutes.decisions))
-	if minutes.action_items:
-		text_parts.append(
-			"Action items\n"
-			+ "\n".join(
-				f"- {item.text} | Owner: {item.owner or 'Unassigned'} | Due: {item.deadline or 'Not specified'}"
-				for item in minutes.action_items
-			)
-		)
-
-	header = (
-		"<div style=\"font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 28px; background: #0b1020; color: #e5e7eb;\">"
-		"<div style=\"max-width: 700px; margin: 0 auto; background: #111827; border: 1px solid #2d3a4f; border-radius: 14px; overflow: hidden;\">"
-		"<div style=\"padding: 26px 28px 18px; border-bottom: 1px solid #2d3a4f; background: #101a2d;\">"
-		f"<h1 style=\"margin: 0; font-size: 30px; line-height: 1.2; color: #f8fafc;\">{escape(minutes.title)}</h1>"
-		f"<p style=\"margin: 10px 0 0; font-size: 13px; color: #b7c6df;\"><strong>Meeting type:</strong> {escape(minutes.meeting_type)}</p>"
-		"</div>"
-		"<div style=\"padding: 26px 28px;\">"
+	html = "".join("<p>" + "<br>".join(escape(line) for line in p.split("\n")) + "</p>" for p in paragraphs)
+	return (
+		f"Proces-verbal al {meeting}",
+		"\n\n".join(paragraphs),
+		f"<div lang=\"ro\" style=\"font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6;\">{html}</div>",
 	)
-
-	html_parts = [header]
-	html_parts.append(
-		"<div style=\"margin-bottom: 22px; padding: 18px 20px; background: #151f2f; border: 1px solid #2d3a4f; border-radius: 10px;\">"
-		"<h2 style=\"margin: 0 0 10px; font-size: 18px; color: #f8fafc;\">Summary</h2>"
-		f"<p style=\"margin: 0; line-height: 1.7; font-size: 15px; color: #e2e8f0;\">{escape(minutes.summary or 'No summary provided.')}</p>"
-		"</div>"
-	)
-
-	if minutes.attendees:
-		html_parts.append(
-			"<div style=\"margin-bottom: 22px; padding: 18px 20px; background: #151f2f; border: 1px solid #2d3a4f; border-radius: 10px;\">"
-			"<h2 style=\"margin: 0 0 10px; font-size: 18px; color: #f8fafc;\">Attendees</h2>"
-			"<ul style=\"margin: 0; padding-left: 18px; color: #e2e8f0;\">"
-			+ "".join(f"<li style=\"margin-bottom: 6px;\">{escape(person)}</li>" for person in minutes.attendees)
-			+ "</ul></div>"
-		)
-
-	if minutes.decisions:
-		html_parts.append(
-			"<div style=\"margin-bottom: 22px; padding: 18px 20px; background: #151f2f; border: 1px solid #2d3a4f; border-radius: 10px;\">"
-			"<h2 style=\"margin: 0 0 10px; font-size: 18px; color: #f8fafc;\">Decisions</h2>"
-			"<ul style=\"margin: 0; padding-left: 18px; color: #e2e8f0;\">"
-			+ "".join(f"<li style=\"margin-bottom: 6px;\">{escape(decision)}</li>" for decision in minutes.decisions)
-			+ "</ul></div>"
-		)
-
-	if minutes.action_items:
-		html_parts.append(
-			"<div style=\"padding: 18px 20px; background: #151f2f; border: 1px solid #2d3a4f; border-radius: 10px;\">"
-			"<h2 style=\"margin: 0 0 12px; font-size: 18px; color: #f8fafc;\">Action items</h2>"
-			"<ul style=\"margin: 0; padding-left: 0; list-style: none;\">"
-			+ "".join(
-				f"<li style=\"margin-bottom: 12px; padding: 12px 14px; background: #0f172a; border: 1px solid #2a374d; border-radius: 8px;\">"
-				f"<div style=\"font-weight: 700; color: #f8fafc; margin-bottom: 5px;\">{escape(item.text)}</div>"
-				f"<div style=\"font-size: 13px; color: #d9e3f8; line-height: 1.7;\">"
-				f"<strong>Owner:</strong> {escape(item.owner or 'Unassigned')}<br>"
-				f"<strong>Due:</strong> {escape(item.deadline or 'Not specified')}"
-				+ (f"<br><br><em style=\"color: #b8c7e8;\">{escape(item.source_quote)}</em>" if item.source_quote else "")
-				+ "</div></li>"
-				for item in minutes.action_items
-			)
-			+ "</ul></div>"
-		)
-
-	html_parts.append("</div></div></div>")
-	return "\n\n".join(text_parts), "".join(html_parts)

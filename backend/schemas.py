@@ -16,6 +16,7 @@ class Minutes(BaseModel):
 	title: str
 	meeting_type: MeetingType
 	language: str = "ro"
+	date: str | None = None   # ISO date of the meeting, for the email subject
 	summary: str
 	attendees: list[str] = Field(default_factory=list)
 	decisions: list[str] = Field(default_factory=list)

@@ -23,7 +23,8 @@ import delivery  # noqa: E402
 import jobs  # noqa: E402
 import main  # noqa: E402
 import store  # noqa: E402
-from services.EmailService import EmailDeliveryResult  # noqa: E402
+from schemas import Minutes  # noqa: E402
+from services.EmailService import EmailDeliveryResult, compose_email  # noqa: E402
 
 FAKE = Path(__file__).parent / "fake_stages"
 ORIGIN = {"Origin": "http://testserver"}
@@ -165,8 +166,15 @@ def test_full_flow_auto_mode_schedules_then_sends_once(client):
     assert final["status"] == "sent" and final["deliveredVia"] == "smtp" and again.status_code == 200
     assert len(sent) == 1
     minutes, kw = sent[0]
-    assert minutes.meeting_type == "medical" and [a[0] for a in kw["attachments"]] == [
-        "MoM_2026-09-26_medical_en.pdf", "MoM_2026-09-26_medical_ro.pdf", "MoM_2026-09-26_medical_ru.pdf"]
+    # Romanian first, and named in Romanian: the recipient sees these names
+    day = (final.get("startedAt") or final["createdAt"])[:10]
+    assert minutes.meeting_type == "medical" and minutes.date == day and [a[0] for a in kw["attachments"]] == [
+        f"Proces-verbal_Consiliul-Medical_{day}_{lang}.pdf" for lang in ("RO", "RU", "EN")]
+    # n8n gets the same Romanian subject and text the backend would send itself
+    body = delivery.payload(final)
+    assert body["email"] == dict(zip(("subject", "text"), compose_email(
+        Minutes(**body["minutes"]), [d["fileName"] for d in body["documents"]])[:2]))
+    assert body["email"]["subject"].startswith("Proces-verbal al ședinței Consiliului Medical din ")
 
 
 def test_items_to_confirm_stop_auto_send_until_a_person_settles_them(client, monkeypatch):

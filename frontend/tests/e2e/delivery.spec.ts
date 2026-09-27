@@ -56,7 +56,9 @@ test("medical: flagged item, then confirm, then sent with the PDFs", async ({
       readFileSync(`${MAIL_DIR}/${f}`, "latin1"),
     );
     expect(mails.length).toBeGreaterThan(0);
-    expect(mails.some((m) => /MoM_[^"\s]*_ro\.pdf/.test(m))).toBe(true);
+    expect(mails.some((m) => /Proces-verbal_[^"\s]*_RO\.pdf/.test(m))).toBe(
+      true,
+    );
   }
 });
 
