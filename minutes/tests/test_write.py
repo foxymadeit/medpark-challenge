@@ -18,13 +18,12 @@ GOOD = r"""\summary{S1}{Consiliul a examinat contractul RMN și a aprobat reînn
 \topic{T1}{Contractul RMN}
 \noted{N1}{S-a comunicat că contractul expiră la sfârșitul lunii.}
 \decision{D1}{Se aprobă reînnoirea contractului.}{pro 4, contra 0}
-\action{A1}{Participantul 3}{30.09.2026}{Verifică condițiile de reînnoire.}
-\needsconfirmation{C1}{Trimiterea documentelor.}"""
+\action{A1}{Participantul 3}{30.09.2026}{Verifică condițiile de reînnoire.}"""
 
 
 def test_plan_orders_facts_localises_owners_and_dates_and_hides_dropped_ones():
     rows = plan(FACTS, "ru")
-    assert [r["id"] for r in rows] == ["S1", "T1", "N1", "D1", "A1", "C1"]
+    assert [r["id"] for r in rows] == ["S1", "T1", "N1", "D1", "A1"]   # A2 is unproven: never written
     assert rows[4]["owner"] == "Участник 3" and rows[4]["deadline"] == "30.09.2026"
     assert plan(FACTS, "en")[4]["deadline"] == "30 September 2026"
     assert owner_display("SPEAKER_07", "ro") == "Participantul 07" and owner_display("dna Ana Popescu", "ro") == "dna Ana Popescu"
@@ -42,9 +41,9 @@ def test_missing_ids_invented_numbers_patients_and_wrong_script_are_caught():
     assert any("N1 appears 0 times" in e for e in errors)
     _, errors = check_body(GOOD.replace("expiră la", "expiră în 45 de zile, la"), rows, EVIDENCE)
     assert any("45" in e for e in errors)
-    body, _ = check_body(GOOD.replace("Trimiterea documentelor.", "Pacienta Maria Lungu."), rows, EVIDENCE, patients=[{"name": "Maria Lungu"}])
+    body, _ = check_body(GOOD.replace("Verifică condițiile de reînnoire.", "Pacienta Maria Lungu."), rows, EVIDENCE, patients=[{"name": "Maria Lungu"}])
     assert "Maria Lungu" not in body and "M.L." in body
-    _, errors = check_body(GOOD.replace("Trimiterea documentelor.", "Отправка документов."), rows, EVIDENCE)
+    _, errors = check_body(GOOD.replace("Verifică condițiile de reînnoire.", "Отправка документов."), rows, EVIDENCE)
     assert any("Cyrillic" in e for e in errors)
 
 
@@ -85,8 +84,8 @@ def test_fallback_body_has_a_summary_in_the_document_language():
 
 def test_repeated_blocks_times_and_institutions_do_not_fail_a_good_body():
     rows = plan(FACTS, "en")
-    body = GOOD.replace("\\needsconfirmation{C1}{Trimiterea documentelor.}",
-                        "\\needsconfirmation{C1}{Trimiterea documentelor.}\n\\needsconfirmation{C1}{Trimiterea documentelor.}")
+    line = "\\noted{N1}{S-a comunicat că contractul expiră la sfârșitul lunii.}"
+    body = GOOD.replace(line, line + "\n" + line + "\n\\needsconfirmation{C1}{From an older prompt.}")
     body = body.replace("Verifică condițiile de reînnoire.", "The Board checks the terms at 30:00.")
     _, errors = check_body(body, rows, {**EVIDENCE, "A1": "verific eu până pe 30"}, lang="en")
     assert not any("appears" in e or "The Board" in e or "number 00" in e for e in errors), errors

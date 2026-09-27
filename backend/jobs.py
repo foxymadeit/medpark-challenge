@@ -32,6 +32,7 @@ from pathlib import Path
 
 import delivery
 import hardware
+import names
 import store
 from security import now_iso
 
@@ -266,7 +267,7 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
     talk = {}
     for t in turns:
         talk[t["speaker"]] = talk.get(t["speaker"], 0.0) + t["end"] - t["start"]
-    participants = [p for p in m.get("participants", []) if not p.get("detected")]
+    participants = [p for p in m.get("participants", []) if not p.get("detected") and not p.get("namedInMinutes")]
     claimed = {p.get("speakerId") for p in participants}
     for slot, label in enumerate(labels, 1):
         if label in claimed:
@@ -298,10 +299,19 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
                     return p["id"]
         return None
 
-    minutes_dir = work / "minutes"
+    minutes_dir = minutes_folder(work)
     facts_file = next(minutes_dir.glob("*.facts.json"), None)
     facts = json.loads(facts_file.read_text(encoding="utf-8"))["facts"] if facts_file else []
     kept = [f for f in facts if f.get("status") in ("ok", "confirm")]
+    # an owner named in the meeting ("Roman, programează…") who is no voice and no one on the
+    # list becomes a participant with that name and no voice, as the minutes' own meeting file does
+    for f in kept:
+        owner = (f.get("owner") or "").strip()
+        if f.get("kind") == "action" and owner and not owner_of(owner) and not names.GENERIC.match(owner):
+            p = {"id": f"{m['id']}-named-{len(participants) + 1}", "name": owner[:120],
+                 "speakerSlot": len(participants) + 1, "speakingSeconds": 0, "namedInMinutes": True}
+            participants.append(p)
+            by_name[owner.casefold()] = p
     decisions = [{"id": f["id"], "text": f["text"]} for f in kept if f["kind"] == "decision"]
     actions, confirm = [], []
     for f in kept:
@@ -352,6 +362,16 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
     delivery.after_processing(m)
 
 
+def minutes_folder(work: Path) -> Path:
+    """Where the minutes stage left its files: work/minutes, or wherever a remote or custom
+    minutes command put them under the meeting's work folder (the first *.facts.json)."""
+    default = work / "minutes"
+    if next(default.glob("*.facts.json"), None):
+        return default
+    found = next(iter(sorted(work.rglob("*.facts.json"))), None)
+    return found.parent if found else default
+
+
 def _documents(minutes_dir: Path, meeting_type: str = "") -> dict:
     """{lang: {pdf, docx}} from the minutes folder, only this type's files when given."""
     documents = {}
@@ -367,11 +387,11 @@ def rerender(meeting_id: str, meeting_type: str) -> dict | None:
     render file (no model). Returns the new {lang: {pdf, docx}}, or None when
     these minutes have no render file. Raises StageFailed."""
     work = work_dir(meeting_id)
-    state = next((work / "minutes").glob("*.render.json"), None)
+    state = next(minutes_folder(work).glob("*.render.json"), None)
     if state is None:
         return None
     run_stage("render", {"render": str(state), "type": meeting_type, "work": str(work)}, work / "logs")
-    documents = _documents(work / "minutes", meeting_type)
+    documents = _documents(minutes_folder(work), meeting_type)
     if not documents:
         raise StageFailed("render wrote no documents")
     return documents

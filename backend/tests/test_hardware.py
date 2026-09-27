@@ -18,3 +18,15 @@ def test_settings_in_the_environment_win(monkeypatch):
 def test_a_named_profile_overrides_detection(monkeypatch):
     monkeypatch.setenv("LIMINAL_PROFILE", "laptop")
     assert hardware.profile() == "laptop"
+
+
+def test_minutes_made_elsewhere_are_found_under_the_work_folder(tmp_path):
+    import jobs
+    assert jobs.minutes_folder(tmp_path) == tmp_path / "minutes"            # nothing yet: the usual place
+    remote = tmp_path / "kaggle-out" / "minutes"
+    remote.mkdir(parents=True)
+    (remote / "MoM_2026-09-26_medical.facts.json").write_text("{}")
+    assert jobs.minutes_folder(tmp_path) == remote                          # a remote run's own layout
+    (tmp_path / "minutes").mkdir()
+    (tmp_path / "minutes" / "MoM_2026-09-26_medical.facts.json").write_text("{}")
+    assert jobs.minutes_folder(tmp_path) == tmp_path / "minutes"            # the usual place wins

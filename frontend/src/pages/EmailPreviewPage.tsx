@@ -12,21 +12,70 @@ import Button from "../components/Button";
 import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import { useMeeting } from "../hooks/useMeeting";
-import { LANGUAGE_NAMES, formatDay, personName } from "../utils";
+import { LANGUAGE_NAMES, personName } from "../utils";
 import type { Meeting } from "../types/meeting";
 import { listName } from "../api/routing";
 import { useRouting } from "../hooks/useRouting";
 
 const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
-/** The subject the server's EmailService writes: "MoM | Medical | <title>". */
-function emailSubject(meeting: Pick<Meeting, "type" | "title">) {
-  const type = meeting.type[0].toUpperCase() + meeting.type.slice(1);
-  return `MoM | ${type} | ${meeting.title.split(/\r?\n/).join(" ").trim()}`;
+// The email the server sends (backend/services/EmailService.py compose_email):
+// official Romanian whatever the interface language; keep the two in step.
+const BOARD_RO = {
+  medical: "Consiliului Medical",
+  executive: "Comitetului Executiv",
+  administrative: "Consiliului Administrativ",
+} as const;
+const MONTHS_RO =
+  "ianuarie februarie martie aprilie mai iunie iulie august septembrie octombrie noiembrie decembrie".split(
+    " ",
+  );
+const LANGUAGE_RO = { ro: "română", ru: "rusă", en: "engleză" } as const;
+const AI_NOTICE_RO =
+  "Notă: procesul-verbal a fost întocmit automat de un sistem de inteligență artificială care funcționează " +
+  "local, pe serverul instituției, iar fiecare punct a fost verificat în raport cu înregistrarea ședinței " +
+  "(mențiune de transparență conform art. 50 din Regulamentul (UE) 2024/1689 privind inteligența artificială).";
+
+type EmailMeeting = Pick<
+  Meeting,
+  "type" | "startedAt" | "createdAt" | "documents"
+>;
+
+function meetingRo(meeting: EmailMeeting) {
+  const day = /^(\d{4})-(\d{2})-(\d{2})/.exec(
+    meeting.startedAt || meeting.createdAt || "",
+  );
+  const date = day
+    ? ` din ${Number(day[3])} ${MONTHS_RO[Number(day[2]) - 1]} ${day[1]}`
+    : "";
+  return `ședinței ${BOARD_RO[meeting.type]}${date}`;
+}
+
+function emailSubject(meeting: EmailMeeting) {
+  return `Proces-verbal al ${meetingRo(meeting)}`;
+}
+
+function emailBody(meeting: EmailMeeting) {
+  const board = BOARD_RO[meeting.type];
+  const listed = (["ro", "ru", "en"] as const)
+    .filter((lang) => meeting.documents?.includes(lang))
+    .map(
+      (lang, i) =>
+        `${i + 1}. Procesul-verbal în limba ${LANGUAGE_RO[lang]} (format PDF)`,
+    );
+  return [
+    `Stimați membri ai ${board},`,
+    listed.length
+      ? `Vă transmitem, în anexă, procesul-verbal al ${meetingRo(meeting)}. Vă rugăm să luați cunoștință de conținutul acestuia.`
+      : `Procesul-verbal al ${meetingRo(meeting)} a fost întocmit.`,
+    ...(listed.length ? [`Anexe:\n${listed.join("\n")}`] : []),
+    AI_NOTICE_RO,
+    `Cu stimă,\nSecretariatul ${board}`,
+  ].join("\n\n");
 }
 
 export default function EmailPreviewPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: meeting, error, refresh } = useMeeting();
   const [busy, setBusy] = useState(false);
@@ -43,27 +92,7 @@ export default function EmailPreviewPage() {
   const people = meeting.participants;
   const invalid = people.some((p) => p.email && !validEmail(p.email));
   const subject = emailSubject(meeting);
-  const ownerName = (id?: string | null) => {
-    const owner = people.find((p) => p.id === id);
-    return owner ? personName(owner, t) : t("unassigned");
-  };
-  const body = [
-    meeting.title,
-    `${t("summary")}\n${meeting.summary || t("notGiven")}`,
-    people.length &&
-      `${t("participants")}\n${people.map((p) => `- ${personName(p, t)}`).join("\n")}`,
-    meeting.decisions?.length &&
-      `${t("decisions")}\n${meeting.decisions.map((d) => `- ${d.text}`).join("\n")}`,
-    meeting.actionItems?.length &&
-      `${t("actions")}\n${meeting.actionItems
-        .map(
-          (a) =>
-            `- ${a.task} | ${t("owner")}: ${ownerName(a.ownerParticipantId)} | ${t("deadline")}: ${a.deadline ? formatDay(a.deadline, i18n.language) : t("noDeadline")}`,
-        )
-        .join("\n")}`,
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  const body = emailBody(meeting);
 
   async function handleSend() {
     if (busy || invalid) return;
@@ -160,7 +189,7 @@ export default function EmailPreviewPage() {
             {t("invalidRecipient")}
           </p>
         )}
-        <section className="email-body" aria-label={t("emailBody")}>
+        <section className="email-body" lang="ro" aria-label={t("emailBody")}>
           {body}
         </section>
         <div className="button-row email-preview-actions">

@@ -37,15 +37,14 @@ def creation_date(now: datetime | None = None) -> str:
 
 def tex_source(meeting: Meeting, body: str, lang: str, model: str, verified: str) -> str:
     e = latexcheck.escape
-    time = f"{e(meeting.start)}--{e(meeting.end)}" if meeting.start and meeting.end else e(meeting.start)
-    sets = {"number": meeting.number or "1", "title": meeting.title(lang), "date": format_date(meeting.date, lang),
+    time = e(meeting.start)   # when the meeting started; the minutes do not print when it ended
+    sets = {"number": meeting.number, "title": meeting.title(lang, dated=False), "date": format_date(meeting.date, lang),
             "time": time, "place": meeting.place, "chair": meeting.chair, "secretary": meeting.secretary,
-            "model": model, "verified": verified}
-    if meeting.quorum:
-        sets["quorum"] = meeting.quorum
+            "model": model, "quorum": meeting.quorum}
     lines = [creation_date(), f"\\def\\momtemplatedir{{{TEMPLATE.as_posix()}/}}", "\\documentclass{medpark-mom}",
              f"\\momlanguage{{{lang}}}"]
-    lines += [f"\\momset{{{k}}}{{{v if k == 'time' else e(v)}}}" for k, v in sets.items()]  # time is pre-escaped
+    # a field that was not given is not set, so the class leaves out its row, label and signature
+    lines += [f"\\momset{{{k}}}{{{v if k == 'time' else e(v)}}}" for k, v in sets.items() if v and v.strip()]  # time is pre-escaped
     lines += ["\\begin{document}", "\\begin{minutes}", _attendance(meeting), body.strip()]
     if meeting.next_meeting and "\\nextmeeting" not in body:
         lines.append(f"\\nextmeeting{{{e(meeting.next_meeting)}}}")

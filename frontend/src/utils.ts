@@ -90,3 +90,9 @@ export function meetingUrl(m: Meeting) {
 export const speakerColor = (slot: number) =>
   ["#3e7acb", "#e6713c", "#2b9f7d", "#d49c18", "#b85f9b", "#7967b4"][slot] ??
   `hsl(${(slot * 137.508) % 360} 52% 42%)`;
+
+/** A segment names its voice by the diarizer's label ("Speaker 4"); the
+ * participant carries that label in speakerId, and its own id in demo data. */
+export function speaks(p: { id: string; speakerId?: string }, label?: string | null) {
+  return !!label && (p.id === label || p.speakerId === label);
+}

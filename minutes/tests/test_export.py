@@ -57,7 +57,7 @@ def test_owners_and_deadlines_resolve_or_stay_null():
                   "completed": False, "sourceTimestampSeconds": 40.0}
     assert a2["ownerParticipantId"] is None and a2["deadline"] is None
     assert [a["id"] for a in m["actionItems"]] == ["A1", "A2"]      # confirm items go to reviewFlags instead
-    assert m["reviewFlags"] == ["Cine sună furnizorul."]
+    assert m["reviewFlags"] == ["Sună furnizorul."]   # from the facts: the documents never carry it
     assert m["participants"][1]["name"] == "Participantul 2" and m["participants"][0]["speakingSeconds"] == 60
 
 
@@ -65,3 +65,12 @@ def test_no_patient_name_and_serialisable():
     text = json.dumps(build(), ensure_ascii=False)
     assert "Lungu" not in text and "M.L." in text
     assert build()["summary"].startswith("Consiliul a aprobat")
+
+
+def test_an_owner_named_in_the_meeting_shows_by_name_in_the_app():
+    from dataclasses import replace
+    named = FACTS[:3] + [replace(FACTS[3], owner="Roman")]
+    m = meeting_json(Meeting(type="medical", date="2026-09-26"), named, LINES, BODY, "ro")
+    a2 = next(a for a in m["actionItems"] if a["id"] == "A2")
+    person = next(p for p in m["participants"] if p["id"] == a2["ownerParticipantId"])
+    assert person["name"] == "Roman" and "speakerId" not in person

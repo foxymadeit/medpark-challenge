@@ -6,7 +6,7 @@ import datetime as dt
 
 from . import latexcheck
 from .anonymize import anonymize_text
-from .write import owner_display
+from .write import owner_display, unproven
 
 DOC = {"ro": "Proces-verbal", "ru": "Протокол", "en": "Minutes"}
 
@@ -38,6 +38,12 @@ def meeting_json(meeting, facts, lines, body: str, lang: str, patients=()) -> di
     for f in kept:
         if f.kind != "action":
             continue
+        if f.owner and f.owner not in ids:
+            # an owner named in the meeting ("Roman, programează…") but not a detected voice:
+            # list them as a named participant so the app shows the name, as the PDF does
+            ids[f.owner] = f"participant-named-{len(ids) + 1}"
+            people.append({"id": ids[f.owner], "name": anonymize_text(f.owner, list(patients)),
+                           "speakerSlot": len(people), "speakingSeconds": 0})
         first = next((start[e] for e in f.evidence if e in start), None)
         item = {"id": f.id, "task": written.get(f.id, {}).get("text", f.text),
                 "ownerParticipantId": ids.get(f.owner), "deadline": f.deadline or None, "completed": False}
@@ -63,7 +69,7 @@ def meeting_json(meeting, facts, lines, body: str, lang: str, patients=()) -> di
         "transcript": [{"id": l.id, "speakerId": ids.get(l.speaker), "startSeconds": l.start, "endSeconds": l.end,
                         "text": anonymize_text(l.text, list(patients))} for l in lines],
         "processingState": "complete",
-        "reviewFlags": [latexcheck.unescape(b.args["text"]) for b in blocks if b.kind == "needsconfirmation"],
+        "reviewFlags": [anonymize_text(f.text, list(patients)) for f in unproven(facts)],   # never in the documents
         "reviewState": "needs_review",     # a person reviews every set of minutes before it is sent
         "sendMode": "manual",
         "minutesLanguage": lang,           # the summary and items above are written in this language

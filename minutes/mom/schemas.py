@@ -58,11 +58,13 @@ class Meeting:
     quorum: str = ""
     next_meeting: str = ""
 
-    def title(self, lang: str) -> str:
+    def title(self, lang: str, dated: bool = True) -> str:
+        """"of the Medical Board, 26 September 2026"; the documents print the date
+        on its own line, so they ask for the title without it (dated=False)."""
         name = BODY_NAME[lang][self.type]
-        date = format_date(self.date, lang)
-        return {"ro": f"al ședinței {name} din {date}", "ru": f"заседания {name} от {date}",
-                "en": f"of the {name}, {date}"}[lang]
+        date = format_date(self.date, lang) if dated else ""
+        title = {"ro": f"al ședinței {name}", "ru": f"заседания {name}", "en": f"of the {name}"}[lang]
+        return title + ({"ro": " din ", "ru": " от ", "en": ", "}[lang] + date if date else "")
 
 
 def format_date(iso: str, lang: str) -> str:

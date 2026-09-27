@@ -54,6 +54,7 @@ class OriginCheck(BaseHTTPMiddleware):
 _READS = ("/recording", "/transcript", "/documents/")
 AUTO = "AUTO"
 ALREADY = 208   # recorded (not answered) when a Send finds the minutes already on their way
+UNTRANSLATED = 203   # recorded when a rewritten sentence went into the other languages as written
 _M = "/api/meetings/{meeting_id}"
 ACTIONS = {
     ("POST", "/api/meetings"): "Created a meeting", ("PATCH", _M): "Changed the meeting details",
@@ -62,6 +63,8 @@ ACTIONS = {
     ("PATCH", f"{_M}/minutes"): "Edited the minutes", ("PATCH", f"{_M}/actions/{{action_id}}"): "Edited an action item",
     ("POST", f"{_M}/confirmations/{{fact_id}}"): "Settled an item to confirm",
     ("PATCH", f"{_M}/participants"): "Changed the participants", ("POST", f"{_M}/feedback"): "Sent feedback",
+    ("PATCH", f"{_M}/participants/{{participant_id}}"): "Named a participant",
+    ("POST", f"{_M}/participants/{{participant_id}}/merge"): "Merged two participants into one",
     ("POST", f"{_M}/review"): "Marked the minutes as reviewed", ("GET", f"{_M}/transcript"): "Read a transcript",
     ("POST", f"{_M}/send"): "Sent the minutes", (AUTO, f"{_M}/send"): "Sent the minutes automatically",
     ("POST", f"{_M}/stop-send"): "Stopped an automatic send", ("GET", f"{_M}/documents/{{name}}"): "Opened a document",
@@ -101,6 +104,8 @@ def audit_action(method: str, route: str, status: int) -> str:
     if status == ALREADY and route.endswith("/send"):
         return "Asked to send; the minutes were already on their way"
     label = ACTIONS.get((method, route), "Other request")
+    if status == UNTRANSLATED:
+        return f"{label}; the other languages have it as written (the local model did not answer)"
     return f"{label} (refused)" if status >= 400 else label
 
 

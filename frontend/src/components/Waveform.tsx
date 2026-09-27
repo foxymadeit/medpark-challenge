@@ -1,8 +1,8 @@
-export default function Waveform({ levels }: { levels: number[] }) {
+export default function Waveform({ levels, color }: { levels: number[]; color?: string }) {
   return (
     <div className="waveform" aria-hidden="true">
       {levels.map((height, i) => (
-        <span key={i} style={{ height }} />
+        <span key={i} style={{ height, ...(color ? { background: color } : {}) }} />
       ))}
     </div>
   );

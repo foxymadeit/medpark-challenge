@@ -2919,3 +2919,35 @@ blockquote {
 .corrected-words .success {
   animation: sm-fade-in 180ms ease-out both;
 }
+.participant-row + .participant-row {
+  border-top: 1px solid var(--sm-surface-hairline);
+}
+.participant-tools {
+  display: flex;
+  gap: 12px;
+  margin: -6px 0 10px;
+}
+.participant-tools .button.quiet {
+  min-height: 28px;
+  padding: 0;
+  font-size: 12px;
+}
+.participant-edit {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 12px;
+}
+.participant-edit label {
+  font-size: 12px;
+  color: var(--sm-ink-secondary);
+}
+.title-edit {
+  display: grid;
+  gap: 8px;
+  max-width: 560px;
+}
+.sentence-edit {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}

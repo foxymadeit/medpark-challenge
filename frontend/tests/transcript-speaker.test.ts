@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { speaks } from "../src/pages/TranscriptPage";
+import { speaks } from "../src/utils";
 
 describe("transcript speakers", () => {
   it("finds the participant by the diarizer's label, as the server stores it", () => {
