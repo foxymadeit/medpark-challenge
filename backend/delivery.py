@@ -151,7 +151,8 @@ def payload(m: dict) -> dict:
         action_items=[ActionItem(text=a["task"], owner=names.get(a.get("ownerParticipantId")), deadline=a.get("deadline"))
                       for a in m.get("actionItems") or []])
     docs = []
-    folder = store.DATA / "meetings" / m["id"] / "minutes"
+    import jobs   # late: jobs imports delivery
+    folder = jobs.minutes_folder(store.DATA / "meetings" / m["id"])
     order = ("ro", "ru", "en")   # Romanian first, as the email lists them
     for lang, files in sorted((m.get("documents") or {}).items(), key=lambda kv: order.index(kv[0]) if kv[0] in order else 3):
         if files.get("pdf") and (folder / files["pdf"]).is_file():

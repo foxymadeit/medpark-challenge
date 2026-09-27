@@ -385,7 +385,7 @@ def confirm(meeting_id: str, fact_id: str, body: Confirmation, request: Request)
     m = _update(meeting_id, change)
     kept = {name for files in (documents or {}).values() for name in files.values()}
     for name in old - kept:   # the previous type's files; names come from our own documents map
-        (jobs.work_dir(meeting_id) / "minutes" / Path(name).name).unlink(missing_ok=True)
+        (jobs.minutes_folder(jobs.work_dir(meeting_id)) / Path(name).name).unlink(missing_ok=True)
     return m
 
 
@@ -399,7 +399,7 @@ def _keep_rewritten(meeting_id: str, fact_id: str, text: str, request: Request) 
     action = next((a for a in m.get("actionItems") or [] if a["id"] == fact_id), None) or {}
     owner = next((p for p in m["participants"] if p["id"] == action.get("ownerParticipantId")), None)
     date = names.mom("schemas").format_date
-    keep = {"kind": item.get("kind"), "topic": sentences.topic_of(jobs.work_dir(meeting_id) / "minutes", fact_id),
+    keep = {"kind": item.get("kind"), "topic": sentences.topic_of(jobs.minutes_folder(jobs.work_dir(meeting_id)), fact_id),
             "extra": {lang: {"owner": names.display(owner, lang) if owner else "",
                              "deadline": date(action["deadline"], lang) if action.get("deadline") else ""}
                       for lang in names.PARTICIPANT}}
@@ -477,7 +477,7 @@ def _edit_everywhere(meeting_id: str, edit_app, edit_state, check=None, request:
         _locked(m)
         (check or edit_app)(copy.deepcopy(m))
         documents = None
-        state_file = next((jobs.work_dir(meeting_id) / "minutes").glob("*.render.json"), None)
+        state_file = next(jobs.minutes_folder(jobs.work_dir(meeting_id)).glob("*.render.json"), None)
         if state_file is not None:
             before = state_file.read_text(encoding="utf-8")
             try:
@@ -505,7 +505,7 @@ def _sentences(meeting_id: str, edits: dict, keep: dict | None = None):
     def edit(state: dict, m: dict) -> bool:
         langs = list(state.get("bodies") or {})
         src = m.get("minutesLanguage") if m.get("minutesLanguage") in langs else (langs[0] if langs else "ro")
-        folder, complete = jobs.work_dir(meeting_id) / "minutes", True
+        folder, complete = jobs.minutes_folder(jobs.work_dir(meeting_id)), True
         for item_id, text in edits.items():
             by_lang, ok = sentences.texts(text, src, langs, ask=complete)
             complete = complete and ok
@@ -633,7 +633,7 @@ def document(meeting_id: str, name: str):
     filename = (m.get("documents") or {}).get(match.group(1), {}).get(match.group(2)) if match else None
     if not filename:
         raise HTTPException(404, "No such document.")
-    folder = (jobs.work_dir(meeting_id) / "minutes").resolve()
+    folder = jobs.minutes_folder(jobs.work_dir(meeting_id)).resolve()
     path = (folder / filename).resolve()
     if path.parent != folder or not path.is_file():
         raise HTTPException(404, "No such document.")

@@ -299,7 +299,7 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
                     return p["id"]
         return None
 
-    minutes_dir = work / "minutes"
+    minutes_dir = minutes_folder(work)
     facts_file = next(minutes_dir.glob("*.facts.json"), None)
     facts = json.loads(facts_file.read_text(encoding="utf-8"))["facts"] if facts_file else []
     kept = [f for f in facts if f.get("status") in ("ok", "confirm")]
@@ -362,6 +362,16 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
     delivery.after_processing(m)
 
 
+def minutes_folder(work: Path) -> Path:
+    """Where the minutes stage left its files: work/minutes, or wherever a remote or custom
+    minutes command put them under the meeting's work folder (the first *.facts.json)."""
+    default = work / "minutes"
+    if next(default.glob("*.facts.json"), None):
+        return default
+    found = next(iter(sorted(work.rglob("*.facts.json"))), None)
+    return found.parent if found else default
+
+
 def _documents(minutes_dir: Path, meeting_type: str = "") -> dict:
     """{lang: {pdf, docx}} from the minutes folder, only this type's files when given."""
     documents = {}
@@ -377,11 +387,11 @@ def rerender(meeting_id: str, meeting_type: str) -> dict | None:
     render file (no model). Returns the new {lang: {pdf, docx}}, or None when
     these minutes have no render file. Raises StageFailed."""
     work = work_dir(meeting_id)
-    state = next((work / "minutes").glob("*.render.json"), None)
+    state = next(minutes_folder(work).glob("*.render.json"), None)
     if state is None:
         return None
     run_stage("render", {"render": str(state), "type": meeting_type, "work": str(work)}, work / "logs")
-    documents = _documents(work / "minutes", meeting_type)
+    documents = _documents(minutes_folder(work), meeting_type)
     if not documents:
         raise StageFailed("render wrote no documents")
     return documents
