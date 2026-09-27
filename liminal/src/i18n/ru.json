@@ -486,6 +486,10 @@
     "subjectLine": "Протокол: {title} · {date}",
     "attached": "PDF во вложении"
   },
+  "mom": {
+    "decisions": "Решения",
+    "actions": "Поручения"
+  },
   "pdf": {
     "title": "Протокол совещания",
     "colTask": "Задача",
@@ -494,10 +498,6 @@
     "noTasks": "Задач нет.",
     "generated": "Создано в Liminal {date}",
     "page": "{n} / {total}",
-    "preparing": "Готовим PDF…",
-    "colName": "Имя",
-    "colRole": "Должность на совещании",
-    "colEmail": "E-mail",
-    "frozen": "Должности и участники на {date}."
+    "preparing": "Готовим PDF…"
   }
 }

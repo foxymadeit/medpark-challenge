@@ -474,6 +474,10 @@
     "subjectLine": "Proces-verbal: {title} · {date}",
     "attached": "PDF atașat"
   },
+  "mom": {
+    "decisions": "Decizii",
+    "actions": "Acțiuni"
+  },
   "pdf": {
     "title": "Proces-verbal al ședinței",
     "colTask": "Sarcină",
@@ -482,10 +486,6 @@
     "noTasks": "Nicio sarcină.",
     "generated": "Generat de Liminal la {date}",
     "page": "{n} / {total}",
-    "preparing": "Se pregătește PDF…",
-    "colName": "Nume",
-    "colRole": "Funcția la ședință",
-    "colEmail": "E-mail",
-    "frozen": "Funcții și participanți la data de {date}."
+    "preparing": "Se pregătește PDF…"
   }
 }
