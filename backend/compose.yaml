@@ -71,7 +71,7 @@ services:
     environment:
       OLLAMA_HOST: 0.0.0.0:11434          # inside the internal network only; not published
       OLLAMA_NOPRUNE: "1"
-      OLLAMA_NUM_PARALLEL: "3"            # the minutes' requests at once (MOM_PARALLEL in hardware.py)
+      OLLAMA_NUM_PARALLEL: "1"            # the minutes' requests at once (MOM_PARALLEL in hardware.py)
     volumes: [ollama:/root/.ollama]         # models are pulled once at setup, then the network can go
     networks: [internal]
 

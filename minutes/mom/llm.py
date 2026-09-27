@@ -15,7 +15,7 @@ import urllib.request
 from urllib.parse import urlparse
 
 DEFAULT_URL = os.environ.get("MOM_LLM_URL", "http://127.0.0.1:11434")
-DEFAULT_MODEL = os.environ.get("MOM_LLM_MODEL", "qwen3:8b")   # the model bake-off winner, round 1
+DEFAULT_MODEL = os.environ.get("MOM_LLM_MODEL", "gpt-oss:20b")   # minutes rounds 3-4: holds up on an hour-long meeting
 TIMEOUT = float(os.environ.get("MOM_LLM_TIMEOUT", "900"))
 
 
@@ -105,6 +105,16 @@ class LocalLLM:
             self.stats["calls"] += 1
             self.stats["seconds"] += time.perf_counter() - t0
         return text
+
+    def unload(self) -> None:
+        """Free the GPU once the minutes are written: the next meeting's transcription needs the
+        card, and a 16 GB card cannot hold gpt-oss:20b (13 GB) and Whisper (4 GB) together."""
+        if self.backend != "ollama":
+            return
+        try:
+            self._post("/api/generate", {"model": self.model, "keep_alive": 0})
+        except (OSError, ValueError):
+            pass   # the model server may already have let it go; nothing to free
 
     def chat_json(self, system: str, user: str, schema: dict, max_tokens: int = 2048, think=None, retry: bool = True) -> dict:
         text = self.chat(system, user, schema, max_tokens, think)

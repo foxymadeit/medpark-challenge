@@ -87,6 +87,8 @@ def run(transcript, out_dir, llm, meeting: Meeting, langs=("ro", "ru", "en"), se
     for lang, (body, report) in zip(langs, written):
         bodies[lang], write_reports[lang] = body, report
     timings["write"] = time.perf_counter() - t
+    if hasattr(llm, "unload"):
+        llm.unload()   # no model is needed for rendering; give the GPU back
 
     t = time.perf_counter()
     stem = f"MoM_{meeting.date}_{meeting.type}"

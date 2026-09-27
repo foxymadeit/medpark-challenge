@@ -6,7 +6,7 @@
   mom report TRANSCRIPT [--session diarizer.json] [--type medical|executive|administrative]
              [--date 2026-09-26] [--start 14:10] [--number 14] [--place ...]
              [--chair ...] [--secretary ...] [--lang ro,ru,en] [--out DIR]
-             [--model qwen3:8b] [--url http://127.0.0.1:11434]
+             [--model gpt-oss:20b] [--url http://127.0.0.1:11434]
 """
 
 import argparse

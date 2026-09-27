@@ -51,3 +51,10 @@ def test_a_named_compose_service_is_allowed_only_inside_the_compose_network(monk
     assert check_local("http://ollama:11434") == "http://ollama:11434"
     with pytest.raises(ValueError):
         check_local("http://api.openai.com")         # a name not on the list stays refused
+
+
+def test_the_model_is_unloaded_from_the_gpu_on_request(monkeypatch):
+    sent = []
+    monkeypatch.setattr(LocalLLM, "_post", lambda self, path, body: sent.append((path, body)) or {})
+    LocalLLM(model="gpt-oss:20b").unload()
+    assert sent == [("/api/generate", {"model": "gpt-oss:20b", "keep_alive": 0})]
