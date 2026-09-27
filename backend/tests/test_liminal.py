@@ -22,6 +22,7 @@ import api  # noqa: E402
 import delivery  # noqa: E402
 import jobs  # noqa: E402
 import main  # noqa: E402
+import names  # noqa: E402
 import store  # noqa: E402
 from services.EmailService import EmailDeliveryResult  # noqa: E402
 
@@ -536,3 +537,133 @@ def test_settled_minutes_get_their_stop_window_on_the_server(client, monkeypatch
     w = r.json()
     assert w["status"] == "sending_soon" and w["sendScheduledAt"] and w["reviewState"] == "reviewed"
     assert client.post(f"/api/meetings/{m['id']}/stop-send").json()["status"] == "ready"
+
+
+# ---------------------------------------------------------------- the moderator names people and retitles
+BODIES = {
+    "ro": "\\summary{S1}{Participantul 3 a prezentat protocolul; Participantul 1 a condus.}\n"
+          "\\action{A1}{Participantul 3}{02.10.2026}{Trimite raportul.}\n"
+          "\\needsconfirmation{C1}{Speaker 3 trimite raportul, Participantul 2 confirmă.}\n",
+    "ru": "\\summary{S1}{Участник 3 представил протокол.}\n\\action{A1}{Участник 3}{02.10.2026}{Отправить отчёт.}\n"
+          "\\noted{N1}{Участник 2 согласен.}\n",
+    "en": "\\summary{S1}{Participant 3 presented; Participant 13 was absent.}\n"
+          "\\action{A1}{Participant 3}{2 October 2026}{Send the report.}\n\\noted{N1}{Participant 2 agreed.}\n",
+}
+UNIT = {"ro": ("Participantul", "min"), "ru": ("Участник", "мин"), "en": ("Participant", "min")}
+
+
+def with_render_state(mid: str) -> Path:
+    """The render state `mom report` leaves next to the minutes (the fake stage writes a stub)."""
+    state = {"meeting": {"type": "medical", "date": "2026-09-26"}, "bodies": BODIES, "model": "fake", "verified": "3/3",
+             "attendees": {lang: [{"name": f"{word} {n}", "role": f"{n} {unit}"} for n in (1, 2, 3)]
+                           for lang, (word, unit) in UNIT.items()}}
+    path = jobs.work_dir(mid) / "minutes" / "MoM_2026-09-26_medical.render.json"
+    path.write_text(json.dumps(state, ensure_ascii=False))
+    return path
+
+
+def voice(m: dict, n: int) -> dict:
+    return next(p for p in m["participants"] if p.get("speakerNumber") == n)
+
+
+def test_naming_a_participant_reaches_the_app_the_email_and_every_document(client):
+    m = processed(client)
+    state_file = with_render_state(m["id"])
+    before = (jobs.work_dir(m["id"]) / "minutes" / "MoM_2026-09-26_medical_ro.pdf").stat().st_mtime_ns
+    r = client.patch(f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}", json={"name": "  Ana Rusu "})
+    assert r.status_code == 200, r.text
+    got = r.json()
+    assert voice(got, 3)["name"] == "Ana Rusu" and got["actionItems"][0]["ownerParticipantId"] == voice(got, 3)["id"]
+    state = json.loads(state_file.read_text())
+    assert "Ana Rusu a prezentat" in state["bodies"]["ro"] and "\\action{A1}{Ana Rusu}" in state["bodies"]["ro"]
+    assert "Ana Rusu trimite" in state["bodies"]["ro"]   # the transcript's "Speaker 3" too
+    assert "Ana Rusu представил" in state["bodies"]["ru"] and "\\action{A1}{Ana Rusu}" in state["bodies"]["ru"]
+    assert "Ana Rusu presented; Participant 13 was absent" in state["bodies"]["en"]   # 13 is someone else
+    assert "Participantul 1 a condus" in state["bodies"]["ro"]
+    for lang, (word, unit) in UNIT.items():
+        assert state["attendees"][lang] == [{"name": f"{word} 1", "role": f"1 {unit}"}, {"name": f"{word} 2", "role": f"2 {unit}"},
+                                            {"name": "Ana Rusu", "role": f"3 {unit}"}]
+    assert (jobs.work_dir(m["id"]) / "minutes" / "MoM_2026-09-26_medical_ro.pdf").stat().st_mtime_ns >= before
+    mail = delivery.payload(store.get("meetings", m["id"]))["minutes"]
+    assert "Ana Rusu" in mail["attendees"] and mail["action_items"][0]["owner"] == "Ana Rusu"
+    assert got["participantSnapshots"][2]["nameAtMeeting"] == "Ana Rusu"
+    assert client.get("/api/admin/audit").json()[0]["action"] == "Named a participant"
+
+
+def test_merging_moves_lines_actions_and_mentions_to_one_person(client):
+    m = processed(client)
+    state_file = with_render_state(m["id"])
+    one, two, three = voice(m, 1), voice(m, 2), voice(m, 3)
+    r = client.post(f"/api/meetings/{m['id']}/participants/{two['id']}/merge", json={"into": one["id"]})
+    assert r.status_code == 200, r.text
+    got = r.json()
+    assert [p["id"] for p in got["participants"]] == [one["id"], three["id"]]
+    assert voice(got, 1)["speakingSeconds"] == one["speakingSeconds"] + two["speakingSeconds"]
+    assert {s["speakerId"] for s in got["transcript"]} == {"Speaker 1", "Speaker 3"}
+    assert {s["speakerId"] for s in got["speakerTimeline"]} == {"Speaker 1", "Speaker 3"}
+    state = json.loads(state_file.read_text())
+    assert "Participantul 1 confirmă" in state["bodies"]["ro"] and "Участник 1 согласен" in state["bodies"]["ru"]
+    assert "Participant 1 agreed" in state["bodies"]["en"]
+    for lang, (word, unit) in UNIT.items():
+        assert state["attendees"][lang] == [{"name": f"{word} 1", "role": f"3 {unit}"}, {"name": f"{word} 3", "role": f"3 {unit}"}]
+    # the action's owner follows a merge, and a named person keeps their name
+    client.patch(f"/api/meetings/{m['id']}/participants/{one['id']}", json={"name": "Ion Popa"})
+    got = client.post(f"/api/meetings/{m['id']}/participants/{three['id']}/merge", json={"into": one["id"]}).json()
+    assert [p["name"] for p in got["participants"]] == ["Ion Popa"]
+    assert got["actionItems"][0]["ownerParticipantId"] == one["id"]
+    state = json.loads(state_file.read_text())
+    assert "\\action{A1}{Ion Popa}" in state["bodies"]["ro"] and "Participant" not in state["bodies"]["ro"]
+    assert state["attendees"]["ru"] == [{"name": "Ion Popa", "role": "6 мин"}]
+    assert client.get("/api/admin/audit").json()[0]["action"] == "Merged two participants into one"
+
+
+def test_names_are_checked_and_cannot_write_latex(client):
+    m = processed(client)
+    state_file = with_render_state(m["id"])
+    url = f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}"
+    for bad in ("", "   ", "x" * 81, "Ana\x00Rusu", "Ana\nRusu", "Ana\u202eRusu", "Participant 7", "Участник 2"):
+        assert client.patch(url, json={"name": bad}).status_code == 422, repr(bad)
+    client.patch(f"/api/meetings/{m['id']}/participants/{voice(m, 1)['id']}", json={"name": "Ion Popa"})
+    assert client.patch(url, json={"name": "ion popa"}).status_code == 422   # the same person: merge instead
+    assert client.patch(f"/api/meetings/{m['id']}/participants/nobody", json={"name": "X"}).status_code == 404
+    merge = f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}/merge"
+    assert client.post(merge, json={"into": voice(m, 3)["id"]}).status_code == 422
+    assert client.post(merge, json={"into": "nobody"}).status_code == 404
+    evil = "Ana \\input{/etc/passwd} \\write18{rm} 100% R&D_x ^^5c ~$"
+    r = client.patch(url, json={"name": evil})
+    assert r.status_code == 200, r.text
+    assert voice(r.json(), 3)["name"] == evil   # the app shows what was typed; React and the email escape it
+    lx = names.latexcheck()
+    for body in json.loads(state_file.read_text())["bodies"].values():
+        lx.parse(body)   # still a clean body: no command got in
+        assert "\\input" not in body and "\\write18" not in body and "100\\% R\\&D\\_x" in body
+
+
+def test_retitling_after_the_minutes_are_written(client):
+    m = processed(client)
+    r = client.patch(f"/api/meetings/{m['id']}", json={"title": "  Consiliul medical, 26 septembrie "})
+    assert r.status_code == 200 and r.json()["title"] == "Consiliul medical, 26 septembrie"
+    assert delivery.payload(store.get("meetings", m["id"]))["minutes"]["title"] == "Consiliul medical, 26 septembrie"
+    assert client.patch(f"/api/meetings/{m['id']}", json={"title": " "}).status_code == 422
+
+
+def test_once_sent_names_merges_and_titles_are_refused(client):
+    m = processed(client)
+    with_render_state(m["id"])
+    store.update("meetings", m["id"], lambda x: x.update(status="sent"))
+    base = f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}"
+    assert client.patch(base, json={"name": "Ana Rusu"}).status_code == 409
+    assert client.post(f"{base}/merge", json={"into": voice(m, 1)["id"]}).status_code == 409
+    assert client.patch(f"/api/meetings/{m['id']}", json={"title": "Too late"}).status_code == 409
+    after = client.get(f"/api/meetings/{m['id']}").json()
+    assert after["title"] == m["title"] and after["participants"] == m["participants"]
+
+
+def test_if_the_documents_cannot_be_rebuilt_the_name_stays(client, monkeypatch):
+    m = processed(client)
+    state_file = with_render_state(m["id"])
+    before = state_file.read_text()
+    monkeypatch.setenv("LIMINAL_RENDER_CMD", f"{sys.executable} -c 'import sys; sys.exit(3)'")
+    r = client.patch(f"/api/meetings/{m['id']}/participants/{voice(m, 3)['id']}", json={"name": "Ana Rusu"})
+    assert r.status_code == 503
+    assert state_file.read_text() == before and voice(client.get(f"/api/meetings/{m['id']}").json(), 3)["name"] == "Participant 3"

@@ -62,6 +62,8 @@ ACTIONS = {
     ("PATCH", f"{_M}/minutes"): "Edited the minutes", ("PATCH", f"{_M}/actions/{{action_id}}"): "Edited an action item",
     ("POST", f"{_M}/confirmations/{{fact_id}}"): "Settled an item to confirm",
     ("PATCH", f"{_M}/participants"): "Changed the participants", ("POST", f"{_M}/feedback"): "Sent feedback",
+    ("PATCH", f"{_M}/participants/{{participant_id}}"): "Named a participant",
+    ("POST", f"{_M}/participants/{{participant_id}}/merge"): "Merged two participants into one",
     ("POST", f"{_M}/review"): "Marked the minutes as reviewed", ("GET", f"{_M}/transcript"): "Read a transcript",
     ("POST", f"{_M}/send"): "Sent the minutes", (AUTO, f"{_M}/send"): "Sent the minutes automatically",
     ("POST", f"{_M}/stop-send"): "Stopped an automatic send", ("GET", f"{_M}/documents/{{name}}"): "Opened a document",

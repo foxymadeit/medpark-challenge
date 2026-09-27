@@ -6,9 +6,12 @@ access instead). The server owns statuses, the distribution list, speaker
 identities and delivery; the browser only asks.
 """
 
+import copy
+import json
 import os
 import re
 import shutil
+import threading
 import urllib.error
 import uuid
 from datetime import date
@@ -22,6 +25,7 @@ import audio
 import corrections
 import delivery
 import jobs
+import names
 import security
 import store
 from security import NETWORK, now_iso
@@ -59,6 +63,14 @@ class ActionPatch(BaseModel):
 
 class Confirmation(BaseModel):
     action: str   # "keep" or "remove"
+
+
+class ParticipantName(BaseModel):
+    name: str = Field(max_length=400)   # names.clean_name trims it and allows 1 to 80 characters
+
+
+class Merge(BaseModel):
+    into: str = Field(min_length=1, max_length=64)
 
 
 # ---------------------------------------------------------------- helpers
@@ -162,10 +174,12 @@ def patch_meeting(meeting_id: str, changes: dict):
                     raise HTTPException(409, "That status is set by the server.")
                 m["status"] = value
             elif key == "title":
+                _locked(m)   # the moderator may retitle finished minutes until they are sent
                 title = str(value).strip()
                 if not 0 < len(title) <= 120:
                     raise HTTPException(422, "A title has 1 to 120 characters.")
                 m["title"] = title
+                _restart_window(m)
             elif key == "sendMode":
                 if value not in ("manual", "auto") or (value == "auto" and not delivery.AUTO_AVAILABLE):
                     raise HTTPException(422, "Unknown send mode.")
@@ -381,6 +395,94 @@ def patch_participants(meeting_id: str, body: dict):
                 a["ownerStaffId"] = None
         _restart_window(m)
     return _update(meeting_id, change)
+
+
+# ---------------------------------------------------------------- naming people in finished minutes
+_NAMING = threading.Lock()   # ponytail: one rename or merge at a time server-wide; per meeting if moderators queue up
+
+
+def _person(m: dict, participant_id: str) -> dict:
+    p = next((x for x in m.get("participants") or [] if x["id"] == participant_id), None)
+    if p is None:
+        raise HTTPException(404, "Participant not found.")
+    return p
+
+
+def _rename_everywhere(meeting_id: str, edit_app, edit_state) -> dict:
+    """Change the app's meeting with edit_app(m) and the minutes' render state
+    with edit_state(state, m), then build the PDFs and DOCX again (no model),
+    so what is emailed carries the change. Until the minutes are sent."""
+    with _NAMING:
+        m = meeting_for(meeting_id)
+        _locked(m)
+        edit_app(copy.deepcopy(m))   # any 404 or 422 comes now, before a file changes
+        documents = None
+        state_file = next((jobs.work_dir(meeting_id) / "minutes").glob("*.render.json"), None)
+        if state_file is not None:
+            before = state_file.read_text(encoding="utf-8")
+            try:
+                state = json.loads(before)
+                edit_state(state, m)
+                jobs._write_json(state_file, state)
+                documents = jobs.rerender(meeting_id, m["type"])
+            except (jobs.StageFailed, ValueError):
+                state_file.write_text(before, encoding="utf-8")
+                raise HTTPException(503, "The documents could not be rebuilt with the new name. Nothing was changed.")
+
+        def change(x):
+            _locked(x)
+            edit_app(x)
+            x["participantSnapshots"] = [_snapshot(p, x["type"]) for p in x["participants"]]
+            if documents:
+                x["documents"] = documents
+            _restart_window(x)
+        return _update(meeting_id, change)
+
+
+@router.patch("/meetings/{meeting_id}/participants/{participant_id}")
+def rename_participant(meeting_id: str, participant_id: str, body: ParticipantName):
+    """Give a participant a name: "Participantul 4" becomes "Ana Rusu" in the app,
+    the email and every document."""
+    try:
+        name = names.clean_name(body.name)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+
+    def edit_app(m):
+        p = _person(m, participant_id)
+        if any(q is not p and q["name"].casefold() == name.casefold() for q in m["participants"]):
+            raise HTTPException(422, "Another participant already has that name. Merge the two instead.")
+        names.retext(m, p, name)
+        p["name"] = name
+
+    return _rename_everywhere(meeting_id, edit_app,
+                              lambda state, m: names.rename_state(state, _person(m, participant_id), name))
+
+
+@router.post("/meetings/{meeting_id}/participants/{participant_id}/merge")
+def merge_participant(meeting_id: str, participant_id: str, body: Merge):
+    """Two participants are one person: this one's lines, actions and mentions
+    become the other's (body.into), and this one leaves the list."""
+    def edit_app(m):
+        gone, into = _person(m, participant_id), _person(m, body.into)
+        if gone is into:
+            raise HTTPException(422, "Choose another participant to merge into.")
+        names.retext(m, gone, names.display(into, m.get("minutesLanguage") or "ro"))
+        if gone.get("speakerId") and not into.get("speakerId"):
+            into["speakerId"] = gone["speakerId"]   # the voice was this person all along
+        elif gone.get("speakerId"):
+            for line in (m.get("transcript") or []) + (m.get("speakerTimeline") or []):
+                if line.get("speakerId") == gone["speakerId"]:
+                    line["speakerId"] = into["speakerId"]
+        if "speakingSeconds" in gone or "speakingSeconds" in into:
+            into["speakingSeconds"] = (into.get("speakingSeconds") or 0) + (gone.get("speakingSeconds") or 0)
+        for a in m.get("actionItems") or []:
+            if a.get("ownerParticipantId") == gone["id"]:
+                a.update(ownerParticipantId=into["id"], ownerStaffId=into.get("staffId"))
+        m["participants"] = [p for p in m["participants"] if p is not gone]
+
+    return _rename_everywhere(meeting_id, edit_app, lambda state, m: names.merge_state(
+        state, _person(m, participant_id), _person(m, body.into)))
 
 
 @router.post("/meetings/{meeting_id}/feedback", status_code=204)
