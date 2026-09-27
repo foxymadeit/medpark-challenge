@@ -72,6 +72,12 @@ SUMMARY = {
     "ru": "Рассмотрено вопросов: {t} ({titles}). Принято решений: {d}, поручений: {a}.",
     "en": "The meeting considered {t} items: {titles}. It took {d} decisions and agreed {a} actions.",
 }
+# Minutes with nothing to report still say so, rather than coming out blank.
+NO_ITEMS = {
+    "ro": "Nu au fost identificate subiecte, decizii sau sarcini în această înregistrare.",
+    "ru": "В этой записи не выявлено тем, решений или задач.",
+    "en": "No topics, decisions or action items were identified in this recording.",
+}
 
 
 def owner_display(owner: str, lang: str) -> str:
@@ -137,7 +143,7 @@ def write_body(llm, facts, lang: str, evidence_text: dict, patients=(), names=()
     """-> (body, report). evidence_text maps fact ID -> the text of its cited lines."""
     rows = plan(facts, lang)
     if not rows:
-        return "", {"source": "empty", "errors": []}
+        return f"\\summary{{S1}}{{{latexcheck.escape(NO_ITEMS[lang])}}}\n", {"source": "no-items", "errors": []}
     system = prompt(lang)
     user = "Facts:\n" + "\n".join(json.dumps({k: v for k, v in r.items() if k != "source"}, ensure_ascii=False) for r in rows)
     terms = [f"{t['matched']} → {t[lang]}" for t in terms_for([r["text"] for r in rows], lang) if fold(t["matched"]) != fold(t[lang])]

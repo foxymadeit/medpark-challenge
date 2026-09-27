@@ -17,6 +17,7 @@ data/mix/
 # ASR models and runs, fetched by scripts
 asr-llm/models/whisper/
 asr-llm/models/whisper-turbo/
+asr-llm/models/whisper-mlx/
 asr-llm/models/llm/
 asr-llm/.venv/
 asr-llm/runs/
@@ -36,3 +37,6 @@ diarization/eval/cache/
 diarization/voices/
 # VHS text capture, used only to check a recording
 diarization/demo/cli.txt
+
+# RUN_IT.md: the pipeline tools venv
+.tools/

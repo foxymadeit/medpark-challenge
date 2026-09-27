@@ -2,9 +2,11 @@ import hardware
 
 
 def test_the_machine_picks_the_profile():
-    assert hardware.detect(gpu_gb=16, ram_gb=8) == "gpu"
-    assert hardware.detect(gpu_gb=0, ram_gb=32) == "cpu"
-    assert hardware.detect(gpu_gb=6, ram_gb=16) == "laptop"
+    assert hardware.detect(gpu_gb=16, ram_gb=8, apple=False) == "gpu"
+    assert hardware.detect(gpu_gb=0, ram_gb=32, apple=False) == "cpu"
+    assert hardware.detect(gpu_gb=6, ram_gb=16, apple=False) == "laptop"
+    assert hardware.detect(gpu_gb=0, ram_gb=24, apple=True) == "mac"
+    assert hardware.detect(gpu_gb=0, ram_gb=16, apple=True) == "laptop"   # too little memory for gpt-oss:20b
 
 
 def test_settings_in_the_environment_win(monkeypatch):

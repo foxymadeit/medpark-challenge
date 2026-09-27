@@ -29,11 +29,13 @@ class Settings(BaseSettings):
     # faster-whisper defaults to 4 threads; the CPU-only profile needs all cores.
     cpu_threads: int = os.cpu_count() or 4
     asr_model_dir: Path = ASR_ROOT / "models" / "whisper"
-    # whisper | specialists (SpeD-RoASR + GigaAM-v3 + Parakeet v3, asr_llm/specialists.py)
+    # whisper | specialists (SpeD-RoASR + GigaAM-v3 + Parakeet v3, asr_llm/specialists.py) | mlx (Apple GPU)
     asr_engine: str = "whisper"
     sped_model: Path = ASR_ROOT / "models" / "specialists" / "SpeD-ParakeetRo_110M_TDT-CTC.nemo"
     parakeet_model: Path = ASR_ROOT / "models" / "specialists" / "parakeet-tdt-0.6b-v3.nemo"
     gigaam_dir: Path = ASR_ROOT / "models" / "specialists" / "gigaam"
+    # MOM_ASR_ENGINE=mlx: Whisper large-v3 on the Apple GPU (asr_llm/mlx_asr.py)
+    mlx_model_dir: Path = ASR_ROOT / "models" / "whisper-mlx"
     # Whisper picks from 99 languages; Moldovan Romanian often wins as ru/lt.
     asr_languages: tuple[str, ...] = ("ro", "ru", "en")
     # Whisper LID says ru at 0.9 on plain Moldovan Romanian, and forcing ru then
@@ -98,7 +100,7 @@ class Settings(BaseSettings):
 
     ffmpeg_bin: str = "ffmpeg"
 
-    @field_validator("asr_model_dir", "sped_model", "parakeet_model", "gigaam_dir", "llm_gguf")
+    @field_validator("asr_model_dir", "sped_model", "parakeet_model", "gigaam_dir", "mlx_model_dir", "llm_gguf")
     @classmethod
     def _under_asr_root(cls, path: Path) -> Path:
         """A relative model path (the backend's MOM_ASR_MODEL_DIR=models/whisper) means asr-llm/models,
