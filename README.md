@@ -348,9 +348,9 @@ patients); run through the whole product on one T4:
 Read by hand, three of the six decisions are in the one-reader minutes, one of
 them merged with the monthly-audit trap, and one was held back by the checker
 because transcription wrote "coronografie" for "coronarografie". The owners
-fail for a plain reason: one person read every part, so every line is
-"Speaker 1", and Liminal will not guess a name it did not hear. Nothing
-unproven went out: those items wait in "Needs confirmation". This is the gap
+failed because one person read every part: every line is "Speaker 1", and the
+model gave the actions to that speaker instead of the names said in the lines.
+Nothing unproven went out: those items wait in "Needs confirmation". This is the gap
 between scripted transcripts and real rooms, and the first thing the pilot
 measures.
 
