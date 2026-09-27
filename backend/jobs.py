@@ -312,7 +312,14 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
                  "speakerSlot": len(participants) + 1, "speakingSeconds": 0, "namedInMinutes": True}
             participants.append(p)
             by_name[owner.casefold()] = p
-    decisions = [{"id": f["id"], "text": f["text"]} for f in kept if f["kind"] == "decision"]
+    # The texts shown come from the written minutes (meeting.json, in minutesLanguage, like the summary),
+    # not from facts.json, whose wording is the extractor's draft in whatever language it picked:
+    # a meeting that opened in English showed a Romanian summary over English decisions.
+    export = next(minutes_dir.glob("*.meeting.json"), None)
+    exported = json.loads(export.read_text(encoding="utf-8")) if export else {}
+    written = {d["id"]: d["text"] for d in exported.get("decisions", [])}
+    written |= {a["id"]: a["task"] for a in exported.get("actionItems", []) if a.get("task")}
+    decisions = [{"id": f["id"], "text": written.get(f["id"], f["text"])} for f in kept if f["kind"] == "decision"]
     actions, confirm = [], []
     for f in kept:
         if f["status"] == "confirm":
@@ -321,7 +328,7 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
             continue
         owner = owner_of(f.get("owner", ""))
         start = _line_start(f.get("evidence", []), segments)
-        item = {"id": f["id"], "task": f["text"], "ownerParticipantId": owner, "deadline": f.get("deadline") or None,
+        item = {"id": f["id"], "task": written.get(f["id"], f["text"]), "ownerParticipantId": owner, "deadline": f.get("deadline") or None,
                 "completed": False}
         if start is not None:
             item["sourceTimestampSeconds"] = start
@@ -338,8 +345,6 @@ def apply_results(m: dict, work: Path, session: Path | None, segments: list[dict
                             "problems": [f"meeting type sounds like {detected}"], "detectedType": detected,
                             "chosenType": m["type"]})
 
-    export = next(minutes_dir.glob("*.meeting.json"), None)
-    exported = json.loads(export.read_text(encoding="utf-8")) if export else {}
     documents = _documents(minutes_dir)
     lang = exported.get("minutesLanguage") if exported.get("minutesLanguage") in SUMMARY_WORDS else _main_language(segments)
     transcript = [{"id": f"seg-{i}", "speakerId": _speaker_for(s, turns), "startSeconds": round(s["start"], 2),

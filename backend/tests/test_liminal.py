@@ -808,3 +808,13 @@ def test_an_owner_named_in_the_meeting_is_a_participant_who_can_be_renamed_and_m
     state = json.loads(state_file.read_text())
     assert "Roman Ceban a prezentat" in state["bodies"]["ro"]
     assert state["attendees"]["ro"] == [{"name": "Roman Ceban", "role": "1 min"}]
+
+
+# ---------------------------------------------------------------- one language on the minutes page
+def test_decisions_and_actions_come_in_the_summary_language(client, monkeypatch):
+    # facts.json holds the extractor's English draft ("Send the report."); the page shows the written minutes
+    monkeypatch.setenv("FAKE_WRITTEN", "1")
+    m = processed(client)
+    assert m["minutesLanguage"] == "ro" and m["summary"] == "Consiliul a examinat protocolul ATI."
+    assert [a["task"] for a in m["actionItems"]] == ["Trimite raportul."]
+    assert [d["text"] for d in m["decisions"]] == ["Se aprobă protocolul ATI."]
