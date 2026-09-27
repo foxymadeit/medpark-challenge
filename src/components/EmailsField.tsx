@@ -6,7 +6,7 @@ import { useStore } from '../store/AppStore';
 import { Avatar } from './Avatar';
 
 /**
- * Emails with suggestions from the participants list (ARIA combobox); added people are listed below, one per row.
+ * Emails with suggestions from the participants list (ARIA combobox).
  * Focus shows everyone not added yet; typing filters by name, role or email.
  * Any other address can still be typed and confirmed with Enter or a comma.
  */
@@ -80,11 +80,19 @@ export function EmailsField({ emails, onChange }: { emails: string[]; onChange: 
       <div className="emails-combo" ref={wrap}>
         <div className="emails-field">
           <EnvelopeSimpleIcon size={20} aria-hidden />
+          {emails.map((email) => (
+            <span key={email} className="tag emails-field__tag" title={email}>
+              {nameFor(email) ?? email}
+              <button type="button" className="emails-field__remove" aria-label={t('newMeeting.removeEmail', { email })} onClick={() => onChange(emails.filter((x) => x !== email))}>
+                <XIcon size={12} aria-hidden />
+              </button>
+            </span>
+          ))}
           <input
             id={`${id}-in`}
             type="email"
             className="emails-field__input"
-            placeholder={t('newMeeting.emailsPh')}
+            placeholder={emails.length ? '' : t('newMeeting.emailsPh')}
             value={input}
             role="combobox"
             aria-expanded={showList}
@@ -133,26 +141,6 @@ export function EmailsField({ emails, onChange }: { emails: string[]; onChange: 
         <p id={`${id}-err`} className="field__error">
           {error}
         </p>
-      )}
-      {/* Added participants, one per row. */}
-      {emails.length > 0 && (
-        <ul className="emails-list" aria-label={t('newMeeting.emails')}>
-          {emails.map((email) => {
-            const name = nameFor(email);
-            return (
-              <li key={email} className="emails-list__item">
-                <Avatar name={name ?? email} />
-                <span className="who__text">
-                  <span className="who__name truncate">{name ?? email}</span>
-                  {name && <span className="who__sub truncate">{email}</span>}
-                </span>
-                <button type="button" className="icon-btn" aria-label={t('newMeeting.removeEmail', { email })} onClick={() => onChange(emails.filter((x) => x !== email))}>
-                  <XIcon size={16} aria-hidden />
-                </button>
-              </li>
-            );
-          })}
-        </ul>
       )}
     </div>
   );

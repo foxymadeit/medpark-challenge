@@ -72,14 +72,6 @@
 /* Figma "01 New meeting · Wide A · Full-width stack" (2051:2358): one left-aligned stack filling the content area (48px gutters), sections 32px apart. */
 .new-meeting { flex-direction: row; align-items: flex-start; justify-content: flex-start; }
 .new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); flex: 1 1 auto; width: 100%; max-width: 1104px; min-width: 0; }
-/* Two columns above the cards: details (name, date, type) | participants. Same split as the cards below. */
-.new-meeting__top { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sm-space-8) var(--sm-space-4); align-items: start; }
-.new-meeting__details { display: flex; flex-direction: column; gap: var(--sm-space-8); min-width: 0; }
-.new-meeting__people { min-width: 0; }
-.emails-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; max-height: 236px; overflow: auto; }
-.emails-list__item { display: flex; align-items: center; gap: var(--sm-space-3); padding: 8px 0; border-bottom: 1px solid var(--sm-surface-hairline); }
-.emails-list__item:last-child { border-bottom: 0; }
-.emails-list__item .who__text { flex: 1; min-width: 0; }
 .emails-field {
   display: flex;
   flex-wrap: wrap;
