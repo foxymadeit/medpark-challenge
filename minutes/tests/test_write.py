@@ -1,0 +1,100 @@
+from mom import latexcheck
+from mom.schemas import Fact
+from mom.write import check_body, fallback_body, owner_display, plan, write_body
+
+FACTS = [
+    Fact("T1", "topic", "Contractul RMN", ["L0001"], quote="x"),
+    Fact("N1", "note", "Contractul expiră la sfârșitul lunii.", ["L0001"], quote="x", topic="T1"),
+    Fact("D1", "decision", "Se reînnoiește contractul.", ["L0002"], quote="x", topic="T1", vote="pro 4, contra 0"),
+    Fact("A1", "action", "Verifică condițiile.", ["L0003"], quote="x", topic="T1", owner="Speaker 3", deadline="2026-09-30"),
+    Fact("A2", "action", "Trimite documentele.", ["L0004"], quote="x", topic="T1", owner="Elena Rusu", status="confirm"),
+    Fact("N9", "note", "dropped", ["L0009"], quote="x", topic="T1", status="dropped"),
+]
+EVIDENCE = {"N1": "contractul expiră la sfârșitul lunii", "D1": "aprobăm, pro 4, contra 0", "A1": "verific eu până pe 30", "A2": "cineva trimite"}
+GOOD = r"""\summary{S1}{Consiliul a examinat contractul RMN și a aprobat reînnoirea lui.}
+\begin{agenda}
+\agendaitem{T1}{Contractul RMN}
+\end{agenda}
+\topic{T1}{Contractul RMN}
+\noted{N1}{S-a comunicat că contractul expiră la sfârșitul lunii.}
+\decision{D1}{Se aprobă reînnoirea contractului.}{pro 4, contra 0}
+\action{A1}{Participantul 3}{30.09.2026}{Verifică condițiile de reînnoire.}
+\needsconfirmation{C1}{Trimiterea documentelor.}"""
+
+
+def test_plan_orders_facts_localises_owners_and_dates_and_hides_dropped_ones():
+    rows = plan(FACTS, "ru")
+    assert [r["id"] for r in rows] == ["S1", "T1", "N1", "D1", "A1", "C1"]
+    assert rows[4]["owner"] == "Участник 3" and rows[4]["deadline"] == "30.09.2026"
+    assert plan(FACTS, "en")[4]["deadline"] == "30 September 2026"
+    assert owner_display("SPEAKER_07", "ro") == "Participantul 07" and owner_display("dna Ana Popescu", "ro") == "dna Ana Popescu"
+
+
+def test_a_correct_body_passes_and_owners_are_forced_to_the_given_values():
+    rows = plan(FACTS, "ro")
+    body, errors = check_body(GOOD.replace("{Participantul 3}", "{Dr. Invented}"), rows, EVIDENCE)
+    assert errors == [] and "{Participantul 3}" in body
+
+
+def test_missing_ids_invented_numbers_patients_and_wrong_script_are_caught():
+    rows = plan(FACTS, "ro")
+    body, errors = check_body(GOOD.replace(r"\noted{N1}{S-a comunicat că contractul expiră la sfârșitul lunii.}", ""), rows, EVIDENCE)
+    assert any("N1 appears 0 times" in e for e in errors)
+    _, errors = check_body(GOOD.replace("expiră la", "expiră în 45 de zile, la"), rows, EVIDENCE)
+    assert any("45" in e for e in errors)
+    body, _ = check_body(GOOD.replace("Trimiterea documentelor.", "Pacienta Maria Lungu."), rows, EVIDENCE, patients=[{"name": "Maria Lungu"}])
+    assert "Maria Lungu" not in body and "M.L." in body
+    _, errors = check_body(GOOD.replace("Trimiterea documentelor.", "Отправка документов."), rows, EVIDENCE)
+    assert any("Cyrillic" in e for e in errors)
+
+
+def test_fallback_body_always_parses():
+    latexcheck.parse(fallback_body(plan(FACTS, "en")))
+
+
+class FakeLLM:
+    def __init__(self, replies):
+        self.replies = list(replies)
+
+    def chat(self, *a, **k):
+        return self.replies.pop(0)
+
+
+def test_write_body_repairs_once_then_falls_back():
+    body, rep = write_body(FakeLLM(["```latex\n" + GOOD + "\n```"]), FACTS, "ro", EVIDENCE)
+    assert rep["source"] == "model" and latexcheck.parse(body)
+    body, rep = write_body(FakeLLM(["\\input{x}", GOOD]), FACTS, "ro", EVIDENCE)
+    assert rep["source"] == "model, repaired"
+    body, rep = write_body(FakeLLM(["\\input{x}", "\\input{y}"]), FACTS, "ro", EVIDENCE)
+    assert rep["source"] == "fallback" and latexcheck.parse(body)
+
+
+def test_summary_with_an_invented_number_is_rejected():
+    rows = plan(FACTS, "ro")
+    assert rows[0] == {"id": "S1", "kind": "summary", "text": ""}
+    body = GOOD.replace("a examinat contractul RMN și a aprobat reînnoirea lui.", "a aprobat 7 paturi noi.")
+    _, errors = check_body(body, rows, EVIDENCE, lang="ro")
+    assert any("number 7" in e for e in errors)
+
+
+def test_fallback_body_has_a_summary_in_the_document_language():
+    body = fallback_body(plan(FACTS, "ru"), "ru")
+    assert body.startswith("\\summary{S1}{Рассмотрено вопросов: 1")
+    latexcheck.parse(body)
+
+
+def test_repeated_blocks_times_and_institutions_do_not_fail_a_good_body():
+    rows = plan(FACTS, "en")
+    body = GOOD.replace("\\needsconfirmation{C1}{Trimiterea documentelor.}",
+                        "\\needsconfirmation{C1}{Trimiterea documentelor.}\n\\needsconfirmation{C1}{Trimiterea documentelor.}")
+    body = body.replace("Verifică condițiile de reînnoire.", "The Board checks the terms at 30:00.")
+    _, errors = check_body(body, rows, {**EVIDENCE, "A1": "verific eu până pe 30"}, lang="en")
+    assert not any("appears" in e or "The Board" in e or "number 00" in e for e in errors), errors
+
+
+def test_fallback_never_prints_a_patient_name():
+    from mom.schemas import Fact
+    facts = [Fact("T1", "topic", "Cazul Maria Lungu", ["L0001"], quote="x"),
+             Fact("N1", "note", "Pacienta Maria Lungu are 67 de ani.", ["L0001"], quote="x", topic="T1")]
+    body = fallback_body(plan(facts, "ro"), "ro", [{"name": "Maria Lungu", "age": 67, "bed": 12}])
+    assert "Lungu" not in body and "M.L." in body

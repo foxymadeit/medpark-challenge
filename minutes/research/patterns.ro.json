@@ -1,0 +1,56 @@
+{
+ "title": "PROCES-VERBAL nr. {n} al ședinței {organ} din {date}",
+ "section_order": [
+  "instituția",
+  "PROCES-VERBAL nr. …, data, locul",
+  "Au participat / Prezenți / Absenți, cvorumul în cifre",
+  "președintele ședinței, secretarul",
+  "ORDINEA DE ZI",
+  "fiecare subiect: cine a prezentat, ce s-a discutat",
+  "s-a decis / hotărâri, cu rezultatul votului",
+  "semnăturile președintelui și secretarului"
+ ],
+ "people": {
+  "format_md": "dl / dna {Nume}, {funcția}",
+  "format_ro_hospital": "Dr. {Nume} - {funcția}",
+  "chair": "{Prenume} {NUME} – {funcția}, președinte al ședinței",
+  "sources": [
+   "md_gov_pv73_2025-12",
+   "ro_braila_consiliul_medical"
+  ]
+ },
+ "noting": [
+  "{Nume} a prezentat {x}.",
+  "{Nume} a menționat că {x}.",
+  "{Nume} a propus {x}.",
+  "Se ia act de {x}.",
+  "Se aduce la cunoștință {x}."
+ ],
+ "decision": [
+  "Ca urmare a discuțiilor, s-a decis:",
+  "Se aprobă {x}.",
+  "Se aprobă, cu {pro} voturi pentru, {abt} abțineri și {contra} voturi împotrivă, {x}.",
+  "Se avizează {x}.",
+  "Se acceptă propunerea {cui} de a {x}.",
+  "Se recomandă {cui} {x}.",
+  "Se respinge {x}."
+ ],
+ "action": {
+  "format": "Se recomandă {cui} {ce}. Responsabil: {cine}. Termen: {dd.mm.yyyy}.",
+  "deadline": "dd.mm.yyyy, or 'în termen de {n} zile'; only if set",
+  "sources": [
+   "ro_cluj_hotarari_2021-05",
+   "md_gov_pv73_2025-12"
+  ]
+ },
+ "votes": "S-a votat: pro-{n}, contra-{n}, abținut-{n}. / în unanimitate",
+ "sign_off": "Președintele ședinței {Nume}; Secretar {Nume}",
+ "tense": "reflexive impersonal for decisions (se aprobă), perfect compus for discussion (a menționat)",
+ "orthography": "ș and ț with comma below; â and î; Moldovan official register",
+ "omit": [
+  "verbatim speech (always reported, never quoted)",
+  "small talk and procedure beyond opening and closing",
+  "patient names (cases are counted or described)",
+  "deadlines nobody set"
+ ]
+}

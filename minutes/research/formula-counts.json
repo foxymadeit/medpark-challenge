@@ -1,0 +1,1389 @@
+{
+ "en": {
+  "docs": 13,
+  "words": 90104,
+  "categories": {
+   "decision": [
+    {
+     "pattern": "\\bAPPROVED\\b",
+     "hits": 97,
+     "docs": 13,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 191,
+       "quote": "ted words from paragraph at top of page three. JL commented on the comprehensive minutes. Resolved: The Board APPROVED the minutes as an accurate record subject to the amendments. 4.2 ACTION LOG REVIEW MN advised actions 8, 9, 10, 11 and 12 on the log were proposed for closure."
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 68,
+       "quote": " Partnership, on the terms and conditions outlined in this report, to govern the delivery of the approved Better Care Fund Plan for Havering for the period 2025/2026. 2. Delegated authority to approve the final terms of the proposed "
+      }
+     ]
+    },
+    {
+     "pattern": "\\b(the )?(board|committee) (APPROVED|approved)\\b",
+     "hits": 43,
+     "docs": 11,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 191,
+       "quote": "ra/duplicated words from paragraph at top of page three. JL commented on the comprehensive minutes. Resolved: The Board APPROVED the minutes as an accurate record subject to the amendments. 4.2 ACTION LOG REVIEW MN advised actions 8, 9, 10, 11 and 12 on the log were proposed for closure."
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 116,
+       "quote": "ceived 9 recommendations and, if agreed, they would be monitored by the Adults Delivery Board. The Board approved the London Borough of Havering JSNA 2025. 18 TOBACCO HARM REDUCTION STRATEGY CONSULTATION The Board received the Tobacco Harm Reduction Strategy "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bRESOLVED\\b",
+     "hits": 84,
+     "docs": 9,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 191,
+       "quote": "val of extra/duplicated words from paragraph at top of page three. JL commented on the comprehensive minutes. Resolved: The Board APPROVED the minutes as an accurate record subject to the amendments. 4.2 ACTION LOG REVIEW MN advised actions 8, 9, 10, 11 and 12 on the log were p"
+      },
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 120,
+       "quote": "discussions with partners on the importance of this evidence based programme. 2.10 Resolved: The patient story was noted. BD/09/24/3 Declarations of Conflicts of Interest and Register of Interests 3.1 T"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bcarried\\b",
+     "hits": 13,
+     "docs": 6,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 489,
+       "quote": "t key standards and indicators • RECEIVED assurance where standards are not currently met, analysis has been carried out and improvement interventions been identified. 11. WINTER PLAN 2025/26 AND BOARD ASSURANCE STATEMENT LC advised members the report provided oversight o"
+      },
+      {
+       "doc": "en_humber_pack_2024-11.txt",
+       "line": 315,
+       "quote": " buildings achieving compliancy with Regulatory requirements. • Safety assessment audits had been carried out at Trust premises and action taken to address any issues identified. The Trust is conforming to the standards required by t"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bit was agreed\\b",
+     "hits": 51,
+     "docs": 5,
+     "examples": [
+      {
+       "doc": "en_sheffield_1.txt",
+       "line": 127,
+       "quote": " multidisciplinary team. The Board asked that a review with identified actions is undertaken and it was agreed that a report providing further assurance would be taken to the quality assurance committee in January 2026. Approvals,"
+      },
+      {
+       "doc": "en_sheffield_2.txt",
+       "line": 119,
+       "quote": " Approvals, recommendations, and actions: The Chair noted the following: • It was agreed that the impact of the experience story will be captured in a case study story – HC/ DP to note and take forward • It was agreed t"
+      }
+     ]
+    },
+    {
+     "pattern": "\\b(board|committee) (AGREED|agreed)\\b",
+     "hits": 10,
+     "docs": 5,
+     "examples": [
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 135,
+       "quote": " young people’. The strategy was due to be presented to Cabinet in June 2025 for adoption. The Board agreed for the Strategy to proceed to Cabinet for adoption. 19 HEALTH PROTECTION FORUM ANNUAL REPORT 2024 The Board received the Health Protection Forum "
+      },
+      {
+       "doc": "en_humber_pack_2024-11.txt",
+       "line": 495,
+       "quote": "ss No other items of business were raised. 139/24 Review of Meeting – Being Humber The Board agreed the meeting had been held in the Being Humber style. 140/24 Exclusion of Members of the Public from the Part II Meeting It was resolved that membe"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bresolved that\\b",
+     "hits": 5,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "en_humber_pack_2024-11.txt",
+       "line": 499,
+       "quote": "he Being Humber style. 140/24 Exclusion of Members of the Public from the Part II Meeting It was resolved that members of the public would be excluded from the second part of the meeting having regard to the confidential nature of the business to be transacted,"
+      },
+      {
+       "doc": "en_stockton_hwb_2025-09.txt",
+       "line": 28,
+       "quote": " Declarations of Interest There were no declarations of interest. 2 Minutes RESOLVED that the minutes of the meeting held on 30 July be confirmed as a correct record and signed by the Chair. 3 Better Care Fund – Quarter 1 Update "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bratified\\b",
+     "hits": 8,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 769,
+       "quote": "tioned a national policy on sexual misconduct that is being adopted for use at the Trust and once this is ratified, will be live in the organisation. Work is also ongoing with the HR team and trade union colleagues developing training for management of sexual safety to "
+      },
+      {
+       "doc": "en_humber_pack_2024-11.txt",
+       "line": 103,
+       "quote": " • The Medical Education team had been ranked as number 1. The following policies were ratified by the Board: • Retirement Policy • Business Continuity Policy Lynn Parkinson advised that a MAPPA update was included in a r"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bmotion\\b",
+     "hits": 6,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 835,
+       "quote": "The next meeting would be held on Wednesday, 26th November 2025. BD/09/24/30 Confidential Motion 30.1 Resolved: to exclude members of the press and public in accordance with the Health Services Act 2"
+      },
+      {
+       "doc": "en_sgmh_minutes_2024-06.txt",
+       "line": 71,
+       "quote": "werdlow Yes June 30, 2028. Tankersley Absent Motion carried. Quarterly John Peleuses, Vice President of Ancillary and Support Services, gave a Construction Update detailed report about current"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bendorsed\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "en_sheffield_2.txt",
+       "line": 274,
+       "quote": "ity required for data quality and lived-experience triangulation. Noting, the programme has been endorsed by the executive management team (EMT) to provide an assurance process of the ongoing quality of services and work is underway to add"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bunanimously\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ],
+   "noting": [
+    {
+     "pattern": "\\bNOTED\\b",
+     "hits": 682,
+     "docs": 12,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 145,
+       "quote": "heir first Board meeting held in Public. No apologies were received. The meeting was confirmed as quorate. JL noted it was SU, the Interim Medical Director’s last Board meeting and conveyed thanks to him for his work during his time with the Trust. 2. DECLARATIONS OF INTERES"
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 56,
+       "quote": " on the delivery of the Better Care Fund (BCF). Health & Wellbeing Board, 7 May 2025 Members noted officers were seeking approval to enter into the Section 75 agreement with the NEL ICB to govern the delivery of the BCF for 2025-26. It was expl"
+      }
+     ]
+    },
+    {
+     "pattern": "\\b(the )?(board|committee) (NOTED|noted)\\b",
+     "hits": 83,
+     "docs": 11,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 915,
+       "quote": "al requirement considerations and or emerging issues within the Trust are included in the workplan. Resolved: The Board NOTED the workplan. 19. ANY OTHER BUSINESS FA formally noted thanks to SU for his time within the Trust; mentioning the positive impact he has had on stabilising med"
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 100,
+       "quote": "k on the Deafness is not a Barrier initiative and on the St George’s Health and Wellbeing Hub. The Board noted the report. 17 LB HAVERING JSNA 2025 The Board was presented with the JSNA for 2025. Health & Wellbeing Board, 7 May 2025 It was noted "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bdiscussed\\b",
+     "hits": 86,
+     "docs": 10,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 460,
+       "quote": "Non-Executive Directors to go through the IPR in more detail if they felt this would be beneficial. MA and MS discussed elements of the ringfence capital programme on RAAC and approach to spend on service reprovision enabling works. AW raised whether there were any themes emergi"
+      },
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 307,
+       "quote": "ommittee also noted that the Quarterly Report on Learning from Deaths had been discussed in detail and the positive trajectory of the SHMI noted. 8.9 The Director of Nursing, Midwifery and AHPs also noted the new Nursing"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bit was noted\\b",
+     "hits": 63,
+     "docs": 9,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 319,
+       "quote": "meet the trajectories for full compliance which is expected to be reached by the end of November 2025. It was noted levels of compliance are monitored monthly through divisional governance. MS referenced the financial funding benefits associated with meeting th"
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 88,
+       "quote": " work was ‘listening and sharing’ and to deliver suggestions and solutions to improve services. It was noted over 1000 shared experiences with 139 residents contacting HH for advice. The Board noticed the most important report produced was on maternity. "
+      }
+     ]
+    },
+    {
+     "pattern": "\\breceived (the|a) (report|update|paper)\\b",
+     "hits": 4,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 211,
+       "quote": "g to see the staff were managing the flow and dealing with the admissions and challenges. Resolved: The Board RECEIVED the update. 7. CHIEF EXECUTIVE’S REPORT (TO INCLUDE PARTNERSHIP ACTIVITY SUCH AS PLACE, WYAAT, WYCHS, ICS) COLLABORATIVE MEETINGS JAN AND APRIL ONLY) The paper was ta"
+      },
+      {
+       "doc": "en_stockton_hwb_2025-09.txt",
+       "line": 33,
+       "quote": " correct record and signed by the Chair. 3 Better Care Fund – Quarter 1 Update The Board received a report providing an update on the Quarter 1 Better Care Fund (BCF) return for 2025/26, which had been submitted to NHS England on 15 August 2025. "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bwas informed\\b",
+     "hits": 7,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "en_humber_pack_2024-11.txt",
+       "line": 422,
+       "quote": " the Chief Executive’s report to the Board and Trustee meetings would be called when required. Peter was informed that the governing document for the charity needed updating in relation to levels of decisions. Resolved: The Board approved the pr"
+      },
+      {
+       "doc": "en_stockton_hwb_2025-09.txt",
+       "line": 36,
+       "quote": "F) return for 2025/26, which had been submitted to NHS England on 15 August 2025. The Board was informed that all national Better Care Fund conditions had been met, including financial reporting, performance metrics and assurance requirements. Pr"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bMembers noted\\b",
+     "hits": 6,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 685,
+       "quote": "ored closely within the risk management processes. Regarding Pathology - Integrated Pathology Systems (IPS), members noted the appointment of a H&S to oversee day to day compliance and issues identified by oversight bodies are addressed appropriately. A quarterly formal summary of "
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 56,
+       "quote": "a report on the delivery of the Better Care Fund (BCF). Health & Wellbeing Board, 7 May 2025 Members noted officers were seeking approval to enter into the Section 75 agreement with the NEL ICB to govern the delivery of the BCF for 2025-26. It was expl"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bwas assured\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ],
+   "action": [
+    {
+     "pattern": "\\bACTION\\b",
+     "hits": 177,
+     "docs": 13,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 4,
+       "quote": "held on: 3 September 2025 4 (5 mins) 5. Action Log Review Chair Attachment Approve "
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 26,
+       "quote": "ine: Sarita Symon and Mark Ansell 10 CHAIRMAN'S ANNOUNCEMENTS The Chairman reminded Members of the action to be taken in an emergency. 11 APOLOGIES FOR ABSENCE Apologies were received for the absence of Fiona Wheeler, Andrew Blake- Herbert, M"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bto (provide|circulate|report|bring|review|confirm) ",
+     "hits": 70,
+     "docs": 10,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 205,
+       "quote": "d Regional Directors of National Health Service England (NHSE) and West Yorkshire Integrated Care Board (ICB) to provide updates on progress with the Trust work in relation to BDC Place, corporate services options, enabling health approach and Airedale and Bradford Collaboration o"
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 155,
+       "quote": " compile data from the UKHSA. It was noted that data quality was of high importance and schools needed to report cases of chicken pox more consistently. The Board noted the report. Health & Wellbeing Board, 7 May 2025 20 JOINT LOCAL HEALTH AND WELLB"
+      }
+     ]
+    },
+    {
+     "pattern": "\\baction log\\b",
+     "hits": 19,
+     "docs": 9,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 4,
+       "quote": "held on: 3 September 2025 4 (5 mins) 5. Action Log Review Chair Attachment Approve "
+      },
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 149,
+       "quote": " 1.4 Item No. Item BD/09/24/5 Matters Arising and Action Log 5.1 The Director of Nursing, Midwifery and AHPs provided an update on a previous patient story from t"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bagreed to\\b",
+     "hits": 24,
+     "docs": 7,
+     "examples": [
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 66,
+       "quote": "to effect, the oversight of the BCF would still fall under the Board. The Board; 1. Agreed to enter into a section 75 agreement with Havering Place- Based Partnership, on the terms and conditions outlined in this report, to gov"
+      },
+      {
+       "doc": "en_humber_pack_2024-11.txt",
+       "line": 465,
+       "quote": "tee Assurance Report, which had been accepted as read. Dean reported that the Committee had agreed to change the name of the Committee to People and OD Committee. Occupational Health had achieved Safe Effective Quality Occupational Health Serv"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bAction:",
+     "hits": 7,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 180,
+       "quote": " Patient Records (EPR) programme, welcoming them to be involved and provide input in the development of this. Action: LR to share link to domestic violence in West Yorkshire video with members. "
+      },
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 626,
+       "quote": "People and Culture Committee with this regard. 17.15 Action: To consider a Board Workshop on the diversity of the communities the Trust serves. 17.16 The Chief Exe"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bwould (provide|report|circulate|bring)\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 457,
+       "quote": "ere noted as 106% of our plan. A new Clinical Lead had commenced in post which would provide added support and leadership. A visit had also taken place to Calderdale and Huddersfield to review "
+      }
+     ]
+    }
+   ],
+   "deadline": [
+    {
+     "pattern": "\\b\\d{1,2}(st|nd|rd|th)? (January|February|March|April|May|June|July|August|September|October|November|December) 20\\d\\d\\b",
+     "hits": 156,
+     "docs": 12,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 2,
+       "quote": "es of the Trust Board in Public meeting Chair Attachment Approve 9.55 held on: 3 September 2025 4 (5 mins) 5. Action Log Review Chair Attac"
+      },
+      {
+       "doc": "en_havering_2025-05.txt",
+       "line": 7,
+       "quote": " HEALTH & WELLBEING BOARD Council Chamber - Town Hall 7 May 2025 (1.03 - 3.07 pm) Present: Elected Members: Councillors Gillian Ford (Chairman), Oscar Ford and Paul McGeary Officers of the Council: Sam Westrop (substituti"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bnext (meeting|month|board)\\b",
+     "hits": 13,
+     "docs": 7,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 90,
+       "quote": " 12.05 Date of next Board of Directors’ meeting: Wednesday 14 January 2026 Agenda – Board of Directors meeting IN PUBLIC 5 November 2025 "
+      },
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 832,
+       "quote": " noted that a wide range of business had been discussed. BD/09/24/29 Date and Time of the Next Meeting 29.1 The next meeting would be held on Wednesday, 26th November 2025. BD/09/24/30 Confidential Motion "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bby (the )?(end of )?(January|February|March|April|May|June|July|August|September|October|November|December)\\b",
+     "hits": 8,
+     "docs": 5,
+     "examples": [
+      {
+       "doc": "en_airedale_pack_2025-11.txt",
+       "line": 319,
+       "quote": " booked onto study days to meet the trajectories for full compliance which is expected to be reached by the end of November 2025. It was noted levels of compliance are monitored monthly through divisional governance. MS referenced the financial funding benefits associa"
+      },
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 482,
+       "quote": "ndard (RTT):– the target was for 72% of patients to be treated within 18 weeks by March 2026. In August 71% was achieved which was above trajectory. The Trust was 7th in the Country. The Trust was on target to "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bdue date\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "en_hdft_pack_2025-11.txt",
+       "line": 852,
+       "quote": "umber Date of Meeting Subject Action Description Responsible Officer Due Date Comments Status - completed is defined "
+      }
+     ]
+    },
+    {
+     "pattern": "\\btimescale\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ]
+  }
+ },
+ "ro": {
+  "docs": 18,
+  "words": 58629,
+  "categories": {
+   "decision": [
+    {
+     "pattern": "\\bHOT[ĂA]R[ÂÎ]RE",
+     "hits": 41,
+     "docs": 7,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 329,
+       "quote": "MSP CS Cantemir: Stimați consilieri, solicitarea este conform funcțiilor vacante. Dacă ar fi aprobată o Hotărâre de Guvern, și se vor face niște facilități pentru tineri specialiști, și și fie atrași pentru lucru în localitățile rurale. Să stiți că, fiecare medic de famil"
+      },
+      {
+       "doc": "md_gov_pv73_2025-12.txt",
+       "line": 67,
+       "quote": " general al Ministerului Dezvoltării Economice și Digitalizării, de a include în agenda ședinței proiectul de hotărâre pentru aprobarea orei oficiale pe teritoriul Republicii Moldova și a orarului de vară. Se aprobă ordinea de zi cu 15 de subiecte spre examinare. "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse aprob[ăa]\\b",
+     "hits": 47,
+     "docs": 6,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 1044,
+       "quote": "alitățile raionului Cantemir, prezentată de dna Tatiana CECHIR, șef interimar DGÎ Cantemir (se anexează). 02.Se aprobă Planul de acțiuni privind asigurarea securității copiilor pe terenurile de joacă și de sport din localitățile raionului Cantemir. 03.Executarea prezentei deci"
+      },
+      {
+       "doc": "md_gov_pv73_2025-12.txt",
+       "line": 70,
+       "quote": "tul de hotărâre pentru aprobarea orei oficiale pe teritoriul Republicii Moldova și a orarului de vară. Se aprobă ordinea de zi cu 15 de subiecte spre examinare. Subiectul I. Examinarea proiectelor de acte normative ce se propun a fi anunțate spre avizare în cadrul "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bunanimitate\\b",
+     "hits": 13,
+     "docs": 4,
+     "examples": [
+      {
+       "doc": "ro_cluj_hotarari_2021-05.txt",
+       "line": 27,
+       "quote": " pentru) Neurologie I Dr. Dana Marieta Se avizează în unanimitate acordarea integrării Fodor clinice. Neurologie II Dr. Popa Livia "
+      },
+      {
+       "doc": "ro_cluj_hotarari_2021-06.txt",
+       "line": 21,
+       "quote": "r actuale. 4. Se va întocmi un răspuns la plângerea prealabilă formulată de Dr. Oana Vanță. 5. Se avizează în unanimitate propunerea Comitetului Director pentru prelungirea delegării funcției de șef de secție/ serviciu medical pe o perioadă de până la șase luni pentru Dr. Bogdan S"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse accept[ăa]\\b",
+     "hits": 5,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 455,
+       "quote": "ind cererea doamnei Viorica MUNTEANU angajată a DASPF Cantemir în perioada 2008-20.01.2022 ( se anexează). 02.Se acceptă achitarea cheltuielilor de judecată pentru asistența juridică în sumă de 20000 (douăzeci mii) lei. 03.Executarea prezentei decizii se pune în sarcina doamnei L"
+      },
+      {
+       "doc": "md_gov_pv73_2025-12.txt",
+       "line": 66,
+       "quote": "e în cadrul ședinței; II. Diverse. Ca urmare a discuțiilor din cadrul ședinței, s-a decis: Se acceptă propunerea dnei Voicu, secretar general al Ministerului Dezvoltării Economice și Digitalizării, de a include în agenda ședinței proiectul de hotărâre pentru ap"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bs-a decis\\b",
+     "hits": 30,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "md_gov_pv73_2025-12.txt",
+       "line": 64,
+       "quote": "unțate spre avizare în cadrul ședinței; II. Diverse. Ca urmare a discuțiilor din cadrul ședinței, s-a decis: Se acceptă propunerea dnei Voicu, secretar general al Ministerului Dezvoltării Economice și Digitalizării, de a include în agenda ședinței proiectul de"
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 39,
+       "quote": "ru, 2 PCRM, 1 PN, 7 PSRM, 4 PLDM ,1 PSDE); CONTRA-0 ABȚINUT-0 S-A DECIS: De ales în calitate de Președinte al ședinței ordinare din 30 octombrie 2025 consilierul raional domnul Ion Galus. Președintele ședinței, domnul Ion Galus, a"
+      }
+     ]
+    },
+    {
+     "pattern": "\\ba aprobat\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 546,
+       "quote": "aziul ,,Ion Cojocaru” Țiganca, suma de 631,3 mii lei. Și punctul 3, după cum am mai spus, primăria Stoianovca a aprobat decizie prin care va aloca gimnaziului Stoianovca 21 mii lei.În ședința precedentă, tot primăria Stoianovca a alocat 11 mii lei.Suma respectivă a fost folosită"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bs-a hot[ăa]r[âî]t\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 1220,
+       "quote": "urilor, au semnat 14 membri ai comisiei, pentru care și eu am semnat procesul verbal. Tot atunci prin decizie s-a hotărât transmiterea acestora Direcției Generale Învățământ Cantemir. Domnul Putregai Constantin, consilier raional: Mai apoi au fost transmise la două primării, Prim"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bS-a votat\\b",
+     "hits": 92,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 24,
+       "quote": "in sală este propunerea de a deschide ședința ordinară a consiliului raional. Propunerea este supusă votului. S-a votat : pro -28, contra-0, abţinut- 0. În sală sunt prezenți vicepreședinții raionului, dl Petru Gandrabur, dl Dumitru Muranevici. Domnul Pavel Culicovschi, pre"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse respinge\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ro_model_pv_ca_2025.txt",
+       "line": 28,
+       "quote": "contra” sau În urma numărării voturilor: ...voturi „pentru”, ..... abțineri, ..... voturi „contra” transferul se respinge. 2. Referitor la subiectul 2 din ordinea de zi a) se menționează concret discuțiile, cine/ce prezintă, cine/cu ce intervine, cine/ce propune etc. b) se supune "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse decide\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bs-a aprobat\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bhot[ăa]r[ăa][șs]te\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ],
+   "noting": [
+    {
+     "pattern": "\\ba men[țţt]ionat\\b",
+     "hits": 46,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "md_anenii_noi_consiliul_medical.html.txt",
+       "line": 1,
+       "quote": "ecidă privind măsurile aplicabile la nivel de raion. În final, vicepreședintele raionului, domnul Dmitri Ciur a menționat că cetățenii trebuie să aibă acces la servicii medicale de calitate, însă sunt nevoiți să parcurgă drumuri lungi și să aștepte rânduri la investigații și inter"
+      },
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 341,
+       "quote": "nt starea lor, a fetițelor însărcinate și care sunt instituțiile care conlucrează?. Doamna Olga Hîțu, a menționat că diferă cifrele din anul 2022 cu cel din anul 2023 și este în scădere, cu 20% și 50 % . Fiecare caz din familile social vulnerabile este monitorizat, și noi "
+      }
+     ]
+    },
+    {
+     "pattern": "\\ba propus\\b",
+     "hits": 13,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 27,
+       "quote": "ii raionului, dl Petru Gandrabur, dl Dumitru Muranevici. Domnul Pavel Culicovschi, preşedintele raionului, a propus în temeiul art. 45 (5) din Legea privind administraţia publică locală nr.436/2006 să fie ales, prin vot deschis, cu votul majorităţii consilierilor prezenţi, p"
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 58,
+       "quote": " ABȚINUT-0 Ion Galus Președintele ședinței- a menționat că este nevoie de aprobat regulamentul ședinței. S-a propus pentru raporturi până la 3 minute, pentru luare de cuvânt în dezbateri până la 3 minute și dreptul la replică o singură dată. AU VOTAT: PRO-28 (12 PAS, 1 M"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse ia act\\b",
+     "hits": 22,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 382,
+       "quote": "publică, muncă și sport, Consiliul raional Cantemir, D E C I D E: 01. Se ia act de Raportul privind activitatea în anul 2023 a IMSP Centrele de Sănătate din raionul Cantemir, prezentat de către dna Olga Hîțu , șef IMSP Centrul de Sănătate "
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 618,
+       "quote": "ormații și Securitate, Consiliul raional, DECIDE: 1. Se ia act de rezultatele concursului pentru ocuparea funcției publice vacante de Șef Secție Cultură (se anexează). 2. Se numește dl Dionisie COBÎLAȘ, învingător "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bia act\\b",
+     "hits": 22,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 382,
+       "quote": "lică, muncă și sport, Consiliul raional Cantemir, D E C I D E: 01. Se ia act de Raportul privind activitatea în anul 2023 a IMSP Centrele de Sănătate din raionul Cantemir, prezentat de către dna Olga Hîțu , șef IMSP Centrul de Sănătate "
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 618,
+       "quote": "ații și Securitate, Consiliul raional, DECIDE: 1. Se ia act de rezultatele concursului pentru ocuparea funcției publice vacante de Șef Secție Cultură (se anexează). 2. Se numește dl Dionisie COBÎLAȘ, învingător "
+      }
+     ]
+    },
+    {
+     "pattern": "\\ba informat\\b",
+     "hits": 2,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 55,
+       "quote": "inței mulțumește și le propune să ia loc. Preşedintele şedinţei, consilierul raional, doamna Maria Bumbu, a informat că, în temeiul art.20(1) din Legea privind administraţia publică locală nr. 436/2006 pentru fiecare şedinţă se desemnează un consilier, care va semna deciziile"
+      }
+     ]
+    },
+    {
+     "pattern": "\\ba prezentat\\b",
+     "hits": 2,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 321,
+       "quote": "răm mai puțin cu tratamentul, glucomentria, măsurarea tensiunii arterială, ect. În continuare doamna raportor a prezentat informația care se regăsește în raportul de activitate a Instituțiilor Medico-Sanitare Publice din raionul Cantemir și sunt parte integrantă a deciziei date. "
+      }
+     ]
+    },
+    {
+     "pattern": "\\ba comunicat\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 394,
+       "quote": "s „Hanioti”, Grecia. În acest context, urmează să fie purtate discuții cu doamna director a instituției, care a comunicat că suma de 50 de mii de lei va fi acoperită atât din bugetul instituției, cât și din contribuțiile sponsorilor. Ion Galus președintele ședinței- A menționat c"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse consider[ăa]\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_gov_pv73_2025-12.txt",
+       "line": 75,
+       "quote": ". Examinarea proiectelor de acte normative ce se propun a fi anunțate spre avizare în cadrul ședinței Se consideră ca fiind anunțate proiectele pregătite pentru inițierea procedurii de avizare/expertizare și consultare publică, și anume: 1. Proiect de hotărâre a Guvernulu"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse aduce la cuno[șs]tin[țţ][ăa]\\b",
+     "hits": 16,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 459,
+       "quote": "e pune în sarcina doamnei Liliana DOBREA, contabil-șef, aparatul președintelui raionului. 04.Decizia în cauză se aduce la cunoștința factorilor interesați și publicului în termen de 10 zile prin înmânare, expediere, afișare pe panoul informativ, publicarea pe pagina web a consiliului raional"
+      }
+     ]
+    },
+    {
+     "pattern": "\\ba luat act\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bau discutat\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ],
+   "action": [
+    {
+     "pattern": "\\bresponsabil\\b",
+     "hits": 28,
+     "docs": 7,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 411,
+       "quote": "ublică pe pagina web a Consiliului Raional și în Registrul de stat al Actelor Locale în termen de 10 zile. 05.Responsabil de monitorizarea executării prezentei decizii se desemnează vicepreședintele raionului, responsabil de domeniul social. 06.Controlul asupra executării prezente"
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 342,
+       "quote": " se va efectua conform Anexei nr.7 la prezenta decizie. 3. Direcţia Finanţe (dl O. Banaru), se desemnează responsabil pentru realizarea prezentei decizii. 4. Controlul asupra realizării deciziei, se pune în sarcina Comisiei consultative pentru Economie, Finanţe şi Buget (d"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bva asigura\\b",
+     "hits": 14,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 1767,
+       "quote": "62 m2 ; 02.Comisia de licitație constituită prin decizia Consiliului raional nr.03/16 din 21.03.2024, va asigura: - desfășurarea ,,licitației cu strigare ”; - perfectarea documentației pentru fiecare lot expus la licitație; - va stabili valoarea inițială a cuantu"
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 1097,
+       "quote": "– Contabil I.P.”Centrul Raional de Tineret Sîngerei”. 3. Comisia de transmitere-primire (dna V.Serbușca) va asigura întocmirea actelor de transmitere-primire a activelor şi documentelor confirmative în termen de 30 zile lucrătoare. 4. Controlul asupra realizării prezent"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bsarcin[ăa]\\b",
+     "hits": 86,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 404,
+       "quote": "liu; 7 ) obţinerea indicatorilor progresivi în sănătate pentru populația din raionul Cantemir. 03.Se pune în sarcina doamnei Irina Zagorschi, șef al Centrului de Sănătate Baimaclia, domnului Alexandru Barila șef al Centrului de Sănătate Ciobalaccia să intreprindă masuri mana"
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 344,
+       "quote": "ează responsabil pentru realizarea prezentei decizii. 4. Controlul asupra realizării deciziei, se pune în sarcina Comisiei consultative pentru Economie, Finanţe şi Buget (dl N. Postoroncă). 5. Prezenta decizie poate fi contestată la Judecătoria Bălți (sediul Central, s"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse oblig[ăa]\\b",
+     "hits": 3,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 1286,
+       "quote": "iunilor de obținere a autorizației de desființare a bunurilor menționate de la primăria satului Lărguța . 03. Se obligă dl Vladimir BERLINSCHI,sef serviciu relații funciare , direcția agricultură, economie și relații funciare, la finisarea lucrărilor de desființare a bunurilor i"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse [îi]ncredin[țţ]eaz[ăa]\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ro_cluj_hotarari_2021-07.txt",
+       "line": 14,
+       "quote": "r. Sorina Dănescu, Dr. Elisabeta Candrea și Dr. Alina Vasilovici. Ducerea la îndeplinire a prezentei hotărâri se încredințează Comitetului Director și Serviciului RUNO. 2. Se avizează bugetul de venituri și cheltuieli. 3. Se alege președintele Consiliul de Administrație – Prof. Dr. Dan"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bse [îi]ns[ăa]rcineaz[ăa]\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ro_braila_consiliul_medical.txt",
+       "line": 285,
+       "quote": "at la art. 1, atribuţiile din cuprinsul /isei postului. Art. 6 Cu ducerea la îndeplinire a prezentei decizii se însărcinează serviciul R.U.N.O.S. Manager, Dr. Râşnoveanw Mihaela Delia + Birou juridic, Cons. ir, Andronescu C. Diana "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bvor asigura\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 1493,
+       "quote": "se anexează). 02.Prezenta decizie se aplică de la 22.02.2024, responsabilii de prezentarea Raportului vor asigura implementarea prevederilor prezentei decizii pe perioada 2024-2028. "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bva prezenta\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ro_cluj_hotarari_2021-06.txt",
+       "line": 26,
+       "quote": "u rezolvarea disfuncționalităților existente la nivelul secțiilor. Doamna Manager, Prof. Dr. Claudia Gherman, va prezenta, în următoarea ședință CA, structura actuală și măsurile de îmbunătățire a funcționării serviciilor administrative. 7. Se solicită managerului evaluarea încadr"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bdirec[țţ]iei? .{0,40} i se\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ],
+   "deadline": [
+    {
+     "pattern": "\\b\\d{1,2}\\.\\d{1,2}\\.20\\d\\d\\b",
+     "hits": 229,
+     "docs": 13,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 10,
+       "quote": " Proces – verbal al şedinţei ordinare a Consiliului Raional Cantemir din 13.06.2024 nr. 04 or. Cantemir Ședința ordinară a consiliului raional a fost con"
+      },
+      {
+       "doc": "md_imu_po_consiliu_medical.txt",
+       "line": 166,
+       "quote": "privire la asigurarea obligatorie de asistență medicală”; - Hotărîrea Guvernului RM Nr.874 din 23.12.2024 „Cu privire la aprobarea Programului unic al asigurării obligatorii de asistență medicală”; - Ordinul comun al Ministerului Sănătății și Compani"
+      }
+     ]
+    },
+    {
+     "pattern": "\\btermen\\b",
+     "hits": 136,
+     "docs": 4,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 168,
+       "quote": "l II Cantemir. Raportor:Ludmila ȚURCANU , secretar al consiliului raional. 16.Cu privire la deciziile cu termen de control adoptate de Consiliul raional Cantemir în trimestrul I, anul 2024. Raportor: Ludmila ŢURCANU , secretar al consiliului raional. 17.Cu privi"
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 347,
+       "quote": "că). 5. Prezenta decizie poate fi contestată la Judecătoria Bălți (sediul Central, str. Hotinului, 43) în termen de 30 zile de la data publicării, potrivit prevederilor Codului administrativ al Republicii Moldova nr.116/2018. Octavian Banaru Șef Direcția Finanțe- a menț"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bp[âî]n[ăa] la\\b",
+     "hits": 16,
+     "docs": 4,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 248,
+       "quote": "t în dezbateri – 3- 5 minute. Pentru aprecieri, informaţii, propuneri, replici, avize la finele şedinţei – pînă la 3 minute. Şedinţa a o desfăşura în timp de o oră sau mai mult? Domnul Vasile Gîrneț, consilier raional propune desfășurarea ședinței în timp de două ore . S-a "
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 58,
+       "quote": "eședintele ședinței- a menționat că este nevoie de aprobat regulamentul ședinței. S-a propus pentru raporturi până la 3 minute, pentru luare de cuvânt în dezbateri până la 3 minute și dreptul la replică o singură dată. AU VOTAT: PRO-28 (12 PAS, 1 Marin Pînzaru, 2 PCRM, 1 P"
+      }
+     ]
+    },
+    {
+     "pattern": "\\b[îi]n termen de\\b",
+     "hits": 107,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "md_cantemir_pv04_2024-06.txt",
+       "line": 410,
+       "quote": "e panoul informativ, se publică pe pagina web a Consiliului Raional și în Registrul de stat al Actelor Locale în termen de 10 zile. 05.Responsabil de monitorizarea executării prezentei decizii se desemnează vicepreședintele raionului, responsabil de domeniul social. 06.Controlul as"
+      },
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 347,
+       "quote": "roncă). 5. Prezenta decizie poate fi contestată la Judecătoria Bălți (sediul Central, str. Hotinului, 43) în termen de 30 zile de la data publicării, potrivit prevederilor Codului administrativ al Republicii Moldova nr.116/2018. Octavian Banaru Șef Direcția Finanțe- a mențion"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bpermanent\\b",
+     "hits": 2,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "md_gov_pv73_2025-12.txt",
+       "line": 50,
+       "quote": "Stat pentru Proprietatea Intelectuală Invitat permanent: Irina Alexe – Expert UE Invitați: angajați ai Cancelariei de Stat; consilieri din cabinet"
+      },
+      {
+       "doc": "ro_cluj_reguli_ca.txt",
+       "line": 37,
+       "quote": " funcție de programul specific, sărbători legale, alte activități). Conform legii, managerul este invitat permanent la ședințele CA. Pentru discutarea problemelor specifice, vor fi invitați ceilalți membri ai Comitetului Director. 2.1. Convocarea ședințelor ordinare se f"
+      }
+     ]
+    },
+    {
+     "pattern": "\\blunar\\b",
+     "hits": 3,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "md_singerei_pv_2025-10.txt",
+       "line": 630,
+       "quote": "entul de salarizare – ; - cuantumul salariului de bază stabilit – lei; - spor lunar în valoare fixă de lei. 5. Se desemnează dna Vera SERBUȘCA – Vicepreședinta raionului în calitate de mentor pentru perioada de probă a dlui D"
+      },
+      {
+       "doc": "ro_braila_consiliul_medical.txt",
+       "line": 267,
+       "quote": "Inregistrat ca Operator de Date cu Caracter Personal ANSPDCP cu nr. 30733. Art. 3 Consiliul se va întruni lunar/la solicitarea preşedintelui acestuia/ori de câte ori este nevoie. Dezbaterile se vor consemna, intr-un registru (numerotat si sigilat) de catre secretarul co"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "ru": {
+  "docs": 10,
+  "words": 28147,
+  "categories": {
+   "decision": [
+    {
+     "pattern": "\\bединогласно\\b",
+     "hits": 3,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "ru_bpni_nabsovet_2022-10.txt",
+       "line": 57,
+       "quote": " Татьяна Юрьевна, которая предложила членам совета принять повестку заседания. Повестка заседания принята единогласно. По первому вопросу повесmка засеdонuя - о внеаеЕии изм9цений в шлап финаIIсово- хозяйствепной деятельности на2022 год в связи а перерасп"
+      },
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-03.txt",
+       "line": 127,
+       "quote": "роголосовали: «за» - 6 чел. «против» - 0 чел. «воздержались» - 0 чел. Решение принято единогласно. Председатель Общественного совета О.И. Крупий Секретарь Общественного совета Т.В. Ступина "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bутвердить\\b",
+     "hits": 5,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "ru_bpni_nabsovet_2022-10.txt",
+       "line": 90,
+       "quote": "8 000,00 руб. Председатель наблюдательного совета Васипьева Татьяпа Юрьевна внесла предложение утвердить измеЕеция в части перераспределения плаЕовьIх показатедей по приносящей доход деятельности в ПФХД 2022 года ГАУСС8 НСО <<Болотнин"
+      },
+      {
+       "doc": "ru_social33_medsovet_2013-10.txt",
+       "line": 52,
+       "quote": "редупреждению заноса инфекции в учреждения при поступлении или переводе клиентов в другие учреждения; - утвердить объем мероприятий по лечению и диспансерному наблюдению. 3. Использовать опыт работы медицинской части ГБУСОВО «Ковровский специальный дом-интернат для п"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bрешение принято\\b",
+     "hits": 2,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-03.txt",
+       "line": 127,
+       "quote": " детей. Проголосовали: «за» - 6 чел. «против» - 0 чел. «воздержались» - 0 чел. Решение принято единогласно. Председатель Общественного совета О.И. Крупий Секретарь Общественного совета Т.В. Ступина "
+      },
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-05.txt",
+       "line": 238,
+       "quote": "ствуй» Проголосовали: «за» - 4 чел. «против» - 0 чел. «воздержались» - 0 чел. Решение принято единогласно. Председатель Общественного совета О.И. Крупий Секретарь Общественного совета Т.В. Ступина "
+      }
+     ]
+    },
+    {
+     "pattern": "\\bпринять\\b",
+     "hits": 2,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "ru_bpni_nabsovet_2022-10.txt",
+       "line": 56,
+       "quote": "ку засеdанuя ноблюdаmельноlо совеmа выступила Васильева Татьяна Юрьевна, которая предложила членам совета принять повестку заседания. Повестка заседания принята единогласно. По первому вопросу повесmка засеdонuя - о внеаеЕии изм9цений в шлап финаIIсов"
+      },
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-05.txt",
+       "line": 223,
+       "quote": "ответствии с выводами и предложениями, сделанными по итогам анализа обращений граждан в 1 квартале 2023 года, принять меры по улучшению работы по уборке помещений в инфекционных отделениях ПБК. 1.4. Заслушать анализ обращений, поступивших в ГУЗ «ТДОКБ за 2 квартал 2023 "
+      }
+     ]
+    },
+    {
+     "pattern": "РЕШИЛИ",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ru_nso_nabsovet_17_2023.txt",
+       "line": 82,
+       "quote": " 2 РЕШИЛИ: Одобрить внесение изменений в план финансово-хозяйственной деятельности государственного автономного учреждения Новосибирской области «Центра детского"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bрешили\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ru_nso_nabsovet_17_2023.txt",
+       "line": 82,
+       "quote": " 2 РЕШИЛИ: Одобрить внесение изменений в план финансово-хозяйственной деятельности государственного автономного учреждения Новосибирской области «Центра детского"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bодобрить\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ru_nso_nabsovet_17_2023.txt",
+       "line": 84,
+       "quote": " 2 РЕШИЛИ: Одобрить внесение изменений в план финансово-хозяйственной деятельности государственного автономного учреждения Новосибирской области «Центра детского, семейного "
+      }
+     ]
+    },
+    {
+     "pattern": "ПОСТАНОВИЛИ",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bпостановили\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bГОЛОСОВАЛИ\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bголосовали\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ],
+   "noting": [
+    {
+     "pattern": "\\bвыступил[аи]?\\b",
+     "hits": 9,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "ru_bpni_nabsovet_2022-10.txt",
+       "line": 56,
+       "quote": " на ины9 цели. По рассltоmренuю вопросов, вхоDяtцuх в повесmку засеdанuя ноблюdаmельноlо совеmа выступила Васильева Татьяна Юрьевна, которая предложила членам совета принять повестку заседания. Повестка заседания принята единогласно. По первому вопросу"
+      },
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-03.txt",
+       "line": 54,
+       "quote": "ощи (Крупий О.И. - председатель Общественного совета) По первому вопросу выступил Харитонов Д.В. - главный врач ГУЗ «ТДОКБ», который представил новый состав Общественного совета, утвержденный приказом № 22- осн. от 15.0"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bпредставил[аи]?\\b",
+     "hits": 5,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-03.txt",
+       "line": 55,
+       "quote": " По первому вопросу выступил Харитонов Д.В. - главный врач ГУЗ «ТДОКБ», который представил новый состав Общественного совета, утвержденный приказом № 22- осн. от 15.03.2023 г. Председателем Общественного совета утверждена Крупий Ольга "
+      },
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-05.txt",
+       "line": 53,
+       "quote": "венного совета) По первому вопросу выступил Харитонов Д.В. - главный врач ГУЗ «ТДОКБ», который представил руководителей пациентских общественных организаций ****, рассказал о работе ГУЗ ««Тульская детская областная клиническая больница» с общественными орга"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bдоложил[аи]?\\b",
+     "hits": 3,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ru_bpni_nabsovet_2022-10.txt",
+       "line": 61,
+       "quote": "осящеЙ доход деятеJIьности выступцда директор учрешденця Коцдик Любовь Николаевна. Любовь НикQлаевна доложила об увеJIичении цлtlIIовьIх показателей цо доходtlп{ от предпринимательской доятельности, в части выппаты QоциальЕого пособия Еа погребение умерщих пенс"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bрассмотрен[ыо]?\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ru_social33_medsovet_2013-10.txt",
+       "line": 29,
+       "quote": "_________________________________________________________ (О.В.Сальникова) Рассмотрены отдельные вопросы по профилактике паразитарных заболева- ний и даны рекомендации: - при организации и проведении профилактических мероприятий руково- дст"
+      }
+     ]
+    },
+    {
+     "pattern": "СЛУШАЛИ",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "ВЫСТУПИЛИ",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bпринять к сведению\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bотметил[аи]?\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bинформировал[аи]?\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ],
+   "action": [
+    {
+     "pattern": "\\bрекомендовать\\b",
+     "hits": 4,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-03.txt",
+       "line": 105,
+       "quote": "ольййвд 1. Утвердить план работы Общественного совета при ГУЗ «ТДОКБ» на 2023 год. 2. Рекомендовать администрации ГУЗ «ТДОКБ»: 2.1. Активизировать работу по наполняемости, информативности и работоспособности официального сайта и стендов учреждения. При"
+      },
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-05.txt",
+       "line": 216,
+       "quote": "помощи тяжелобольным детям ЖИВИ. По итогам заседания Общественного совета приняты решения: 1. Рекомендовать администрации ГУЗ «ТДОКБ»: 1.1. считать работу с обращениями граждан в 1 квартале 2023 года удовлетворительной; 1.2. организовать проведение пра"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bпровести\\b",
+     "hits": 2,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "ru_social33_medsovet_2013-10.txt",
+       "line": 81,
+       "quote": "ения и содержания граждан пожилого возраста, инвалидов и детей в данных учрежде- ниях рекомендовано: 1. Провести инвентаризацию личных дел проживающих учреждений психо- неврологического профиля на наличие: - заявлений на оформление в интернат (в личных делах); "
+      },
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-03.txt",
+       "line": 111,
+       "quote": "родолжить работу по независимой оценке качества условий оказания медицинских услуг в ГУЗ «ТДОКБ» в 2023 году (провести опрос мнения пациентов и законных представителей по улучшению условий оказания медицинской помощи в больнице). 2.3. ’ Продолжить улучшение условий оказа"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bответственн(ый|ые|ая)\\b",
+     "hits": 2,
+     "docs": 2,
+     "examples": [
+      {
+       "doc": "ru_bpni_nabsovet_2022-10.txt",
+       "line": 20,
+       "quote": "кий rrсихоневрологический интернат> 2. Васильева - ответственный секретарь районной организации ветеранов- Татьяна Юрьевна пенсионеров войны, труда, военной службы и пр"
+      },
+      {
+       "doc": "ru_minzdrav_konkurs_komissia.txt",
+       "line": 372,
+       "quote": "м стационара, ГБУЗ НСО «Новосибирская районная больница № 1» 14 Сергеев Алексей Владимирович врач-хирург, ответственный за операционный блок № 2 ОГБУЗ «Клиническая больница скорой медицинской помощи», г. Смоленск 15 Леви Аркадий Исаакович врач-детский хирург, ГБУЗ «Детская к"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bобеспечить\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ru_social33_medsovet_2013-10.txt",
+       "line": 95,
+       "quote": "ющих с указанием какой вид реабилитации показан, а также проведения анализа работы 1раз в пол- года. 3. Обеспечить наличие в личном деле клиента документов в соответствии с постановлением Губернатора области от 10.05.2011 № 435 « Об утверждении ад- министративного регламент"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bорганизовать\\b",
+     "hits": 1,
+     "docs": 1,
+     "examples": [
+      {
+       "doc": "ru_tula_dkb_obshsovet_2023-05.txt",
+       "line": 219,
+       "quote": "КБ»: 1.1. считать работу с обращениями граждан в 1 квартале 2023 года удовлетворительной; 1.2. организовать проведение праздника «День защиты детей» 01.06.2023 года с приглашением членов общественного Совета больницы и благотворительных организаций 1.3. Продол"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bпоручить\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bподготовить\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bразработать\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ],
+   "deadline": [
+    {
+     "pattern": "\\b\\d{1,2}\\.\\d{1,2}\\.20\\d\\d\\b",
+     "hits": 23,
+     "docs": 6,
+     "examples": [
+      {
+       "doc": "ru_bpni_nabsovet_2022-10.txt",
+       "line": 8,
+       "quote": "т> Место lrроведения заседания: г. Новосибирск, ул. Серебренниковская, 6 Щата и время проведения заседания: 28.10.2022 г, |0 ч. 00 мин. Члены наблюдательного совета: м п/п Ф,и.о. .Щолэtсносmь 1. Бордаченко "
+      },
+      {
+       "doc": "ru_minzdrav_lek_2024-08.txt",
+       "line": 14,
+       "quote": " здравоохранения Российской Федерации по формированию Перечня стратегически значимых лекарственных средств от 22.09.2026 № 53/25-8/483. Протокол заседания комиссии Министерства здравоохранения Российской Федерации по формированию перечней лекарственных препаратов для медицинского"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bдо \\d{1,2}\\.\\d{1,2}\\.20\\d\\d\\b",
+     "hits": 3,
+     "docs": 3,
+     "examples": [
+      {
+       "doc": "ru_minzdrav_lek_2024-08.txt",
+       "line": 122,
+       "quote": "именении приказа Минздрава России от 14 января 2019 г. № 4н Документальная экспертиза предложений, полученных до 01.04.2019 и 23.04.2019 Методические рекомендации СПХФУ О продлении использования рецептурных бланков Информация о средневзвешенных ценах медицинских изделий по видам 21"
+      },
+      {
+       "doc": "ru_minzdrav_selektor.txt",
+       "line": 122,
+       "quote": "именении приказа Минздрава России от 14 января 2019 г. № 4н Документальная экспертиза предложений, полученных до 01.04.2019 и 23.04.2019 Методические рекомендации СПХФУ О продлении использования рецептурных бланков Информация о средневзвешенных ценах медицинских изделий по видам 21"
+      }
+     ]
+    },
+    {
+     "pattern": "\\bсрок\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bв срок до\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bпостоянно\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bежемесячно\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    },
+    {
+     "pattern": "\\bдо конца\\b",
+     "hits": 0,
+     "docs": 0,
+     "examples": []
+    }
+   ]
+  }
+ }
+}

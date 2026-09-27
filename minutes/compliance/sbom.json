@@ -1,0 +1,262 @@
+{
+ "bomFormat": "CycloneDX",
+ "specVersion": "1.5",
+ "version": 1,
+ "serialNumber": "urn:uuid:b4588553-a32d-42bb-beb2-5414ce1d38e5",
+ "metadata": {
+  "timestamp": "2026-09-26T12:27:54Z",
+  "component": {
+   "type": "application",
+   "name": "secure-mom-minutes",
+   "version": "0.1.0",
+   "description": "Offline minutes of meeting for Medpark: transcript to PDF and DOCX in RO, RU and EN"
+  }
+ },
+ "components": [
+  {
+   "type": "library",
+   "name": "lxml",
+   "version": "5.3.0",
+   "purl": "pkg:pypi/lxml@5.3.0",
+   "licenses": [
+    {
+     "license": {
+      "name": "BSD-3-Clause"
+     }
+    }
+   ],
+   "scope": "required"
+  },
+  {
+   "type": "library",
+   "name": "python-docx",
+   "version": "1.2.0",
+   "purl": "pkg:pypi/python-docx@1.2.0",
+   "licenses": [
+    {
+     "license": {
+      "name": "MIT"
+     }
+    }
+   ],
+   "scope": "required"
+  },
+  {
+   "type": "library",
+   "name": "RapidFuzz",
+   "version": "3.14.5",
+   "purl": "pkg:pypi/rapidfuzz@3.14.5",
+   "licenses": [
+    {
+     "license": {
+      "name": "MIT"
+     }
+    }
+   ],
+   "scope": "required"
+  },
+  {
+   "type": "library",
+   "name": "typing_extensions",
+   "version": "4.15.0",
+   "purl": "pkg:pypi/typing-extensions@4.15.0",
+   "licenses": [
+    {
+     "license": {
+      "name": "PSF-2.0"
+     }
+    }
+   ],
+   "scope": "required"
+  },
+  {
+   "type": "file",
+   "name": "template/fonts/Montserrat-Bold.ttf",
+   "description": "Montserrat font, embedded in every PDF",
+   "licenses": [
+    {
+     "license": {
+      "id": "OFL-1.1"
+     }
+    }
+   ],
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "bc6e854971cea46b463be6f9eef4d9cd52f51cfc1fc0dd90c9d3e6483dc0ec61"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/fonts/Montserrat-Medium.ttf",
+   "description": "Montserrat font, embedded in every PDF",
+   "licenses": [
+    {
+     "license": {
+      "id": "OFL-1.1"
+     }
+    }
+   ],
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "dae47428bb041f9716604e0e07b5b0c8585b3bdd8183362f75c69fe7bb3cfaf4"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/fonts/Montserrat-Regular.ttf",
+   "description": "Montserrat font, embedded in every PDF",
+   "licenses": [
+    {
+     "license": {
+      "id": "OFL-1.1"
+     }
+    }
+   ],
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "3e8abe50c44c82e2242e97d1ec8c0d385c4890cdc50447bcdb8605c81a38cfb2"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/fonts/Montserrat-SemiBold.ttf",
+   "description": "Montserrat font, embedded in every PDF",
+   "licenses": [
+    {
+     "license": {
+      "id": "OFL-1.1"
+     }
+    }
+   ],
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "b4e1563393d73fdff491a869441245aef31add2ec03d9c97a6dae4de07c52fd0"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/fonts/PT_Serif-Web-Bold.ttf",
+   "description": "PT Serif font, embedded in every PDF",
+   "licenses": [
+    {
+     "license": {
+      "id": "OFL-1.1"
+     }
+    }
+   ],
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "038ba7336bd7ea14f12ad155bed51a4345cac5153275d521dec3ba04021c526e"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/fonts/PT_Serif-Web-BoldItalic.ttf",
+   "description": "PT Serif font, embedded in every PDF",
+   "licenses": [
+    {
+     "license": {
+      "id": "OFL-1.1"
+     }
+    }
+   ],
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "f003788ba08981eb0988b3557a6f224a53dab49c20e283e8b74d5af3c466f8be"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/fonts/PT_Serif-Web-Italic.ttf",
+   "description": "PT Serif font, embedded in every PDF",
+   "licenses": [
+    {
+     "license": {
+      "id": "OFL-1.1"
+     }
+    }
+   ],
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "f57e95ff9dc85691a3b2e193f2028db36f6663939a46c0fc4f286d618b80b7ce"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/fonts/PT_Serif-Web-Regular.ttf",
+   "description": "PT Serif font, embedded in every PDF",
+   "licenses": [
+    {
+     "license": {
+      "id": "OFL-1.1"
+     }
+    }
+   ],
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "a4951fade06ff8f09b7673aa81ffb65a8cd409e24d3289a6dc670bc4dda2557a"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/logo.pdf",
+   "description": "Medpark logo, from medpark.md (see template/NOTICE.md)",
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "6d3d694b0968318f43a6576363ff28d04ede867e645222bd7533cbf4a512f8d4"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/logo.png",
+   "description": "Medpark logo, from medpark.md (see template/NOTICE.md)",
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "7514cb68e1e3ea711f1c9a4cb01944f640a811847d63017bbd80169515bb8387"
+    }
+   ]
+  },
+  {
+   "type": "file",
+   "name": "template/medpark-mom.cls",
+   "description": "Minutes document class",
+   "hashes": [
+    {
+     "alg": "SHA-256",
+     "content": "6693a2aaee014e665dbb9525168e9b5436add4a9c4330487ed3dbeed09f17ce7"
+    }
+   ]
+  },
+  {
+   "type": "application",
+   "name": "XeTeX (TeX Live)",
+   "version": "XeTeX 3.141592653-2.6-0.999998 (TeX Live 2026)",
+   "description": "Compiles the PDF; run with shell escape off and paranoid file access"
+  },
+  {
+   "type": "application",
+   "name": "Ollama",
+   "version": "0.15.5",
+   "description": "Local model server on 127.0.0.1; the model and its digest are recorded in each report.json"
+  }
+ ]
+}

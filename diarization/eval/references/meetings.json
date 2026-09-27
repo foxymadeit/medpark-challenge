@@ -1,0 +1,327 @@
+{
+  "mix01": {
+    "speakers": [
+      "bi_11aaf071",
+      "ro_97988c56",
+      "ro_bc19603f",
+      "ru_3afe4f01"
+    ],
+    "minutes": 3.8,
+    "turns": 28
+  },
+  "mix02": {
+    "speakers": [
+      "en_1580",
+      "ro_3eea92e8",
+      "ru_071cacc8",
+      "ru_0c15f5ad"
+    ],
+    "minutes": 3.6,
+    "turns": 25
+  },
+  "mix03": {
+    "speakers": [
+      "bi_1b71df36",
+      "en_2830",
+      "en_3575",
+      "ro_1fbf12f3",
+      "ro_ac5bcf4e",
+      "ru_72d89b69",
+      "ru_df6bcded"
+    ],
+    "minutes": 3.7,
+    "turns": 23
+  },
+  "mix04": {
+    "speakers": [
+      "en_5142",
+      "ro_fdd341fa",
+      "ru_ad21c5c1"
+    ],
+    "minutes": 3.6,
+    "turns": 27
+  },
+  "mix05": {
+    "speakers": [
+      "bi_d52494df",
+      "ro_7bd9bb9b",
+      "ro_888f2ee0",
+      "ru_e59afe58"
+    ],
+    "minutes": 3.8,
+    "turns": 30
+  },
+  "mix06": {
+    "speakers": [
+      "en_2961",
+      "ro_39663fde",
+      "ru_95645bd0",
+      "ru_c9991459"
+    ],
+    "minutes": 3.8,
+    "turns": 24
+  },
+  "mix07": {
+    "speakers": [
+      "bi_e80c9a51",
+      "en_1089",
+      "en_1221",
+      "ro_4b94b894",
+      "ro_ca99a533",
+      "ru_06b86371",
+      "ru_b5479dbb"
+    ],
+    "minutes": 3.7,
+    "turns": 30
+  },
+  "mix08": {
+    "speakers": [
+      "en_3575",
+      "ro_bc19603f",
+      "ru_251297e2"
+    ],
+    "minutes": 3.6,
+    "turns": 27
+  },
+  "mix09": {
+    "speakers": [
+      "bi_11aaf071",
+      "ro_1003218e",
+      "ro_ca99a533",
+      "ru_79693d31"
+    ],
+    "minutes": 3.5,
+    "turns": 34
+  },
+  "mix10": {
+    "speakers": [
+      "en_4507",
+      "ro_1003218e",
+      "ru_4318ac08",
+      "ru_6b4de081"
+    ],
+    "minutes": 3.7,
+    "turns": 24
+  },
+  "mix11": {
+    "speakers": [
+      "bi_1b71df36",
+      "en_5142",
+      "en_61",
+      "ro_006fabb7",
+      "ro_4b94b894",
+      "ru_0415806b",
+      "ru_1c26d785"
+    ],
+    "minutes": 3.7,
+    "turns": 28
+  },
+  "mix12": {
+    "speakers": [
+      "en_1089",
+      "ro_71382154",
+      "ru_8dfa0d1d"
+    ],
+    "minutes": 3.5,
+    "turns": 34
+  },
+  "mix13": {
+    "speakers": [
+      "bi_11aaf071",
+      "ro_60e5271f",
+      "ro_71382154",
+      "ru_e8b163e2"
+    ],
+    "minutes": 3.6,
+    "turns": 29
+  },
+  "mix14": {
+    "speakers": [
+      "en_3575",
+      "ro_0fcef9d2",
+      "ru_1d616fa1",
+      "ru_cb824c9b"
+    ],
+    "minutes": 3.5,
+    "turns": 26
+  },
+  "mix15": {
+    "speakers": [
+      "bi_1b71df36",
+      "en_3575",
+      "en_4970",
+      "ro_328b7c39",
+      "ro_3eea92e8",
+      "ru_3afe4f01",
+      "ru_585edaa9"
+    ],
+    "minutes": 3.8,
+    "turns": 27
+  },
+  "mix16": {
+    "speakers": [
+      "en_8230",
+      "ro_328b7c39",
+      "ru_57f2091b"
+    ],
+    "minutes": 3.5,
+    "turns": 19
+  },
+  "mix17": {
+    "speakers": [
+      "bi_d52494df",
+      "ro_7bd9bb9b",
+      "ro_97988c56",
+      "ru_0639aa1a"
+    ],
+    "minutes": 3.5,
+    "turns": 32
+  },
+  "mix18": {
+    "speakers": [
+      "en_5142",
+      "ro_ca99a533",
+      "ru_af9c7523",
+      "ru_d288ae34"
+    ],
+    "minutes": 3.6,
+    "turns": 30
+  },
+  "mix19": {
+    "speakers": [
+      "bi_e80c9a51",
+      "en_2961",
+      "en_8230",
+      "ro_477ca38b",
+      "ro_aa248651",
+      "ru_1c26d785",
+      "ru_b889ad78"
+    ],
+    "minutes": 3.8,
+    "turns": 24
+  },
+  "mix20": {
+    "speakers": [
+      "en_3575",
+      "ro_1d7ad895",
+      "ru_6421dfbb"
+    ],
+    "minutes": 3.6,
+    "turns": 20
+  },
+  "mix21": {
+    "speakers": [
+      "bi_11aaf071",
+      "ro_1d7ad895",
+      "ro_eaf55b9d",
+      "ru_56a13840"
+    ],
+    "minutes": 3.6,
+    "turns": 28
+  },
+  "mix22": {
+    "speakers": [
+      "en_5683",
+      "ro_e486db37",
+      "ru_2daaf3d9",
+      "ru_72d89b69"
+    ],
+    "minutes": 3.6,
+    "turns": 31
+  },
+  "mix23": {
+    "speakers": [
+      "bi_1b71df36",
+      "en_1995",
+      "en_4446",
+      "ro_006fabb7",
+      "ro_a853a7ac",
+      "ru_419ea011",
+      "ru_72d89b69"
+    ],
+    "minutes": 3.5,
+    "turns": 27
+  },
+  "mix24": {
+    "speakers": [
+      "en_2094",
+      "ro_17cf6b68",
+      "ru_ef0e4919"
+    ],
+    "minutes": 3.8,
+    "turns": 27
+  },
+  "big01": {
+    "speakers": [
+      "bi_11aaf071",
+      "en_672",
+      "en_6930",
+      "en_7021",
+      "ro_006fabb7",
+      "ro_60e5271f",
+      "ro_71382154",
+      "ro_a640e7be",
+      "ro_a853a7ac",
+      "ru_3afe4f01",
+      "ru_543f361d",
+      "ru_57f2091b",
+      "ru_7e8b5c65"
+    ],
+    "minutes": 30.1,
+    "turns": 196
+  },
+  "big02": {
+    "speakers": [
+      "en_1221",
+      "en_2300",
+      "en_7729",
+      "en_8555",
+      "ro_1d7ad895",
+      "ro_21e574a9",
+      "ro_9dc14935",
+      "ro_e5fdd868",
+      "ru_3acd5d77",
+      "ru_58eda5ae",
+      "ru_ec4567d1"
+    ],
+    "minutes": 30.2,
+    "turns": 197
+  },
+  "big03": {
+    "speakers": [
+      "bi_1b71df36",
+      "en_1995",
+      "en_2830",
+      "en_4446",
+      "en_8463",
+      "ro_17cf6b68",
+      "ro_490608c4",
+      "ro_62911578",
+      "ro_888f2ee0",
+      "ro_a853a7ac",
+      "ru_3afe4f01",
+      "ru_7b5814f3",
+      "ru_dae88f60",
+      "ru_e59afe58"
+    ],
+    "minutes": 30.1,
+    "turns": 236
+  },
+  "big04": {
+    "speakers": [
+      "en_1580",
+      "en_4077",
+      "en_4970",
+      "en_908",
+      "ro_1d7ad895",
+      "ro_477ca38b",
+      "ro_97988c56",
+      "ro_ca99a533",
+      "ru_d7d13311",
+      "ru_d8d17448",
+      "ru_ff8b7b24"
+    ],
+    "minutes": 30.2,
+    "turns": 215
+  }
+}
