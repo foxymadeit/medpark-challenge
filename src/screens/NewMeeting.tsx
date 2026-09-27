@@ -35,7 +35,7 @@ export function NewMeeting() {
   return (
     <div className="page new-meeting">
       <div className="new-meeting__main">
-        {/* Top: meeting details on the left, participants on the right (one per row). */}
+        {/* Top: name, date and participants (one per row) on the left; meeting type on the right. */}
         <div className="new-meeting__top">
           <div className="new-meeting__details">
             {/* The meeting's name is the headline; the pen (or a click on it) makes it editable. */}
@@ -85,6 +85,9 @@ export function NewMeeting() {
               )}
             </div>
 
+            <EmailsField emails={draft.emails} onChange={(emails) => setDraft({ emails })} />
+          </div>
+          <div className="new-meeting__side">
             <div className="stack" style={{ gap: 10 }}>
               <p className="form-label" id="nm-type">
                 {t('newMeeting.type')}
@@ -101,9 +104,6 @@ export function NewMeeting() {
                 {t(`newMeeting.typeDesc.${draft.type}`)}
               </p>
             </div>
-          </div>
-          <div className="new-meeting__people">
-            <EmailsField emails={draft.emails} onChange={(emails) => setDraft({ emails })} />
           </div>
         </div>
 
