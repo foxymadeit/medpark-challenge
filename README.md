@@ -139,7 +139,7 @@ transcription vendor. Liminal has no vendor in the data path.
 | Automation and routing engine (e.g. n8n) that reads the meeting-type tag and emails a predefined list | self-hosted n8n 2.40.7 (free Community Edition): webhook → switch on the type tag → email to that type's list with the RO/RU/EN PDFs; the type itself is also detected from the first 3 minutes | [Routing](#routing-n8n) |
 | Minimal web app: upload or Rec, pick the type, wait | three steps, auto-send after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
 | Email without internet | local SMTP (Mailpit in the demo, the hospital's relay in production) | [Routing](#routing-n8n) |
-| Under 15 min for a 60-min recording, reported in the README | measured on one T4, the slowest 16 GB card: 17 to 26 min for a full hour, 4 to 5 min for a 10-minute meeting; not yet under 15 for an hour | [Speed](#4-user-experience-10) |
+| Under 15 min for a 60-min recording, reported in the README | measured on one T4, the slowest 16 GB card: 18 to 20 min for a full hour (hour test 2; 17 to 26 in test 1), about 4 to 5 min for a 10-minute meeting; not yet under 15 for an hour | [Speed](#4-user-experience-10) |
 | Bonus: speaker diarization | live, 93% on mixed-language meetings, on a laptop CPU | [Who spoke when](#bonus-who-spoke-when) |
 
 ## Where every number comes from
@@ -342,12 +342,19 @@ clean transcripts. From real audio, the transcription errors come along. Our
 10-minute mock board has an answer key (6 decisions, 9 actions, 4 traps, 2
 patients); run through the whole product on one T4:
 
-| Recording | Character error | Medical terms heard | Actions found | Owners right | Trap errors | Patient names in the minutes |
-|---|---|---|---|---|---|---|
-| One reader, 8.4 min | 19.9% | 14 of 21 | 4 of 9 | 0 | 1 | 0 |
-| Three of us at one table, 6.4 min | 56.2% | 12 of 21 | 5 of 9 | 2 | 0 | 0 |
+| Recording, hour test | Character error | Medical terms heard | Decisions found | Actions found | Owners right | Deadlines right | Trap errors | Patient names in the minutes |
+|---|---|---|---|---|---|---|---|---|
+| One reader, 8.4 min, test 1 | 19.9% | 14 of 21 | 1 of 6 | 4 of 9 | 0 | 1 | 1 | 0 |
+| One reader, test 2 | 19.9% | 14 of 21 | 1 of 6 | 2 of 9 | 0 | 0 | 0 | 0 |
+| Three of us at one table, 6.4 min, test 1 | 56.2% | 12 of 21 | 1 of 6 | 5 of 9 | 2 | 1 | 0 | 0 |
+| Three of us, test 2 | 56.2% | 12 of 21 | 2 of 6 | 3 of 9 | 1 | 1 | 0 | 0 |
 
-Read by hand, three of the six decisions are in the one-reader minutes, one of
+The counts come from the answer key's keyword check, which is strict: read by
+hand, the three-person minutes of test 2 hold three of the six decisions
+(coronary angiography tomorrow at 9, the filter order, the hand-hygiene audit
+every two weeks), and "Nistov pregătește patul până vineri" is Stanislav's bed
+task with the right date, Friday 2 October, worked out from "până vineri";
+transcription misheard the name. In test 1, three of the six decisions are in the one-reader minutes, one of
 them merged with the monthly-audit trap, and one was held back by the checker
 because transcription wrote "coronografie" for "coronarografie". The owners
 failed because one person read every part: every line is "Speaker 1", and the
@@ -506,7 +513,20 @@ own commands, on three public hours and three shorter recordings, 27 September.
 | Kremlin (RU) | 10.4 | 12.2 | 14.2 (4.8 / 9.3) | 26.4 |
 | ICSI (EN) | 11.5 (1,997 decodes: RO+RU+EN per piece) | 12.3 | 4.7 (3.2 / 1.5) | 17.0 |
 
-All six recordings in that run, upload to minutes:
+**Hour test 2, one T4, same day, current `liminal`** (transcription learns the
+meeting's languages after its first 48 utterances; minutes checked against the
+words around each citation):
+
+| Hour | Transcription | Transcription + speakers (wall) | Minutes (extract / write) | Total |
+|---|---|---|---|---|
+| Parliament (RO) | 5.0 min (524 decodes, was 903) | 9.5 | 10.1 (3.4 / 6.6) | 19.6 |
+| Kremlin (RU) | 6.6 (519 decodes, was 906) | 10.3 | 9.7 (3.7 / 6.0) | 20.0 |
+| ICSI (EN) | 9.8 (1,452 decodes, was 1,997) | 10.5 | 7.6 (3.7 / 3.8) | 18.1 |
+
+Shorter recordings in hour test 2: Medpark's sample 4.3 min, our one-reader
+board 3.8 min, our three-person board 5.3 min, upload to minutes.
+
+All six recordings in hour test 1, upload to minutes:
 
 | Recording | Audio | Transcription | Transcription and speakers, side by side | Minutes in RO, RU, EN | Upload to minutes |
 |---|---|---|---|---|---|
@@ -518,23 +538,34 @@ All six recordings in that run, upload to minutes:
 | Our mock board, three of us | 6.4 min | 1.3 min | | 3.0 min | **4.5 min** |
 
 Add the 60-second window in which anyone can stop the email, and a local SMTP
-send of about a second. So a 10-minute meeting reaches the inbox in about 6
-minutes, and **a full hour in 18 to 27 minutes on this card: not yet under 15.**
+send of about a second. So a 10-minute meeting reaches the inbox in about 5 to
+6 minutes, and **a full hour in 19 to 21 minutes on this card (hour test 2):
+not yet under 15.**
+
+The same run measured transcription against the published transcripts: **5.7%
+of characters wrong on the hour of Russian government speech** (11.3% of words,
+50,132 reference characters from kremlin.ru), and 27.2% on the ICSI hour of
+overlapping English research talk, where the speaker labels reached 27.2% DER
+(6 of 8 speakers found).
 
 Where the time goes, and what changed tonight:
 
-- **Transcription** of an hour went from 23.2 min to 6.3 to 11.5 min. Each
+- **Transcription** of an hour went from 23.2 min to 5.0 to 9.8 min. Each
   utterance is now encoded once and decoded in batches, with greedy decoding
-  (`asr_llm/asr_batched.py`). Against the bake-off table above, the error on
+  (`asr_llm/asr_batched.py`), and after the first 48 utterances a language the
+  meeting does not use is only decoded where detection names it. The mixed
+  recordings keep every language, so their error did not change between the
+  two hour tests (19.9%, 56.2%, 45.8%). Against the bake-off table above, the error on
   our mock board went from 20.6% to 20.7%, on the three-person board from 53.5%
   to 55.6%, on Medpark's gold from 44.6% to 46.2%, on the synthetic meeting from
   36.1% to 36.6% (`asr-llm/scripts/kaggle_asr_speed`, run 3). Beam 5 is one
   setting away (`MOM_ASR_BEAM_SIZE=5`) for a server with time to spare.
-- **Speaker labels** run on the CPU next to transcription. On Kaggle's 4 cores
-  they took up to 12 min for an hour and set the pace.
-- **Minutes**: an hour-long meeting takes 4.7 to 14.2 min, mostly writing the
-  three languages one after another; the Russian government hour produced 92
-  facts to write up.
+- **Speaker labels** run on the CPU next to transcription, at 0.16 to 0.17 of
+  real time: 9.5 to 10.5 min for an hour, and now what sets the pace. More
+  threads made them slower on Kaggle's 4 shared cores, so they keep 2.
+- **Minutes**: an hour-long meeting takes 7.6 to 10.1 min, mostly writing the
+  three languages one after another (at most four notes per topic now go into
+  the written minutes; every note stays in `facts.json`).
 
 The next steps to reach 15 minutes: run the speaker models on the GPU, and send
 each language as soon as it is written.
@@ -746,8 +777,8 @@ Guides: [speaker labels](diarization/README.md) ·
   9 dB above the room).
 - Accuracy on real Medpark meetings is unmeasured until someone labels a few
   minutes of them. We trained on no hospital audio.
-- On one T4 a full hour takes 17 to 26 minutes from upload to minutes, not
-  yet the 15 the brief asks for (see Speed).
+- On one T4 a full hour takes 18 to 20 minutes from upload to minutes (17 to
+  26 in the first hour test), not yet the 15 the brief asks for (see Speed).
 - From real audio, the minutes find about half of the answer key's actions on
   our mock board (see "End to end"); the checker keeps the rest from going out
   wrong, but a person still has to confirm them.

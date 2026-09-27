@@ -38,6 +38,12 @@ def meeting_json(meeting, facts, lines, body: str, lang: str, patients=()) -> di
     for f in kept:
         if f.kind != "action":
             continue
+        if f.owner and f.owner not in ids:
+            # an owner named in the meeting ("Roman, programează…") but not a detected voice:
+            # list them as a named participant so the app shows the name, as the PDF does
+            ids[f.owner] = f"participant-named-{len(ids) + 1}"
+            people.append({"id": ids[f.owner], "name": anonymize_text(f.owner, list(patients)),
+                           "speakerSlot": len(people), "speakingSeconds": 0})
         first = next((start[e] for e in f.evidence if e in start), None)
         item = {"id": f.id, "task": written.get(f.id, {}).get("text", f.text),
                 "ownerParticipantId": ids.get(f.owner), "deadline": f.deadline or None, "completed": False}
