@@ -4,6 +4,8 @@
 
 # Liminal
 
+**Run it on your machine: [RUN_IT.md](RUN_IT.md).**
+
 **Minutes a hospital can send without editing, from a meeting that switches
 between Romanian, Russian and English mid-sentence, on a server that never
 touches the internet.**
