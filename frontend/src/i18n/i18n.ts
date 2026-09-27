@@ -353,6 +353,7 @@ const resources = {
       serviceNotAnswering:
         "Service not answering. The recording is safe on this computer.",
       savedCheckpoint: "Saved on this computer every 10 seconds",
+      voiceColours: "Each voice keeps its colour; speakers are confirmed after the recording",
       recordingSafeToast:
         "Service not answering. The recording is safe on this computer",
       deliveryFailed: "Minutes are ready but weren't sent",
@@ -838,6 +839,7 @@ const resources = {
       serviceNotAnswering:
         "Serviciul nu răspunde. Înregistrarea este în siguranță pe acest computer.",
       savedCheckpoint: "Salvat pe acest computer la fiecare 10 secunde",
+      voiceColours: "Fiecare voce își păstrează culoarea; vorbitorii se confirmă după înregistrare",
       recordingSafeToast:
         "Serviciul nu răspunde. Înregistrarea este în siguranță pe acest computer",
       deliveryFailed: "Procesul-verbal este gata, dar nu a fost trimis",
@@ -1325,6 +1327,7 @@ const resources = {
       serviceNotAnswering:
         "Сервис не отвечает. Запись сохранена на этом компьютере.",
       savedCheckpoint: "Сохраняется на этом компьютере каждые 10 секунд",
+      voiceColours: "У каждого голоса свой цвет; участники уточняются после записи",
       recordingSafeToast:
         "Сервис не отвечает. Запись сохранена на этом компьютере",
       deliveryFailed: "Протокол готов, но не отправлен",

@@ -17,6 +17,7 @@ import StatePanel from "../components/StatePanel";
 import SpeakerLabel from "../components/SpeakerLabel";
 import { speakerColor } from "../utils";
 import Waveform from "../components/Waveform";
+import { useVoiceColours } from "../hooks/useVoiceColours";
 import Button from "../components/Button";
 import { formatTime, formatTimer } from "../utils";
 import type { Meeting } from "../types/meeting";
@@ -71,6 +72,7 @@ function Recorder({ initial: m }: { initial: Meeting }) {
     };
   }, [m.status, start]);
   const active = rec.state === "recording" || rec.state === "paused";
+  const voice = useVoiceColours(rec.levels, rec.state === "recording");
   const slot = m.participants.length
     ? Math.floor(rec.seconds / 8) % m.participants.length
     : 0;
@@ -164,7 +166,8 @@ function Recorder({ initial: m }: { initial: Meeting }) {
           </p>
           <div className="record-timer mono">{formatTimer(rec.seconds)}</div>
           {active && <p className="checkpoint-note">{t("savedCheckpoint")}</p>}
-          <Waveform levels={rec.levels} />
+          <Waveform levels={rec.levels} color={voice >= 0 && rec.state === "recording" ? speakerColor(voice) : undefined} />
+          {active && <p className="checkpoint-note">{t("voiceColours")}</p>}
           <div className="button-row spread">
             {active || saved ? (
               <Button
