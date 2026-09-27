@@ -15,6 +15,8 @@ dependencies = [
 
 [project.optional-dependencies]
 asr = ["faster-whisper>=1.1"]
+# Apple Silicon: Whisper on the GPU (MOM_ASR_ENGINE=mlx)
+mlx = ["mlx-whisper>=0.4; sys_platform == 'darwin' and platform_machine == 'arm64'"]
 llm = ["llama-cpp-python>=0.3.0"]
 dev = ["pytest>=8.3"]
 # Dev-time training (asr_train), never needed at meeting runtime.
