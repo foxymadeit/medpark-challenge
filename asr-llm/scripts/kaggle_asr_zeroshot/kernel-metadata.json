@@ -8,7 +8,11 @@
   "enable_gpu": true,
   "enable_internet": true,
   "machine_shape": "NvidiaTeslaT4",
-  "dataset_sources": ["volodymyrsamoilov/medpark-audop"],
+  "dataset_sources": [
+    "volodymyrsamoilov/medpark-audop"
+  ],
   "competition_sources": [],
-  "kernel_sources": []
+  "kernel_sources": [
+    "volodymyrsamoilov/medpark-asr-finetune"
+  ]
 }
