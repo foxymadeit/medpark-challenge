@@ -10,7 +10,8 @@ touches the internet.**
 
 Upload a recording or press Record, and pick the meeting type (Liminal
 suggests one). A few minutes later every attendee has the minutes in Romanian,
-Russian and English, as PDF and DOCX: the decisions, and every action item with
+Russian and English as PDFs in their inbox, with editable DOCX copies in the
+app: the decisions, and every action item with
 its owner and a real calendar deadline. Every one of those facts was checked by
 code against the words that were actually said.
 
