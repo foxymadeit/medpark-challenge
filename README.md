@@ -133,7 +133,7 @@ transcription vendor. Liminal has no vendor in the data path.
 |---|---|---|
 | Runs 100% locally, zero external API calls | socket guard in every process; the jury can pull the cable | [Security](#3-security-and-architecture-20) |
 | Hybrid ASR for RO/RU/EN code-switching and medical terms | Whisper large-v3 decoded per utterance as RO and RU, phrase-level merge, 892-term medical dictionary, per-language specialists | [Transcription](#1-linguistic-accuracy-30) |
-| Local LLM: summary, decisions, owners, deadlines | qwen3:8b through Ollama on 127.0.0.1, every fact checked in code | [Minutes](#2-output-quality-30) |
+| Local LLM: summary, decisions, owners, deadlines | gpt-oss:20b through Ollama on 127.0.0.1, every fact checked in code | [Minutes](#2-output-quality-30) |
 | Automation and routing engine (e.g. n8n) that reads the meeting-type tag and emails a predefined list | self-hosted n8n 2.40.7 (free Community Edition): webhook → switch on the type tag → email to that type's list with the RO/RU/EN PDFs; the type itself is also detected from the first 3 minutes | [Routing](#routing-n8n) |
 | Minimal web app: upload or Rec, pick the type, wait | three steps, auto-send after a 60 s window anyone can stop | [UX](#4-user-experience-10) |
 | Email without internet | local SMTP (Mailpit in the demo, the hospital's relay in production) | [Routing](#routing-n8n) |
@@ -265,34 +265,53 @@ later, owners known only by voice, relative deadlines, named patients. Round
 2 adds a 60-minute meeting: 878 lines, 8,773 words, 7 speakers, 12 decisions,
 12 actions and 5 traps.
 
+Round 1, the six short meetings:
+
 | Model | Decisions found / correct | Actions found / correct | Owner right | Trap errors | GPU memory (round 1 peak, two T4s) |
 |---|---|---|---|---|---|
-| **qwen3:8b (default)** | **100% / 100%** | **93% / 100%** | 86% | **0** | **7.2 GB** |
+| qwen3:8b | 100% / 100% | 93% / 100% | 86% | 0 | 7.2 GB |
 | mistral-small3.2:24b | 100% / 94% | 100% / 100% | 93% | 0 | 19.5 GB |
 | qwen3:14b | 93% / 100% | 93% / 100% | 86% | 0 | 11.0 GB |
-| gpt-oss:20b | 80% / 100% | 100% / 100% | 100% | 0 | 13.2 GB |
+| **gpt-oss:20b** | 80% / 100% | 100% / 100% | **100%** | 0 | 13.2 GB |
 | phi4:14b | 80% / 100% | 93% / 100% | 93% | 0 | 25.7 GB |
 | gemma3:12b | 80% / 100% | 100% / 94% | 80% | 0 | 19.4 GB |
 | EuroLLM-22B | 53% / 100% | 87% / 100% | 92% | 0 | 16.9 GB |
 
-<p align="center"><img src="docs/readme/charts/minutes_models.png" alt="Minutes models: decisions and actions found vs GPU memory; qwen3:8b finds 29 of 30 in 7.2 GB" width="100%"></p>
+<p align="center"><img src="docs/readme/charts/minutes_models.png" alt="Minutes models, round 1: decisions and actions found vs GPU memory" width="100%"></p>
+
+**The hour-long meeting changed the pick.** Round 1's winner, qwen3:8b, found
+nothing in the 60-minute meeting in round 2: one window's answer ran past its
+token budget, and that single broken answer emptied the whole extraction. Now
+a broken window is read again in two halves. Round 3 (one T4, all seven
+meetings: 27 decisions, 27 actions) showed what that costs each model:
+
+| Model | Decisions found / correct | Actions found / correct | Owner right | Deadline right | Trap errors | The 60-minute meeting, one T4 |
+|---|---|---|---|---|---|---|
+| **gpt-oss:20b (default)** | 77.8% / **100%** | 81.5% / **100%** | **100%** | **90.9%** | **0** | **10.4 min** to extract |
+| qwen3:8b | 81.5% / 95.7% | 88.9% / 92.9% | 91.7% | 66.7% | 0 | 48 min to extract |
+
+qwen3:8b finds a little more, but it invented one decision and two actions,
+put two owners wrong and got a third of the deadlines wrong, and its answers on
+the long meeting kept outrunning the token budget. Round 4 tried it with
+5-minute windows: still about 40 minutes. gpt-oss:20b (OpenAI's open-weight
+model, Apache 2.0) invented nothing and named every owner right, so it writes
+the minutes. It uses 12 to 13 GB of the 16 GB card, and Liminal frees the card
+as soon as the minutes are written, so the next meeting's transcription has
+room. For minutes that go to a medical board, a missed item is visible and
+waits in "Needs confirmation"; an invented one is not.
 
 **Deadlines: 27 of 27** answer-key deadlines (15 in the six short meetings,
-12 in the 60-minute one) now resolve correctly: 22 to the right date, and 5
-left empty because nobody said one. That came after round 1 showed the resolver missing "today" and "within N days". Round 2,
-running now, re-scores the top eight with that fix; its numbers replace these.
+12 in the 60-minute one) resolve correctly from the words when the item is
+found: 22 to the right date, and 5 left empty because nobody said one.
 
-**Against paid models.** On Vectara's grounded-summary hallucination
-leaderboard ([22 Sep 2026](https://github.com/vectara/hallucination-leaderboard)),
-the model we run locally invents content less often than the flagship cloud
-models. Every model summarises the same documents and Vectara's HHEM judge
-scores each summary against its source:
-
-<p align="center"><img src="docs/readme/charts/hallucination.png" alt="Hallucination rate: qwen3-8b 4.8% vs Gemini 2.5 Pro 7.0%, GPT-5.4 Pro 8.3%, Claude Sonnet 4 10.3%, Claude Opus 4.5 10.9%" width="100%"></p>
-
-
-Then our verifier checks every fact the model returns against the
-transcript, so a fact reaches the minutes only if someone said it.
+**Why code checks every fact.** No model can be trusted to stay grounded. On
+Vectara's grounded-summary hallucination leaderboard
+([22 Sep 2026](https://github.com/vectara/hallucination-leaderboard)), where
+every model summarises the same documents, even flagship cloud models invent
+content: GPT-5.4 Pro in 8.3% of summaries, Claude Opus 4.5 in 10.9%,
+gpt-oss-120b in 14.2%. So Liminal never takes a model's word: our verifier
+checks every fact the model returns against the transcript, and a fact
+reaches the minutes only if someone said it.
 
 **The meeting type, detected.** The type decides who gets the email. We
 compared a zero-shot classifier (Laya) with the local model Liminal already
@@ -344,7 +363,7 @@ flowchart LR
     U["Web app<br/>upload or Rec"] --> B["Backend<br/>FastAPI + SQLite queue"]
     B --> A["Transcription<br/>Whisper large-v3, RO+RU decodes"]
     B --> D["Who spoke when<br/>pyannote seg + TitaNet, CPU"]
-    A --> M["Minutes<br/>qwen3:8b on 127.0.0.1<br/>+ code checks"]
+    A --> M["Minutes<br/>gpt-oss:20b on 127.0.0.1<br/>+ code checks"]
     D --> M
     M --> R["60 s window<br/>or a person confirms"]
     R --> N["n8n<br/>switch on meeting type"]
@@ -360,7 +379,7 @@ flowchart LR
 |---|---|---|---|
 | The challenge's target | one 16 GB GPU | CPU only, 32 GB RAM | none given |
 | Transcription | Whisper large-v3 (CTranslate2), 3.1 GB of weights | Whisper large-v3 turbo, int8 | Whisper large-v3 turbo, int8, short clips |
-| Minutes model | qwen3:8b, 7.2 GB GPU peak (5.2 GB on disk) | qwen3:8b on CPU until round 2 names the CPU winner | qwen3:4b, short clips |
+| Minutes model | gpt-oss:20b, 12 to 13 GB GPU peak, freed after each meeting | gpt-oss:20b on CPU (a mixture of experts: 3.6 B parameters active per token) | qwen3:4b, short clips |
 | Speaker labels | CPU: 232 MB RAM, 52 MB of models | same | same (runs live on a 2017 dual-core laptop) |
 | PDF and DOCX | XeLaTeX, 4.3 s per language on a 2017 laptop | same | same |
 | Services | Docker Compose: backend, Ollama, n8n (1.0 GB image), Mailpit | same | same |
@@ -595,7 +614,7 @@ Measured, then removed, so nobody has to try them again:
 |---|---|
 | **Transcription** | faster-whisper (CTranslate2) with Whisper large-v3 and turbo, Silero VAD, SpeD-RoASR, GigaAM-v3, NVIDIA Parakeet-TDT-0.6B-v3, ffmpeg, rapidfuzz, wordfreq, llama.cpp |
 | **Who spoke when** | pyannote segmentation 3.0 plus our fine-tune, NVIDIA NeMo TitaNet-small, ONNX Runtime 1.23 and sherpa-onnx 1.13 (C++), numpy, scipy, LDA/WCCN projection trained on AMI, sounddevice, rich |
-| **Minutes** | Ollama serving qwen3:8b on 127.0.0.1, JSON-schema extraction, rapidfuzz, XeLaTeX (TeX Live) with our `medpark-mom.cls` and polyglossia, PDF/A-2b, python-docx, Montserrat and PT Serif |
+| **Minutes** | Ollama serving gpt-oss:20b on 127.0.0.1, JSON-schema extraction, rapidfuzz, XeLaTeX (TeX Live) with our `medpark-mom.cls` and polyglossia, PDF/A-2b, python-docx, Montserrat and PT Serif |
 | **Backend** | Python 3.14, FastAPI, SQLite job queue, stdlib scrypt, SMTP EmailService, Mailpit, Docker Compose (internal network), uv; optional n8n webhook in front of delivery |
 | **Web app** | React 19, TypeScript 6, Vite 8, React Router 7, i18next (EN/RO/RU), react-icons, Onest, Golos Text and Geist Mono served locally |
 | **Quality** | pytest, Vitest 5, Testing Library, Playwright 1.59 with axe-core, oxlint, Prettier, gstack headless-browser QA |
@@ -631,7 +650,7 @@ On the reference server (one 16 GB GPU, or 32 GB of RAM):
 
 ```bash
 # once, while the network is on
-ollama pull qwen3:8b
+ollama pull gpt-oss:20b
 python asr-llm/scripts/fetch_whisper.py large-v3
 pip install -e diarization -e minutes -e 'asr-llm[asr]'
 
