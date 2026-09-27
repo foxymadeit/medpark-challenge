@@ -33,7 +33,6 @@ EXAMPLE = {  # one small, impersonal example per language (see research/rules.md
         {"id": "N1", "kind": "note", "topic": "T1", "text": "Contractul actual de mentenanță pentru RMN expiră la sfârșitul lunii."},
         {"id": "D1", "kind": "decision", "topic": "T1", "text": "Se începe reînnoirea contractului în această săptămână."},
         {"id": "A1", "kind": "action", "topic": "T1", "text": "Verifică condițiile de reînnoire.", "owner": "{P} 3", "deadline": "{DATE}"},
-        {"id": "C1", "kind": "confirm", "text": "Cine trimite documentele la Minister (nu s-a spus)."},
     ],
     "ro": r"""\summary{S1}{Consiliul a examinat contractul de mentenanță pentru aparatul RMN, care expiră la sfârșitul lunii, și a aprobat inițierea reînnoirii lui în această săptămână.}
 \begin{agenda}
@@ -42,8 +41,7 @@ EXAMPLE = {  # one small, impersonal example per language (see research/rules.md
 \topic{T1}{Contractul de mentenanță pentru aparatul RMN}
 \noted{N1}{S-a comunicat că actualul contract de mentenanță pentru aparatul RMN expiră la sfârșitul lunii.}
 \decision{D1}{Se aprobă inițierea procedurii de reînnoire a contractului în această săptămână.}{}
-\action{A1}{Participantul 3}{30.09.2026}{Verifică condițiile de reînnoire a contractului.}
-\needsconfirmation{C1}{Persoana care transmite documentele la Minister nu a fost numită.}""",
+\action{A1}{Participantul 3}{30.09.2026}{Verifică condițiile de reînnoire a contractului.}""",
     "ru": r"""\summary{S1}{Рассмотрен договор на техническое обслуживание аппарата МРТ, который истекает в конце месяца; принято решение начать его продление на этой неделе.}
 \begin{agenda}
 \agendaitem{T1}{Договор на техническое обслуживание аппарата МРТ}
@@ -51,8 +49,7 @@ EXAMPLE = {  # one small, impersonal example per language (see research/rules.md
 \topic{T1}{Договор на техническое обслуживание аппарата МРТ}
 \noted{N1}{Было сообщено, что действующий договор на обслуживание аппарата МРТ истекает в конце месяца.}
 \decision{D1}{Начать процедуру продления договора на этой неделе.}{}
-\action{A1}{Участник 3}{30.09.2026}{Проверить условия продления договора.}
-\needsconfirmation{C1}{Не названо, кто направляет документы в Министерство.}""",
+\action{A1}{Участник 3}{30.09.2026}{Проверить условия продления договора.}""",
     "en": r"""\summary{S1}{The Board considered the maintenance contract for the MRI scanner, which expires at the end of the month, and agreed to start its renewal this week.}
 \begin{agenda}
 \agendaitem{T1}{Maintenance contract for the MRI scanner}
@@ -60,8 +57,7 @@ EXAMPLE = {  # one small, impersonal example per language (see research/rules.md
 \topic{T1}{Maintenance contract for the MRI scanner}
 \noted{N1}{The Board was informed that the current maintenance contract for the MRI scanner expires at the end of the month.}
 \decision{D1}{The Board agreed to start the renewal of the contract this week.}{}
-\action{A1}{Participant 3}{30 September 2026}{Check the renewal terms of the contract.}
-\needsconfirmation{C1}{No one was named to send the documents to the Ministry.}""",
+\action{A1}{Participant 3}{30 September 2026}{Check the renewal terms of the contract.}""",
 }
 
 
@@ -76,6 +72,12 @@ SUMMARY = {
     "ru": "Рассмотрено вопросов: {t} ({titles}). Принято решений: {d}, поручений: {a}.",
     "en": "The meeting considered {t} items: {titles}. It took {d} decisions and agreed {a} actions.",
 }
+# Minutes with nothing to report still say so, rather than coming out blank.
+NO_ITEMS = {
+    "ro": "Nu au fost identificate subiecte, decizii sau sarcini în această înregistrare.",
+    "ru": "В этой записи не выявлено тем, решений или задач.",
+    "en": "No topics, decisions or action items were identified in this recording.",
+}
 
 
 def owner_display(owner: str, lang: str) -> str:
@@ -86,18 +88,33 @@ def owner_display(owner: str, lang: str) -> str:
 MAX_NOTES = int(os.environ.get("MOM_MAX_NOTES", "4"))   # notes per topic in the written minutes
 
 
+def _topics(facts) -> list:
+    """The topics the minutes show: checked ones, and any with a checked item under it."""
+    return [t for t in facts if t.kind == "topic" and (t.status == "ok" or t.status == "confirm" and any(
+        f.topic == t.id and f.status == "ok" for f in facts))]
+
+
+def unproven(facts) -> list:
+    """Kept facts the minutes leave out: what the checks could not confirm, and
+    anything outside the topics shown. facts.json and the app keep them for a person."""
+    shown = {t.id for t in _topics(facts)}
+    return [f for f in facts if f.status in ("ok", "confirm") and f.id not in shown
+            and (f.status == "confirm" or f.kind != "topic" and f.topic not in shown)]
+
+
 def plan(facts, lang: str) -> list:
-    """The facts as the writer sees them, in document order, with owners and
-    deadlines already written for this language and confirm items as C-IDs."""
-    kept = [f for f in facts if f.status in ("ok", "confirm")]
-    topics = [f for f in kept if f.kind == "topic"]
-    out, n_confirm = [], 0
+    """The checked facts as the writer sees them, in document order, with owners
+    and deadlines already written for this language. Unproven facts never reach
+    the writer, so no document can carry them, not even in the summary."""
+    kept = [f for f in facts if f.status == "ok"]
+    topics = _topics(facts)
+    out = []
     if topics:
         out.append({"id": "S1", "kind": "summary", "text": ""})
     for t in topics:
         out.append({"id": t.id, "kind": "topic", "text": t.text})
         for kind in ("note", "decision", "action"):
-            rows = [x for x in kept if x.topic == t.id and x.kind == kind and x.status == "ok"]
+            rows = [x for x in kept if x.topic == t.id and x.kind == kind]
             if kind == "note":
                 rows = rows[:MAX_NOTES]   # long meetings: the minutes stay readable; every note stays in facts.json
             for f in rows:
@@ -110,10 +127,6 @@ def plan(facts, lang: str) -> list:
                     if f.deadline_phrase and not f.deadline:
                         row["text"] = f"{f.text} ({SAID_DEADLINE[lang]}: {f.deadline_phrase})"
                 out.append(row)
-    for f in kept:
-        if f.status == "confirm" or (f.kind != "topic" and f.topic not in {t.id for t in topics}):
-            n_confirm += 1
-            out.append({"id": f"C{n_confirm}", "kind": "confirm", "text": f.text, "source": f.id})
     return out
 
 
@@ -130,7 +143,7 @@ def write_body(llm, facts, lang: str, evidence_text: dict, patients=(), names=()
     """-> (body, report). evidence_text maps fact ID -> the text of its cited lines."""
     rows = plan(facts, lang)
     if not rows:
-        return "", {"source": "empty", "errors": []}
+        return f"\\summary{{S1}}{{{latexcheck.escape(NO_ITEMS[lang])}}}\n", {"source": "no-items", "errors": []}
     system = prompt(lang)
     user = "Facts:\n" + "\n".join(json.dumps({k: v for k, v in r.items() if k != "source"}, ensure_ascii=False) for r in rows)
     terms = [f"{t['matched']} → {t[lang]}" for t in terms_for([r["text"] for r in rows], lang) if fold(t["matched"]) != fold(t[lang])]
@@ -159,7 +172,7 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
     kept, done = [], set()
     for b in blocks:
         key = (b.fact_id, b.kind)
-        if b.fact_id and key in done:
+        if b.kind == "needsconfirmation" or b.fact_id and key in done:   # unproven items are never printed
             continue
         done.add(key)
         kept.append(b)
@@ -169,7 +182,7 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
         if b.fact_id:
             seen.setdefault(b.fact_id, []).append(b.kind)
     for fid, r in expected.items():
-        want = {"summary": 1, "topic": 2, "note": 1, "decision": 1, "action": 1, "confirm": 1}[r["kind"]]
+        want = {"summary": 1, "topic": 2, "note": 1, "decision": 1, "action": 1}[r["kind"]]
         got = len(seen.get(fid, []))
         if got != want:
             errors.append(f"{fid} appears {got} times; it must appear {want} time(s)")
@@ -194,7 +207,7 @@ def check_body(body: str, rows, evidence_text: dict, patients=(), names=(), lang
             text = text.replace(" — ", ", ").replace("—", ", ").replace(" – ", ", ")
             args[key] = text
             source = everything if b.kind == "summary" else (
-                f"{r.get('text', '')} {r.get('vote', '')} {r.get('deadline', '')} " + evidence_text.get(r.get("source", b.fact_id), ""))
+                f"{r.get('text', '')} {r.get('vote', '')} {r.get('deadline', '')} " + evidence_text.get(b.fact_id, ""))
             plain = re.sub(r"\b(\d{1,2})[:.]00\b", r"\1", latexcheck.unescape(text))   # "10:00" is the 10 in "ora 10"
             for n in _NUM.findall(plain):
                 if n.replace(",", ".") not in source.replace(",", "."):
@@ -228,8 +241,6 @@ def fallback_body(rows, lang: str = "en", patients=()) -> str:
             out.append(f"\\decision{{{r['id']}}}{{{e(r['text'])}}}{{{e(r.get('vote', ''))}}}")
         elif k == "action":
             out.append(f"\\action{{{r['id']}}}{{{e(r['owner'])}}}{{{e(r['deadline'])}}}{{{e(r['text'])}}}")
-        elif k == "confirm":
-            out.append(f"\\needsconfirmation{{{r['id']}}}{{{e(r['text'])}}}")
     return "\n".join(out) + "\n"
 
 

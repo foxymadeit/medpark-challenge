@@ -12,6 +12,7 @@ MODELS = {
     # Official Systran turbo currently 401 from this network.
     "turbo": "deepdml/faster-whisper-large-v3-turbo-ct2",
     "large-v3": "Systran/faster-whisper-large-v3",
+    "mlx": "mlx-community/whisper-large-v3-mlx",  # MOM_ASR_ENGINE=mlx, Apple Silicon
 }
 
 ROOT = Path(__file__).resolve().parents[1] / "models"
@@ -19,11 +20,11 @@ ROOT = Path(__file__).resolve().parents[1] / "models"
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("which", nargs="+", choices=["turbo", "large-v3", "all"])
+    parser.add_argument("which", nargs="+", choices=["turbo", "large-v3", "mlx", "all"])
     args = parser.parse_args()
     names = ["turbo", "large-v3"] if "all" in args.which else args.which
     for name in names:
-        dest = ROOT / ("whisper" if name == "large-v3" else "whisper-turbo")
+        dest = ROOT / {"large-v3": "whisper", "turbo": "whisper-turbo", "mlx": "whisper-mlx"}[name]
         dest.mkdir(parents=True, exist_ok=True)
         print(f"Downloading {MODELS[name]} -> {dest}")
         snapshot_download(MODELS[name], local_dir=dest)

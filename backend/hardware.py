@@ -4,8 +4,10 @@ and a demo laptop. LIMINAL_PROFILE names a profile outright, and any MOM_*
 setting already in the environment wins over the profile's."""
 
 import os
+import platform
 import shutil
 import subprocess
+import sys
 
 PROFILES = {
     # Measured on one T4 (27 Sep): batched greedy transcription, 9.1 min for an hour; gpt-oss:20b
@@ -19,8 +21,11 @@ PROFILES = {
             "MOM_LLM_MODEL": "gpt-oss:20b", "MOM_ASR_BATCH_SIZE": "1"},
     "laptop": {"MOM_DEVICE": "cpu", "MOM_ASR_COMPUTE_TYPE": "int8", "MOM_ASR_MODEL_DIR": "models/whisper-turbo",
                "MOM_LLM_MODEL": "qwen3:4b", "MOM_ASR_BATCH_SIZE": "1"},
+    # Apple Silicon: faster-whisper has no Apple-GPU backend, so large-v3 runs through MLX on the GPU
+    # (asr_llm/mlx_asr.py); Ollama uses the same GPU for gpt-oss:20b, which needs ~13 GB of the shared memory.
+    "mac": {"MOM_ASR_ENGINE": "mlx", "MOM_LLM_MODEL": "gpt-oss:20b", "MOM_ASR_BATCH_SIZE": "1"},
 }
-GPU_GB, CPU_RAM_GB = 15, 30   # a "16 GB" card reports a little under 16
+GPU_GB, CPU_RAM_GB, MAC_RAM_GB = 15, 30, 20   # a "16 GB" card reports a little under 16
 
 
 def gpu_memory_gb() -> float:
@@ -39,11 +44,18 @@ def ram_gb() -> float:
     return os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 1024 ** 3
 
 
-def detect(gpu_gb: float | None = None, ram_gb: float | None = None) -> str:
+def apple_silicon() -> bool:
+    return sys.platform == "darwin" and platform.machine() == "arm64"
+
+
+def detect(gpu_gb: float | None = None, ram_gb: float | None = None, apple: bool | None = None) -> str:
     gpu_gb = gpu_memory_gb() if gpu_gb is None else gpu_gb
     if gpu_gb >= GPU_GB:
         return "gpu"
-    return "cpu" if (globals()["ram_gb"]() if ram_gb is None else ram_gb) >= CPU_RAM_GB else "laptop"
+    ram = globals()["ram_gb"]() if ram_gb is None else ram_gb
+    if (apple_silicon() if apple is None else apple) and ram >= MAC_RAM_GB:
+        return "mac"
+    return "cpu" if ram >= CPU_RAM_GB else "laptop"
 
 
 def profile() -> str:

@@ -9,7 +9,7 @@ import MeetingHeader from "../components/MeetingHeader";
 import StatePanel from "../components/StatePanel";
 import InputField from "../components/InputField";
 import SpeakerLabel from "../components/SpeakerLabel";
-import { formatTime, personName } from "../utils";
+import { formatTime, personName, speaks } from "../utils";
 export default function TranscriptPage() {
   const { data, error, refresh } = useMeeting();
   if (!data) return <StatePanel error={error} retry={refresh} />;
@@ -127,10 +127,4 @@ function Transcript({ meeting: m }: { meeting: Meeting }) {
       )}
     </>
   );
-}
-
-/** A segment names its voice by the diarizer's label ("Speaker 4"); the
- * participant carries that label in speakerId, and its own id in demo data. */
-export function speaks(p: { id: string; speakerId?: string }, label?: string | null) {
-  return !!label && (p.id === label || p.speakerId === label);
 }

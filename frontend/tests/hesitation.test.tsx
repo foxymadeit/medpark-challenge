@@ -59,7 +59,10 @@ describe("sending after a stop", () => {
     m.participants[2] = { ...m.participants[2], email: undefined };
     seed({ participants: m.participants, participantSnapshots: undefined });
     mount("/meetings/meeting-001/email");
-    await screen.findByText("MoM | Medical | Cardiology board, weekly review");
+    // the email is official Romanian whatever the interface language
+    await screen.findByText(
+      /^Proces-verbal al ședinței Consiliului Medical din \d{1,2} (ianuarie|februarie|martie|aprilie|mai|iunie|iulie|august|septembrie|octombrie|noiembrie|decembrie) \d{4}$/,
+    );
     const to = screen.getByText("To").closest("div")!;
     expect(within(to).getByText(/Dr\. Igor Rusu/).textContent).toContain(
       "No copy: no email",
@@ -69,9 +72,16 @@ describe("sending after a stop", () => {
     );
     expect(screen.queryByText(/valid email address/)).toBeNull();
     const body = screen.getByRole("region", { name: "Message" }).textContent!;
-    expect(body).toContain("Book the cardiac MRI for bed 12");
-    expect(body).toContain("Dr. Ana Popescu");
-    expect(body).not.toContain("Not assigned");
+    expect(body.startsWith("Stimați membri ai Consiliului Medical,")).toBe(
+      true,
+    );
+    expect(body).toContain("Regulamentul (UE) 2024/1689");
+    expect(body.endsWith("Cu stimă,\nSecretariatul Consiliului Medical")).toBe(
+      true,
+    );
+    // the meeting's own words travel in the PDFs, never in the email
+    expect(body).not.toContain("Book the cardiac MRI for bed 12");
+    expect(body).not.toMatch(/Summary|Decisions|Owner|Minutes/);
     expect(
       (screen.getByRole("button", { name: "Send" }) as HTMLButtonElement)
         .disabled,

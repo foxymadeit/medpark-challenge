@@ -28,9 +28,9 @@ def test_docx_has_every_fact_the_ai_marking_and_private_permissions(tmp_path):
     out = render_docx.render(MEETING, latexcheck.parse(BODY), "ro", "test-model", "4/4", tmp_path / "m.docx")
     doc = Document(out)
     text = "\n".join(p.text for p in doc.paragraphs) + "\n".join(c.text for t in doc.tables for r in t.rows for c in r.cells)
-    for needle in ("PROCES-VERBAL nr. 7", "Se aprobă reînnoirea contractului.", "Verifică condițiile.", "nestabilit",
-                   "Cine trimite documentele.", "reducerea este de 10%"):
+    for needle in ("PROCES-VERBAL nr. 7", "Se aprobă reînnoirea contractului.", "Verifică condițiile.", "reducerea este de 10%"):
         assert needle in text, needle
+    assert "nestabilit" not in text and "Cine trimite documentele." not in text
     assert "AI-generated" in doc.core_properties.keywords and "test-model" in doc.core_properties.author
     assert oct(out.stat().st_mode & 0o777) == "0o600"
 
@@ -38,7 +38,7 @@ def test_docx_has_every_fact_the_ai_marking_and_private_permissions(tmp_path):
 def test_labels_come_from_the_latex_class_in_every_language():
     for lang, word in (("ro", "PROCES-VERBAL"), ("ru", "ПРОТОКОЛ"), ("en", "MINUTES")):
         s = render_docx.strings(lang)
-        assert s["doc"] == word and s["owner"] and s["confirm"]
+        assert s["doc"] == word and s["owner"] and s["aifooter"]
 
 
 def test_header_values_are_escaped_before_they_reach_latex():

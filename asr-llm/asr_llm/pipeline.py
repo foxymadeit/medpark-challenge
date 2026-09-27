@@ -37,6 +37,10 @@ def transcribe_audio(audio_path: Path, diarization: Path | None = None) -> tuple
         from .specialists import SpecialistAsr
 
         engine = SpecialistAsr()
+    elif settings.asr_engine == "mlx":
+        from .mlx_asr import MlxWhisperAsr
+
+        engine = MlxWhisperAsr()
     else:
         engine = WhisperAsr()
     t0 = time.perf_counter()
