@@ -187,6 +187,23 @@ What Liminal does instead:
   Whisper's detector called 12 of the 14 Russian.
   Scores alone picked right on 10 of 14; the bonus fixes the other 4, which
   were all within 0.06.
+- **English stays English.** The Romanian bonus settles Romanian against
+  Russian only. A decode written in the wrong script (Russian in Latin letters)
+  is thrown out, and a Romanian or Russian decode that just repeats the English
+  decode's words counts as English. Replaying hour test 3's saved decodes (one
+  T4) through the new pick, language per line:
+
+  | Hour of audio | Lines | Before | After |
+  |---|---|---|---|
+  | Moldovan Parliament, Romanian | 472 | 100% | 100% |
+  | Kremlin meeting, Russian | 461 | 100% | 100% |
+  | ICSI meeting, English | 785 | 73.1% | 81.4% |
+  | ICSI, only the 657 lines with words (not read-out digit strings) | 657 | 85.7% | 93.6% |
+
+  On the first mock board, 8 English lines that came out Romanian or Russian
+  now come out English. The Medpark sample and the second board do not change.
+  The replay can only choose among decodes the run already made, so lines that
+  were never decoded in English stay as they were.
 - **Phrase-level switching.** With the language merge on, a run of two or more
   words that the other decode heard far more confidently (0.25 higher mean word
   probability, in that language's own script) replaces the winner's words, so a
@@ -715,13 +732,13 @@ Measured, then removed, so nobody has to try them again:
 About 31,000 lines of Python and TypeScript, tests included: web app 11,800,
 transcription 5,900, speaker labels 5,000, minutes 5,100, backend 3,100.
 
-## Tests: 497 passing, 2 skipped
+## Tests: 504 passing, 2 skipped
 
 | Part | Tests |
 |---|---|
 | Minutes | 138, including the full pipeline with sockets blocked, 14 LaTeX injection attempts, a long meeting whose answer breaks, and documents that leave out anything not given |
 | Speaker labels | 79 |
-| Transcription | 94 passing, including the batched decoder, the meeting-language probe and the Apple GPU engine; 2 training-data tests skip unless the training extras are installed |
+| Transcription | 101 passing, including the batched decoder, the meeting-language probe, the language pick and the Apple GPU engine; 2 training-data tests skip unless the training extras are installed |
 | Backend | 82: naming, merging and editing before sending, the Romanian email, open access with no sign-in, CSRF, uploads, queue and restart recovery, auto-send, stop-send, confirmations, failed delivery, network guard, hardware profiles, meeting-type check, audit trail |
 | Web app | 92 unit, 12 end-to-end in a real browser |
 

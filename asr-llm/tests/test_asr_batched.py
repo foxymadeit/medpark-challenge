@@ -1,6 +1,6 @@
 import numpy as np
 
-from asr_llm.asr import _winner, transcribe_batches
+from asr_llm.asr import pick_language, transcribe_batches
 from asr_llm.asr_batched import short_languages, split_window
 from asr_llm.batching import AudioBatch
 
@@ -33,8 +33,8 @@ def test_a_window_without_timestamp_pairs_is_one_segment():
 
 
 def test_ties_go_to_the_first_language_as_before():
-    assert _winner({"ro": ("", float("-inf")), "ru": ("", float("-inf"))}) == ("", "ro")
-    assert _winner({"ro": ("a", -0.70), "ru": ("b", -0.67)}) == ("a", "ro")  # +0.1 for the home language
+    assert pick_language({"ro": ("", float("-inf")), "ru": ("", float("-inf"))}) == ("", "ro")
+    assert pick_language({"ro": ("a", -0.70), "ru": ("b", -0.67)}) == ("a", "ro")  # +0.1 for the home language
 
 
 class Batched:

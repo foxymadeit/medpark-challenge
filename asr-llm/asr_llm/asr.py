@@ -37,16 +37,21 @@ _HALLUCINATIONS = {
     "vă mulțumim pentru vizionare",
     "nu uitați să vă abonați",
     "nu uitați să dați like să lăsați un comentariu și să distribuiți acest video",
+    "nu uitați să dați like",
+    "vă abonați la canalul",
     "thank you for watching",
     "thanks for watching",
     "спасибо что вы посетили",
     "спасибо за внимание",
 }
 _HALLUCINATION_MAX_WORDS = 12  # a long real sentence may quote one of these; a short line is the credit itself
+_HALLUCINATION_PREFIX_WORDS = 4  # a line that opens with a credit this long is the credit, however long it runs
 
 
 def _is_hallucination(text: str) -> bool:
     folded = _fold(text)
+    if any(folded.startswith(p) for p in _HALLUCINATIONS if len(p.split()) >= _HALLUCINATION_PREFIX_WORDS):
+        return True
     return len(folded.split()) <= _HALLUCINATION_MAX_WORDS and any(p in folded for p in _HALLUCINATIONS)
 
 
@@ -92,11 +97,11 @@ class WhisperAsr:
         self.meeting_languages = list(settings.asr_always_decode)
         rest = lead[len(probe):]
         if rest:
-            always = kept_languages([_winner(found[i])[1] for i in probe])
+            always = kept_languages([pick_language(found[i])[1] for i in probe])
             self.meeting_languages = always
             decoder.stats["always_decoded_after_probe"] = len(always)
             found.update(zip(rest, decoder.run([pieces[i] for i in rest], {}, lambda p: self._languages(p, always), fallback)))
-        winners = {i: _winner(found[i])[1] for i in lead}
+        winners = {i: pick_language(found[i])[1] for i in lead}
         shorts = short_languages(short, winners)
         order = sorted(shorts)
         for i, got in zip(order, decoder.run([pieces[i] for i in order], {k: [shorts[i]] for k, i in enumerate(order)}, self._languages, fallback)):
@@ -104,7 +109,7 @@ class WhisperAsr:
         self.batch_stats = decoder.stats
         out = []
         for i in range(len(pieces)):
-            text, language = _winner(found[i])
+            text, language = pick_language(found[i])
             hypotheses = [Hypothesis(language=lang, text=t, score=sc, words=[]) for lang, (t, sc) in found[i].items() if t]
             out.append((text, language, hypotheses))
         return out
@@ -127,7 +132,7 @@ class WhisperAsr:
             if ranked and ranked[0][0] not in languages:
                 languages.append(ranked[0][0])
         results = [self._decode(samples, lang) for lang in languages]
-        text, language, _, _ = max(results, key=_biased_score)
+        text, language = pick_language({lang: (t, sc) for t, lang, sc, _ in results})
         hypotheses = [Hypothesis(language=lang, text=t, score=s, words=w) for t, lang, s, w in results if t]
         if settings.cs_merge and len(hypotheses) > 1:
             best = next(h for h in hypotheses if h.language == language)
@@ -179,9 +184,50 @@ def _use_joint_language_tokens(languages: tuple[str, ...]) -> None:
     fw.Tokenizer.sot_sequence = property(sot_sequence)
 
 
-def _biased_score(result: tuple) -> float:
-    _, language, score, _ = result
+def _biased_score(language: str, score: float) -> float:
     return score + (settings.home_bias if language == settings.home_language else 0.0)
+
+
+_SAME_WORDS = 0.6  # word overlap (Jaccard) at which a forced decode just repeated the English decode
+_SAME_WORDS_MIN = 3  # "Da." or "4-5" reads the same in every language: too short to tell
+
+
+def _script_fits(text: str, language: str) -> bool:
+    """A forced decode that ignored its language: Russian not in Cyrillic, Romanian or English in it.
+    Digits and punctuation fit any language."""
+    letters = [c for c in text if c.isalpha()]
+    if not letters or language not in ("ro", "ru", "en"):
+        return True
+    cyrillic = sum("\u0400" <= c <= "\u04ff" for c in letters) > len(letters) / 2
+    return cyrillic == (language == "ru")
+
+
+def _same_words(a: str, b: str) -> bool:
+    x, y = set(_fold(a).split()), set(_fold(b).split())
+    return len(x | y) >= _SAME_WORDS_MIN and len(x & y) / len(x | y) >= _SAME_WORDS
+
+
+def pick_language(results: dict[str, tuple[str, float]]) -> tuple[str, str]:
+    """(text, language) for one utterance from its forced decodes, {language: (text, avg_logprob)}.
+
+    Both engines (batched GPU and one-at-a-time/MLX) pick here. Measured on hour test 3: English
+    speech came out Romanian in 14% of an English hour, because (1) the home bias meant for Moldovan
+    Romanian against Russian also beat English, (2) a forced decode that kept the English words or
+    wrote the wrong script still counted as its language. So: decodes in the wrong script are out,
+    a decode repeating the English decode's words is English, the home bias settles only the
+    always-decoded pair (ro/ru), and English then needs the better plain score. Ties go to the
+    first language, as max() does."""
+    pool = {lang: r for lang, r in results.items() if r[0] and _script_fits(r[0], lang)}
+    english = pool.get("en")
+    if english:
+        pool = {lang: r for lang, r in pool.items() if lang == "en" or not _same_words(r[0], english[0])}
+    pool = pool or results  # nothing plausible: the old pick over everything
+    pair = [lang for lang in pool if lang in settings.asr_always_decode]
+    best = max(pair, key=lambda lang: _biased_score(lang, pool[lang][1])) if pair else None
+    for lang in pool:
+        if lang not in settings.asr_always_decode and (best is None or pool[lang][1] > pool[best][1]):
+            best = lang
+    return pool[best][0], best
 
 
 def _script_ok(word: str, language: str) -> bool:
@@ -215,11 +261,6 @@ def merge_words(best: Hypothesis, others: list[Hypothesis]) -> tuple[str, list[s
             run = []
     return " ".join(w[2] for w in words), switched
 
-
-def _winner(results: dict[str, tuple[str, float]]) -> tuple[str, str]:
-    """(text, language) with the best biased score; ties go to the first language, as max() does."""
-    text, language, _, _ = max(((t, lang, sc, []) for lang, (t, sc) in results.items()), key=_biased_score)
-    return text, language
 
 
 def transcribe_batches(engine: WhisperAsr, batches) -> list[AsrChunk]:
