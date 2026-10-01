@@ -2,6 +2,7 @@ import { CheckIcon, PencilSimpleIcon, PlayIcon, StopIcon, TrashIcon, XIcon } fro
 import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useI18n } from '../i18n/I18nProvider';
+import { Avatar } from './Avatar';
 import { alternativesFor, lineSeconds, lineText, lineTokens, originalText } from '../lib/transcript';
 import { SPOKEN_LANGS, type SpokenLang, type Task, type TranscriptLine, type TranscriptToken } from '../types';
 
@@ -205,6 +206,11 @@ function useSegmentPlayer() {
   return { playing, progress, play, stop };
 }
 
+
+/** Speaker's colour circle in the transcript: same colour as their avatar everywhere; unknown voices stay neutral grey. */
+function SpeakerAvatar({ id, name }: { id: string; name: string }) {
+  return <Avatar name={name} size="sm" color={id.startsWith('voice-') ? 'stone' : undefined} />;
+}
 export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onFlagLang, onEditLine, onRemoveLine }: LinesProps) {
   const { lang } = useI18n();
   const [selected, setSelected] = useState<number | null>(null);
@@ -246,14 +252,16 @@ export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onFlagLang
           <li key={li} className={`transcript__line${selected === li ? ' is-selected' : ''}`}>
             {sentences ? (
               <button type="button" className="transcript__head" aria-pressed={selected === li} aria-label={t('review.sentence.select', { time: l.at, name: nameOf(l.speakerId) })} onClick={() => select(li)}>
-                <span className="t-data-sm c-secondary">{l.at}</span>
+                <SpeakerAvatar id={l.speakerId} name={nameOf(l.speakerId)} />
                 <span className="t-strong">{nameOf(l.speakerId)}</span>
+                <span className="t-data-sm c-secondary">{l.at}</span>
                 {l.edited && <span className="tag transcript__edited">{t('review.sentence.edited')}</span>}
               </button>
             ) : (
               <p className="row">
-                <span className="t-data-sm c-secondary">{l.at}</span>
+                <SpeakerAvatar id={l.speakerId} name={nameOf(l.speakerId)} />
                 <span className="t-strong">{nameOf(l.speakerId)}</span>
+                <span className="t-data-sm c-secondary">{l.at}</span>
               </p>
             )}
             {editing === li ? (
