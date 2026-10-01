@@ -203,6 +203,7 @@
   font: 500 12px/16px var(--sm-font-sign);
   letter-spacing: 0.24px;
 }
+.avatar--sm { width: 24px; height: 24px; border-radius: 12px; font-size: 10px; letter-spacing: 0; }
 .status-tag {
   display: inline-flex;
   align-items: center;
