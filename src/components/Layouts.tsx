@@ -1,22 +1,103 @@
-import { CaretDownIcon, ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { CaretDownIcon, CheckIcon, ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
 import { useStore } from '../store/AppStore';
 import { Avatar } from './Avatar';
 import { Logo, WithWordmark, Wordmark } from './Logo';
-import { Segmented } from './Segmented';
 
+/**
+ * Interface language: closed it shows only the active language; a click opens the three, the active one ticked.
+ * Picking one switches the UI and closes the list; a click outside or Esc closes it too.
+ * Looks like the old switch (the selected pill on the warm track); the list uses the app's dropdown style.
+ */
 function LanguageSwitch() {
   const { lang, setLang, t } = useI18n();
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0); // keyboard-highlighted option
+  const wrap = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    list.current?.focus();
+    const onDown = (e: MouseEvent) => !wrap.current?.contains(e.target as Node) && setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [open]);
+
+  const openList = () => {
+    setActive(Math.max(0, LANGS.indexOf(lang)));
+    setOpen(true);
+  };
+  const choose = (l: Lang) => {
+    setLang(l);
+    setOpen(false);
+    button.current?.focus();
+  };
+  const onListKey = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowDown') setActive((a) => Math.min(LANGS.length - 1, a + 1));
+    else if (e.key === 'ArrowUp') setActive((a) => Math.max(0, a - 1));
+    else if (e.key === 'Home') setActive(0);
+    else if (e.key === 'End') setActive(LANGS.length - 1);
+    else if (e.key === 'Enter' || e.key === ' ') choose(LANGS[active]);
+    else if (e.key === 'Escape' || e.key === 'Tab') {
+      setOpen(false);
+      if (e.key === 'Escape') button.current?.focus();
+      return;
+    } else return;
+    e.preventDefault();
+  };
+
   return (
-    <Segmented<Lang>
-      label={t('common.language')}
-      variant="lang"
-      value={lang}
-      onChange={setLang}
-      options={LANGS.map((l) => ({ value: l, label: t(`lang.${l}`) }))}
-    />
+    <div className="segmented segmented--lang dropdown" ref={wrap}>
+      <button
+        ref={button}
+        type="button"
+        className="segmented__item"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`${t('common.language')}: ${t(`lang.${lang}Name`)}`}
+        onClick={() => (open ? setOpen(false) : openList())}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp') (e.preventDefault(), openList());
+        }}
+      >
+        {t(`lang.${lang}`)}
+      </button>
+      {open && (
+        <ul
+          ref={list}
+          role="listbox"
+          tabIndex={-1}
+          aria-label={t('common.language')}
+          aria-activedescendant={`${id}-opt-${active}`}
+          className="dropdown__list"
+          style={{ left: 'auto', right: 0 }} // opens leftwards: the switch sits at the right edge
+          onKeyDown={onListKey}
+        >
+          {LANGS.map((l, i) => (
+            <li
+              key={l}
+              id={`${id}-opt-${i}`}
+              role="option"
+              lang={l}
+              aria-selected={l === lang}
+              aria-label={t(`lang.${l}Name`)}
+              className={`dropdown__option${i === active ? ' is-active' : ''}`}
+              onMouseEnter={() => setActive(i)}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => choose(l)}
+            >
+              <span>{t(`lang.${l}`)}</span>
+              {l === lang && <CheckIcon size={16} aria-hidden />}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
