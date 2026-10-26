@@ -60,11 +60,13 @@
 .headline { display: flex; align-items: center; gap: var(--sm-space-2); min-width: 0; }
 .headline__text { min-width: 0; overflow-wrap: anywhere; cursor: text; }
 .headline__pen { flex-shrink: 0; width: 36px; height: 36px; }
-.headline-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sm-space-3) var(--sm-space-6); }
-.headline-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.headline-block:has(.headline-input) { flex: 1 1 320px; }
+/* Name on the left, date pinned to the right edge of the content (= the Upload card's right edge), at least 24px apart.
+   The date never moves when the name changes length; a long name wraps instead of running into it. */
+.headline-row { display: flex; flex-wrap: nowrap; align-items: flex-start; justify-content: space-between; gap: var(--sm-space-3) var(--sm-space-6); }
+.headline-block { display: flex; flex: 1 1 auto; flex-direction: column; gap: 6px; min-width: 0; }
 .headline-row .headline-input { width: calc(100% + 13.5px); }
-.headline-row .datepicker { margin-top: 0; align-self: flex-end; }
+.headline-row .datepicker { flex: none; align-self: flex-start; margin-top: 23px; } /* centred on the name's first line: label 18 + gap 6 + (38 − 40) / 2 */
+.headline-block:has(.headline-input) + .datepicker { margin-top: 28px; } /* renaming: centred on the 48px input */
 .headline .headline__text { line-height: 38px; }
 .headline__pen svg { width: 18px; height: 18px; }
 .template-tag { align-self: flex-start; gap: 6px; margin-top: var(--sm-space-2); }

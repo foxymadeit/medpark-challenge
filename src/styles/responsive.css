@@ -75,6 +75,10 @@
 
 /* ── ≤640: phone ── */
 @media (max-width: 640px) {
+  /* Phone: the date drops under the name, left-aligned. */
+  .headline-row { flex-wrap: wrap; }
+  .headline-block { flex-basis: 100%; }
+  .headline-row .datepicker, .headline-block:has(.headline-input) + .datepicker { margin-top: 0; }
   .topbar__right { gap: var(--sm-space-2); }
   .account__button .account__text, .account__button > svg { display: none; }
   .account__button { padding: 0 4px; }
