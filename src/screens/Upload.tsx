@@ -62,66 +62,68 @@ export function Upload() {
 
   return (
     <div className="page upload">
-      <div className="upload__column">
-        <div className="page__head">
-          <h1 className="t-h1">{!file ? t('upload.title') : uploading ? t('upload.uploading') : t('upload.uploaded')}</h1>
-          <p className="lead">
-            {title} · {typeLabel} · {t('common.participantsCount', { count })}
-          </p>
-        </div>
-        {/* Once a file is in, the file row replaces the drop zone; "Change file" reopens the picker. */}
-        {!file && (
-          <button
-            type="button"
-            className={`dropzone${over ? ' is-over' : ''}`}
-            onClick={() => input.current?.click()}
-            onDragOver={(e) => (e.preventDefault(), setOver(true))}
-            onDragLeave={() => setOver(false)}
-            onDrop={onDrop}
-            aria-describedby={error ? 'upload-err' : undefined}
-          >
-            <UploadSimpleIcon size={32} aria-hidden />
-            <span className="t-strong">{t('upload.drop')}</span>
-            <span className="note">{t('upload.hint')}</span>
-          </button>
-        )}
-        <input ref={input} type="file" accept={ACCEPT} hidden onChange={(e) => void take(e.target.files?.[0])} />
-        {error && (
-          <p id="upload-err" className="field__error" role="alert">
-            {error}
-          </p>
-        )}
-        {file && (
-          <div className="tile file-row">
-            <FileAudioIcon size={20} aria-hidden />
-            <span className="who__text" style={{ flex: 1 }}>
-              <span className="who__name truncate">{file.file.name}</span>
-              {uploading ? (
-                <span className="file-row__progress">
-                  <ProgressBar value={progress} label={t('upload.uploading')} />
-                  <span className="t-data-sm c-secondary">{Math.round(progress * 100)}%</span>
-                </span>
-              ) : (
-                <span className="t-data-sm c-secondary">
-                  {file.minutes ? `${t('common.minutes', { n: file.minutes })} · ` : ''}
-                  {formatBytes(file.file.size)}
-                </span>
-              )}
-            </span>
-            <button type="button" className="link-btn" onClick={() => input.current?.click()}>
-              {t('upload.change')}
-            </button>
-            <button type="button" className="icon-btn" aria-label={uploading ? t('upload.cancel') : t('upload.remove', { name: file.file.name })} onClick={() => setFile(null)}>
-              <XIcon size={16} aria-hidden />
-            </button>
+      <div className="vp-center">
+        <div className="upload__column">
+          <div className="page__head">
+            <h1 className="t-h1">{!file ? t('upload.title') : uploading ? t('upload.uploading') : t('upload.uploaded')}</h1>
+            <p className="lead">
+              {title} · {typeLabel} · {t('common.participantsCount', { count })}
+            </p>
           </div>
-        )}
-        {/* Appears only once a file is attached, right under it. */}
-        {file && !uploading && (
-          <Button variant="ink" icon={<CpuIcon size={20} aria-hidden />} onClick={submit} className="upload__submit">
-            {t('upload.submit')}
-          </Button>
-        )}
+          {/* Once a file is in, the file row replaces the drop zone; "Change file" reopens the picker. */}
+          {!file && (
+            <button
+              type="button"
+              className={`dropzone${over ? ' is-over' : ''}`}
+              onClick={() => input.current?.click()}
+              onDragOver={(e) => (e.preventDefault(), setOver(true))}
+              onDragLeave={() => setOver(false)}
+              onDrop={onDrop}
+              aria-describedby={error ? 'upload-err' : undefined}
+            >
+              <UploadSimpleIcon size={32} aria-hidden />
+              <span className="t-strong">{t('upload.drop')}</span>
+              <span className="note">{t('upload.hint')}</span>
+            </button>
+          )}
+          <input ref={input} type="file" accept={ACCEPT} hidden onChange={(e) => void take(e.target.files?.[0])} />
+          {error && (
+            <p id="upload-err" className="field__error" role="alert">
+              {error}
+            </p>
+          )}
+          {file && (
+            <div className="tile file-row">
+              <FileAudioIcon size={20} aria-hidden />
+              <span className="who__text" style={{ flex: 1 }}>
+                <span className="who__name truncate">{file.file.name}</span>
+                {uploading ? (
+                  <span className="file-row__progress">
+                    <ProgressBar value={progress} label={t('upload.uploading')} />
+                    <span className="t-data-sm c-secondary">{Math.round(progress * 100)}%</span>
+                  </span>
+                ) : (
+                  <span className="t-data-sm c-secondary">
+                    {file.minutes ? `${t('common.minutes', { n: file.minutes })} · ` : ''}
+                    {formatBytes(file.file.size)}
+                  </span>
+                )}
+              </span>
+              <button type="button" className="link-btn" onClick={() => input.current?.click()}>
+                {t('upload.change')}
+              </button>
+              <button type="button" className="icon-btn" aria-label={uploading ? t('upload.cancel') : t('upload.remove', { name: file.file.name })} onClick={() => setFile(null)}>
+                <XIcon size={16} aria-hidden />
+              </button>
+            </div>
+          )}
+          {/* Appears only once a file is attached, right under it. */}
+          {file && !uploading && (
+            <Button variant="ink" icon={<CpuIcon size={20} aria-hidden />} onClick={submit} className="upload__submit">
+              {t('upload.submit')}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

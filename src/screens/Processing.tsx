@@ -66,61 +66,65 @@ export function Processing() {
 
   return (
     <div className="page processing">
-      <div className="processing__box">
-        <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
-          <h1 className="t-h1">{t('processing.title')}</h1>
-          <p className="lead">{t('processing.lead', { title: meeting.title, n: meeting.durationMin })}</p>
-        </div>
-
-        <div className="processing__progress">
-          <ProgressBar value={elapsed / total} label={t('processing.progress')} />
-          <span className="processing__pct" aria-hidden>
-            {pct}%
-          </span>
-        </div>
-
-        <ol className="steps" aria-live="polite">
-          {STEPS.map((key, i) => (
-            <li key={key} className={`step${i < step ? ' is-done' : i === step ? ' is-active' : ''}`} aria-current={i === step ? 'step' : undefined}>
-              {i < step ? (
-                <span className="step__check" aria-hidden>
-                  <CheckIcon size={12} weight="bold" />
-                </span>
-              ) : (
-                <span className="step__dot" aria-hidden />
-              )}
-              {t(key)}
-              {i < step && <span className="sr-only"> — {t('processing.done')}</span>}
-            </li>
-          ))}
-        </ol>
-
-        <section className="card processing__live" aria-labelledby="proc-live">
-          <div className="processing__live-head">
-            <h2 id="proc-live" className="section-title">
-              {t('processing.liveTitle')}
-            </h2>
-            <span className="note">{t('processing.chunks', { n: shown, total: lines.length })}</span>
+      <div className="vp-center">
+        <div className="processing__box">
+          <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
+            <h1 className="t-h1">{t('processing.title')}</h1>
+            <p className="lead">{t('processing.lead', { title: meeting.title, n: meeting.durationMin })}</p>
           </div>
-          <div
-            ref={pane}
-            className="processing__live-body"
-            tabIndex={0}
-            aria-label={t('processing.liveTitle')}
-            onScroll={(e) => {
-              const el = e.currentTarget;
-              pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
-            }}
-          >
-            <TranscriptLines lines={lines.slice(0, shown)} nameOf={nameOf} />
-            {shown < lines.length && <p className="processing__typing note">{t('processing.listening')}</p>}
+
+          <div className="processing__progress">
+            <ProgressBar value={elapsed / total} label={t('processing.progress')} />
+            <span className="processing__pct" aria-hidden>
+              {pct}%
+            </span>
           </div>
-        </section>
+
+          <ol className="steps" aria-live="polite">
+            {STEPS.map((key, i) => (
+              <li key={key} className={`step${i < step ? ' is-done' : i === step ? ' is-active' : ''}`} aria-current={i === step ? 'step' : undefined}>
+                {i < step ? (
+                  <span className="step__check" aria-hidden>
+                    <CheckIcon size={12} weight="bold" />
+                  </span>
+                ) : (
+                  <span className="step__dot" aria-hidden />
+                )}
+                {t(key)}
+                {i < step && <span className="sr-only"> — {t('processing.done')}</span>}
+              </li>
+            ))}
+          </ol>
+
+          <section className="card processing__live" aria-labelledby="proc-live">
+            <div className="processing__live-head">
+              <h2 id="proc-live" className="section-title">
+                {t('processing.liveTitle')}
+              </h2>
+              <span className="note">{t('processing.chunks', { n: shown, total: lines.length })}</span>
+            </div>
+            <div
+              ref={pane}
+              className="processing__live-body"
+              tabIndex={0}
+              aria-label={t('processing.liveTitle')}
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                pinned.current = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+              }}
+            >
+              <TranscriptLines lines={lines.slice(0, shown)} nameOf={nameOf} />
+              {shown < lines.length && <p className="processing__typing note">{t('processing.listening')}</p>}
+            </div>
+          </section>
+        </div>
       </div>
-      <p className="processing__note note">
-        <ShieldCheckIcon size={16} aria-hidden />
-        {t('processing.note')}
-      </p>
+      <div className="vp-center processing__note-row">
+        <p className="processing__note note">
+          <ShieldCheckIcon size={16} aria-hidden />
+          {t('processing.note')}
+        </p>
+      </div>
     </div>
   );
 }

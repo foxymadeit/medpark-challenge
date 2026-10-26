@@ -12,9 +12,9 @@
 .access-card { width: min(464px, 100%); }
 .onb__column { width: min(560px, 100%); }
 .onb__column--wide { width: min(800px, 100%); }
-.upload__column { width: min(560px, 100%); }
-.processing__box { width: min(560px, 100%); }
-.sent__done { width: min(464px, 100%); }
+.upload__column { max-width: 100%; } /* 560px wide (screens.css), never wider than the space */
+.processing__box { max-width: 100%; } /* 560px wide (screens.css), never wider than the space */
+.sent__done { max-width: 100%; } /* 464px wide (screens.css), never wider than the space */
 .modal { width: min(560px, 100%); }
 .modal--wide { width: min(640px, 100%); }
 .scrim:not(.scrim--right) { padding: 16px; }
@@ -34,6 +34,9 @@
   .topbar { padding: 0 var(--sm-space-4); }
   .topbar__menu { display: inline-flex; margin-right: var(--sm-space-1); }
   .brand { margin-right: auto; }
+
+  /* Sidebar is a drawer here: centre on the content (= the window). */
+  .app__body { --vp-offset: 0px; }
 
   /* Sidebar → slide-in drawer under the top bar. */
   .sidenav {

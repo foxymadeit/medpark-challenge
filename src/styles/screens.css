@@ -245,7 +245,8 @@
 .step.is-active { color: var(--sm-ink-primary); font-weight: 600; }
 .step__dot { width: 16px; height: 16px; border: 1.5px solid var(--sm-ink-tertiary); border-radius: 50%; }
 .step.is-active .step__dot { border: 2px solid var(--sm-ink-primary); }
-.processing__note { display: inline-flex; align-items: center; gap: var(--sm-space-2); margin-top: auto; }
+.processing__note { display: inline-flex; align-items: center; gap: var(--sm-space-2); }
+.processing__note-row { margin-top: auto; } /* keeps the note at the bottom */
 
 /* ── Review ── */
 .review { padding: 32px 48px 0; }
@@ -379,7 +380,7 @@
   border-top: 1px solid var(--sm-surface-hairline);
   background: var(--sm-surface-panel);
 }
-.action-bar > .btn { min-width: 184px; justify-content: center; } /* Preview and Send the same size */
+.action-bar .vp-center__group > .btn { min-width: 184px; justify-content: center; } /* Preview and Send the same size */
 .action-bar__left { position: absolute; left: 48px; top: 50%; transform: translateY(-50%); gap: var(--sm-space-2); }
 
 .t-data-md { font: 500 15px/20px var(--sm-font-data); }

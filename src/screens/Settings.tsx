@@ -74,19 +74,21 @@ export function Settings() {
         </section>
       </div>
 
-      <div className="page__actions">
-        {saved && (
-          <p className="row note" role="status">
-            <CheckIcon size={16} aria-hidden />
-            {t('settings.saved')}
-          </p>
-        )}
-        {/* Appears only once something differs from what is saved. */}
-        {dirty && (
-          <Button variant="primary" icon={<CheckIcon size={20} aria-hidden />} onClick={save}>
-            {t('settings.save')}
-          </Button>
-        )}
+      <div className="page__actions vp-center">
+        <div className="vp-center__group">
+          {saved && (
+            <p className="row note" role="status">
+              <CheckIcon size={16} aria-hidden />
+              {t('settings.saved')}
+            </p>
+          )}
+          {/* Appears only once something differs from what is saved. */}
+          {dirty && (
+            <Button variant="primary" icon={<CheckIcon size={20} aria-hidden />} onClick={save}>
+              {t('settings.save')}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

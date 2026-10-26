@@ -405,17 +405,17 @@ export function Review() {
         </section>
       </div>
 
-      <div className="action-bar">
+      {/* Buttons centred on the window (vp-center), not on the content area. */}
+      <div className="action-bar vp-center">
         <p className="action-bar__left note">{t('review.teach')}</p>
-        <Button
-          icon={<FileMagnifyingGlassIcon size={20} aria-hidden />}
-          onClick={() => setPreviewOpen(true)}
-        >
-          {t('review.preview')}
-        </Button>
-        <Button variant="ink" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send}>
-          {t('review.send')}
-        </Button>
+        <div className="vp-center__group">
+          <Button icon={<FileMagnifyingGlassIcon size={20} aria-hidden />} onClick={() => setPreviewOpen(true)}>
+            {t('review.preview')}
+          </Button>
+          <Button variant="ink" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send}>
+            {t('review.send')}
+          </Button>
+        </div>
       </div>
 
       {/* The MoM exactly as it will be sent, in a popup; download from here, or close and keep editing. */}

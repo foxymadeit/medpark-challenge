@@ -43,56 +43,59 @@ export function Sent() {
 
   return (
     <div className="page sent">
-      <div className="sent__done">
-        {/* Nothing here while sending (space kept so the text doesn't jump); the green check pops in when the bar is full. */}
-        <span className="sent__slot" aria-hidden>
-          {done && (
-            <span className="sent__badge is-done">
-              <CheckIcon size={28} className="sent__check-icon" />
-            </span>
+      {/* Centred on the window (vp-center), not on the content area. */}
+      <div className="vp-center">
+        <div className="sent__done">
+          {/* Nothing here while sending (space kept so the text doesn't jump); the green check pops in when the bar is full. */}
+          <span className="sent__slot" aria-hidden>
+            {done && (
+              <span className="sent__badge is-done">
+                <CheckIcon size={28} className="sent__check-icon" />
+              </span>
+            )}
+          </span>
+          <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
+            <h1 className="t-h1">
+              {meeting.title}
+            </h1>
+            <p className="lead" role="status" aria-live="polite">
+              {done ? t('sent.doneLead', { count: meeting.sentTo ?? withEmail.length }) : t('sent.sendingLead', { count: withEmail.length })}
+            </p>
+            {done && <p className="lead">{t('sent.saved', { date: formatDayMonth(meeting.date, lang) })}</p>}
+          </div>
+          {!done && (
+            <div className="processing__progress sent__progress">
+              {/* Symbolic: a bar that fills, no percentage. */}
+              <ProgressBar value={elapsed / total} label={t('sent.sending')} />
+            </div>
           )}
-        </span>
-        <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
-          <h1 className="t-h1">
-            {meeting.title}
-          </h1>
-          <p className="lead" role="status" aria-live="polite">
-            {done ? t('sent.doneLead', { count: meeting.sentTo ?? withEmail.length }) : t('sent.sendingLead', { count: withEmail.length })}
-          </p>
-          {done && <p className="lead">{t('sent.saved', { date: formatDayMonth(meeting.date, lang) })}</p>}
+
+
+          {done && (
+            <div className="sent__after">
+              <button
+                type="button"
+                className="link-btn"
+                disabled={pdfBusy}
+                aria-busy={pdfBusy}
+                onClick={async () => {
+                  setPdfBusy(true);
+                  try {
+                    await downloadMomPdf(meeting, t, lang);
+                  } finally {
+                    setPdfBusy(false);
+                  }
+                }}
+              >
+                <DownloadSimpleIcon size={16} aria-hidden />
+                {pdfBusy ? t('pdf.preparing') : t('sent.download')}
+              </button>
+              <Button variant="ink" onClick={() => navigate('/history')}>
+                {t('sent.toHistory')}
+              </Button>
+            </div>
+          )}
         </div>
-        {!done && (
-          <div className="processing__progress sent__progress">
-            {/* Symbolic: a bar that fills, no percentage. */}
-            <ProgressBar value={elapsed / total} label={t('sent.sending')} />
-          </div>
-        )}
-
-
-        {done && (
-          <div className="sent__after">
-            <button
-              type="button"
-              className="link-btn"
-              disabled={pdfBusy}
-              aria-busy={pdfBusy}
-              onClick={async () => {
-                setPdfBusy(true);
-                try {
-                  await downloadMomPdf(meeting, t, lang);
-                } finally {
-                  setPdfBusy(false);
-                }
-              }}
-            >
-              <DownloadSimpleIcon size={16} aria-hidden />
-              {pdfBusy ? t('pdf.preparing') : t('sent.download')}
-            </button>
-            <Button variant="ink" onClick={() => navigate('/history')}>
-              {t('sent.toHistory')}
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

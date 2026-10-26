@@ -262,26 +262,29 @@ export function HistoryRecord() {
         </section>
       </div>
 
-      <div className="page__actions no-print">
-        <Button variant="ink" icon={<ListChecksIcon size={20} aria-hidden />} onClick={() => setTplName(meeting.title)}>
-          {t('record.saveTemplate')}
-        </Button>
-        <Button
-          variant="ink"
-          icon={<DownloadSimpleIcon size={20} aria-hidden />}
-          disabled={pdfBusy}
-          aria-busy={pdfBusy}
-          onClick={async () => {
-            setPdfBusy(true);
-            try {
-              await downloadMomPdf(meeting, t, lang);
-            } finally {
-              setPdfBusy(false);
-            }
-          }}
-        >
-          {pdfBusy ? t('pdf.preparing') : t('record.download')}
-        </Button>
+      {/* Centred on the window (vp-center), not on the content area. */}
+      <div className="page__actions vp-center no-print">
+        <div className="vp-center__group">
+          <Button variant="ink" icon={<ListChecksIcon size={20} aria-hidden />} onClick={() => setTplName(meeting.title)}>
+            {t('record.saveTemplate')}
+          </Button>
+          <Button
+            variant="ink"
+            icon={<DownloadSimpleIcon size={20} aria-hidden />}
+            disabled={pdfBusy}
+            aria-busy={pdfBusy}
+            onClick={async () => {
+              setPdfBusy(true);
+              try {
+                await downloadMomPdf(meeting, t, lang);
+              } finally {
+                setPdfBusy(false);
+              }
+            }}
+          >
+            {pdfBusy ? t('pdf.preparing') : t('record.download')}
+          </Button>
+        </div>
       </div>
 
       {tplName !== null && (
