@@ -92,7 +92,7 @@ button {
 .t-button  { font: 500 15px/20px var(--sm-font-body); }
 .t-strong  { font: 600 15px/22px var(--sm-font-body); }
 
-.t-data-sm { font: 400 13px/18px var(--sm-font-data); }
+.t-data-sm { font: 400 13px/18px var(--sm-font-body); font-variant-numeric: tabular-nums; }
 
 .c-secondary { color: var(--sm-ink-secondary); }
 .c-tertiary  { color: var(--sm-ink-tertiary); }
