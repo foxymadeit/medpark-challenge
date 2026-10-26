@@ -118,7 +118,7 @@
     "colAccess": "Acces",
     "emptyTitle": "Adăugați persoanele care participă la ședințele dvs.",
     "emptyLead": "Numele ajută AI-ul să atribuie sarcinile. E-mailurile decid cine primește procesul-verbal.",
-    "add": "Creează participant nou",
+    "add": "Participant nou",
     "customRole": "+ Funcție personalizată",
     "customRolePh": "Funcție personalizată",
     "roleFor": "Funcția pentru {name}",

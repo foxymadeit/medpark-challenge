@@ -121,7 +121,7 @@ export const en = {
     colAccess: 'Access',
     emptyTitle: 'Add the people who attend your meetings',
     emptyLead: 'Names help the AI match tasks to people. Emails decide who gets the minutes.',
-    add: 'Create new participant',
+    add: 'New participant',
     customRole: '+ Custom role',
     customRolePh: 'Custom role',
     roleFor: 'Role for {name}',
