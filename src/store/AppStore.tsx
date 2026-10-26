@@ -24,6 +24,8 @@ export interface Draft {
 export interface DraftParticipant {
   name: string;
   role?: string;
+  /** Guests added by email only (no name): the minutes go to this address. */
+  email?: string;
 }
 
 interface State {
@@ -178,7 +180,7 @@ function useStoreValue() {
         if (known) {
           if (!participants.some((x) => x.personId === known.id)) participants.push(snapshot(known.id)!);
         } else if (!participants.some((x) => x.name.toLowerCase() === chip.name.toLowerCase())) {
-          participants.push({ personId: uid('guest'), name: chip.name, roleThen: chip.role ?? '' });
+          participants.push({ personId: uid('guest'), name: chip.name, email: chip.email, roleThen: chip.role ?? '' });
         }
       }
       // Meetings can't be dated ahead (the picker also blocks it); an older saved future date falls back to today.

@@ -72,6 +72,8 @@ export interface Task {
   patient: string; // "Bed 8", "Room 204"
   title: string;
   due: string; // ISO date
+  /** Checked on Review before sending: Send stays off until every action item is confirmed. */
+  confirmed?: boolean;
 }
 
 /** Participant as recorded at the meeting date — frozen once sent. */

@@ -29,6 +29,28 @@
 /* Figma "Brand": "min" bold in the logo blue. */
 .wordmark__min { color: var(--sm-brand); font-weight: 700; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
+/* Privacy note: quiet like the header's secondary text; tooltip looks like the avatar name tips. */
+.privacy { position: relative; display: inline-flex; }
+.privacy__button { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none; color: var(--sm-ink-secondary); font: 500 13px/18px var(--sm-font-body); white-space: nowrap; cursor: help; }
+.privacy__tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: max-content;
+  max-width: 280px;
+  padding: 6px 10px;
+  border-radius: var(--sm-radius-inner);
+  background: var(--sm-control);
+  color: var(--sm-surface-panel);
+  font: 500 13px/18px var(--sm-font-body);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s ease;
+}
+.privacy:hover .privacy__tip, .privacy:focus-within .privacy__tip, .privacy.is-open .privacy__tip { opacity: 1; visibility: visible; }
+@media (prefers-reduced-motion: reduce) { .privacy__tip { transition: none; } }
 .account { position: relative; }
 .account__button {
   display: flex;

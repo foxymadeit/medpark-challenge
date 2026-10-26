@@ -197,7 +197,7 @@ export function PersonProfileDialog({ personId, onClose, showManage = true }: { 
 }
 
 /** Profile preview for someone who isn't in the directory yet (a name typed on New meeting): what we know about them. */
-export function GuestProfileDialog({ name, role, onClose }: { name: string; role?: string; onClose: () => void }) {
+export function GuestProfileDialog({ name, role, email, onClose }: { name: string; role?: string; email?: string; onClose: () => void }) {
   const { t } = useI18n();
   return (
     <Dialog title={t('profile.title')} onClose={onClose}>
@@ -213,7 +213,7 @@ export function GuestProfileDialog({ name, role, onClose }: { name: string; role
       <dl className="profile__facts">
         <div>
           <dt>{t('profile.email')}</dt>
-          <dd className="c-secondary">{t('review.noEmail')}</dd>
+          <dd className={email ? undefined : 'c-secondary'}>{email ?? t('review.noEmail')}</dd>
         </div>
         <div>
           <dt>{t('profile.role')}</dt>
@@ -224,7 +224,7 @@ export function GuestProfileDialog({ name, role, onClose }: { name: string; role
           <dd>{t('profile.guest')}</dd>
         </div>
       </dl>
-      <p className="note">{t('profile.guestNote')}</p>
+      {!email && <p className="note">{t('profile.guestNote')}</p>}
     </Dialog>
   );
 }

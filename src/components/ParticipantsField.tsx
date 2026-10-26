@@ -5,13 +5,15 @@ import type { DraftParticipant } from '../store/AppStore';
 import { useStore } from '../store/AppStore';
 import { defaultParticipants } from '../mocks/defaultParticipants';
 import { demoPeople } from '../mocks';
+import { isEmail } from '../lib/format';
+import { suggestByName } from '../lib/participants';
 import { Avatar } from './Avatar';
 import { GuestProfileDialog, PersonProfileDialog } from './PersonProfile';
 
 type Suggestion = DraftParticipant;
 
 /** The typed letters underlined at the start of the matching name, so it's clear why it was suggested. */
-function Highlight({ text, query }: { text: string; query: string }) {
+export function Highlight({ text, query }: { text: string; query: string }) {
   // The start of the word that matched (skipping titles like "Dr.").
   const lower = text.toLowerCase();
   const i = [...lower.matchAll(/\S+/g)].find((m) => !/^(dr|prof)\.?$/.test(m[0]) && m[0].startsWith(query))?.index ?? -1;
@@ -47,20 +49,7 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
   const known: Suggestion[] = [...people.map((p) => ({ name: p.name, role: p.role })), ...Object.values(defaultParticipants).flat()].filter(
     (p, i, all) => all.findIndex((x) => x.name.toLowerCase() === p.name.toLowerCase()) === i,
   );
-  // Only names whose first name or surname starts with what's typed ("a" → Ana, Andrei; not Maria).
-  // First-name matches come first, then surname matches. Titles like "Dr." are ignored; role and email aren't searched.
-  const words = (name: string) =>
-    name
-      .toLowerCase()
-      .split(/\s+/)
-      .filter((w) => !/^(dr|prof)\.?$/.test(w));
-  const rank = (name: string) => (words(name)[0]?.startsWith(q) ? 0 : words(name).some((w) => w.startsWith(q)) ? 1 : 2);
-  const suggestions = q
-    ? known
-        .filter((p) => !has(p.name) && rank(p.name) < 2)
-        .sort((a, b) => rank(a.name) - rank(b.name) || words(a.name).join(" ").localeCompare(words(b.name).join(" ")))
-        .slice(0, 6)
-    : [];
+  const suggestions = suggestByName(known, q, (p) => has(p.name));
   const showList = suggestions.length > 0;
 
   useEffect(() => setActive(-1), [q]);
@@ -68,10 +57,19 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
   const add = (p: DraftParticipant) => {
     const name = p.name.trim();
     setInput('');
+    setError(undefined);
     if (!name || has(name)) return;
     onChange([...participants, { ...p, name }]);
   };
+  const [error, setError] = useState<string>();
   const addTyped = () => {
+    const text = input.trim();
+    // Only an email: a guest who gets the minutes at that address (format checked).
+    if (text.includes('@')) {
+      if (!isEmail(text)) return setError(t('common.emailInvalid'));
+      const byEmail = people.find((p) => p.email?.toLowerCase() === text.toLowerCase());
+      return add(byEmail ? { name: byEmail.name, role: byEmail.role } : { name: text, email: text });
+    }
     const match = known.find((p) => p.name.toLowerCase() === q);
     add(match ?? { name: input });
   };
@@ -127,7 +125,9 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
             aria-controls={`${id}-list`}
             aria-autocomplete="list"
             aria-activedescendant={showList && active >= 0 ? `${id}-opt-${active}` : undefined}
-            onChange={(e) => setInput(e.target.value.replace(',', ''))}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? `${id}-err` : undefined}
+            onChange={(e) => (setInput(e.target.value.replace(',', '')), setError(undefined))}
             onKeyDown={onKey}
             onBlur={(e) => {
               // Clicking a suggestion blurs the input first; let the click land.
@@ -161,11 +161,16 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
           </ul>
         )}
       </div>
+      {error && (
+        <p id={`${id}-err`} className="field__error" role="alert">
+          {error}
+        </p>
+      )}
       {profile &&
         (inDirectory(profile.name) ? (
           <PersonProfileDialog personId={inDirectory(profile.name)!.id} onClose={() => setProfile(null)} />
         ) : (
-          <GuestProfileDialog name={profile.name} role={profile.role} onClose={() => setProfile(null)} />
+          <GuestProfileDialog name={profile.name} role={profile.role} email={profile.email} onClose={() => setProfile(null)} />
         ))}
     </div>
   );

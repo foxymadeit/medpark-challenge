@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, DownloadSimpleIcon, FileAudioIcon, FilePdfIcon, ListChecksIcon, LockSimpleIcon, MagnifyingGlassIcon, MicrophoneIcon, UploadSimpleIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, DownloadSimpleIcon, FilePdfIcon, ListChecksIcon, LockSimpleIcon, MagnifyingGlassIcon, MicrophoneIcon, UploadSimpleIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
@@ -149,7 +149,7 @@ export function HistoryRecord() {
   const { id } = useParams();
   const { meetings, resolvePerson, saveTemplate } = useStore();
   const navigate = useNavigate();
-  const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [tab, setTab] = useState<'mom' | 'transcript'>('mom'); // MoM first
   const [pdfBusy, setPdfBusy] = useState(false);
   const meeting = meetings.find((m) => m.id === id);
   const [tplName, setTplName] = useState<string | null>(null); // null = dialog closed
@@ -189,6 +189,28 @@ export function HistoryRecord() {
         {t('record.banner', { date: fullDate })}
       </p>
 
+      <div className="review__tabs no-print">
+        <Segmented<'mom' | 'transcript'>
+          label={t('review.view')}
+          variant="auto"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'mom', label: t('review.tabMom') },
+            { value: 'transcript', label: t('review.transcript') },
+          ]}
+        />
+      </div>
+
+      {tab === 'transcript' ? (
+        // Read-only, like the Transcript tab on Review.
+        <section className="card card--pad record__transcript" aria-labelledby="rec-transcript">
+          <h2 id="rec-transcript" className="section-title">
+            {t('review.transcript')}
+          </h2>
+          <TranscriptLines lines={meeting.transcript} nameOf={nameOf} />
+        </section>
+      ) : (
       <div className="record__panes">
         <section className="card record__people" aria-labelledby="rec-people">
           <h2 id="rec-people" className="section-title record__people-head">
@@ -255,12 +277,9 @@ export function HistoryRecord() {
                 ))}
             </tbody>
           </table>
-          <button type="button" className="link-btn no-print" onClick={() => setTranscriptOpen(true)}>
-            <FileAudioIcon size={16} aria-hidden />
-            {t('record.openTranscript')}
-          </button>
         </section>
       </div>
+      )}
 
       {/* Centred on the window (vp-center), not on the content area. */}
       <div className="page__actions vp-center no-print">
@@ -296,12 +315,6 @@ export function HistoryRecord() {
               {t('templates.save')}
             </Button>
           </form>
-        </Dialog>
-      )}
-      {transcriptOpen && (
-        <Dialog title={t('review.transcript')} onClose={() => setTranscriptOpen(false)} wide>
-          <p className="note">{t('review.highlighted')}</p>
-          <TranscriptLines lines={meeting.transcript} nameOf={nameOf} />
         </Dialog>
       )}
     </div>

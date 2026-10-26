@@ -78,6 +78,8 @@
 
 /* ── ≤640: phone ── */
 @media (max-width: 640px) {
+  /* Phone: the privacy note keeps its lock (and tooltip); the words stay for screen readers only. */
+  .privacy__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   /* Phone: the date drops under the name, left-aligned. */
   .new-meeting__main { --nm-cols: minmax(0, 1fr); } /* cards and name/date go to one column: the date drops under the name */
   .headline-row .datepicker, .headline-block:has(.headline-input) + .datepicker { margin-top: 0; }
@@ -157,4 +159,9 @@
   .side-panel { padding: var(--sm-space-6); }
   .modal { padding: var(--sm-space-6); }
   .modal .row:has(> .field) { flex-direction: column; align-items: stretch !important; }
+}
+
+/* Review bar: when the centred buttons (+ "3/5 confirmed") would reach the left note, drop the note (phones keep it on its own line). */
+@media (min-width: 641px) and (max-width: 1400px) {
+  .action-bar__left { display: none; }
 }

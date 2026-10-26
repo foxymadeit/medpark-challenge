@@ -1,4 +1,4 @@
-import { CaretDownIcon, ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, ClockCounterClockwiseIcon, LockSimpleIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
@@ -99,6 +99,38 @@ function LanguageSwitch() {
         </ul>
       )}
     </div>
+  );
+}
+
+/**
+ * Quiet privacy note next to the language switch: lock + "Hospital network only".
+ * Hover, keyboard focus or a tap shows the tooltip; a tap elsewhere or Esc hides it.
+ */
+function PrivacyBadge() {
+  const { t } = useI18n();
+  const id = useId();
+  const [open, setOpen] = useState(false); // tap / click toggles it on touch screens
+  const wrap = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => !wrap.current?.contains(e.target as Node) && setOpen(false);
+    const onKey = (e: globalThis.KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => (document.removeEventListener('mousedown', onDown), document.removeEventListener('keydown', onKey));
+  }, [open]);
+
+  return (
+    <span className={`privacy${open ? ' is-open' : ''}`} ref={wrap}>
+      <button type="button" className="privacy__button" aria-describedby={`${id}-tip`} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <LockSimpleIcon size={14} aria-hidden />
+        <span className="privacy__label">{t('privacy.label')}</span>
+      </button>
+      <span role="tooltip" id={`${id}-tip`} className="privacy__tip">
+        {t('privacy.tip')}
+      </span>
+    </span>
   );
 }
 
@@ -204,6 +236,7 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
         </span>
       </Link>
       <div className="topbar__right">
+        <PrivacyBadge />
         <LanguageSwitch />
         {showAccount && account && <AccountMenu />}
       </div>
@@ -244,6 +277,7 @@ export function AccessLayout() {
     <div className="app">
       {/* No top bar here: the big greeting is the brand. Only the language switch stays, top right. */}
       <div className="access-lang">
+        <PrivacyBadge />
         <LanguageSwitch />
       </div>
       <main id="main" className="main main--center main--access">

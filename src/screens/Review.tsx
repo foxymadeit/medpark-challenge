@@ -1,4 +1,4 @@
-import { CaretDownIcon, CheckIcon, DownloadSimpleIcon, FileMagnifyingGlassIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
+import { CheckIcon, DownloadSimpleIcon, FileMagnifyingGlassIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
@@ -9,15 +9,14 @@ import { MomPreview } from '../components/MomPreview';
 import { Dropdown } from '../components/Dropdown';
 import { TranscriptLines } from '../components/Minutes';
 import { PeopleStack } from '../components/PeopleStack';
+import { RecipientsField } from '../components/RecipientsField';
+import { Segmented } from '../components/Segmented';
 import { useI18n } from '../i18n/I18nProvider';
 import { addDays, DUE_OFFSETS, dueRelative, formatDayMonth, formatWeekdayDate, isEmail, uid } from '../lib/format';
 import { speakerNamer } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
-import { lineTokens } from '../lib/transcript';
-import { detectedLanguages } from '../mocks';
-import { AddParticipantModal } from './Participants';
 import { useStore } from '../store/AppStore';
-import type { Meeting, Person, Task } from '../types';
+import type { Meeting, Task } from '../types';
 
 /** Deadline as said in the meeting ("Tomorrow", "In 3 days"…) plus the date it resolves to. */
 function useDueLabel(meetingDate: string) {
@@ -130,89 +129,17 @@ function EditableTitle({ meeting }: { meeting: Meeting }) {
   );
 }
 
-const NOT_SET = '__who__';
-const NEW = '__new__';
-
-/**
- * What the recording contained beyond the participant list: languages spoken and voices that
- * didn't match anyone invited. Each voice can be assigned to a person from the directory.
- */
-function HeardPanel({ meeting, voiceName, unknown }: { meeting: Meeting; voiceName: (id: string) => string; unknown: string[] }) {
-  const { t } = useI18n();
-  const { people, updateMeeting } = useStore();
-  const invited = new Set(meeting.participants.map((p) => p.personId));
-  const candidates = people.filter((p) => !invited.has(p.id));
-
-  const [creatingFor, setCreatingFor] = useState<string | null>(null);
-  const assign = (voiceId: string, personId: string, created?: Omit<Person, 'id'>) => {
-    const person = created ?? people.find((p) => p.id === personId);
-    if (!person) return;
-    updateMeeting(meeting.id, {
-      transcript: meeting.transcript.map((l) => (l.speakerId === voiceId ? { ...l, speakerId: personId } : l)),
-      participants: [...meeting.participants, { personId, name: person.name, roleThen: person.role, email: person.email }],
-    });
-  };
-
-  return (
-    <div className="heard">
-      <div className="heard__row">
-        <span className="heard__label">{t('review.heard.languages')}</span>
-        <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
-          {detectedLanguages.map((l) => (
-            <span key={l} className="tag">
-              {t(`lang.${l}Name`)}
-            </span>
-          ))}
-        </span>
-      </div>
-      {unknown.length > 0 && (
-        <div className="heard__row heard__row--voices">
-          <span className="heard__label">{t('review.heard.voices')}</span>
-          <ul className="heard__voices">
-            {unknown.map((id) => {
-              const lines = meeting.transcript.filter((l) => l.speakerId === id);
-              return (
-                <li key={id} className="heard__voice">
-                  <span className="voice__dot" style={{ background: 'var(--sm-ink-tertiary)' }} aria-hidden />
-                  <span className="who__text" style={{ flex: 1, minWidth: 0 }}>
-                    <span className="who__name">{voiceName(id)}</span>
-                    <span className="who__sub">{t('review.heard.lines', { count: lines.length, times: lines.map((l) => l.at).join(', ') })}</span>
-                  </span>
-                  <Dropdown
-                    label={t('review.heard.who', { name: voiceName(id) })}
-                    value={NOT_SET}
-                    width={200}
-                    options={[
-                      { value: NOT_SET, label: t('review.heard.whoShort') },
-                      ...candidates.map((p) => ({ value: p.id, label: p.name })),
-                      { value: NEW, label: t('review.heard.newPerson') },
-                    ]}
-                    onChange={(v) => (v === NEW ? setCreatingFor(id) : v !== NOT_SET && assign(id, v))}
-                  />
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-      {creatingFor && (
-        <AddParticipantModal onClose={() => setCreatingFor(null)} onAdded={(pid, person) => assign(creatingFor, pid, person)} />
-      )}
-    </div>
-  );
-}
-
-/** 05 — Review the AI minutes, then send. Every editable value carries a pen. */
+/** 05 — Review the AI minutes, then send. MoM tab: everything editable (pen) + confirm each action item; Transcript tab: read-only. */
 export function Review() {
   const { t, lang } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { account, meetings, setTasks, setSummary, sendMeeting, resolvePerson, correctToken, removeToken, flagTokenLang, editLine, removeLine, updateMeeting } = useStore();
-  // Last removal, so a slip can be undone.
-  const [removed, setRemoved] = useState<{ label: string; transcript: Meeting['transcript'] } | null>(null);
+  const { account, meetings, setTasks, setSummary, sendMeeting, resolvePerson, updateMeeting } = useStore();
   const meeting = meetings.find((m) => m.id === id);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [row, setRow] = useState<Task | null>(null);
+  const [tab, setTab] = useState<'mom' | 'transcript'>('mom'); // MoM first
+  const [previewOpen, setPreviewOpen] = useState(false); // MoM text preview popup
   const dueLabel = useDueLabel(meeting?.date ?? '');
 
   const sent = useRef(false);
@@ -228,13 +155,13 @@ export function Review() {
   if (meeting.status === 'sent' && !sent.current) return <Navigate to={`/history/${meeting.id}`} replace />;
   if (meeting.status === 'processing') return <Navigate to={`/processing/${meeting.id}`} replace />;
 
-  // Voices in the transcript that aren't meeting participants (unknown voices and uninvited colleagues).
-  const [transcriptOpen, setTranscriptOpen] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false); // MoM text preview popup
-  const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id));
   const nameOf = speakerNamer(meeting, resolvePerson, t);
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
   const dueOptions = [...new Set([...DUE_OFFSETS.map((n) => addDays(meeting.date, n)), ...(row ? [row.due] : [])])].sort();
+  // Send is on only when every action item is confirmed.
+  const confirmed = meeting.tasks.filter((x) => x.confirmed).length;
+  const allConfirmed = confirmed === meeting.tasks.length;
+  const toggleConfirm = (task: Task) => setTasks(meeting.id, meeting.tasks.map((x) => (x.id === task.id ? { ...x, confirmed: !x.confirmed } : x)));
 
   const isNew = !!row && !meeting.tasks.some((x) => x.id === row.id);
   // A new task shows as an editing row on top; it's only added once saved.
@@ -248,11 +175,13 @@ export function Review() {
   const cancelRow = () => (setEditingId(null), setRow(null));
   const saveRow = () => {
     if (row && row.title.trim()) {
-      const clean = { ...row, title: row.title.trim(), patient: row.patient.trim() };
+      // An edited (or new) action item needs confirming again.
+      const clean = { ...row, title: row.title.trim(), patient: row.patient.trim(), confirmed: false };
       setTasks(meeting.id, isNew ? [...meeting.tasks, clean] : meeting.tasks.map((x) => (x.id === row.id ? clean : x)));
     }
     cancelRow();
   };
+  const sendBlocked = allConfirmed ? undefined : t('review.confirmAllFirst');
 
   return (
     <div className="page review">
@@ -264,155 +193,157 @@ export function Review() {
         <PeopleStack ids={meeting.participants.map((p) => p.personId)} names={false} max={6} />
       </header>
 
-      <div className="review__panes">
-
-        <section className="card review__pane review__pane--tasks" aria-labelledby="rv-summary" tabIndex={0}>
-          {/* The MoM: written summary first, then the tasks. */}
-          <SummaryPoints
-            points={meeting.summary ?? []}
-            onChange={(points) => setSummary(meeting.id, points)}
-            head={
-              <h2 id="rv-summary" className="review__pane-title">
-                {t('review.summary')}
-              </h2>
-            }
-          />
-          <div className="summary-head summary-head--tasks">
-            <h3 className="review__sub-title">{t('review.tasks')}</h3>
-            <button type="button" className="btn btn--ghost summary-head__add" onClick={addTask} disabled={isNew}>
-              <PlusIcon size={16} aria-hidden />
-              {t('review.addTask')}
-            </button>
-          </div>
-          <table className="summary-table">
-            <thead>
-              <tr>
-                <th scope="col">
-                  {/* "Tasks" is already the heading above; keep the column name for screen readers only. */}
-                  <span className="sr-only">{t('review.task')}</span>
-                </th>
-                <th scope="col">{t('review.owner')}</th>
-                <th scope="col">{t('review.due')}</th>
-                <th scope="col">
-                  <span className="sr-only">{t('review.edit')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((task) =>
-                editingId === task.id && row ? (
-                  <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
-                    <td>
-                      <input className="input input--inline summary-table__patient-input" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
-                      <input className="input input--inline" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? saveRow() : e.key === 'Escape' ? cancelRow() : undefined)} />
-                    </td>
-                    <td>
-                      <Dropdown variant="field" label={t('review.owner')} value={row.ownerId} options={meeting.participants.map((x) => ({ value: x.personId, label: x.name }))} onChange={(v) => setRow({ ...row, ownerId: v })} />
-                    </td>
-                    <td>
-                      <Dropdown variant="field" label={t('review.due')} value={row.due} options={dueOptions.map((d) => ({ value: d, label: [dueLabel(d).rel, dueLabel(d).date].filter(Boolean).join(' · ') }))} onChange={(v) => setRow({ ...row, due: v })} />
-                    </td>
-                    <td>
-                      <span className="row" style={{ gap: 4 }}>
-                        {row.title.trim() && (isNew || !(row.title === task.title && row.patient === task.patient && row.ownerId === task.ownerId && row.due === task.due)) && (
-                          <button type="button" className="icon-btn icon-btn--confirm" aria-label={t('review.save')} title={t('review.save')} onClick={saveRow}>
-                            <CheckIcon size={16} aria-hidden />
-                          </button>
-                        )}
-                        <button type="button" className="icon-btn" aria-label={t('review.cancel')} title={t('review.cancel')} onClick={cancelRow}>
-                          <XIcon size={16} aria-hidden />
-                        </button>
-                      </span>
-                    </td>
-                  </tr>
-                ) : (
-                  <tr key={task.id}>
-                    <td>
-                      {task.patient && <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>}
-                      <span className="t-body-md">{task.title}</span>
-                    </td>
-                    <td>
-                      <span className="summary-table__owner">
-                        <Avatar name={nameOf(task.ownerId)} />
-                        <span className="who__text">
-                          <span className="who__name truncate">{nameOf(task.ownerId)}</span>
-                          <OwnerEmail meeting={meeting} personId={task.ownerId} name={nameOf(task.ownerId)} />
-                        </span>
-                      </span>
-                    </td>
-                    <td>
-                      <span className="due">
-                        <span className="due__rel">{dueLabel(task.due).rel}</span>
-                        {dueLabel(task.due).date && <span className="due__date">{dueLabel(task.due).date}</span>}
-                      </span>
-                    </td>
-                    <td>
-                      <EditButton label={t('review.editTask', { title: task.title })} onClick={() => startRow(task)} />
-                    </td>
-                  </tr>
-                ),
-              )}
-            </tbody>
-          </table>
-        </section>
-
-        {/* Collapsed by default so the minutes (summary, tasks) come first; opens for word-level fixes. */}
-        <section className={`card review__pane review__pane--transcript${transcriptOpen ? ' is-open' : ''}`} aria-labelledby="rv-transcript">
-          <h2 className="review__pane-title">
-            <button type="button" id="rv-transcript" className="review__disclosure" aria-expanded={transcriptOpen} aria-controls="rv-transcript-body" onClick={() => setTranscriptOpen((o) => !o)}>
-              <span>{t('review.transcript')}</span>
-              <span className="review__disclosure-meta note">
-                {t('review.transcriptMeta', { count: meeting.transcript.length })}
-                {unknown.length > 0 && ` · ${t('review.voicesToName', { count: unknown.length })}`}
-              </span>
-              <span className="review__disclosure-action" aria-hidden>
-                {transcriptOpen ? t('review.transcriptHide') : t('review.transcriptCheck')}
-                <CaretDownIcon size={18} className="review__disclosure-caret" />
-              </span>
-            </button>
-          </h2>
-          {/* Always mounted so it can grow downwards; inert (unfocusable, hidden from AT) while closed. */}
-          <div id="rv-transcript-body" className="review__transcript-body" inert={!transcriptOpen}>
-          <div className="review__transcript-inner">
-          <p className="note review__hint">{t('review.word.hint')}</p>
-          {removed && (
-            <p className="undo-bar" role="status">
-              <span className="truncate">{removed.label}</span>
-              <button type="button" className="link-btn" onClick={() => (updateMeeting(meeting.id, { transcript: removed.transcript }), setRemoved(null))}>
-                {t('review.word.undo')}
-              </button>
-            </p>
-          )}
-          <HeardPanel meeting={meeting} voiceName={nameOf} unknown={unknown} />
-          <TranscriptLines
-            lines={meeting.transcript}
-            nameOf={nameOf}
-            onCorrect={(line, token, value) => (correctToken(meeting.id, line, token, value), setRemoved(null))}
-            onRemove={(line, token) => {
-              const tok = lineTokens(meeting.transcript[line])[token];
-              setRemoved({ label: t('review.word.removed', { word: tok?.text ?? '' }), transcript: meeting.transcript });
-              removeToken(meeting.id, line, token);
-            }}
-            onFlagLang={(line, token, l) => flagTokenLang(meeting.id, line, token, l)}
-            onEditLine={(line, text) => (editLine(meeting.id, line, text), setRemoved(null))}
-            onRemoveLine={(line) => {
-              setRemoved({ label: t('review.sentence.removed', { time: meeting.transcript[line].at }), transcript: meeting.transcript });
-              removeLine(meeting.id, line);
-            }}
-          />
-          </div>
-          </div>
-        </section>
+      <div className="review__tabs">
+        <Segmented<'mom' | 'transcript'>
+          label={t('review.view')}
+          variant="auto"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'mom', label: t('review.tabMom') },
+            { value: 'transcript', label: t('review.transcript') },
+          ]}
+        />
       </div>
+
+      {tab === 'mom' ? (
+        <div className="review__panes">
+          <section className="card review__pane review__pane--tasks" aria-labelledby="rv-summary">
+            {/* The MoM: written summary first, then the tasks. */}
+            <SummaryPoints
+              points={meeting.summary ?? []}
+              onChange={(points) => setSummary(meeting.id, points)}
+              head={
+                <h2 id="rv-summary" className="review__pane-title">
+                  {t('review.summary')}
+                </h2>
+              }
+            />
+            <div className="summary-head summary-head--tasks">
+              <h3 className="review__sub-title">{t('review.tasks')}</h3>
+              <button type="button" className="btn btn--ghost summary-head__add" onClick={addTask} disabled={isNew}>
+                <PlusIcon size={16} aria-hidden />
+                {t('review.addTask')}
+              </button>
+            </div>
+            <table className="summary-table">
+              <thead>
+                <tr>
+                  <th scope="col">
+                    {/* "Tasks" is already the heading above; keep the column name for screen readers only. */}
+                    <span className="sr-only">{t('review.task')}</span>
+                  </th>
+                  <th scope="col">{t('review.owner')}</th>
+                  <th scope="col">{t('review.due')}</th>
+                  <th scope="col">
+                    <span className="sr-only">{t('review.actions')}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((task) =>
+                  editingId === task.id && row ? (
+                    <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
+                      <td>
+                        <input className="input input--inline summary-table__patient-input" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
+                        <input className="input input--inline" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? saveRow() : e.key === 'Escape' ? cancelRow() : undefined)} />
+                      </td>
+                      <td>
+                        <Dropdown variant="field" label={t('review.owner')} value={row.ownerId} options={meeting.participants.map((x) => ({ value: x.personId, label: x.name }))} onChange={(v) => setRow({ ...row, ownerId: v })} />
+                      </td>
+                      <td>
+                        <Dropdown variant="field" label={t('review.due')} value={row.due} options={dueOptions.map((d) => ({ value: d, label: [dueLabel(d).rel, dueLabel(d).date].filter(Boolean).join(' · ') }))} onChange={(v) => setRow({ ...row, due: v })} />
+                      </td>
+                      <td>
+                        <span className="row" style={{ gap: 4 }}>
+                          {row.title.trim() && (isNew || !(row.title === task.title && row.patient === task.patient && row.ownerId === task.ownerId && row.due === task.due)) && (
+                            <button type="button" className="icon-btn icon-btn--confirm" aria-label={t('review.save')} title={t('review.save')} onClick={saveRow}>
+                              <CheckIcon size={16} aria-hidden />
+                            </button>
+                          )}
+                          <button type="button" className="icon-btn" aria-label={t('review.cancel')} title={t('review.cancel')} onClick={cancelRow}>
+                            <XIcon size={16} aria-hidden />
+                          </button>
+                        </span>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr key={task.id} className={task.confirmed ? 'is-confirmed' : undefined}>
+                      <td>
+                        {task.patient && <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>}
+                        <span className="t-body-md">{task.title}</span>
+                      </td>
+                      <td>
+                        <span className="summary-table__owner">
+                          <Avatar name={nameOf(task.ownerId)} />
+                          <span className="who__text">
+                            <span className="who__name truncate">{nameOf(task.ownerId)}</span>
+                            <OwnerEmail meeting={meeting} personId={task.ownerId} name={nameOf(task.ownerId)} />
+                          </span>
+                        </span>
+                      </td>
+                      <td>
+                        <span className="due">
+                          <span className="due__rel">{dueLabel(task.due).rel}</span>
+                          {dueLabel(task.due).date && <span className="due__date">{dueLabel(task.due).date}</span>}
+                        </span>
+                      </td>
+                      <td>
+                        {/* Confirm (tap again to undo) and Edit. */}
+                        <span className="task-actions">
+                          <button
+                            type="button"
+                            className="icon-btn task-confirm"
+                            aria-pressed={!!task.confirmed}
+                            aria-label={task.confirmed ? t('review.unconfirmTask', { title: task.title }) : t('review.confirmTask', { title: task.title })}
+                            title={task.confirmed ? t('review.unconfirm') : t('review.confirm')}
+                            onClick={() => toggleConfirm(task)}
+                          >
+                            <CheckIcon size={16} weight={task.confirmed ? 'bold' : 'regular'} aria-hidden />
+                          </button>
+                          <EditButton label={t('review.editTask', { title: task.title })} onClick={() => startRow(task)} />
+                        </span>
+                      </td>
+                    </tr>
+                  ),
+                )}
+              </tbody>
+            </table>
+          </section>
+
+          {/* Who gets the MoM: saved participants, new names, or guests by email. */}
+          <section className="card review__pane" aria-labelledby="rv-recipients">
+            <h2 id="rv-recipients" className="review__pane-title">
+              {t('recipients.title')}
+            </h2>
+            <RecipientsField meeting={meeting} onChange={(participants) => updateMeeting(meeting.id, { participants })} />
+          </section>
+        </div>
+      ) : (
+        <div className="review__panes">
+          {/* Read-only: no edits, no confirms, no inputs. */}
+          <section className="card review__pane" aria-labelledby="rv-transcript">
+            <h2 id="rv-transcript" className="review__pane-title">
+              {t('review.transcript')}
+            </h2>
+            <TranscriptLines lines={meeting.transcript} nameOf={nameOf} />
+          </section>
+        </div>
+      )}
 
       {/* Buttons centred on the window (vp-center), not on the content area. */}
       <div className="action-bar vp-center">
         <p className="action-bar__left note">{t('review.teach')}</p>
         <div className="vp-center__group">
+          {meeting.tasks.length > 0 && (
+            <span className={`review__confirmed note${allConfirmed ? ' is-done' : ''}`} role="status">
+              {t('review.confirmedCount', { n: confirmed, total: meeting.tasks.length })}
+            </span>
+          )}
           <Button icon={<FileMagnifyingGlassIcon size={20} aria-hidden />} onClick={() => setPreviewOpen(true)}>
             {t('review.preview')}
           </Button>
-          <Button variant="ink" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send}>
+          <Button variant="ink" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send} disabled={!allConfirmed} title={sendBlocked}>
             {t('review.send')}
           </Button>
         </div>
@@ -429,6 +360,8 @@ export function Review() {
             <Button
               variant="ink"
               icon={<PaperPlaneTiltIcon size={20} aria-hidden />}
+              disabled={!allConfirmed}
+              title={sendBlocked}
               onClick={() => {
                 setPreviewOpen(false);
                 send();

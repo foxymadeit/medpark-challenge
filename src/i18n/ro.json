@@ -202,7 +202,7 @@
     "templateClear": "Anulează șablonul",
     "fromTemplate": "Șablon: {name}",
     "emails": "Participanți",
-    "emailsPh": "Adăugați un nume…",
+    "emailsPh": "Adăugați nume sau e-mail…",
     "removeEmail": "Elimină {email}",
     "suggestions": "Participanți",
     "record": "Începe înregistrarea",
@@ -279,7 +279,6 @@
     "meta_few": "{type} · {n} min · {count} participanți",
     "meta": "{type} · {n} min · {count} de participanți",
     "transcript": "Transcriere",
-    "highlighted": "Evidențiate: pacienți, paturi, saloane, nume, date",
     "tasks": "Sarcini",
     "patient": "Pacient · {name}",
     "noEmail": "Fără e-mail",
@@ -299,16 +298,6 @@
     "cancel": "Anulează",
     "save": "Salvează modificările",
     "teach": "Corecturile dvs. instruiesc AI-ul.",
-    "heard": {
-      "lines_one": "{count} replică · {times}",
-      "lines_few": "{count} replici · {times}",
-      "languages": "Limbi",
-      "voices": "Nu sunt printre participanți",
-      "lines": "{count} de replici · {times}",
-      "who": "Cine este {name}?",
-      "whoShort": "Cine este?",
-      "newPerson": "+ Participant nou…"
-    },
     "sentence": {
       "select": "Selectați propoziția de la {time} a lui {name}",
       "actions": "Propoziție",
@@ -316,19 +305,15 @@
       "stop": "Oprește",
       "edit": "Editează propoziția",
       "remove": "Șterge propoziția",
-      "removed": "Ați șters propoziția de la {time}",
       "edited": "editat",
       "heard": "AI a auzit: „{text}”"
     },
     "word": {
-      "hint": "Clic pe un cuvânt pentru a-l corecta sau pe oră pentru toată fraza.",
       "didYouMean": "Ați vrut să spuneți",
       "fix": "Corectați cuvântul",
       "edit": "Editează…",
       "remove": "Șterge cuvântul",
       "langLabel": "Limba",
-      "removed": "Ați șters „{word}”",
-      "undo": "Anulează",
       "save": "Salvează",
       "label": "{word} — clic pentru corectare",
       "labelUnsure": "{word} — posibil auzit greșit, clic pentru verificare",
@@ -341,15 +326,16 @@
     "pointLabel": "Punct din rezumat",
     "pointPh": "Un punct cheie, o decizie sau un rezultat",
     "noSummary": "Încă nu există rezumat.",
-    "transcriptMeta_one": "{count} replică",
-    "transcriptMeta_few": "{count} replici",
-    "transcriptMeta": "{count} de replici",
-    "voicesToName_one": "{count} voce de identificat",
-    "voicesToName_few": "{count} voci de identificat",
-    "voicesToName": "{count} de voci de identificat",
-    "transcriptCheck": "Revizuiți",
-    "transcriptHide": "Ascundeți",
-    "preview": "Previzualizează PV"
+    "preview": "Previzualizează PV",
+    "view": "Vizualizare",
+    "tabMom": "PV",
+    "actions": "Confirmă sau editează",
+    "confirm": "Confirmă",
+    "unconfirm": "Anulează confirmarea",
+    "confirmTask": "Confirmă acțiunea: {title}",
+    "unconfirmTask": "Anulează confirmarea: {title}",
+    "confirmedCount": "{n}/{total} confirmate",
+    "confirmAllFirst": "Confirmați toate acțiunile pentru a trimite"
   },
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",
@@ -395,7 +381,6 @@
     "participants": "Participanți la ședință",
     "roleThen": "Funcția atunci: {role}",
     "now": "Acum: {role}",
-    "openTranscript": "Deschide transcrierea",
     "download": "Descarcă PDF"
   },
   "templates": {
@@ -462,6 +447,16 @@
     "emailNote": "Emailul de serviciu este și datele de autentificare, și adresa la care primiți procesele-verbale.",
     "save": "Salvează modificările",
     "saved": "Salvat"
+  },
+  "recipients": {
+    "title": "Destinatari",
+    "ph": "Adăugați nume sau e-mail…",
+    "organizer": "Organizați această ședință",
+    "owner": "Are o acțiune: reatribuiți-o mai întâi"
+  },
+  "privacy": {
+    "label": "Doar rețeaua spitalului",
+    "tip": "Audio și procesele-verbale nu părăsesc rețeaua Medpark."
   },
   "email": {
     "to": "Către",

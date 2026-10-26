@@ -205,7 +205,7 @@
     "templateClear": "Снять шаблон",
     "fromTemplate": "Шаблон: {name}",
     "emails": "Участники",
-    "emailsPh": "Добавьте имя…",
+    "emailsPh": "Добавьте имя или email…",
     "removeEmail": "Удалить {email}",
     "suggestions": "Участники",
     "record": "Начать запись",
@@ -283,7 +283,6 @@
     "meta_many": "{type} · {n} мин · {count} участников",
     "meta": "{type} · {n} мин · {count} участника",
     "transcript": "Расшифровка",
-    "highlighted": "Выделены: пациенты, койки, палаты, имена, даты",
     "tasks": "Задачи",
     "patient": "Пациент · {name}",
     "noEmail": "Нет e-mail",
@@ -303,17 +302,6 @@
     "cancel": "Отмена",
     "save": "Сохранить изменения",
     "teach": "Ваши исправления обучают ИИ.",
-    "heard": {
-      "lines_one": "{count} реплика · {times}",
-      "lines_few": "{count} реплики · {times}",
-      "lines_many": "{count} реплик · {times}",
-      "languages": "Языки",
-      "voices": "Не среди участников",
-      "lines": "{count} реплики · {times}",
-      "who": "Кто такой {name}?",
-      "whoShort": "Кто это?",
-      "newPerson": "+ Новый участник…"
-    },
     "sentence": {
       "select": "Выбрать фразу в {time}, {name}",
       "actions": "Фраза",
@@ -321,19 +309,15 @@
       "stop": "Стоп",
       "edit": "Изменить фразу",
       "remove": "Удалить фразу",
-      "removed": "Фраза в {time} удалена",
       "edited": "изменено",
       "heard": "ИИ услышал: «{text}»"
     },
     "word": {
-      "hint": "Нажмите на слово или на время — для всей фразы.",
       "didYouMean": "Возможно, имелось в виду",
       "fix": "Исправить слово",
       "edit": "Изменить…",
       "remove": "Удалить слово",
       "langLabel": "Язык",
-      "removed": "Удалено «{word}»",
-      "undo": "Отменить",
       "save": "Сохранить",
       "label": "{word} — нажмите, чтобы исправить",
       "labelUnsure": "{word} — возможна ошибка распознавания, нажмите для проверки",
@@ -346,17 +330,16 @@
     "pointLabel": "Пункт резюме",
     "pointPh": "Ключевой момент, решение или результат",
     "noSummary": "Резюме пока нет.",
-    "transcriptMeta_one": "{count} реплика",
-    "transcriptMeta_few": "{count} реплики",
-    "transcriptMeta_many": "{count} реплик",
-    "transcriptMeta": "{count} реплики",
-    "voicesToName_one": "{count} голос нужно определить",
-    "voicesToName_few": "{count} голоса нужно определить",
-    "voicesToName_many": "{count} голосов нужно определить",
-    "voicesToName": "{count} голоса нужно определить",
-    "transcriptCheck": "Просмотреть",
-    "transcriptHide": "Скрыть",
-    "preview": "Просмотр протокола"
+    "preview": "Просмотр протокола",
+    "view": "Вид",
+    "tabMom": "Протокол",
+    "actions": "Подтвердить или изменить",
+    "confirm": "Подтвердить",
+    "unconfirm": "Отменить подтверждение",
+    "confirmTask": "Подтвердить поручение: {title}",
+    "unconfirmTask": "Отменить подтверждение: {title}",
+    "confirmedCount": "{n}/{total} подтверждено",
+    "confirmAllFirst": "Подтвердите все поручения, чтобы отправить"
   },
   "sent": {
     "sendingLead_one": "Отправка {count} участнику",
@@ -405,7 +388,6 @@
     "participants": "Участники совещания",
     "roleThen": "Должность тогда: {role}",
     "now": "Сейчас: {role}",
-    "openTranscript": "Открыть расшифровку",
     "download": "Скачать PDF"
   },
   "templates": {
@@ -474,6 +456,16 @@
     "emailNote": "Рабочая почта — это и ваш логин, и адрес, на который приходят протоколы.",
     "save": "Сохранить изменения",
     "saved": "Сохранено"
+  },
+  "recipients": {
+    "title": "Получатели",
+    "ph": "Добавьте имя или email…",
+    "organizer": "Вы организатор этой встречи",
+    "owner": "Владелец поручения: сначала переназначьте его"
+  },
+  "privacy": {
+    "label": "Только сеть больницы",
+    "tip": "Аудио и протоколы не покидают сеть Medpark."
   },
   "email": {
     "to": "Кому",
