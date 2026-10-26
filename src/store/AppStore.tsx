@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { draftParticipants } from '../lib/participants';
 import { cardioSummary, cardioTasks, cardioTranscript, demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, YOU_ID } from '../mocks';
 import { todayISO, uid } from '../lib/format';
 import { retokenize, tokenize } from '../lib/transcript';
@@ -16,7 +17,13 @@ export interface Draft {
   title?: string;
   /** Meeting date chosen on New meeting (ISO); defaults to today. */
   date?: string;
-  emails: string[];
+  /** Participant chips on New meeting (name, optional role). Unset = the template's people or the type's defaults. */
+  participants?: DraftParticipant[];
+}
+
+export interface DraftParticipant {
+  name: string;
+  role?: string;
 }
 
 interface State {
@@ -48,7 +55,7 @@ const initialState = (): State => ({
   people: [],
   meetings: seedMeetings,
   templates: seedTemplates,
-  draft: { type: 'medical', emails: [] },
+  draft: { type: 'medical' },
 });
 
 function load(): State {
@@ -162,13 +169,17 @@ function useStoreValue() {
       const id = uid('m');
       const { draft, templates, people } = state;
       const template = templates.find((t) => t.id === draft.templateId);
-      const ids = template ? template.participantIds : [state.account?.personId ?? YOU_ID];
-      const participants = ids.map(snapshot).filter((x): x is ParticipantSnapshot => !!x);
-      // Optional emails typed on New meeting become "Receives MoM" guests of this meeting.
-      for (const email of draft.emails) {
-        const known = people.find((p) => p.email?.toLowerCase() === email.toLowerCase());
-        if (known && !participants.some((x) => x.personId === known.id)) participants.push(snapshot(known.id)!);
-        if (!known) participants.push({ personId: uid('guest'), name: email, email, roleThen: '' });
+      // The organizer, then the participant chips from New meeting: a name found in the directory becomes that person,
+      // any other name a guest of this meeting (no email).
+      const youId = state.account?.personId ?? YOU_ID;
+      const participants = [snapshot(youId)].filter((x): x is ParticipantSnapshot => !!x);
+      for (const chip of draftParticipants(draft, template, resolvePerson)) {
+        const known = [...people, ...demoPeople].find((p) => p.name.toLowerCase() === chip.name.toLowerCase());
+        if (known) {
+          if (!participants.some((x) => x.personId === known.id)) participants.push(snapshot(known.id)!);
+        } else if (!participants.some((x) => x.name.toLowerCase() === chip.name.toLowerCase())) {
+          participants.push({ personId: uid('guest'), name: chip.name, roleThen: chip.role ?? '' });
+        }
       }
       // Meetings can't be dated ahead (the picker also blocks it); an older saved future date falls back to today.
       const date = draft.date && draft.date < todayISO() ? draft.date : todayISO();
@@ -190,10 +201,10 @@ function useStoreValue() {
         tasks: materialiseTasks(date, id, cardioTasks),
       };
       // Name, date and added people belong to this meeting only; the next one starts fresh (type and template stay).
-      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined, date: undefined, emails: [] } }));
+      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined, date: undefined, participants: undefined } }));
       return id;
     },
-    [state, snapshot],
+    [state, snapshot, resolvePerson],
   );
 
   /** Replace one transcript token (word / term). A corrected term that names a patient also renames it in tasks. */

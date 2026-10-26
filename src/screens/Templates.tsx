@@ -263,7 +263,7 @@ export function Templates() {
                 icon={<MicrophoneIcon size={20} aria-hidden />}
                 aria-label={t('templates.startLabel', { name: tpl.name })}
                 onClick={() => {
-                  setDraft({ templateId: tpl.id, type: tpl.type });
+                  setDraft({ templateId: tpl.id, type: tpl.type, participants: undefined }); // the template's people fill the list
                   navigate('/new');
                 }}
               >

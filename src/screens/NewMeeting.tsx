@@ -2,7 +2,7 @@ import { MicrophoneIcon, PencilSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DatePicker } from '../components/DatePicker';
-import { EmailsField } from '../components/EmailsField';
+import { ParticipantsField } from '../components/ParticipantsField';
 import { MicCheck } from '../components/MicCheck';
 import { UploadCard } from '../components/UploadCard';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
@@ -11,13 +11,15 @@ import { TemplateBadge } from '../components/TemplateBadge';
 import { templateColor } from '../lib/colors';
 import { useI18n } from '../i18n/I18nProvider';
 import { todayISO } from '../lib/format';
+import { draftParticipants } from '../lib/participants';
+import { defaultParticipants } from '../mocks/defaultParticipants';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES, type MeetingType } from '../types';
 
 /** 01 — name, date, type, optional emails, then Record / Upload tiles (templates start from the Templates page). */
 export function NewMeeting() {
   const { t } = useI18n();
-  const { draft, setDraft, templates } = useStore();
+  const { draft, setDraft, templates, resolvePerson } = useStore();
   const navigate = useNavigate();
   const selectedTemplate = templates.find((x) => x.id === draft.templateId);
   // Until the user types a name, the template's name (or a realistic default for the type) is used.
@@ -90,7 +92,7 @@ export function NewMeeting() {
             label={t('newMeeting.type')}
             variant="auto"
             value={draft.type}
-            onChange={(type) => setDraft({ type })}
+            onChange={(type) => setDraft({ type, participants: defaultParticipants[type].map((p) => ({ ...p })) })}
             options={MEETING_TYPES.map((type) => ({ value: type, label: t(`types.${type}`), icon: <MeetingTypeIcon type={type} /> }))}
           />
           {/* What the selected type changes: the vocabulary the minutes are written in. */}
@@ -99,7 +101,7 @@ export function NewMeeting() {
           </p>
         </div>
 
-        <EmailsField emails={draft.emails} onChange={(emails) => setDraft({ emails })} />
+        <ParticipantsField participants={draftParticipants(draft, selectedTemplate, resolvePerson)} onChange={(participants) => setDraft({ participants })} />
 
         <div className="start-options">
           {/* Card, not a button: the mic picker and test sit inside. The title button stretches over the card. */}
