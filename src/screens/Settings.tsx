@@ -1,44 +1,31 @@
 import { CheckIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Button } from '../components/Button';
-import { Segmented } from '../components/Segmented';
 import { TextField } from '../components/TextField';
-import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
-import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
+import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
 import { useStore } from '../store/AppStore';
-import { MEETING_TYPES, type MeetingType, type Preferences } from '../types';
-
-// Language names are shown in their own language so everyone can find theirs.
-const NATIVE: Record<Lang, string> = { en: 'English', ro: 'Română', ru: 'Русский' };
 
 /** Account settings — opened from the avatar menu in the top bar. */
 export function Settings() {
-  const { t, lang, setLang } = useI18n();
-  const { account, draft, preferences, updateAccount, updatePreferences } = useStore();
+  const { t } = useI18n();
+  const { account, updateAccount } = useStore();
   const [email, setEmail] = useState(account?.email ?? '');
   const [name, setName] = useState(account?.name ?? '');
   const [role, setRole] = useState(account?.role ?? '');
   const [department, setDepartment] = useState(account?.department ?? '');
-  const [uiLang, setUiLang] = useState<Lang>(lang);
-  const [type, setType] = useState<MeetingType>(account?.meetingTypes[0] ?? draft.type);
-  const [prefs, setPrefs] = useState<Preferences>(preferences);
   const [error, setError] = useState<string>();
   const [emailError, setEmailError] = useState<string>();
   const [saved, setSaved] = useState(false);
 
   if (!account) return null;
   const touch = () => setSaved(false);
-  const savedType = account.meetingTypes[0] ?? draft.type;
   // The Save button only appears once something differs from what is stored.
   const dirty =
     name !== account.name ||
     role !== (account.role ?? '') ||
     department !== (account.department ?? '') ||
-    email !== account.email ||
-    uiLang !== lang ||
-    type !== savedType ||
-    prefs.reviewMode !== preferences.reviewMode;
+    email !== account.email;
 
   const save = () => {
     const nameErr = name.trim() ? undefined : t('common.required');
@@ -51,10 +38,7 @@ export function Settings() {
       role: role.trim(),
       department: department.trim(),
       email: email.trim(),
-      meetingTypes: [type, ...account.meetingTypes.filter((m) => m !== type)],
     });
-    updatePreferences(prefs);
-    setLang(uiLang);
     setSaved(true);
   };
 
@@ -90,47 +74,6 @@ export function Settings() {
           </div>
         </section>
 
-        <div className="stack" style={{ gap: 16 }}>
-          <section className="card card--pad settings__section" aria-labelledby="set-prefs">
-            <h2 id="set-prefs" className="section-title">
-              {t('settings.preferences')}
-            </h2>
-            <div className="field">
-              <span className="field__label">{t('common.language')}</span>
-              <Segmented<Lang> label={t('common.language')} variant="fill" value={uiLang} onChange={(v) => (setUiLang(v), touch())} options={LANGS.map((l) => ({ value: l, label: NATIVE[l] }))} />
-            </div>
-            <div className="field">
-              <span className="field__label" id="set-type">
-                {t('settings.defaultType')}
-              </span>
-              <div className="chips" role="radiogroup" aria-labelledby="set-type">
-                {MEETING_TYPES.map((m) => (
-                  <button key={m} type="button" role="radio" aria-checked={type === m} className="chip" onClick={() => (setType(m), touch())}>
-                    {type === m ? <CheckIcon size={16} aria-hidden /> : <MeetingTypeIcon type={m} />}
-                    {t(`types.${m}`)}
-                  </button>
-                ))}
-              </div>
-              <p className="note">{t('settings.defaultTypeHint')}</p>
-            </div>
-            <div className="field">
-              <span className="field__label">{t('settings.reviewMode')}</span>
-              <Segmented<Preferences['reviewMode']>
-                label={t('settings.reviewMode')}
-                variant="fill"
-                value={prefs.reviewMode}
-                onChange={(v) => (setPrefs((p) => ({ ...p, reviewMode: v })), touch())}
-                options={[
-                  { value: 'manual', label: t('review.manual') },
-                  { value: 'auto', label: t('review.auto') },
-                ]}
-              />
-              <p className="note">{t('settings.reviewModeHint')}</p>
-            </div>
-          </section>
-
-
-        </div>
       </div>
 
       <div className="page__actions">
