@@ -8,9 +8,11 @@ import { Avatar } from './Avatar';
 
 type Suggestion = DraftParticipant;
 
-/** The typed letters underlined in a suggested name, so it's clear why it matched. */
+/** The typed letters underlined at the start of the matching name, so it's clear why it was suggested. */
 function Highlight({ text, query }: { text: string; query: string }) {
-  const i = text.toLowerCase().indexOf(query);
+  // The start of the word that matched (skipping titles like "Dr.").
+  const lower = text.toLowerCase();
+  const i = [...lower.matchAll(/\S+/g)].find((m) => !/^(dr|prof)\.?$/.test(m[0]) && m[0].startsWith(query))?.index ?? -1;
   if (!query || i < 0) return <>{text}</>;
   return (
     <>
@@ -41,14 +43,14 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
   const known: Suggestion[] = [...people.map((p) => ({ name: p.name, role: p.role })), ...Object.values(defaultParticipants).flat()].filter(
     (p, i, all) => all.findIndex((x) => x.name.toLowerCase() === p.name.toLowerCase()) === i,
   );
-  // Match on the name only (not role or email). Names with a word starting with what's typed come first
-  // ("a" → Ana, Andrei…), then names that merely contain it (Maria, Natalia…). Titles like "Dr." are ignored.
+  // Only names whose first name or surname starts with what's typed ("a" → Ana, Andrei; not Maria).
+  // First-name matches come first, then surname matches. Titles like "Dr." are ignored; role and email aren't searched.
   const words = (name: string) =>
     name
       .toLowerCase()
       .split(/\s+/)
       .filter((w) => !/^(dr|prof)\.?$/.test(w));
-  const rank = (name: string) => (words(name).some((w) => w.startsWith(q)) ? 0 : words(name).join(' ').includes(q) ? 1 : 2);
+  const rank = (name: string) => (words(name)[0]?.startsWith(q) ? 0 : words(name).some((w) => w.startsWith(q)) ? 1 : 2);
   const suggestions = q
     ? known
         .filter((p) => !has(p.name) && rank(p.name) < 2)
