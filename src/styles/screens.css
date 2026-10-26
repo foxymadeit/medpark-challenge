@@ -180,6 +180,9 @@
 .waveform { display: flex; align-items: center; gap: 3px; height: 56px; }
 .waveform__bar { width: 3px; border-radius: 1.5px; transition: height 90ms linear; }
 .recorder__actions { display: flex; gap: var(--sm-space-4); margin-top: 40px; }
+/* Recording/paused: two equal columns as wide as the widest button ("Stop…", present in both states), so slots never move. */
+.recorder__actions--slots { display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 0; max-width: 100%; }
+.recorder__actions--slots .recorder__sizer { grid-column: 2; height: 0; padding-block: 0; border-block-width: 0; overflow: hidden; visibility: hidden; }
 .recorder__note { margin-top: auto; }
 .live-details { display: flex; flex-direction: column; gap: var(--sm-space-4); width: 368px; flex-shrink: 0; padding: var(--sm-space-6); }
 .voices { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }

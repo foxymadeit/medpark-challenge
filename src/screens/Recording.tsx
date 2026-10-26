@@ -145,14 +145,16 @@ export function Recording() {
             />
           ))}
         </div>
-        <div className="recorder__actions">
+        {/* Two equal slots: Pause ↔ Resume share the first slot (same place, same size), so a reflex
+            second click resumes instead of stopping. Stop sits in the second slot in both states. */}
+        <div className="recorder__actions recorder__actions--slots">
           {paused ? (
             <>
-              <Button icon={<StopIcon size={20} aria-hidden />} onClick={stop}>
-                {t('recording.stop')}
-              </Button>
               <Button variant="primary" icon={<PlayIcon size={20} aria-hidden />} onClick={rec.resume}>
                 {t('recording.resume')}
+              </Button>
+              <Button icon={<StopIcon size={20} aria-hidden />} onClick={stop}>
+                {t('recording.stop')}
               </Button>
             </>
           ) : (
@@ -165,6 +167,11 @@ export function Recording() {
               </Button>
             </>
           )}
+          {/* Invisible, zero-height copy of the outlined Stop: the slots always size to the widest button,
+              whichever of the two is blue right now, so they don't shift by its 1px border. */}
+          <Button className="recorder__sizer" aria-hidden tabIndex={-1} icon={<StopIcon size={20} aria-hidden />}>
+            {t('recording.stop')}
+          </Button>
         </div>
         <p className={`recorder__note note${rec.micError ? ' c-danger' : ''}`} role={rec.micError ? 'alert' : undefined}>
           {rec.micError ? t('recording.micError') : paused ? t('recording.notePaused') : t('recording.noteLive')}
