@@ -176,7 +176,7 @@ export function Participants() {
   const soleAdmin = people.filter((p) => p.access === 'admin').length <= 1;
 
   return (
-    <div className="page">
+    <div className="page page--fit">
       <div className={`page__head page__head--row ${onlyYou ? 'participants__head--bare' : 'participants__head'}`}>
         <div className="page__head">
           <h1 className="t-h1">{t('participants.title')}</h1>

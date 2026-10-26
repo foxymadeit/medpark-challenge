@@ -56,7 +56,6 @@
 
   .page { padding: 32px 24px; }
   .review { padding: 24px 24px 0; }
-  .action-bar { left: 0; }
 
   .new-meeting { flex-direction: column; justify-content: flex-start; gap: var(--sm-space-8); }
   .new-meeting__main { width: 100%; flex: none; }
@@ -135,11 +134,12 @@
 
   .review__header { height: auto; flex-wrap: wrap; gap: var(--sm-space-3); }
   .review__header .t-h1, .record .t-h1 { font-size: 24px; line-height: 30px; }
-  .action-bar { flex-wrap: wrap; height: auto; padding: 12px 16px; gap: var(--sm-space-2); }
-  .action-bar .btn { flex: 1 1 0; }
+  .review__actions .btn { flex: 1 1 0; }
   /* The two buttons share the bar's width (the 184px desktop size doesn't fit side by side). */
-  .action-bar .vp-center__group { width: 100%; }
-  .action-bar .vp-center__group > .btn { min-width: 0; }
+  .review__actions .vp-center__group { width: 100%; }
+  .review__actions .vp-center__group > .btn { min-width: 0; }
+  .review__recipients { flex-direction: column; gap: 4px; }
+  .review__recipients-label { padding-top: 0; }
   .app__body .vp-center > .action-bar__left { grid-column: 1 / -1; justify-self: center; padding: 0; white-space: normal; text-align: center; } /* own line above the buttons */
   .review__panes { padding-bottom: 168px; }
   .summary-table thead { display: none; }

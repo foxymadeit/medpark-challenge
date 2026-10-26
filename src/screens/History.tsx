@@ -42,7 +42,7 @@ export function History() {
   const rows = meetings.filter((m) => (filter === 'all' || m.type === filter) && (!q || m.title.toLowerCase().includes(q)));
 
   return (
-    <div className="page">
+    <div className="page page--fit">
       <h1 className="t-h1">{t('history.title')}</h1>
       <div className="history-tools">
         <label className="search">
@@ -171,7 +171,7 @@ export function HistoryRecord() {
   const type = t(`types.${meeting.type}`);
 
   return (
-    <div className="page record">
+    <div className="page record page--fit">
       <Link to="/history" className="back-link">
         <ArrowLeftIcon size={16} aria-hidden />
         {t('record.back')}

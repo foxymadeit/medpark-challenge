@@ -251,9 +251,9 @@
 .processing__note-row { margin-top: auto; } /* keeps the note at the bottom */
 
 /* ── Review ── */
-.review { padding: 32px 48px 0; }
+.review { padding: 32px 48px 24px; }
 .review__header { display: flex; align-items: center; justify-content: space-between; height: 56px; }
-.review__panes { display: flex; flex-direction: column; gap: var(--sm-space-4); margin-top: 24px; padding-bottom: 120px; }
+.review__panes { display: flex; flex-direction: column; gap: var(--sm-space-4); margin-top: 24px; }
 .review__pane {
   display: flex;
   flex-direction: column;
@@ -311,10 +311,31 @@
 .summary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .summary-table th:nth-child(1) { width: 36%; }
 .summary-table th:nth-child(3) { width: 96px; }
-.summary-table th:nth-child(4) { width: 72px; } /* Confirm + Edit */
+.summary-table th:nth-child(4) { width: 72px; }
 /* Action items: Confirm (✓) then Edit (pen). Confirmed rows go quiet; the ✓ turns green and bold. */
-.task-actions { display: inline-flex; align-items: center; gap: 4px; }
-.task-confirm[aria-pressed='true'] { color: var(--sm-success); }
+.task-actions { display: inline-flex; align-items: center; gap: var(--sm-space-2); }
+/* Confirm (black) → "Confirmed ✓" (calm: no fill, green text). Fixed width so the row doesn't jump when it flips. */
+.task-confirm { min-width: 136px; justify-content: center; }
+.task-confirm.is-on { color: var(--sm-success); }
+/* Tasks on Review: columns size to their content, the task text takes the rest; the same 24px gap between every column. */
+.summary-table--tasks { table-layout: auto; }
+.summary-table.summary-table--tasks th { width: auto; }
+.summary-table.summary-table--tasks th:not(:first-child), .summary-table.summary-table--tasks td:not(:first-child) { width: 1%; white-space: nowrap; }
+.summary-table.summary-table--tasks th, .summary-table.summary-table--tasks td { padding-right: var(--sm-space-6); }
+.summary-table.summary-table--tasks th:last-child, .summary-table.summary-table--tasks td:last-child { padding-right: 0; }
+.summary-table.summary-table--tasks td { vertical-align: middle; }
+.summary-table--tasks tr.is-editing td:nth-child(3) .dropdown { min-width: 232px; } /* the deadline reads in full while editing */
+/* Owner: avatar + name + email as one button with a chevron. */
+.owner-picker { position: relative; }
+.owner-picker__button { display: flex; align-items: center; gap: var(--sm-space-2); min-height: 44px; margin: 0 -8px; padding: 4px 8px; border: 0; border-radius: var(--sm-radius-tile); background: none; color: inherit; text-align: left; cursor: pointer; }
+.owner-picker__button:hover, .owner-picker__button[aria-expanded='true'] { background: var(--sm-surface-ground); }
+.owner-picker__button .who__text { min-width: 0; }
+.owner-picker__caret { flex: none; color: var(--sm-ink-secondary); }
+.owner-picker__panel { z-index: 50; width: 320px; padding: 8px; }
+.owner-picker__search { width: 100%; height: 40px; margin-bottom: 4px; }
+.owner-picker__error { margin: 0 4px 4px; }
+.owner-picker__list { max-height: 240px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
+.owner-picker__new { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 16px; background: var(--sm-surface-ground); color: var(--sm-ink-secondary); }
 .summary-table tr.is-confirmed td:not(:last-child) { opacity: 0.55; }
 /* MoM | Transcript switch under the title (Review and History). */
 .review__tabs { margin-top: var(--sm-space-6); }
@@ -354,24 +375,17 @@
 
 .task { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-4); color: var(--sm-ink-primary); }
 
-.action-bar {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: var(--sm-sidebar-w);
-  z-index: 10;
-  padding-right: var(--content-extra-right, 0px); /* same right margin as the content (app shell) */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sm-space-4);
-  height: 88px;
-  border-top: 1px solid var(--sm-surface-hairline);
-  background: var(--sm-surface-panel);
-}
-.action-bar .vp-center__group > .btn { min-width: 184px; justify-content: center; } /* Preview and Send the same size */
-/* Left note sits in the bar's left free column (before the centred buttons): it can't reach them, it shortens with "…" instead. */
-.app__body .vp-center > .action-bar__left { grid-column: 1; grid-row: 1; justify-self: start; min-width: 0; max-width: 100%; margin: 0; padding: 0 var(--sm-space-4) 0 48px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* Under the containers (not a fixed footer): recipients, then Preview / Send centred on the window. */
+.review__bottom { display: flex; flex-direction: column; gap: var(--sm-space-3); padding-top: var(--sm-space-4); }
+.review__recipients { display: flex; align-items: flex-start; gap: var(--sm-space-3); }
+.review__recipients > .stack { flex: 1; min-width: 0; }
+.review__recipients-label { flex: none; padding-top: 14px; color: var(--sm-ink-secondary); font: 500 13px/18px var(--sm-font-body); }
+.review__recipients .emails-field { max-height: 96px; overflow-y: auto; } /* many recipients: the field scrolls, the buttons stay put */
+.review__recipients .emails-combo__list { top: auto; bottom: calc(100% + 4px); } /* suggestions open upwards */
+.review__actions { min-height: 44px; }
+.review__actions .vp-center__group > .btn { min-width: 184px; justify-content: center; } /* Preview and Send the same size */
+/* Left note sits in the row's left free column (before the centred buttons): it can't reach them, it shortens with "…" instead. */
+.app__body .vp-center > .action-bar__left { grid-column: 1; grid-row: 1; justify-self: start; min-width: 0; max-width: 100%; margin: 0; padding: 0 var(--sm-space-4) 0 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 .t-data-md { font: 500 15px/20px var(--sm-font-body); font-variant-numeric: tabular-nums; }
 

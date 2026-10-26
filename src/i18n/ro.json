@@ -335,7 +335,9 @@
     "confirmTask": "Confirmă acțiunea: {title}",
     "unconfirmTask": "Anulează confirmarea: {title}",
     "confirmedCount": "{n}/{total} confirmate",
-    "confirmAllFirst": "Confirmați toate acțiunile pentru a trimite"
+    "confirmAllFirst": "Confirmați toate acțiunile pentru a trimite",
+    "confirmed": "Confirmat",
+    "saveShort": "Salvează"
   },
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",
@@ -447,6 +449,12 @@
     "emailNote": "Emailul de serviciu este și datele de autentificare, și adresa la care primiți procesele-verbale.",
     "save": "Salvează modificările",
     "saved": "Salvat"
+  },
+  "owner": {
+    "change": "Responsabil: {name}. Schimbă responsabilul",
+    "search": "Căutați un participant sau adăugați un nume ori un e-mail",
+    "addName": "Adaugă „{name}”",
+    "addEmail": "Adaugă invitat {email}"
   },
   "recipients": {
     "title": "Destinatari",

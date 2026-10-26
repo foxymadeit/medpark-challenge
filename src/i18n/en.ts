@@ -277,6 +277,8 @@ export const en = {
     listening: 'Transcribing the next part',
   },
   review: {
+    confirmed: 'Confirmed',
+    saveShort: 'Save',
     view: 'View',
     tabMom: 'MoM',
     actions: 'Confirm or edit',
@@ -443,6 +445,12 @@ export const en = {
     emailNote: 'Your work email is also your login and where the minutes arrive.',
     save: 'Save changes',
     saved: 'Saved',
+  },
+  owner: {
+    change: 'Owner: {name}. Change owner',
+    search: 'Find a participant, or add a name or email',
+    addName: 'Add “{name}”',
+    addEmail: 'Add guest {email}',
   },
   recipients: {
     title: 'Recipients',

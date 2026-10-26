@@ -1,4 +1,4 @@
-import { CaretDownIcon, ClockCounterClockwiseIcon, LockSimpleIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
@@ -124,7 +124,7 @@ function PrivacyBadge({ className = '' }: { className?: string }) {
   return (
     <span className={`privacy${open ? ' is-open' : ''} ${className}`.trim()} ref={wrap}>
       <button type="button" className="privacy__button" aria-describedby={`${id}-tip`} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <LockSimpleIcon size={14} aria-hidden />
+        <span className="privacy__dot" aria-hidden />
         <span className="privacy__label">{t('privacy.label')}</span>
       </button>
       <span role="tooltip" id={`${id}-tip`} className="privacy__tip">

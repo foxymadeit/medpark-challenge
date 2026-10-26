@@ -41,7 +41,9 @@
   right: max(calc(var(--content-extra-right, 0px) + var(--content-pad, 0px)), calc(var(--topbar-pad) + var(--topbar-right-w, 0px) + var(--sm-space-4)));
   transform: translateY(-50%);
 }
-.privacy__button { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none; color: var(--sm-ink-secondary); font: 500 13px/18px var(--sm-font-body); white-space: nowrap; cursor: help; }
+/* A chip that reads "working, but local": light-green pill, green dot, dark-green text. */
+.privacy__button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px 0 10px; border: 0; border-radius: 999px; background: var(--sm-success-tint); color: var(--sm-success); font: 600 13px/18px var(--sm-font-body); white-space: nowrap; cursor: help; }
+.privacy__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--sm-success); }
 .privacy__tip {
   position: absolute;
   top: calc(100% + 8px);
@@ -187,7 +189,7 @@
  * --vp-offset is how much the content is still shifted right of the window's centre (see the app shell above).
  */
 .app__body { --vp-offset: calc(var(--sidebar-live) - var(--content-extra-right)); } /* what's still asymmetric after the right margin (0 on wide screens) */
-/* Scoped to the app shell so it wins over the containers' own display (e.g. .action-bar) whatever the file order. */
+/* Scoped to the app shell so it wins over the containers' own display whatever the file order. */
 .app__body .vp-center { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, var(--vp-offset, 0px)); gap: 0; align-items: center; align-self: stretch; } /* gap: the inner group spaces its buttons */
 .app__body .vp-center > * { grid-column: 2; min-width: 0; }
 /* A row of buttons inside .vp-center (same gap as .page__actions). */
@@ -206,3 +208,35 @@
 }
 
 .note.c-danger, .lead.c-danger { color: var(--sm-signal-danger); }
+
+/*
+ * Whole interface fits the window (tablet/desktop): the page itself never scrolls, only containers inside it.
+ * The shell is exactly the window's height; .page--fit screens split their height between their containers
+ * (Review, Participants, History). Other screens fall back to scrolling the content area if they don't fit.
+ */
+@media (min-width: 641px) {
+  .app:has(> .app__body) { height: 100dvh; min-height: 0; }
+  .app__body { min-height: 0; }
+  .app__body > .main { min-height: 0; overflow-y: auto; }
+  .page--fit { flex: 1 1 0; min-height: 0; overflow: hidden; }
+  .page--fit > * { flex-shrink: 0; }
+
+  /* Review: MoM = Summary + Tasks, each at most half the height; a short one shrinks to its content and the other takes the rest. */
+  .review.page--fit .review__panes { flex: 1 1 0; min-height: 0; flex-shrink: 1; }
+  .review__pane { min-height: 0; overflow: hidden; }
+  .review__pane--split { flex: 1 1 0; max-height: max-content; }
+  .review__pane--fill { flex: 1 1 0; }
+  .review__pane--split .summary-points { flex: 1 1 auto; min-height: 0; margin-bottom: 0; overflow-y: auto; }
+  .review__scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .review__scroll thead th { position: sticky; top: 0; z-index: 1; background: var(--sm-surface-panel); } /* Owner / Deadline row stays put */
+
+  /* Participants and History: the list is the scroll container; its column headers stay visible. */
+  .page--fit .table-card { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .page--fit .table-card thead th { position: sticky; top: 0; z-index: 1; background: var(--sm-surface-panel); }
+
+  /* Meeting record (History): the two cards / the transcript scroll inside, the buttons stay at the bottom. */
+  .record.page--fit .record__panes { flex: 1 1 0; min-height: 0; flex-shrink: 1; }
+  .record.page--fit .record__panes > .card { align-self: stretch; max-height: 100%; overflow-y: auto; }
+  .record.page--fit .record__transcript { flex: 1 1 0; min-height: 0; flex-shrink: 1; overflow-y: auto; }
+  .record.page--fit .page__actions { padding-top: var(--sm-space-4); }
+}
