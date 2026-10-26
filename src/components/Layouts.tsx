@@ -1,4 +1,4 @@
-import { CaretDownIcon, CheckIcon, ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
@@ -7,9 +7,10 @@ import { Avatar } from './Avatar';
 import { Logo, WithWordmark, Wordmark } from './Logo';
 
 /**
- * Interface language: closed it shows only the active language; a click opens the three, the active one ticked.
- * Picking one switches the UI and closes the list; a click outside or Esc closes it too.
- * Looks like the old switch (the selected pill on the warm track); the list uses the app's dropdown style.
+ * Interface language. Closed: just the current language, bold, no box.
+ * Open: one card wraps it — the current language stays exactly where it was (first, bold), the other two below.
+ * Picking another switches the UI; picking the current one, a click outside or Esc just closes.
+ * The card reuses the dropdown list/option styles.
  */
 function LanguageSwitch() {
   const { lang, setLang, t } = useI18n();
@@ -19,6 +20,7 @@ function LanguageSwitch() {
   const wrap = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLUListElement>(null);
+  const order: Lang[] = [lang, ...LANGS.filter((l) => l !== lang)]; // current first
 
   useEffect(() => {
     if (!open) return;
@@ -29,34 +31,35 @@ function LanguageSwitch() {
   }, [open]);
 
   const openList = () => {
-    setActive(Math.max(0, LANGS.indexOf(lang)));
+    setActive(0);
     setOpen(true);
   };
-  const choose = (l: Lang) => {
-    setLang(l);
+  const close = () => {
     setOpen(false);
     button.current?.focus();
   };
+  const choose = (l: Lang) => {
+    if (l !== lang) setLang(l);
+    close();
+  };
   const onListKey = (e: KeyboardEvent) => {
-    if (e.key === 'ArrowDown') setActive((a) => Math.min(LANGS.length - 1, a + 1));
+    if (e.key === 'ArrowDown') setActive((a) => Math.min(order.length - 1, a + 1));
     else if (e.key === 'ArrowUp') setActive((a) => Math.max(0, a - 1));
     else if (e.key === 'Home') setActive(0);
-    else if (e.key === 'End') setActive(LANGS.length - 1);
-    else if (e.key === 'Enter' || e.key === ' ') choose(LANGS[active]);
-    else if (e.key === 'Escape' || e.key === 'Tab') {
-      setOpen(false);
-      if (e.key === 'Escape') button.current?.focus();
-      return;
-    } else return;
-    e.preventDefault();
+    else if (e.key === 'End') setActive(order.length - 1);
+    else if (e.key === 'Enter' || e.key === ' ') choose(order[active]);
+    else if (e.key === 'Escape') close();
+    else if (e.key === 'Tab') setOpen(false);
+    else return;
+    if (e.key !== 'Tab') e.preventDefault();
   };
 
   return (
-    <div className="segmented segmented--lang dropdown" ref={wrap}>
+    <div className="lang-switch" ref={wrap}>
       <button
         ref={button}
         type="button"
-        className="segmented__item"
+        className="lang-switch__button"
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${t('common.language')}: ${t(`lang.${lang}Name`)}`}
@@ -74,11 +77,10 @@ function LanguageSwitch() {
           tabIndex={-1}
           aria-label={t('common.language')}
           aria-activedescendant={`${id}-opt-${active}`}
-          className="dropdown__list"
-          style={{ left: 'auto', right: 0 }} // opens leftwards: the switch sits at the right edge
+          className="dropdown__list lang-switch__list"
           onKeyDown={onListKey}
         >
-          {LANGS.map((l, i) => (
+          {order.map((l, i) => (
             <li
               key={l}
               id={`${id}-opt-${i}`}
@@ -91,8 +93,7 @@ function LanguageSwitch() {
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => choose(l)}
             >
-              <span>{t(`lang.${l}`)}</span>
-              {l === lang && <CheckIcon size={16} aria-hidden />}
+              {t(`lang.${l}`)}
             </li>
           ))}
         </ul>

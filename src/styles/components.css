@@ -167,7 +167,7 @@
 .segmented { gap: 2px; padding: 3px; border: 0; background: var(--sm-control-track); }
 .segmented .segmented__item { height: 36px; color: var(--sm-ink-secondary); font-weight: 500; }
 .segmented .segmented__item:hover { color: var(--sm-ink-primary); }
-.segmented .segmented__item[aria-checked='true'], .segmented--lang .segmented__item[aria-haspopup] { background: var(--sm-surface-panel); color: var(--sm-ink-primary); font-weight: 600; box-shadow: 0 2px 8px rgba(16, 16, 16, 0.06), 0 1px 3px rgba(16, 16, 16, 0.08); }
+.segmented .segmented__item[aria-checked='true'] { background: var(--sm-surface-panel); color: var(--sm-ink-primary); font-weight: 600; box-shadow: 0 2px 8px rgba(16, 16, 16, 0.06), 0 1px 3px rgba(16, 16, 16, 0.08); }
 .segmented--fill { display: flex; width: 100%; }
 .segmented--fill .segmented__item { flex: 1; width: auto; }
 .segmented--lang .segmented__item { width: 40px; height: 30px; }
@@ -349,6 +349,12 @@
 .dropdown__option[aria-selected='true'] { font-weight: 600; }
 .dropdown__option.is-active { background: var(--sm-surface-ground); }
 .dropdown__option--muted { color: var(--sm-ink-secondary); }
+
+/* ── Language switch: bold text; opens the dropdown card over it ── */
+.lang-switch { position: relative; display: inline-flex; }
+.lang-switch__button { padding: 0; border: 0; background: none; color: var(--sm-ink-primary); font: 600 15px/22px var(--sm-font-body); cursor: pointer; }
+/* First option's text lands exactly on the button text: list border 1px + padding 4px + option (40 − 22) / 2 = 14px up; border 1px + option padding 12px = 13px left. */
+.lang-switch__list { top: -14px; left: -13px; min-width: 0; }
 
 /* ── Radio & checkbox ───────────────────────────────── */
 
