@@ -511,7 +511,8 @@
 .word-menu__actions { display: flex; justify-content: flex-end; padding: 0 12px 8px; }
 
 /* ── Settings ── */
-.settings__cols { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sm-space-4); align-items: start; max-width: 1104px; }
+.settings__cols { display: grid; grid-template-columns: 1fr; gap: var(--sm-space-4); align-items: start; max-width: 1104px; }
+.settings__fields { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sm-space-5) var(--sm-space-6); align-items: start; }
 .settings__section { display: flex; flex-direction: column; gap: var(--sm-space-5); }
 
 .tpl-card__actions { align-items: center; }

@@ -21,11 +21,7 @@ export function Settings() {
   if (!account) return null;
   const touch = () => setSaved(false);
   // The Save button only appears once something differs from what is stored.
-  const dirty =
-    name !== account.name ||
-    role !== (account.role ?? '') ||
-    department !== (account.department ?? '') ||
-    email !== account.email;
+  const dirty = name !== account.name || role !== (account.role ?? '') || department !== (account.department ?? '') || email !== account.email;
 
   const save = () => {
     const nameErr = name.trim() ? undefined : t('common.required');
@@ -54,26 +50,28 @@ export function Settings() {
           <h2 id="set-profile" className="section-title">
             {t('settings.profile')}
           </h2>
-          <TextField editable label={t('signup.fullName')} value={name} onChange={(e) => (setName(e.target.value), touch())} error={error} autoComplete="name" />
-          <TextField editable label={t('onboarding.about.role')} placeholder={t('onboarding.about.rolePh')} value={role} onChange={(e) => (setRole(e.target.value), touch())} />
-          <TextField editable label={t('onboarding.about.department')} placeholder={t('onboarding.about.departmentPh')} value={department} onChange={(e) => (setDepartment(e.target.value), touch())} />
-          <div className="stack" style={{ gap: 8 }}>
-            <TextField
-              editable
-              type="email"
-              autoComplete="email"
-              label={t('settings.workEmail')}
-              value={email}
-              onChange={(e) => (setEmail(e.target.value), setEmailError(undefined), touch())}
-              error={emailError}
-              aria-describedby="set-email-note"
-            />
-            <p id="set-email-note" className="note">
-              {t('settings.emailNote')}
-            </p>
+          {/* Fields 2 × 2: name | role, department | work email. */}
+          <div className="settings__fields">
+            <TextField editable label={t('signup.fullName')} value={name} onChange={(e) => (setName(e.target.value), touch())} error={error} autoComplete="name" />
+            <TextField editable label={t('onboarding.about.role')} placeholder={t('onboarding.about.rolePh')} value={role} onChange={(e) => (setRole(e.target.value), touch())} />
+            <TextField editable label={t('onboarding.about.department')} placeholder={t('onboarding.about.departmentPh')} value={department} onChange={(e) => (setDepartment(e.target.value), touch())} />
+            <div className="stack" style={{ gap: 8 }}>
+              <TextField
+                editable
+                type="email"
+                autoComplete="email"
+                label={t('settings.workEmail')}
+                value={email}
+                onChange={(e) => (setEmail(e.target.value), setEmailError(undefined), touch())}
+                error={emailError}
+                aria-describedby="set-email-note"
+              />
+              <p id="set-email-note" className="note">
+                {t('settings.emailNote')}
+              </p>
+            </div>
           </div>
         </section>
-
       </div>
 
       <div className="page__actions">
@@ -90,7 +88,6 @@ export function Settings() {
           </Button>
         )}
       </div>
-
     </div>
   );
 }

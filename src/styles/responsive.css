@@ -69,7 +69,7 @@
   .record__people { width: 100%; }
 
   .tpl-grid { grid-template-columns: minmax(0, 1fr); }
-  .settings__cols { grid-template-columns: 1fr; }
+  .settings__cols, .settings__fields { grid-template-columns: 1fr; }
   .processing__box { margin-top: 0; }
 }
 
