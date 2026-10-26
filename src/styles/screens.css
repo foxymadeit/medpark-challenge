@@ -62,10 +62,12 @@
 .headline__pen { flex-shrink: 0; width: 36px; height: 36px; }
 /* Name on the left, date pinned to the right edge of the content (= the Upload card's right edge), at least 24px apart.
    The date never moves when the name changes length; a long name wraps instead of running into it. */
-.headline-row { display: flex; flex-wrap: nowrap; align-items: flex-start; justify-content: space-between; gap: var(--sm-space-3) var(--sm-space-6); }
-.headline-block { display: flex; flex: 1 1 auto; flex-direction: column; gap: 6px; min-width: 0; }
+/* Same two columns as the Record / Upload cards below (--nm-cols, --nm-col-gap on .new-meeting__main):
+   the name stays in the first column (wraps there), the date starts where the Upload card starts. */
+.headline-row { display: grid; grid-template-columns: var(--nm-cols); column-gap: var(--nm-col-gap); row-gap: var(--sm-space-3); align-items: start; }
+.headline-block { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .headline-row .headline-input { width: calc(100% + 13.5px); }
-.headline-row .datepicker { flex: none; align-self: flex-start; margin-top: 23px; } /* centred on the name's first line: label 18 + gap 6 + (38 − 40) / 2 */
+.headline-row .datepicker { justify-self: start; align-self: start; margin-top: 23px; } /* centred on the name's first line: label 18 + gap 6 + (38 − 40) / 2 */
 .headline-block:has(.headline-input) + .datepicker { margin-top: 28px; } /* renaming: centred on the 48px input */
 .headline .headline__text { line-height: 38px; }
 .headline__pen svg { width: 18px; height: 18px; }
@@ -73,7 +75,7 @@
 .headline-input { height: 48px; padding: 0 12px; margin-left: -13.5px; width: calc(100% + 13.5px); font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
 /* Figma "01 New meeting · Wide A · Full-width stack" (2051:2358): one left-aligned stack filling the content area (48px gutters), sections 32px apart. */
 .new-meeting { flex-direction: row; align-items: flex-start; justify-content: flex-start; padding-top: 35px; } /* "Meeting name" lines up with the first menu item (sidebar 24px + 40px item, text centred) */
-.new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); flex: 1 1 auto; width: 100%; min-width: 0; } /* full content width, like Participants / Templates / History (no own max-width) */
+.new-meeting__main { display: flex; flex-direction: column; gap: var(--sm-space-8); flex: 1 1 auto; width: 100%; min-width: 0; --nm-cols: minmax(0, 1fr) minmax(0, 1fr); --nm-col-gap: var(--sm-space-4); } /* full content width, like Participants / Templates / History (no own max-width) */
 .emails-field {
   display: flex;
   flex-wrap: wrap;
@@ -108,7 +110,7 @@
 .emails-combo__option { display: flex; align-items: center; gap: var(--sm-space-3); padding: 8px; border-radius: var(--sm-radius-inner); cursor: pointer; }
 .emails-combo__option .who__text { min-width: 0; }
 .emails-combo__option.is-active { background: var(--sm-surface-ground); }
-.start-options { display: flex; gap: var(--sm-space-4); }
+.start-options { display: grid; grid-template-columns: var(--nm-cols); gap: var(--nm-col-gap); }
 .start-tile {
   min-width: 0;
   display: flex;
