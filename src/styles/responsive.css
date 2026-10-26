@@ -31,12 +31,12 @@
 
 /* ── ≤1024: tablet ── */
 @media (max-width: 1024px) {
-  .topbar { padding: 0 var(--sm-space-4); }
+  .topbar { --topbar-pad: var(--sm-space-4); }
   .topbar__menu { display: inline-flex; margin-right: var(--sm-space-1); }
   .brand { margin-right: auto; }
 
   /* Sidebar is a drawer here: it takes no space, so no mirrored right margin either. */
-  .app__body { --sidebar-live: 0px; }
+  .app { --sidebar-live: 0px; --content-pad: 24px; } /* .page padding here */
 
   /* Sidebar → slide-in drawer under the top bar. */
   .sidenav {
@@ -78,6 +78,7 @@
 
 /* ── ≤640: phone ── */
 @media (max-width: 640px) {
+  .app { --content-pad: 16px; } /* .page padding here */
   /* Phone: the privacy note keeps its lock (and tooltip); the words stay for screen readers only. */
   .privacy__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   /* Phone: the date drops under the name, left-aligned. */
@@ -139,7 +140,7 @@
   /* The two buttons share the bar's width (the 184px desktop size doesn't fit side by side). */
   .action-bar .vp-center__group { width: 100%; }
   .action-bar .vp-center__group > .btn { min-width: 0; }
-  .action-bar__left { position: static; transform: none; flex: 1 1 100%; justify-content: center; text-align: center; }
+  .app__body .vp-center > .action-bar__left { grid-column: 1 / -1; justify-self: center; padding: 0; white-space: normal; text-align: center; } /* own line above the buttons */
   .review__panes { padding-bottom: 168px; }
   .summary-table thead { display: none; }
   .summary-table, .summary-table tbody { display: block; }
@@ -161,7 +162,3 @@
   .modal .row:has(> .field) { flex-direction: column; align-items: stretch !important; }
 }
 
-/* Review bar: when the centred buttons (+ "3/5 confirmed") would reach the left note, drop the note (phones keep it on its own line). */
-@media (min-width: 641px) and (max-width: 1400px) {
-  .action-bar__left { display: none; }
-}

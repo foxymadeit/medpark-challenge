@@ -370,7 +370,8 @@
   background: var(--sm-surface-panel);
 }
 .action-bar .vp-center__group > .btn { min-width: 184px; justify-content: center; } /* Preview and Send the same size */
-.action-bar__left { position: absolute; left: 48px; top: 50%; transform: translateY(-50%); gap: var(--sm-space-2); }
+/* Left note sits in the bar's left free column (before the centred buttons): it can't reach them, it shortens with "…" instead. */
+.app__body .vp-center > .action-bar__left { grid-column: 1; grid-row: 1; justify-self: start; min-width: 0; max-width: 100%; margin: 0; padding: 0 var(--sm-space-4) 0 48px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 .t-data-md { font: 500 15px/20px var(--sm-font-body); font-variant-numeric: tabular-nums; }
 

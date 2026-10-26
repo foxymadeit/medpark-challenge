@@ -12,7 +12,8 @@
   justify-content: space-between;
   flex-shrink: 0;
   height: var(--sm-topbar-h);
-  padding: 0 var(--sm-space-6);
+  --topbar-pad: var(--sm-space-6);
+  padding: 0 var(--topbar-pad);
   border-bottom: 1px solid var(--sm-surface-hairline);
   background: var(--sm-surface-panel);
 }
@@ -31,6 +32,15 @@
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
 /* Privacy note: quiet like the header's secondary text; tooltip looks like the avatar name tips. */
 .privacy { position: relative; display: inline-flex; }
+/* In the app's top bar its right edge sits on the content's right edge (same margin as the page content: mirrored
+   right space + page padding). If the language switch + account (measured: --topbar-right-w) would be in the way,
+   it stops 16px before them instead, so they never move or get covered. */
+.privacy--header {
+  position: absolute;
+  top: 50%;
+  right: max(calc(var(--content-extra-right, 0px) + var(--content-pad, 0px)), calc(var(--topbar-pad) + var(--topbar-right-w, 0px) + var(--sm-space-4)));
+  transform: translateY(-50%);
+}
 .privacy__button { display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none; color: var(--sm-ink-secondary); font: 500 13px/18px var(--sm-font-body); white-space: nowrap; cursor: help; }
 .privacy__tip {
   position: absolute;
@@ -92,12 +102,15 @@
  *   --content-pad   the content's usual padding (.page)
  *   --content-min   the content never gets narrower than this: the extra right space shrinks first
  *   --content-extra-right  the extra space on the right = the menu's width, reduced to keep --content-min
+ * Set on .app so the top bar shares them (the privacy label lines up with the content's right edge).
  */
-.app__body {
+.app {
   --sidebar-live: var(--sm-sidebar-w);
   --content-pad: var(--sm-space-12);
   --content-min: 640px;
   --content-extra-right: clamp(0px, 100vw - var(--sidebar-live) - 2 * var(--content-pad) - var(--content-min), var(--sidebar-live));
+}
+.app__body {
   display: flex;
   flex: 1;
   min-height: 0;

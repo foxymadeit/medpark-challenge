@@ -1,5 +1,5 @@
 import { CaretDownIcon, ClockCounterClockwiseIcon, LockSimpleIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
 import { useStore } from '../store/AppStore';
@@ -106,7 +106,7 @@ function LanguageSwitch() {
  * Quiet privacy note next to the language switch: lock + "Hospital network only".
  * Hover, keyboard focus or a tap shows the tooltip; a tap elsewhere or Esc hides it.
  */
-function PrivacyBadge() {
+function PrivacyBadge({ className = '' }: { className?: string }) {
   const { t } = useI18n();
   const id = useId();
   const [open, setOpen] = useState(false); // tap / click toggles it on touch screens
@@ -122,7 +122,7 @@ function PrivacyBadge() {
   }, [open]);
 
   return (
-    <span className={`privacy${open ? ' is-open' : ''}`} ref={wrap}>
+    <span className={`privacy${open ? ' is-open' : ''} ${className}`.trim()} ref={wrap}>
       <button type="button" className="privacy__button" aria-describedby={`${id}-tip`} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <LockSimpleIcon size={14} aria-hidden />
         <span className="privacy__label">{t('privacy.label')}</span>
@@ -218,8 +218,20 @@ function AccountMenu() {
 function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuOpen?: boolean; onMenu?: () => void }) {
   const { t } = useI18n();
   const { account, signedIn } = useStore();
+  // Width of language switch + account, so the privacy label can stop before them (see .privacy--header).
+  const bar = useRef<HTMLElement>(null);
+  const right = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = right.current;
+    if (!el) return;
+    const set = () => bar.current?.style.setProperty('--topbar-right-w', `${el.offsetWidth}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   return (
-    <header className="topbar">
+    <header className="topbar" ref={bar}>
       <a href="#main" className="skip-link">
         {t('common.skipToContent')}
       </a>
@@ -235,8 +247,8 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
           <Wordmark />
         </span>
       </Link>
-      <div className="topbar__right">
-        <PrivacyBadge />
+      <PrivacyBadge className="privacy--header" />
+      <div className="topbar__right" ref={right}>
         <LanguageSwitch />
         {showAccount && account && <AccountMenu />}
       </div>
