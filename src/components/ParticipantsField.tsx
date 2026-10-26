@@ -3,7 +3,23 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useI18n } from '../i18n/I18nProvider';
 import type { DraftParticipant } from '../store/AppStore';
 import { useStore } from '../store/AppStore';
+import { defaultParticipants } from '../mocks/defaultParticipants';
 import { Avatar } from './Avatar';
+
+type Suggestion = DraftParticipant;
+
+/** The typed letters underlined in a suggested name, so it's clear why it matched. */
+function Highlight({ text, query }: { text: string; query: string }) {
+  const i = text.toLowerCase().indexOf(query);
+  if (!query || i < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, i)}
+      <u>{text.slice(i, i + query.length)}</u>
+      {text.slice(i + query.length)}
+    </>
+  );
+}
 
 /**
  * Participants of the meeting as chips (name + ×), with an "Add name…" input at the end.
@@ -21,7 +37,24 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
 
   const q = input.trim().toLowerCase();
   const has = (name: string) => participants.some((p) => p.name.toLowerCase() === name.trim().toLowerCase());
-  const suggestions = q ? people.filter((p) => !has(p.name) && [p.name, p.role, p.email].some((v) => v?.toLowerCase().includes(q))).slice(0, 6) : [];
+  // Everyone we know of: the directory plus the default lists of every meeting type, once each.
+  const known: Suggestion[] = [...people.map((p) => ({ name: p.name, role: p.role })), ...Object.values(defaultParticipants).flat()].filter(
+    (p, i, all) => all.findIndex((x) => x.name.toLowerCase() === p.name.toLowerCase()) === i,
+  );
+  // Match on the name only (not role or email). Names with a word starting with what's typed come first
+  // ("a" → Ana, Andrei…), then names that merely contain it (Maria, Natalia…). Titles like "Dr." are ignored.
+  const words = (name: string) =>
+    name
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => !/^(dr|prof)\.?$/.test(w));
+  const rank = (name: string) => (words(name).some((w) => w.startsWith(q)) ? 0 : words(name).join(' ').includes(q) ? 1 : 2);
+  const suggestions = q
+    ? known
+        .filter((p) => !has(p.name) && rank(p.name) < 2)
+        .sort((a, b) => rank(a.name) - rank(b.name) || words(a.name).join(" ").localeCompare(words(b.name).join(" ")))
+        .slice(0, 6)
+    : [];
   const showList = suggestions.length > 0;
 
   useEffect(() => setActive(-1), [q]);
@@ -33,8 +66,8 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
     onChange([...participants, { ...p, name }]);
   };
   const addTyped = () => {
-    const known = people.find((p) => p.name.toLowerCase() === q);
-    add(known ? { name: known.name, role: known.role } : { name: input });
+    const match = known.find((p) => p.name.toLowerCase() === q);
+    add(match ?? { name: input });
   };
 
   const onKey = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -47,7 +80,7 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
     } else if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       const picked = suggestions[active];
-      if (picked) add({ name: picked.name, role: picked.role });
+      if (picked) add(picked);
       else addTyped();
     } else if (e.key === 'Escape') {
       setInput('');
@@ -98,18 +131,20 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
           <ul id={`${id}-list`} className="emails-combo__list" role="listbox" aria-label={t('newMeeting.suggestions')}>
             {suggestions.map((p, i) => (
               <li
-                key={p.id}
+                key={p.name}
                 id={`${id}-opt-${i}`}
                 role="option"
                 aria-selected={i === active}
                 className={`emails-combo__option${i === active ? ' is-active' : ''}`}
                 onMouseEnter={() => setActive(i)}
                 onMouseDown={(e) => e.preventDefault()} // keep focus in the input
-                onClick={() => add({ name: p.name, role: p.role })}
+                onClick={() => add(p)}
               >
                 <Avatar name={p.name} />
                 <span className="who__text">
-                  <span className="who__name truncate">{p.name}</span>
+                  <span className="who__name truncate">
+                    <Highlight text={p.name} query={q} />
+                  </span>
                   {p.role && <span className="who__sub truncate">{p.role}</span>}
                 </span>
               </li>
