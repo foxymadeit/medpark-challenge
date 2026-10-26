@@ -439,6 +439,8 @@ export const en = {
     last: 'last {title}, {date}',
     noMeetings: 'No meetings yet',
     manage: 'Open in Participants',
+    guest: 'Guest of this meeting',
+    guestNote: 'Not in your participants list yet, so there is no email: the minutes won’t reach them until you add them on the Participants page.',
   },
   account: {
     menu: 'Account',

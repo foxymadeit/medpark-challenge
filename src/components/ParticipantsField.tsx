@@ -4,7 +4,9 @@ import { useI18n } from '../i18n/I18nProvider';
 import type { DraftParticipant } from '../store/AppStore';
 import { useStore } from '../store/AppStore';
 import { defaultParticipants } from '../mocks/defaultParticipants';
+import { demoPeople } from '../mocks';
 import { Avatar } from './Avatar';
+import { GuestProfileDialog, PersonProfileDialog } from './PersonProfile';
 
 type Suggestion = DraftParticipant;
 
@@ -34,6 +36,8 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
   const id = useId();
   const [input, setInput] = useState('');
   const [active, setActive] = useState(-1); // -1: Enter adds the typed name
+  const [profile, setProfile] = useState<DraftParticipant | null>(null); // chip whose profile is open
+  const inDirectory = (name: string) => [...people, ...demoPeople].find((p) => p.name.toLowerCase() === name.toLowerCase());
   const wrap = useRef<HTMLDivElement>(null);
   const field = useRef<HTMLInputElement>(null);
 
@@ -101,8 +105,11 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
         <div className="emails-field" onMouseDown={(e) => e.target === e.currentTarget && (e.preventDefault(), field.current?.focus())}>
           <UsersThreeIcon size={20} aria-hidden />
           {participants.map((p) => (
-            <span key={p.name} className="tag emails-field__tag" title={p.role}>
-              {p.name}
+            <span key={p.name} className="tag emails-field__tag">
+              {/* Click the name for the person's profile. */}
+              <button type="button" className="emails-field__name" aria-label={t('profile.open', { name: p.name })} title={p.role} onClick={() => setProfile(p)}>
+                {p.name}
+              </button>
               <button type="button" className="emails-field__remove" aria-label={t('newMeeting.removeEmail', { email: p.name })} onClick={() => onChange(participants.filter((x) => x.name !== p.name))}>
                 <XIcon size={12} aria-hidden />
               </button>
@@ -154,6 +161,12 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
           </ul>
         )}
       </div>
+      {profile &&
+        (inDirectory(profile.name) ? (
+          <PersonProfileDialog personId={inDirectory(profile.name)!.id} onClose={() => setProfile(null)} />
+        ) : (
+          <GuestProfileDialog name={profile.name} role={profile.role} onClose={() => setProfile(null)} />
+        ))}
     </div>
   );
 }

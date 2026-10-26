@@ -96,7 +96,11 @@
   font: 400 15px/22px var(--sm-font-body);
 }
 .emails-field__input::placeholder { color: var(--sm-ink-tertiary); opacity: 1; }
-.emails-field__tag { gap: 4px; padding-right: 2px; }
+.emails-field__tag { gap: 4px; padding-right: 2px; transition: background 120ms; }
+/* The name opens the profile: the chip darkens on hover so it reads as clickable. */
+.emails-field__tag:has(.emails-field__name:hover) { background: var(--sm-surface-hairline); }
+.emails-field__name { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.emails-field__name:hover, .emails-field__name:focus-visible { text-decoration: underline; text-underline-offset: 2px; }
 .emails-field__remove { display: inline-flex; padding: 4px; border: 0; border-radius: 4px; background: none; color: var(--sm-ink-secondary); }
 .emails-field__remove:hover { background: var(--sm-surface-hairline); }
 .emails-combo { position: relative; }

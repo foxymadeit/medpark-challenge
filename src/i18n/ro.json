@@ -445,7 +445,9 @@
     "meetingsCount": "{count} de ședințe",
     "last": "ultima: {title}, {date}",
     "noMeetings": "Încă nicio ședință",
-    "manage": "Deschide în Participanți"
+    "manage": "Deschide în Participanți",
+    "guest": "Invitat la această ședință",
+    "guestNote": "Nu este încă în lista de participanți, deci nu are e-mail: procesul-verbal nu va ajunge la el până nu îl adăugați pe pagina Participanți."
   },
   "account": {
     "menu": "Cont",

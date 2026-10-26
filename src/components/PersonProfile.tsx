@@ -155,3 +155,36 @@ export function PersonProfileDialog({ personId, onClose, showManage = true }: { 
     </Dialog>
   );
 }
+
+/** Profile preview for someone who isn't in the directory yet (a name typed on New meeting): what we know about them. */
+export function GuestProfileDialog({ name, role, onClose }: { name: string; role?: string; onClose: () => void }) {
+  const { t } = useI18n();
+  return (
+    <Dialog title={t('profile.title')} onClose={onClose}>
+      <div className="profile__head">
+        <Avatar name={name} />
+        <span className="who__text">
+          <span className="profile__name">
+            <span className="t-h2">{name}</span>
+          </span>
+          {role && <span className="who__sub">{role}</span>}
+        </span>
+      </div>
+      <dl className="profile__facts">
+        <div>
+          <dt>{t('profile.email')}</dt>
+          <dd className="c-secondary">{t('review.noEmail')}</dd>
+        </div>
+        <div>
+          <dt>{t('profile.role')}</dt>
+          <dd>{role || <span className="c-secondary">{t('profile.noRole')}</span>}</dd>
+        </div>
+        <div>
+          <dt>{t('profile.access')}</dt>
+          <dd>{t('profile.guest')}</dd>
+        </div>
+      </dl>
+      <p className="note">{t('profile.guestNote')}</p>
+    </Dialog>
+  );
+}
