@@ -45,7 +45,7 @@ const STORAGE_KEY = 'liminal:state';
  * Bump when the shape of the saved data or the seed data changes: browsers holding an older
  * version start fresh instead of mixing stale meetings with new code.
  */
-const DATA_VERSION = 2;
+const DATA_VERSION = 3; // 3: 60-person directory
 const LEGACY_KEYS = ['liminal:state:v1'];
 
 const initialState = (): State => ({

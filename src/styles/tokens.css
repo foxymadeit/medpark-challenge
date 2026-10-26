@@ -58,6 +58,9 @@
 
   /* radius */
   --sm-radius-tile: 10px;
+  /* Selects (dropdowns): border width and the inner left padding before the text. Column headers above them line up with the text using these. */
+  --sm-field-border-w: 1px;
+  --sm-field-pad-x: 12px;
   --sm-radius-panel: 18px;
   --sm-radius-inner: 8px; /* segmented / language switch items */
 

@@ -288,6 +288,10 @@
 .table--people th:first-child, .table--people td:first-child { padding-left: 16px; }
 .table--people th:last-child, .table--people td:last-child { padding-right: 12px; padding-left: 4px; }
 .table--people td:nth-child(3) { padding-right: 8px; }
+/* Role and Access headers start where the text inside their selects starts (border + inner padding), not at the select's edge.
+   Only when the rows actually show selects (read-only rows show plain text, aligned as before). */
+.table--people:has(tbody .dropdown) th:nth-child(2),
+.table--people:has(tbody .dropdown) th:nth-child(3) { padding-left: calc(var(--sm-field-border-w) + var(--sm-field-pad-x)); }
 .table tr.is-clickable { cursor: pointer; }
 .table tr.is-clickable:hover td { background: var(--sm-surface-ground); }
 .table tbody tr:last-child td:first-child { border-bottom-left-radius: var(--sm-radius-panel); }
@@ -310,8 +314,8 @@
   gap: var(--sm-space-2);
   width: 100%;
   height: 36px;
-  padding: 0 8px 0 12px;
-  border: 1px solid var(--sm-surface-hairline);
+  padding: 0 8px 0 var(--sm-field-pad-x);
+  border: var(--sm-field-border-w) solid var(--sm-surface-hairline);
   border-radius: var(--sm-radius-tile);
   background: var(--sm-surface-panel);
   color: var(--sm-ink-primary);
