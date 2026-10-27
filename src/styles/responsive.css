@@ -17,7 +17,7 @@
 .sent__done { max-width: 100%; } /* 464px wide (screens.css), never wider than the space */
 .modal { width: min(560px, 100%); }
 .modal--wide { width: min(640px, 100%); }
-.scrim:not(.scrim--right) { padding: 16px; }
+.scrim:not(.scrim--right) { padding: var(--sm-space-4); }
 .side-panel { width: min(480px, 100%); }
 .dropdown { max-width: 100%; }
 .waveform { max-width: 100%; overflow: hidden; justify-content: flex-end; }
@@ -61,21 +61,21 @@
     left: 0;
     z-index: 30;
     height: calc(100dvh - var(--sm-topbar-h));
-    box-shadow: 0 8px 20px rgba(16, 16, 16, 0.06), 0 24px 48px rgba(16, 16, 16, 0.05);
+    box-shadow: var(--sm-elevation-modal);
     transform: translateX(-100%);
     visibility: hidden;
-    transition: transform 200ms ease, visibility 0s linear 200ms;
+    transition: transform var(--sm-duration-base) ease, visibility 0s linear var(--sm-duration-base);
   }
-  .sidenav.is-open { transform: none; visibility: visible; transition: transform 200ms ease; }
+  .sidenav.is-open { transform: none; visibility: visible; transition: transform var(--sm-duration-base) ease; }
   .nav-scrim { display: block; position: fixed; inset: var(--sm-topbar-h) 0 0 0; z-index: 25; background: rgba(16, 16, 16, 0.32); }
   @media (prefers-reduced-motion: reduce) { .sidenav, .sidenav.is-open { transition: none; } }
 
-  .page { padding: 32px 24px; }
-  .review { padding: 24px; }
+  .page { padding: var(--sm-space-8) var(--sm-space-6); }
+  .review { padding: var(--sm-space-6); }
 
 
-  .recording { flex-direction: column; align-items: stretch; gap: var(--sm-space-6); padding: 32px 24px; }
-  .recorder { min-height: 0; padding-top: 32px; }
+  .recording { flex-direction: column; align-items: stretch; gap: var(--sm-space-6); padding: var(--sm-space-8) var(--sm-space-6); }
+  .recorder { min-height: 0; padding-top: var(--sm-space-8); }
   .recorder__note { margin-top: var(--sm-space-4); text-align: center; }
   .live-details { width: 100%; }
 
@@ -98,14 +98,14 @@
   .new-meeting__head .datepicker { grid-column: 1; grid-row: 3; }
   .topbar__right { gap: var(--sm-space-2); }
   .account__button .account__text, .account__button > svg { display: none; }
-  .account__button { padding: 0 4px; }
+  .account__button { padding: 0 var(--sm-space-1); }
   .brand__name { display: none; }
 
-  .page { padding: 24px 16px; }
-  .review { padding: 20px 16px; }
-  .onb { padding: 32px 16px; }
-  .recording { padding: 24px 16px; }
-  .main--center { padding: 24px 16px; }
+  .page { padding: var(--sm-space-6) var(--sm-space-4); }
+  .review { padding: var(--sm-space-5) var(--sm-space-4); }
+  .onb { padding: var(--sm-space-8) var(--sm-space-4); }
+  .recording { padding: var(--sm-space-6) var(--sm-space-4); }
+  .main--center { padding: var(--sm-space-6) var(--sm-space-4); }
   .access-card { padding: var(--sm-space-6); }
 
   .page__actions { flex-wrap: wrap; }
@@ -145,7 +145,7 @@
   .start-tile, .start-tile--record { flex: none; height: 164px; }
 
   .review__header { height: auto; flex-wrap: wrap; gap: var(--sm-space-3); }
-  .review__header .t-h1, .record .t-h1 { font-size: 24px; line-height: 30px; }
+  .review__header .t-h1, .record .t-h1 { font: var(--sm-type-h2); letter-spacing: -0.2px; }
   /* MoM on a phone: the page scrolls, so the card grows with its content; the buttons share the width, the count above them. */
   .review__card { container-type: normal; }
   .review__summary { max-height: none; }
@@ -156,18 +156,18 @@
   .summary-table.task-table thead { display: block; }
   .summary-table.task-table thead tr { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; padding: 0; border: 0; }
   .summary-table.task-table th:nth-child(2), .summary-table.task-table th:nth-child(3) { display: none; }
-  .summary-table.task-table th { position: static; width: auto; padding: 0 0 12px; box-shadow: none; }
+  .summary-table.task-table th { position: static; width: auto; padding: 0 0 var(--sm-space-3); box-shadow: none; }
   .summary-table.task-table th:last-child { margin-left: auto; }
   .summary-table.task-table td { padding: 0; border: 0; text-align: left; } /* the row has the line, not the cells */
   .summary-table thead { display: none; }
   .summary-table, .summary-table tbody { display: block; }
-  .summary-table tr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 0; border-bottom: 1px solid var(--sm-surface-hairline); }
+  .summary-table tr { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sm-space-2) var(--sm-space-3); padding: var(--sm-space-3) 0; border-bottom: 1px solid var(--sm-surface-hairline); }
   .summary-table tbody tr:last-child { border-bottom: 0; }
   .summary-table td, .summary-table td:first-child, .summary-table td:last-child { display: block; width: auto; padding: 0; border: 0; }
   .summary-table td:first-child { flex: 1 1 calc(100% - 44px); }
   .summary-table td:nth-child(2) { flex: 1 1 60%; min-width: 0; }
   .summary-table td:nth-child(3) { padding: 0; }
-  .summary-table tr.is-editing { padding: 12px; border-radius: 10px; background: var(--sm-surface-ground); }
+  .summary-table tr.is-editing { padding: var(--sm-space-3); border-radius: var(--sm-radius-tile); background: var(--sm-surface-ground); }
   .summary-table tr.is-editing td { background: none; flex: 1 1 100%; }
 
   .tpl-card__actions { flex-wrap: wrap; }

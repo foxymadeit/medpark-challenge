@@ -30,8 +30,8 @@ function EditableFact({ label, value, display, type = 'text', placeholder, valid
       <dt>{label}</dt>
       <dd>
         {editing ? (
-          <span className="stack" style={{ gap: 4 }}>
-            <span className="row" style={{ gap: 4 }}>
+          <span className="stack" style={{ gap: 'var(--sm-space-1)' }}>
+            <span className="row" style={{ gap: 'var(--sm-space-1)' }}>
               <input
                 autoFocus
                 type={type}
@@ -170,14 +170,14 @@ export function PersonProfileDialog({ personId, onClose, showManage = true }: { 
       </dl>
       {/* Giving Organizer or Admin rights asks first (same wording as on the Participants page). */}
       {pendingAccess && (
-        <div className="stack" style={{ gap: 12 }} role="group" aria-label={t('participants.accessTitle', { access: t(`accessTitle.${pendingAccess}`) })}>
+        <div className="stack" style={{ gap: 'var(--sm-space-3)' }} role="group" aria-label={t('participants.accessTitle', { access: t(`accessTitle.${pendingAccess}`) })}>
           <p className="lead" style={{ margin: 0 }}>
             {t('participants.accessLead', { name: person.name, access: t(`accessTitle.${pendingAccess}`) })}
           </p>
           <p className="note" style={{ margin: 0 }}>
             {t(`access.${pendingAccess}Desc`)}
           </p>
-          <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+          <div className="row" style={{ justifyContent: 'flex-end', gap: 'var(--sm-space-3)' }}>
             <Button variant="ghost" onClick={() => setPendingAccess(null)}>
               {t('common.cancel')}
             </Button>

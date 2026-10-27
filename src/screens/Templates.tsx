@@ -166,7 +166,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
       </div>
       <fieldset className="tpl-people">
         <legend className="tpl-people__head">
-          <span className="row" style={{ gap: 8 }}>
+          <span className="row" style={{ gap: 'var(--sm-space-2)' }}>
             <UsersThreeIcon size={20} aria-hidden />
             <span className="t-strong">{t('templates.participants')}</span>
           </span>
@@ -222,7 +222,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
       {confirmDelete && template && (
         <Dialog title={t('templates.deleteTitle')} onClose={() => setConfirmDelete(false)}>
           <p className="lead">{t('templates.deleteLead')}</p>
-          <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+          <div className="row" style={{ justifyContent: 'flex-end', gap: 'var(--sm-space-3)' }}>
             <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
               {t('common.cancel')}
             </Button>
@@ -268,7 +268,7 @@ export function Templates() {
           <li key={tpl.id} className="card card--pad tpl-card">
             <div className="tpl-card__head">
               <TemplateBadge color={templateColor(tpl)} type={tpl.type} />
-              <div className="stack" style={{ gap: 4, minWidth: 0 }}>
+              <div className="stack" style={{ gap: 'var(--sm-space-1)', minWidth: 0 }}>
                 <h2 className="t-h3">{tpl.name}</h2>
                 <p className="note">{t('templates.meta', { type: t(`types.${tpl.type}`), count: tpl.participantIds.length })}</p>
               </div>

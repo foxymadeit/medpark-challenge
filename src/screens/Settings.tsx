@@ -54,7 +54,7 @@ export function Settings() {
             <TextField editable label={t('signup.fullName')} value={name} onChange={(e) => (setName(e.target.value), touch())} error={error} autoComplete="name" />
             <TextField editable label={t('onboarding.about.role')} placeholder={t('onboarding.about.rolePh')} value={role} onChange={(e) => (setRole(e.target.value), touch())} />
             <TextField editable label={t('onboarding.about.department')} placeholder={t('onboarding.about.departmentPh')} value={department} onChange={(e) => (setDepartment(e.target.value), touch())} />
-            <div className="stack" style={{ gap: 8 }}>
+            <div className="stack" style={{ gap: 'var(--sm-space-2)' }}>
               <TextField
                 editable
                 type="email"

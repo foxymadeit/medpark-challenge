@@ -42,7 +42,7 @@ function PasswordField({ label, placeholder, value, onChange, error, autoComplet
         </button>
       </span>
       {caps && (
-        <p id={`${id}-caps`} className="note row" style={{ gap: 6 }}>
+        <p id={`${id}-caps`} className="note row" style={{ gap: 'var(--sm-space-2)' }}>
           <WarningIcon size={14} aria-hidden />
           {t('login.capsLock')}
         </p>
@@ -65,7 +65,7 @@ export function Welcome() {
     <div className="card access-card welcome">
       {/* The greeting itself sits above the card (AccessLayout). */}
       <h1 className="lead welcome__lead">{t('welcome.lead')}</h1>
-      <div className="stack" style={{ gap: 12 }}>
+      <div className="stack" style={{ gap: 'var(--sm-space-3)' }}>
         <Button variant="ink" block onClick={() => navigate('/login')}>
           {t('login.submit')}
         </Button>
@@ -133,7 +133,7 @@ export function SignUp() {
       <div data-field="email">
         <TextField label={t('signup.email')} placeholder={t('signup.emailPh')} type="email" autoComplete="email" value={form.email} onChange={(e) => set('email')(e.target.value)} error={errors.email} />
         {taken && (
-          <p className="field__error" role="alert" style={{ marginTop: 8 }}>
+          <p className="field__error" role="alert" style={{ marginTop: 'var(--sm-space-2)' }}>
             {t('signup.emailTaken')}{' '}
             <Link to="/login" className="link-btn">
               {t('signup.logIn')}

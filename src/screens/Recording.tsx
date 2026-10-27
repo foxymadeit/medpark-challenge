@@ -113,7 +113,7 @@ export function Recording() {
             <p className="recorder__state t-plate" role="status">
               <span className="c-secondary">{t('recording.startingIn')}</span>
             </p>
-            <p key={countdown} className="recorder__timer recorder__countdown" aria-live="assertive">
+            <p key={countdown} className="t-timer recorder__timer recorder__countdown" aria-live="assertive">
               {countdown}
             </p>
             <div className="recorder__actions">
@@ -129,7 +129,7 @@ export function Recording() {
           {paused ? <PauseIcon size={16} aria-hidden /> : <span className="rec-dot" aria-hidden />}
           <span className={paused ? 'c-secondary' : ''}>{paused ? t('recording.paused') : t('recording.recording')}</span>
         </p>
-        <p className={`recorder__timer${paused ? ' is-paused' : ''}`} aria-label={t('recording.elapsed')} role="timer">
+        <p className={`t-timer recorder__timer${paused ? ' is-paused' : ''}`} aria-label={t('recording.elapsed')} role="timer">
           {formatClock(rec.elapsed)}
         </p>
         <div className="waveform" role="img" aria-label={t('recording.waveform')}>
@@ -181,7 +181,7 @@ export function Recording() {
       </section>
 
       <aside className="card live-details" aria-label={t('recording.voices')}>
-        <div className="stack" style={{ gap: 12 }}>
+        <div className="stack" style={{ gap: 'var(--sm-space-3)' }}>
           <h2 className="section-title">{t('recording.languages')}</h2>
           {/* Nothing is heard during the 3‥2‥1, so no languages yet. */}
           {countdown > 0 ? (
@@ -201,7 +201,7 @@ export function Recording() {
             </>
           )}
         </div>
-        <div className="stack" style={{ gap: 16 }}>
+        <div className="stack" style={{ gap: 'var(--sm-space-4)' }}>
           <div className="row" style={{ justifyContent: 'space-between' }}>
             <h2 className="section-title">{t('recording.voices')}</h2>
             <span className="t-data-sm c-secondary">{t('recording.ofTotal', { n: heard.length, total: people.length })}</span>

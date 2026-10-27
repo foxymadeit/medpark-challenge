@@ -94,7 +94,7 @@ export function SummaryPoints({ points, onChange, head }: { points: string[]; on
       {onChange && removing !== null && (
         <Dialog title={t('review.deletePointTitle')} onClose={() => setRemoving(null)}>
           <p className="lead">{points[removing]}</p>
-          <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+          <div className="row" style={{ justifyContent: 'flex-end', gap: 'var(--sm-space-3)' }}>
             <Button variant="ghost" onClick={() => setRemoving(null)}>
               {t('common.cancel')}
             </Button>

@@ -85,7 +85,7 @@ export function NewMeeting() {
           </div>
         )}
 
-        <div className="stack" style={{ gap: 10 }}>
+        <div className="stack" style={{ gap: 'var(--sm-space-2)' }}>
           <p className="form-label" id="nm-type">
             {t('newMeeting.type')}
           </p>

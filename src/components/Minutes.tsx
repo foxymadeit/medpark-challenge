@@ -274,7 +274,7 @@ export function TranscriptLines({ lines, nameOf, onCorrect, onRemove, onFlagLang
                 }}
               >
                 <textarea className="input sentence-edit__input" aria-label={t('review.sentence.edit')} value={draft} autoFocus rows={3} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), setEditing(null))} />
-                <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
+                <div className="row" style={{ gap: 'var(--sm-space-2)', justifyContent: 'flex-end' }}>
                   <button type="button" className="btn btn--ghost" onClick={() => setEditing(null)}>
                     {t('common.cancel')}
                   </button>

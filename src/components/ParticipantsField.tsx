@@ -94,7 +94,7 @@ export function ParticipantsField({ participants, onChange }: { participants: Dr
   };
 
   return (
-    <div className="stack" style={{ gap: 10 }}>
+    <div className="stack" style={{ gap: 'var(--sm-space-2)' }}>
       <label className="form-label" htmlFor={`${id}-in`}>
         {t('newMeeting.emails')}
       </label>

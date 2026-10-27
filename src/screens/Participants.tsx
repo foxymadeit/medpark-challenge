@@ -41,9 +41,9 @@ export function AddParticipantModal({ onClose, onAdded, title, initialName = '' 
 
   return (
     <Dialog title={title ?? t('addParticipant.title')} onClose={onClose}>
-      <form className="stack" style={{ gap: 16 }} onSubmit={submit} noValidate>
+      <form className="stack" style={{ gap: 'var(--sm-space-4)' }} onSubmit={submit} noValidate>
         <TextField label={t('addParticipant.name')} placeholder={t('addParticipant.namePh')} value={name} onChange={(e) => setName(e.target.value)} error={errors.name} />
-        <div className="row" style={{ gap: 16, alignItems: 'flex-start' }}>
+        <div className="row" style={{ gap: 'var(--sm-space-4)', alignItems: 'flex-start' }}>
           <TextField label={t('addParticipant.role')} placeholder={t('addParticipant.rolePh')} value={role} onChange={(e) => setRole(e.target.value)} />
           <TextField label={t('addParticipant.email')} placeholder={t('addParticipant.emailPh')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
         </div>
@@ -142,7 +142,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
           <Dialog title={t('participants.accessTitle', { access: t(`accessTitle.${pendingAccess}`) })} onClose={() => setPendingAccess(null)}>
             <p className="lead">{t('participants.accessLead', { name: person.name, access: t(`accessTitle.${pendingAccess}`) })}</p>
             <p className="note">{t(`access.${pendingAccess}Desc`)}</p>
-            <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+            <div className="row" style={{ justifyContent: 'flex-end', gap: 'var(--sm-space-3)' }}>
               <Button variant="ghost" onClick={() => setPendingAccess(null)}>
                 {t('common.cancel')}
               </Button>
@@ -155,7 +155,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
         {confirming && (
           <Dialog title={t('participants.removeTitle')} onClose={() => setConfirming(false)}>
             <p className="lead">{t('participants.removeLead', { name: person.name })}</p>
-            <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+            <div className="row" style={{ justifyContent: 'flex-end', gap: 'var(--sm-space-3)' }}>
               <Button variant="ghost" onClick={() => setConfirming(false)}>
                 {t('common.cancel')}
               </Button>

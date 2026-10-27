@@ -124,7 +124,7 @@ export function Review() {
     <div className="page review page--fit">
       <div className="review__layout">
         <header className="review__header">
-          <div className="stack" style={{ gap: 4, minWidth: 0 }}>
+          <div className="stack" style={{ gap: 'var(--sm-space-1)', minWidth: 0 }}>
             <EditableTitle meeting={meeting} />
             <p className="note">{t('review.meta', { type: t(`types.${meeting.type}`), n: meeting.durationMin, count: meeting.participants.length })}</p>
           </div>

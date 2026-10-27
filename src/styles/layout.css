@@ -20,18 +20,18 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 6px; /* tighter than Figma's 8px, by request: the name sits close to the mark */
+  gap: var(--sm-space-2); /* tighter than Figma's 8px, by request: the name sits close to the mark */
   color: var(--sm-ink-primary);
   text-decoration: none;
   border-radius: var(--sm-radius-inner);
 }
 /* Wordmark: bold, and its cap-height box centred on the 25.5px sign. */
-.brand__name { position: relative; top: 1px; font: 600 21px/28px var(--sm-font-sign); letter-spacing: -0.2px; } /* bigger than Figma (25.5px mark / 16px), by request */
+.brand__name { position: relative; top: 1px; font: var(--sm-type-h2); letter-spacing: -0.2px; } /* bigger than Figma (25.5px mark / 16px), by request */
 /* Figma "Brand": "min" bold in the logo blue. */
 .wordmark__min { color: var(--sm-brand); font-weight: 700; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
 /* Privacy note: green dot + green text, no chip fill (Figma 2089:2933). Reads "working, but local". */
-.privacy { display: inline-flex; align-items: center; gap: 8px; height: 32px; color: var(--sm-success); font: 500 14px/18px var(--sm-font-body); white-space: nowrap; }
+.privacy { display: inline-flex; align-items: center; gap: var(--sm-space-2); height: 32px; color: var(--sm-success); font: var(--sm-type-data-md); white-space: nowrap; }
 /* In the app's top bar its right edge sits on the content column's right edge (--column-right, narrowed on MoM by
    --column-shrink). If the language switch + account (measured: --topbar-right-w) would be in the way, it stops
    16px before them instead, so they never move or get covered. */
@@ -48,7 +48,7 @@
   align-items: center;
   gap: var(--sm-space-2);
   height: 44px;
-  padding: 0 var(--sm-space-2) 0 4px;
+  padding: 0 var(--sm-space-2) 0 var(--sm-space-1);
   border: 0;
   border-radius: var(--sm-radius-tile);
   background: none;
@@ -57,21 +57,20 @@
 .account__button:hover, .account__button[aria-expanded='true'] { background: var(--sm-surface-ground); }
 .account__button svg { color: var(--sm-ink-secondary); }
 .account__text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-.account__text .t-button { line-height: 18px; }
-.account__status { color: var(--sm-ink-secondary); font: 400 12px/16px var(--sm-font-body); }
+.account__status { color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); }
 .account__menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   z-index: 40;
   width: 280px;
-  padding: 4px 0;
+  padding: var(--sm-space-1) 0;
   border: 1px solid var(--sm-surface-hairline);
   border-radius: var(--sm-radius-tile);
   background: var(--sm-surface-panel);
-  box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06), 0 24px 48px rgba(16, 16, 16, 0.05);
+  box-shadow: var(--sm-elevation-popover);
 }
-.account__who { display: flex; flex-direction: column; gap: 2px; padding: 12px 12px 12px; border-bottom: 1px solid var(--sm-surface-hairline); margin-bottom: 4px; }
+.account__who { display: flex; flex-direction: column; gap: 2px; padding: var(--sm-space-3) var(--sm-space-3) var(--sm-space-3); border-bottom: 1px solid var(--sm-surface-hairline); margin-bottom: var(--sm-space-1); }
 .account__item { width: 100%; border: 0; background: none; text-align: left; }
 .account__item:hover, .account__item:focus-visible { background: var(--sm-surface-ground); outline: none; }
 .account__item .row { gap: var(--sm-space-3); }
@@ -122,7 +121,7 @@
   padding-left: var(--sm-space-3);
   border-radius: var(--sm-radius-tile);
   color: var(--sm-ink-secondary);
-  font: 500 15px/20px var(--sm-font-body);
+  font: var(--sm-type-button);
   text-decoration: none;
 }
 .nav-item svg { color: var(--sm-ink-primary); }
@@ -130,7 +129,7 @@
 .nav-item.is-active {
   background: var(--sm-surface-ground);
   color: var(--sm-ink-primary);
-  font: 600 15px/22px var(--sm-font-body);
+  font: var(--sm-type-strong);
 }
 
 .main {
@@ -154,21 +153,21 @@
 /*
  * Section page header (PageHeader): one grid on every section, so nothing jumps when switching.
  *   y 88  content top = the first menu item's top (64 top bar + --page-top)
- *   y 88  small label, 16px line (kept empty when there's none)  · --page-eyebrow-gap 8
+ *   y 88  small label, 20px line (.t-body-sm, kept empty when there's none)  · --page-eyebrow-gap 4
  *   y 112 title, Onest 28/36; the page's main action (or the date) on the title's line, right
  *   y 168 the first block (search row or container)  · --page-title-gap 20 under the title
  * --page-block-gap: from the search row to the container under it.
  */
 .page {
   --page-top: var(--sm-space-6);
-  --page-eyebrow-gap: var(--sm-space-2);
+  --page-eyebrow-gap: var(--sm-space-1);
   --page-title-gap: var(--sm-space-5);
   --page-block-gap: var(--sm-space-4);
 }
 .page:has(> .page-header) { padding-top: var(--page-top); }
-.page-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 16px auto; row-gap: var(--page-eyebrow-gap); column-gap: var(--sm-space-6); align-items: center; margin-bottom: var(--page-title-gap); }
+.page-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 20px auto; row-gap: var(--page-eyebrow-gap); column-gap: var(--sm-space-6); align-items: center; margin-bottom: var(--page-title-gap); }
 .page-header__main { display: contents; }
-.page-header__eyebrow { grid-column: 1; grid-row: 1; min-height: 16px; color: var(--sm-ink-secondary); font: 500 13px/16px var(--sm-font-body); }
+.page-header__eyebrow { grid-column: 1; grid-row: 1; min-height: 20px; color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); font-weight: 500; }
 .page-header__main > :not(.page-header__eyebrow) { grid-column: 1; grid-row: 2; min-width: 0; }
 .page-header > :not(.page-header__main) { grid-column: 2; grid-row: 2; }
 /* Centred on the title's 36px line without making it taller: the 44px button / 40px date stick out evenly. */
@@ -201,8 +200,8 @@
 /* A row of buttons inside .vp-center (same gap as .page__actions). */
 .vp-center__group { display: flex; align-items: center; gap: var(--sm-space-4); }
 
-.lead { font: 400 15px/22px var(--sm-font-body); color: var(--sm-ink-secondary); }
-.note { font: 400 13px/18px var(--sm-font-body); color: var(--sm-ink-secondary); }
+.lead { font: var(--sm-type-body-md); color: var(--sm-ink-secondary); }
+.note { font: var(--sm-type-body-sm); color: var(--sm-ink-secondary); }
 /* Descriptive hints under a control: 30% lighter than regular secondary text. */
 .note--soft { opacity: 0.7; }
 .row { display: flex; align-items: center; gap: var(--sm-space-2); }

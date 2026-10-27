@@ -165,7 +165,7 @@ export function HistoryRecord() {
         <ArrowLeftIcon size={16} aria-hidden />
         {t('record.back')}
       </Link>
-      <div className="stack" style={{ gap: 4 }}>
+      <div className="stack" style={{ gap: 'var(--sm-space-1)' }}>
         <h1 className="t-h1">{meeting.title}</h1>
         <p className="note">
           {meeting.status === 'sent'
@@ -251,7 +251,7 @@ export function HistoryRecord() {
                     <td>
                       <span className="summary-table__owner">
                         <Avatar name={nameOf(task.ownerId)} />
-                        <span className="who__name truncate" style={{ paddingTop: 5 }}>
+                        <span className="who__name truncate" style={{ paddingTop: 'var(--sm-space-1)' }}>
                           {nameOf(task.ownerId)}
                         </span>
                       </span>
@@ -297,7 +297,7 @@ export function HistoryRecord() {
 
       {tplName !== null && (
         <Dialog title={t('record.saveTemplate')} onClose={() => setTplName(null)}>
-          <form className="stack" style={{ gap: 16 }} onSubmit={(e) => (e.preventDefault(), saveAsTemplate())}>
+          <form className="stack" style={{ gap: 'var(--sm-space-4)' }} onSubmit={(e) => (e.preventDefault(), saveAsTemplate())}>
             <p className="note">{t('record.saveTemplateLead', { count: meeting.participants.filter((p) => resolvePerson(p.personId)).length })}</p>
             <TextField editable label={t('templates.name')} value={tplName} onChange={(e) => setTplName(e.target.value)} />
             <Button type="submit" variant="ink" block disabled={!tplName.trim()}>
