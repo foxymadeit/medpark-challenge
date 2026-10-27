@@ -97,9 +97,12 @@
 .emails-field__name { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
 .emails-field__name:focus-visible { text-decoration: underline; text-underline-offset: 2px; } /* keyboard only: no underline on hover */
 /* New meeting: Participants field framed exactly like the date chip on the same screen. */
-.new-meeting .emails-field { min-height: 40px; padding: 2px var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); }
+/* 7px + 1px border = 8px from every edge to the names, on one row or several: the input is as tall as a name (24px),
+   so the field is 40px with one row and grows by 32px (24 + 8 gap) per extra row. */
+.new-meeting .emails-field { min-height: 40px; padding: 7px var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); }
 .emails-field__remove { display: inline-flex; padding: 4px; border: 0; border-radius: 4px; background: none; color: var(--sm-ink-secondary); }
 .emails-field__remove:hover { background: var(--sm-surface-hairline); }
+.new-meeting .emails-field__input { height: 24px; }
 .emails-combo { position: relative; }
 .emails-combo__list { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 30; margin: 0; padding: 4px; list-style: none; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06), 0 24px 48px rgba(16, 16, 16, 0.05); }
 .emails-combo__option { display: flex; align-items: center; gap: var(--sm-space-3); padding: 8px; border-radius: var(--sm-radius-inner); cursor: pointer; }
