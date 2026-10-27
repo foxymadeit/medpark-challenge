@@ -72,7 +72,6 @@
 
 /* ── Form fields ─────────────────────────────────────────── */
 .field { display: flex; flex-direction: column; gap: var(--sm-space-2); width: 100%; }
-.field__label { font: var(--sm-type-strong); color: var(--sm-ink-primary); }
 .field__error { font: var(--sm-type-body-sm); color: var(--sm-signal-danger); }
 
 .input {

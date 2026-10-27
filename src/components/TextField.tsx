@@ -28,7 +28,7 @@ export function TextField({ label, error, editable, after, className = '', ...re
   );
   return (
     <div className={`field ${className}`.trim()}>
-      <label className="field__label" htmlFor={id}>
+      <label className="form-label" htmlFor={id}>
         {label}
       </label>
       {after ? (

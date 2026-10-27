@@ -161,7 +161,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
     <Dialog title={template ? t('templates.panelTitle') : t('templates.new')} onClose={onClose} wide className="modal--template">
       <TextField editable label={t('templates.name')} placeholder={t(`templates.namePh.${type}`)} value={name} onChange={(e) => (setName(e.target.value), setError(undefined))} error={error} after={<ColorPicker value={color} onChange={setColor} />} />
       <div className="field">
-        <span className="field__label">{t('templates.type')}</span>
+        <span className="form-label">{t('templates.type')}</span>
         <Segmented<MeetingType> label={t('templates.type')} variant="fill" value={type} onChange={setType} options={MEETING_TYPES.map((m) => ({ value: m, label: t(`types.${m}`), icon: <MeetingTypeIcon type={m} /> }))} />
       </div>
       <fieldset className="tpl-people">

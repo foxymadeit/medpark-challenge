@@ -48,7 +48,7 @@ export function AddParticipantModal({ onClose, onAdded, title, initialName = '' 
           <TextField label={t('addParticipant.email')} placeholder={t('addParticipant.emailPh')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
         </div>
         <fieldset className="stack access-options">
-          <legend className="field__label">{t('addParticipant.access')}</legend>
+          <legend className="form-label">{t('addParticipant.access')}</legend>
           {/* Everyone gets the minutes; Organizer and Admin add rights on top. Admin includes Organizer. */}
           <label className="access-check is-fixed">
             <input type="checkbox" className="checkbox" checked disabled />

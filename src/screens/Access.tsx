@@ -19,7 +19,7 @@ function PasswordField({ label, placeholder, value, onChange, error, autoComplet
   const describedBy = [error && `${id}-err`, caps && `${id}-caps`].filter(Boolean).join(' ') || undefined;
   return (
     <div className="field">
-      <label className="field__label" htmlFor={id}>
+      <label className="form-label" htmlFor={id}>
         {label}
       </label>
       <span className="input-wrap">
