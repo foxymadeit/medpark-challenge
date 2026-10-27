@@ -41,8 +41,8 @@
   right: max(calc(var(--content-extra-right, 0px) + var(--content-pad, 0px)), calc(var(--topbar-pad) + var(--topbar-right-w, 0px) + var(--sm-space-4)));
   transform: translateY(-50%);
 }
-/* A chip that reads "working, but local": light-green pill, green dot, dark-green text. */
-.privacy__button { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px 0 10px; border: 0; border-radius: 999px; background: var(--sm-success-tint); color: var(--sm-success); font: 600 13px/18px var(--sm-font-body); white-space: nowrap; cursor: help; }
+/* Reads "working, but local": green dot + green text, no chip fill (Figma 2089:2933). */
+.privacy__button { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0; border: 0; background: none; color: var(--sm-success); font: 500 14px/18px var(--sm-font-body); white-space: nowrap; cursor: help; }
 .privacy__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--sm-success); }
 .privacy__tip {
   position: absolute;
@@ -221,14 +221,10 @@
   .page--fit { flex: 1 1 0; min-height: 0; overflow: hidden; }
   .page--fit > * { flex-shrink: 0; }
 
-  /* Review: MoM = Summary + Tasks, each at most half the height; a short one shrinks to its content and the other takes the rest. */
-  .review.page--fit .review__panes { flex: 1 1 0; min-height: 0; flex-shrink: 1; }
-  .review__pane { min-height: 0; overflow: hidden; }
-  .review__pane--split { flex: 1 1 0; max-height: max-content; }
-  .review__pane--fill { flex: 1 1 0; }
-  .review__pane--split .summary-points { flex: 1 1 auto; min-height: 0; margin-bottom: 0; overflow-y: auto; }
+  /* Review: the MoM card and the participants panel take the height left; the card has one scroll. */
+  .review.page--fit .review__layout { flex: 1 1 0; min-height: 0; }
+  .review.page--fit { overflow: visible; } /* the panel sits in the page's right margin (see .review__layout) */
   .review__scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-  .review__scroll thead th { position: sticky; top: 0; z-index: 1; background: var(--sm-surface-panel); } /* Owner / Deadline row stays put */
 
   /* Participants and History: the list is the scroll container; its column headers stay visible. */
   .page--fit .table-card { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }

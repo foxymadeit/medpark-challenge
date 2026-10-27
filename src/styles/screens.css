@@ -253,15 +253,6 @@
 .processing__note-row { margin-top: auto; } /* keeps the note at the bottom */
 
 /* ── Review ── */
-.review { padding: 32px 48px 24px; }
-.review__header { display: flex; align-items: center; justify-content: space-between; height: 56px; }
-.review__panes { display: flex; flex-direction: column; gap: var(--sm-space-4); margin-top: 24px; }
-.review__pane {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sm-space-4);
-  padding: var(--sm-space-6);
-}
 /* Open: "Hide" steps back to grey — blue only invites opening. */
 .transcript { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }
 .transcript__line { position: relative; display: flex; flex-direction: column; gap: var(--sm-space-1); }
@@ -285,12 +276,119 @@
 .sentence-player__fill { position: absolute; inset: 0 auto 0 0; background: var(--sm-ink-primary); transition: width 100ms linear; }
 .sentence-edit { display: flex; flex-direction: column; gap: var(--sm-space-2); }
 .sentence-edit__input { height: auto; min-height: 72px; padding: 10px 12px; resize: vertical; font: 400 15px/24px var(--sm-font-body); }
-.review__header { gap: var(--sm-space-6); }
 /* Review pane titles (Transcript, Summary): black and larger than container labels. */
 .review__pane-title { margin: 0; color: var(--sm-ink-primary); font: 600 20px/26px var(--sm-font-sign); letter-spacing: -0.2px; }
 .review__title-input { height: 44px; max-width: 560px; font: 600 24px/30px var(--sm-font-sign); }
 
-/* Summary: Task · Owner · Deadline. */
+/*
+ * MoM screen (Figma "05 MoM · D4 B", 2089:2928). Grid [free | card | panel side]: the card (864 at 1440) sits at the
+ * window's centre, the participants panel (240) 24px to its right. The grid reaches out over the page's side
+ * margins (--review-bleed) so the right column can hold the panel; the left one only balances it and never gets
+ * narrower than that margin, so the card never slides under the menu. When the window is too narrow for both, the
+ * left column gives way first (the card moves left, down to the content's edge), then the card narrows.
+ */
+.review { padding: var(--sm-space-6) var(--sm-space-12); }
+.review__layout {
+  --review-bleed: max(0px, var(--content-extra-right, 0px) + var(--content-pad, 0px) - var(--sm-space-6));
+  display: grid;
+  grid-template-columns: minmax(var(--review-bleed), 1fr) minmax(0, 864px) minmax(264px, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  row-gap: var(--sm-space-4);
+  margin: 0 calc(-1 * var(--review-bleed));
+}
+.review__layout > * { grid-column: 2; }
+.review__header { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-6); min-height: 56px; }
+.review__title { margin: 0; }
+.review__title-btn { padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; cursor: text; }
+.review__title-btn:hover { text-decoration: underline; text-decoration-color: var(--sm-surface-hairline); text-underline-offset: 6px; }
+.review__header .segmented { flex: none; }
+.review__header .segmented__item { height: 36px; padding: 0 16px; } /* Figma: 36px items */
+.review__card { display: flex; flex-direction: column; min-height: 0; overflow: hidden; container-type: size; }
+.review__scroll { padding: 0 var(--sm-space-6) var(--sm-space-6); }
+.review__transcript { padding-top: var(--sm-space-6); }
+/* Section title + grey count ("Summary  6 points", "Tasks  12"). */
+.review__count-head { display: inline-flex; align-items: baseline; gap: 10px; }
+
+/* Summary: at most half of the card (its own scroll only if it's longer). */
+.review__summary { display: flex; flex-direction: column; max-height: 50cqh; padding: var(--sm-space-6) 0 28px; }
+.review__summary .summary-points { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: 14px 0 0; }
+.review__summary .summary-points__item { font: 400 15px/24px var(--sm-font-body); }
+
+/* "+" (add point, add task): the thin 10px glyph in a 28px click area, no fill, grey like the counts. */
+.plus-glyph { position: relative; display: block; width: 10px; height: 10px; }
+.plus-glyph::before, .plus-glyph::after { content: ''; position: absolute; border-radius: 0.75px; background: currentColor; }
+.plus-glyph::before { top: 4.25px; left: 0; width: 10px; height: 1.5px; }
+.plus-glyph::after { top: 0; left: 4.25px; width: 1.5px; height: 10px; }
+.add-btn { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--sm-radius-inner); background: none; color: var(--sm-ink-secondary); cursor: pointer; }
+.add-btn:hover:not(:disabled) { color: var(--sm-ink-primary); }
+.add-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* Edit / Confirm / Confirmed share one width: 104 (Figma), wider where the longest label needs it ("Подтверждено"). */
+.task-table { --task-btn-w: 104px; }
+:lang(ru) .task-table { --task-btn-w: 136px; }
+/* Tasks: Task · Owner 220 · Deadline 104 · actions 216, 20px apart. One header row, stuck to the top while scrolling.
+   Doubled class: these beat the shared .summary-table rules further down (History uses those). */
+.summary-table.task-table th:nth-child(1) { width: auto; }
+.summary-table.task-table th:nth-child(2) { width: clamp(160px, 30%, 240px); } /* 240 (220 + gap) at Figma width; narrower windows: the name truncates */
+.summary-table.task-table th:nth-child(3) { width: 124px; }
+.summary-table.task-table th:nth-child(4) { width: calc(2 * var(--task-btn-w) + var(--sm-space-2)); }
+.summary-table.task-table:has(tr.is-editing) th:nth-child(3) { width: 252px; } /* the deadline reads in full while editing */
+.summary-table.task-table th, .summary-table.task-table td { padding: 12px 20px 12px 0; vertical-align: middle; }
+.summary-table.task-table th:last-child, .summary-table.task-table td:last-child { padding-right: 0; text-align: right; }
+.summary-table.task-table th { position: sticky; top: 0; z-index: 1; border-bottom: 0; background: var(--sm-surface-panel); box-shadow: inset 0 -1px 0 var(--sm-surface-hairline); }
+.summary-table.task-table td { border-bottom: 1px solid var(--sm-surface-hairline); }
+.summary-table.task-table th .add-btn { vertical-align: middle; }
+.summary-table.task-table .summary-table__patient { color: var(--sm-ink-secondary); font: 400 13px/normal var(--sm-font-body); letter-spacing: 0; }
+.task-table__title { display: block; color: var(--sm-ink-primary); font: 400 15px/21px var(--sm-font-body); }
+.task-owner { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.task-owner__name { min-width: 0; color: var(--sm-ink-primary); font: 600 15px/normal var(--sm-font-body); }
+.summary-table.task-table .due__rel { font: 600 15px/normal var(--sm-font-body); }
+.summary-table.task-table .due__date { font: 400 13px/normal var(--sm-font-body); }
+/* Confirmed: the row goes grey (text only). */
+.summary-table.task-table tr.is-confirmed :is(.task-table__title, .task-owner__name, .due__rel) { color: var(--sm-ink-secondary); }
+.task-actions { display: inline-flex; align-items: center; gap: var(--sm-space-2); }
+/* Edit / Confirm / Confirmed: the same 104×40; confirming changes only the colour. */
+.task-btn { width: var(--task-btn-w); height: 40px; padding: 0 var(--sm-space-3); box-shadow: none; }
+.task-confirm.is-on { background: var(--sm-control-track); color: var(--sm-ink-secondary); }
+.task-confirm.is-on:hover:not(:disabled) { background: var(--sm-surface-hairline); }
+
+/* Participants panel: right of the card, same top and height; the list scrolls if it's long. */
+.people-panel { grid-column: 3; grid-row: 2; justify-self: start; display: flex; flex-direction: column; gap: 4px; width: 240px; min-height: 0; margin-left: var(--sm-space-6); padding: 20px 16px 12px; overflow-y: auto; }
+.people-panel__title { margin: 0 0 8px; color: var(--sm-ink-secondary); font: 500 13px/normal var(--sm-font-body); }
+.people-panel__list { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0 0 4px; border-bottom: 1px solid var(--sm-control-track); list-style: none; }
+.people-panel__person { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.people-panel__person .who__text { gap: 0; }
+.people-panel__name { color: var(--sm-ink-primary); font: 600 14px/normal var(--sm-font-body); }
+.people-panel__email { color: var(--sm-ink-secondary); font: 400 12px/normal var(--sm-font-body); }
+.people-panel .add-person__row { padding: 10px 0 6px; }
+.people-panel .add-person__row.is-adding > .add-person__plus { display: none; } /* the box takes the whole row */
+.people-panel .add-person__input { height: 40px; padding: 0 12px; border: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-panel); }
+
+/* "+ Add participant" (AddPersonRow), shared by the panel and the template editor. */
+.add-person__row { display: flex; align-items: center; gap: 10px; }
+.add-person__plus { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px dashed var(--sm-line-dashed); border-radius: 50%; color: var(--sm-ink-secondary); }
+.add-person__open { padding: 0; border: 0; background: none; color: var(--sm-ink-secondary); font: 400 13px/normal var(--sm-font-body); cursor: pointer; }
+.add-person__row:hover .add-person__open, .add-person__open:focus-visible { color: var(--sm-ink-primary); }
+.add-person__row { position: relative; }
+.add-person__open::after { content: ''; position: absolute; inset: 0; } /* the whole row (the + too) is the button */
+.add-person__input { flex: 1; min-width: 0; height: 36px; padding: 0 8px; border: 0; border-radius: var(--sm-radius-inner); background: transparent; color: var(--sm-ink-primary); font: 400 15px/22px var(--sm-font-body); }
+.add-person__input::placeholder { color: var(--sm-ink-tertiary); }
+.add-person__input:hover { background: var(--sm-surface-ground); }
+.add-person__input:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--sm-control); }
+.add-person__error { margin: 4px 0 0; }
+.add-person__list { margin: 4px 0 8px; padding: 4px; list-style: none; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06); }
+.add-person__option { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; padding: 6px 8px; border-radius: var(--sm-radius-inner); cursor: pointer; }
+.add-person__option .who__text { min-width: 0; }
+.add-person__option.is-active { background: var(--sm-surface-ground); }
+.add-person__create { border-top: 1px solid var(--sm-surface-hairline); border-radius: 0 0 var(--sm-radius-inner) var(--sm-radius-inner); }
+
+/* Footer: Preview / Send (176 each) at the window's centre; "confirmed 2/12" just right of Send, outside the centring. */
+.review__actions { position: relative; display: flex; justify-content: center; gap: var(--sm-space-3); justify-self: center; }
+.review__btn { width: 176px; height: 48px; }
+.review__btn:disabled { background: var(--sm-ink-disabled); box-shadow: none; opacity: 1; }
+.review__confirmed { position: absolute; top: 50%; left: calc(100% + var(--sm-space-3)); transform: translateY(-50%); color: var(--sm-ink-secondary); font: 400 13px/normal var(--sm-font-body); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.review__confirmed.is-done { color: var(--sm-success); }
+
 /* MoM summary: key points above the tasks (Review, History record). */
 .summary-points { display: flex; flex-direction: column; gap: var(--sm-space-2); margin: var(--sm-space-3) 0 var(--sm-space-6); }
 .summary-points__list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0 0 0 18px; }
@@ -302,32 +400,14 @@
 .review__sub-title { margin: 0; color: var(--sm-ink-primary); font: 600 16px/22px var(--sm-font-sign); }
 .record__tasks-title { margin: var(--sm-space-2) 0 var(--sm-space-3); }
 .summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
-.summary-head__add { height: 32px; margin: -6px -8px -6px 0; padding: 0 10px; font-size: 14px; }
-/* Add point / Add task: quiet like the descriptive hints (secondary ink, 30% lighter); full ink on hover. */
-.summary-head__add { color: var(--sm-ink-secondary); opacity: 0.7; }
-.summary-head__add:hover:not(:disabled), .summary-head__add:focus-visible { color: var(--sm-ink-primary); opacity: 1; }
 .summary-table__patient-input { margin-bottom: 8px; }
-/* Editing a task: every field the same size, and a wider Deadline column so the date reads in full. */
+/* Editing a task: every field the same size. */
 .summary-table tr.is-editing .input, .summary-table tr.is-editing .dropdown__button { height: 40px; padding: 0 12px; font: 400 15px/22px var(--sm-font-body); }
-.summary-table:has(tr.is-editing) th:nth-child(3) { width: 248px; }
 .summary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .summary-table th:nth-child(1) { width: 36%; }
 .summary-table th:nth-child(3) { width: 96px; }
 .summary-table th:nth-child(4) { width: 72px; }
-/* Action items: Confirm (✓) then Edit (pen). Confirmed rows go quiet; the ✓ turns green and bold. */
-.task-actions { display: inline-flex; align-items: center; gap: var(--sm-space-2); }
-/* Confirm (black) → "Confirmed ✓" (calm: no fill, green text). Fixed width so the row doesn't jump when it flips. */
-.task-confirm { min-width: 136px; justify-content: center; }
-.task-confirm.is-on { color: var(--sm-success); }
-/* Tasks on Review: columns size to their content, the task text takes the rest; the same 24px gap between every column. */
-.summary-table--tasks { table-layout: auto; }
-.summary-table.summary-table--tasks th { width: auto; }
-.summary-table.summary-table--tasks th:not(:first-child), .summary-table.summary-table--tasks td:not(:first-child) { width: 1%; white-space: nowrap; }
-.summary-table.summary-table--tasks th, .summary-table.summary-table--tasks td { padding-right: var(--sm-space-6); }
-.summary-table.summary-table--tasks th:last-child, .summary-table.summary-table--tasks td:last-child { padding-right: 0; }
-.summary-table.summary-table--tasks td { vertical-align: middle; }
-.summary-table--tasks tr.is-editing td:nth-child(3) .dropdown { min-width: 232px; } /* the deadline reads in full while editing */
-/* Owner: avatar + name + email as one button with a chevron. */
+/* Owner while editing a task: avatar + name as one button with a chevron. */
 .owner-picker { position: relative; }
 .owner-picker__button { display: flex; align-items: center; gap: var(--sm-space-2); min-height: 44px; margin: 0 -8px; padding: 4px 8px; border: 0; border-radius: var(--sm-radius-tile); background: none; color: inherit; text-align: left; cursor: pointer; }
 .owner-picker__button:hover, .owner-picker__button[aria-expanded='true'] { background: var(--sm-surface-ground); }
@@ -338,18 +418,13 @@
 .owner-picker__error { margin: 0 4px 4px; }
 .owner-picker__list { max-height: 240px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
 .owner-picker__new { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 16px; background: var(--sm-surface-ground); color: var(--sm-ink-secondary); }
-.summary-table tr.is-confirmed td:not(:last-child) { opacity: 0.55; }
-/* MoM | Transcript switch under the title (Review and History). */
+/* MoM | Transcript switch under the title (History record). */
 .review__tabs { margin-top: var(--sm-space-6); }
 .record__transcript { display: flex; flex-direction: column; gap: var(--sm-space-4); margin-top: 24px; }
-/* "3/5 confirmed" next to Send; green once all are. */
-.review__confirmed { white-space: nowrap; font-variant-numeric: tabular-nums; }
-.review__confirmed.is-done { color: var(--sm-success); }
 .summary-table td { overflow-wrap: break-word; }
-.summary-table .who__name, .summary-table .owner-email-line { max-width: 100%; }
+
 /* Names wrap (they matter); only the email truncates. */
 .summary-table .who__name.truncate { overflow: visible; white-space: normal; text-overflow: clip; }
-.summary-table .owner-email-line .truncate { min-width: 0; }
 .summary-table th { padding: 0 12px 8px 0; border-bottom: 1px solid var(--sm-surface-hairline); color: var(--sm-title-muted); font: 500 13px/18px var(--sm-font-body); text-align: left; white-space: nowrap; }
 .summary-table td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--sm-surface-hairline); vertical-align: top; }
 .summary-table tbody tr:last-child td { border-bottom: 0; }
@@ -365,7 +440,6 @@
 .summary-table__owner { display: flex; align-items: flex-start; gap: var(--sm-space-2); min-width: 0; }
 .summary-table__owner .who__text { min-width: 0; }
 .summary-table .dropdown { width: 100% !important; }
-.owner-email-line { display: inline-flex; align-items: center; gap: 2px; min-width: 0; }
 
 /* Pen = editable. Quiet until hovered so the content stays first. */
 .edit-btn { width: 28px; height: 28px; color: var(--sm-ink-secondary); }
@@ -373,21 +447,9 @@
 .icon-btn--confirm { background: var(--sm-action); color: var(--sm-surface-panel); }
 .icon-btn--confirm:hover { background: var(--sm-action-hover); }
 
-.owner-email { width: 240px; height: 32px; }
 
 .task { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-4); color: var(--sm-ink-primary); }
 
-/* Under the containers (not a fixed footer): recipients, then Preview / Send centred on the window. */
-.review__bottom { display: flex; flex-direction: column; gap: var(--sm-space-3); padding-top: var(--sm-space-4); }
-.review__recipients { display: flex; align-items: flex-start; gap: var(--sm-space-3); }
-.review__recipients > .stack { flex: 1; min-width: 0; }
-.review__recipients-label { flex: none; padding-top: 14px; color: var(--sm-ink-secondary); font: 500 13px/18px var(--sm-font-body); }
-.review__recipients .emails-field { max-height: 96px; overflow-y: auto; } /* many recipients: the field scrolls, the buttons stay put */
-.review__recipients .emails-combo__list { top: auto; bottom: calc(100% + 4px); } /* suggestions open upwards */
-.review__actions { min-height: 44px; }
-.review__actions .vp-center__group > .btn { min-width: 184px; justify-content: center; } /* Preview and Send the same size */
-/* Left note sits in the row's left free column (before the centred buttons): it can't reach them, it shortens with "…" instead. */
-.app__body .vp-center > .action-bar__left { grid-column: 1; grid-row: 1; justify-self: start; min-width: 0; max-width: 100%; margin: 0; padding: 0 var(--sm-space-4) 0 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
 .t-data-md { font: 500 15px/20px var(--sm-font-body); font-variant-numeric: tabular-nums; }
 
@@ -459,20 +521,11 @@
 .tpl-person__main .t-strong { margin-right: -4px; white-space: nowrap; }
 .tpl-person__main .avatar { width: 28px; height: 28px; font-size: 11px; }
 /* "New participant" placeholder row: looks like a slot waiting to be filled. */
-.tpl-person--new { gap: var(--sm-space-3); }
-.tpl-person__plus { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px; margin-left: 32px; border: 1.5px dashed var(--sm-ink-tertiary); border-radius: 50%; color: var(--sm-ink-secondary); }
-.tpl-person__input { flex: 1; min-width: 0; height: 36px; padding: 0 8px; border: 0; border-radius: var(--sm-radius-inner); background: transparent; color: var(--sm-ink-primary); font: 500 15px/22px var(--sm-font-body); }
-.tpl-person__input::placeholder { color: var(--sm-ink-tertiary); }
-.tpl-person__input:hover { background: var(--sm-surface-ground); }
-.tpl-person__input:focus { outline: none; background: var(--sm-surface-ground); box-shadow: inset 0 0 0 1.5px var(--sm-control); }
-.tpl-suggest { margin: 4px 0 8px 44px; padding: 4px; list-style: none; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06); }
-.tpl-suggest__option { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; padding: 6px 8px; border-radius: var(--sm-radius-inner); cursor: pointer; }
-.tpl-suggest__option .who__text { min-width: 0; }
-.tpl-suggest__option.is-active { background: var(--sm-surface-ground); }
-.tpl-suggest__create { border-top: 1px solid var(--sm-surface-hairline); border-radius: 0 0 var(--sm-radius-inner) var(--sm-radius-inner); }
-.tpl-person__add { color: var(--sm-ink-secondary); font: 500 15px/22px var(--sm-font-body); text-decoration: none; }
-.tpl-person__add:hover { color: var(--sm-ink-primary); }
-.tpl-person__error { margin: 4px 0 0 44px; }
+/* "+ Add participant" (AddPersonRow) in the template editor: a list row, the + in the avatars' column (after the checkbox). */
+.tpl-people .add-person__row { height: 48px; border-top: 1px solid var(--sm-surface-hairline); }
+.tpl-people .add-person__row > .add-person__plus { width: 28px; height: 28px; margin-left: 32px; }
+.tpl-people .add-person__open { font: 500 15px/22px var(--sm-font-body); }
+.tpl-people .add-person__list, .tpl-people .add-person__error { margin-left: 44px; }
 /* Template list: "Edit" is plain secondary text (no icon), a touch darker on hover. */
 .tpl-card__edit { color: var(--sm-ink-secondary); }
 .tpl-card__edit:hover:not(:disabled) { color: var(--sm-ink-primary); }

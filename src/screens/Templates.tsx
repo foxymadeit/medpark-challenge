@@ -1,6 +1,7 @@
 import { ArrowsLeftRightIcon, CheckIcon, MicrophoneIcon, PlusIcon, UserPlusIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AddPersonRow } from '../components/AddPersonRow';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
@@ -12,9 +13,6 @@ import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
 import { COLOR_KEYS, PALETTE, templateColor, type ColorKey } from '../lib/colors';
 import { AddParticipantModal } from './Participants';
-import { Highlight } from '../components/ParticipantsField';
-import { isEmail } from '../lib/format';
-import { suggestByName } from '../lib/participants';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES, type MeetingType, type Person, type Template } from '../types';
 
@@ -69,26 +67,6 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
   // The newcomer takes the old participant's slot, so the template order is kept.
   const replace = (oldId: string, newId: string) =>
     setSelected((s) => (s.includes(newId) ? s.filter((x) => x !== oldId) : s.includes(oldId) ? s.map((x) => (x === oldId ? newId : x)) : [...s, newId]));
-
-  // "+ Add participant": a search over saved participants (by first name / surname), or a new name, or just an email (a guest).
-  const [adding, setAdding] = useState(false);
-  const [query, setQuery] = useState('');
-  const [active, setActive] = useState(0);
-  const [addError, setAddError] = useState<string>();
-  const q = query.trim();
-  const matches = q.includes('@') ? others.filter((p) => p.email?.toLowerCase().startsWith(q.toLowerCase())).slice(0, 5) : suggestByName(others, q, () => false, 5);
-  const exact = [...people, ...members].some((p) => p.name.toLowerCase() === q.toLowerCase() || p.email?.toLowerCase() === q.toLowerCase());
-  const canCreate = !!q && !exact;
-  const closeAdd = () => (setAdding(false), setQuery(''), setActive(0), setAddError(undefined));
-  const pickExisting = (id: string) => (add(id), setQuery(''), setActive(0));
-  const createTyped = () => {
-    if (q.includes('@')) {
-      if (!isEmail(q)) return setAddError(t('common.emailInvalid'));
-      add(addPerson({ name: q, email: q, role: '', access: 'receives' })); // guest: just an email
-    } else add(addPerson({ name: q, role: '', access: 'receives' }));
-    setQuery('');
-    setActive(0);
-  };
 
   const initial = template?.participantIds ?? (account ? [account.personId] : []);
   const dirty =
@@ -156,67 +134,13 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
             </button>
           </div>
         ))}
-        {/* Add row: the + sits in the avatars' column. */}
-        <div className="tpl-person tpl-person--new">
-          <span className="tpl-person__plus" aria-hidden>
-            <PlusIcon size={16} weight="bold" />
-          </span>
-          {adding ? (
-            <input
-              autoFocus
-              className="tpl-person__input"
-              placeholder={t('recipients.ph')}
-              aria-label={t('templates.addPerson')}
-              role="combobox"
-              aria-expanded={!!q}
-              aria-controls="tpl-suggest"
-              aria-autocomplete="list"
-              aria-activedescendant={q ? `tpl-opt-${active}` : undefined}
-              aria-invalid={addError ? true : undefined}
-              value={query}
-              onChange={(e) => (setQuery(e.target.value), setActive(0), setAddError(undefined))}
-              onBlur={() => !q && closeAdd()}
-              onKeyDown={(e) => {
-                const count = matches.length + (canCreate ? 1 : 0);
-                if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, count - 1)));
-                else if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
-                else if (e.key === 'Escape') (e.stopPropagation(), closeAdd());
-                else if (e.key === 'Enter') {
-                  e.preventDefault();
-                  if (matches[active]) pickExisting(matches[active].id);
-                  else if (canCreate) createTyped();
-                }
-              }}
-            />
-          ) : (
-            <button type="button" className="link-btn tpl-person__add" onClick={() => setAdding(true)}>
-              {t('templates.addPerson')}
-            </button>
-          )}
-        </div>
-        {addError && <p className="field__error tpl-person__error">{addError}</p>}
-        {/* Saved participants first, "add new" last. Inline so the modal never clips it. */}
-        {adding && q && (matches.length > 0 || canCreate) && (
-          <ul id="tpl-suggest" role="listbox" aria-label={t('templates.addPerson')} className="tpl-suggest">
-            {matches.map((p, i) => (
-              <li key={p.id} id={`tpl-opt-${i}`} role="option" aria-selected={i === active} className={`tpl-suggest__option${i === active ? ' is-active' : ''}`} onMouseEnter={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={() => pickExisting(p.id)}>
-                <Avatar name={p.name} />
-                <span className="who__text">
-                  <span className="who__name truncate">{q.includes('@') ? p.name : <Highlight text={p.name} query={q.toLowerCase()} />}</span>
-                  <span className="who__sub truncate">{[p.role, p.email].filter(Boolean).join(' · ')}</span>
-                </span>
-              </li>
-            ))}
-            {canCreate && (
-              <li id={`tpl-opt-${matches.length}`} role="option" aria-selected={active === matches.length} className={`tpl-suggest__option tpl-suggest__create${active === matches.length ? ' is-active' : ''}`} onMouseEnter={() => setActive(matches.length)} onMouseDown={(e) => e.preventDefault()} onClick={createTyped}>
-                <span className="tpl-person__plus" aria-hidden style={{ marginLeft: 0 }}>
-                  <PlusIcon size={16} weight="bold" />
-                </span>
-                <span className="who__name truncate">{q.includes('@') ? t('owner.addEmail', { email: q }) : t('owner.addName', { name: q })}</span>
-              </li>
-            )}
-          </ul>
-        )}
+        {/* Add row: the + sits in the avatars' column; picked or created people join ticked. */}
+        <AddPersonRow
+          pool={others}
+          known={[...people, ...members]}
+          onPick={(p) => add(p.id)}
+          onCreate={(typed) => add(addPerson({ ...typed, role: '', access: 'receives' }))}
+        />
       </fieldset>
       <div className="tpl-editor__actions">
         {template && (

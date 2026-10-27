@@ -18,7 +18,8 @@
     "cancel": "Отмена",
     "save": "Сохранить",
     "required": "Обязательное поле",
-    "emailInvalid": "Введите корректный e-mail"
+    "emailInvalid": "Введите корректный e-mail",
+    "addPerson": "Добавить участника"
   },
   "lang": {
     "en": "EN",
@@ -286,7 +287,6 @@
     "tasks": "Задачи",
     "patient": "Пациент · {name}",
     "noEmail": "Нет e-mail",
-    "emailFor": "E-mail для: {name}",
     "task": "Задача",
     "owner": "Ответственный",
     "due": "Срок",
@@ -301,7 +301,6 @@
     "send": "Отправить протокол",
     "cancel": "Отмена",
     "save": "Сохранить изменения",
-    "teach": "Ваши исправления обучают ИИ.",
     "sentence": {
       "select": "Выбрать фразу в {time}, {name}",
       "actions": "Фраза",
@@ -324,9 +323,15 @@
       "labelFixed": "{word} — исправлено"
     },
     "summary": "Краткое содержание",
+    "pointsCount": "{count} пунктов",
+    "pointsCount_one": "{count} пункт",
+    "pointsCount_few": "{count} пункта",
+    "pointsCount_many": "{count} пунктов",
     "addPoint": "Добавить пункт",
     "editPoint": "Изменить пункт",
     "removePoint": "Удалить пункт",
+    "deletePointTitle": "Удалить этот пункт?",
+    "deletePoint": "Удалить",
     "pointLabel": "Пункт резюме",
     "pointPh": "Ключевой момент, решение или результат",
     "noSummary": "Резюме пока нет.",
@@ -338,7 +343,7 @@
     "unconfirm": "Отменить подтверждение",
     "confirmTask": "Подтвердить поручение: {title}",
     "unconfirmTask": "Отменить подтверждение: {title}",
-    "confirmedCount": "{n}/{total} подтверждено",
+    "confirmedCount": "подтверждено {n}/{total}",
     "confirmAllFirst": "Подтвердите все поручения, чтобы отправить",
     "confirmed": "Подтверждено",
     "saveShort": "Сохранить"
@@ -410,7 +415,6 @@
     "participants": "Участники",
     "more": "+ещё {n}",
     "save": "Сохранить шаблон",
-    "addPerson": "Добавить участника",
     "replace": "Заменить: {name}",
     "replaceTitle": "Заменить: {name}",
     "replaceHint": "Выберите, кто займёт это место в шаблоне.",
@@ -467,10 +471,7 @@
     "addEmail": "Добавить гостя {email}"
   },
   "recipients": {
-    "title": "Получатели",
-    "ph": "Добавьте имя или email…",
-    "organizer": "Вы организатор этой встречи",
-    "owner": "Владелец поручения: сначала переназначьте его"
+    "ph": "Добавьте имя или email…"
   },
   "privacy": {
     "label": "Только сеть больницы",

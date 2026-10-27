@@ -30,6 +30,9 @@
   --sm-control-track: #efede8;
   /* Text/icons on solid colour fills (template badges). */
   --sm-on-solid: #ffffff;
+  /* MoM screen (Figma 2089:2928): dashed "+ Add participant" circle, and a disabled Send. */
+  --sm-line-dashed: #d9d6d1;
+  --sm-ink-disabled: #c9c6c0;
   /* Keyword chip hover in the transcript. */
   --sm-keyword-hover: #ddd8cf;
 

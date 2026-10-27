@@ -29,6 +29,14 @@
   .live-details { width: 340px; }
 }
 
+/* ── <1216: no room for a 640px MoM card + the 264px participants panel beside it (menu 240 + 48 + 640 + 288).
+   The panel goes under the card (its list scrolls), and the card takes the page's spare right margin too. ── */
+@media (max-width: 1215px) {
+  .review__layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; margin: 0 calc(-1 * var(--content-extra-right, 0px)) 0 0; }
+  .review__layout > * { grid-column: 1; }
+  .people-panel { grid-column: 1; grid-row: 3; justify-self: stretch; width: auto; max-height: 168px; margin-left: 0; }
+}
+
 /* ── ≤1024: tablet ── */
 @media (max-width: 1024px) {
   .topbar { --topbar-pad: var(--sm-space-4); }
@@ -55,7 +63,7 @@
   @media (prefers-reduced-motion: reduce) { .sidenav, .sidenav.is-open { transition: none; } }
 
   .page { padding: 32px 24px; }
-  .review { padding: 24px 24px 0; }
+  .review { padding: 24px; }
 
   .new-meeting { flex-direction: column; justify-content: flex-start; gap: var(--sm-space-8); }
   .new-meeting__main { width: 100%; flex: none; }
@@ -65,7 +73,6 @@
   .recorder__note { margin-top: var(--sm-space-4); text-align: center; }
   .live-details { width: 100%; }
 
-  .review__panes { padding-bottom: 136px; }
 
   .record__panes { flex-direction: column; align-items: stretch; }
   .record__people { width: 100%; }
@@ -90,7 +97,7 @@
 
   .page { padding: 24px 16px; }
   .page__head--row { flex-wrap: wrap; gap: var(--sm-space-4); }
-  .review { padding: 20px 16px 0; }
+  .review { padding: 20px 16px; }
   .onb { padding: 32px 16px; }
   .recording { padding: 24px 16px; }
   .main--center { padding: 24px 16px; }
@@ -134,14 +141,19 @@
 
   .review__header { height: auto; flex-wrap: wrap; gap: var(--sm-space-3); }
   .review__header .t-h1, .record .t-h1 { font-size: 24px; line-height: 30px; }
-  .review__actions .btn { flex: 1 1 0; }
-  /* The two buttons share the bar's width (the 184px desktop size doesn't fit side by side). */
-  .review__actions .vp-center__group { width: 100%; }
-  .review__actions .vp-center__group > .btn { min-width: 0; }
-  .review__recipients { flex-direction: column; gap: 4px; }
-  .review__recipients-label { padding-top: 0; }
-  .app__body .vp-center > .action-bar__left { grid-column: 1 / -1; justify-self: center; padding: 0; white-space: normal; text-align: center; } /* own line above the buttons */
-  .review__panes { padding-bottom: 168px; }
+  /* MoM on a phone: the page scrolls, so the card grows with its content; the buttons share the width, the count above them. */
+  .review__card { container-type: normal; }
+  .review__summary { max-height: none; }
+  .people-panel { max-height: none; }
+  .review__actions { flex-wrap: wrap; justify-self: stretch; }
+  .review__btn { flex: 1 1 0; width: auto; }
+  .review__confirmed { position: static; order: -1; flex-basis: 100%; transform: none; text-align: center; }
+  .summary-table.task-table thead { display: block; }
+  .summary-table.task-table thead tr { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; padding: 0; border: 0; }
+  .summary-table.task-table th:nth-child(2), .summary-table.task-table th:nth-child(3) { display: none; }
+  .summary-table.task-table th { position: static; width: auto; padding: 0 0 12px; box-shadow: none; }
+  .summary-table.task-table th:last-child { margin-left: auto; }
+  .summary-table.task-table td { padding: 0; border: 0; text-align: left; } /* the row has the line, not the cells */
   .summary-table thead { display: none; }
   .summary-table, .summary-table tbody { display: block; }
   .summary-table tr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 0; border-bottom: 1px solid var(--sm-surface-hairline); }

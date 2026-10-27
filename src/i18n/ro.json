@@ -17,7 +17,8 @@
     "cancel": "Anulează",
     "save": "Salvează",
     "required": "Obligatoriu",
-    "emailInvalid": "Introduceți un e-mail valid"
+    "emailInvalid": "Introduceți un e-mail valid",
+    "addPerson": "Adaugă participant"
   },
   "lang": {
     "en": "EN",
@@ -282,7 +283,6 @@
     "tasks": "Sarcini",
     "patient": "Pacient · {name}",
     "noEmail": "Fără e-mail",
-    "emailFor": "E-mail pentru {name}",
     "task": "Sarcină",
     "owner": "Responsabil",
     "due": "Termen",
@@ -297,7 +297,6 @@
     "send": "Trimite PV",
     "cancel": "Anulează",
     "save": "Salvează modificările",
-    "teach": "Corecturile dvs. instruiesc AI-ul.",
     "sentence": {
       "select": "Selectați propoziția de la {time} a lui {name}",
       "actions": "Propoziție",
@@ -320,9 +319,14 @@
       "labelFixed": "{word} — corectat"
     },
     "summary": "Rezumat",
+    "pointsCount": "{count} de puncte",
+    "pointsCount_one": "{count} punct",
+    "pointsCount_few": "{count} puncte",
     "addPoint": "Adaugă punct",
     "editPoint": "Editează punctul",
     "removePoint": "Elimină punctul",
+    "deletePointTitle": "Ștergeți acest punct?",
+    "deletePoint": "Șterge",
     "pointLabel": "Punct din rezumat",
     "pointPh": "Un punct cheie, o decizie sau un rezultat",
     "noSummary": "Încă nu există rezumat.",
@@ -334,7 +338,7 @@
     "unconfirm": "Anulează confirmarea",
     "confirmTask": "Confirmă acțiunea: {title}",
     "unconfirmTask": "Anulează confirmarea: {title}",
-    "confirmedCount": "{n}/{total} confirmate",
+    "confirmedCount": "confirmate {n}/{total}",
     "confirmAllFirst": "Confirmați toate acțiunile pentru a trimite",
     "confirmed": "Confirmat",
     "saveShort": "Salvează"
@@ -402,7 +406,6 @@
     "participants": "Participanți",
     "more": "+încă {n}",
     "save": "Salvează șablonul",
-    "addPerson": "Adaugă participant",
     "replace": "Înlocuiește pe {name}",
     "replaceTitle": "Înlocuiește pe {name}",
     "replaceHint": "Alegeți cine îi ia locul în acest șablon.",
@@ -458,10 +461,7 @@
     "addEmail": "Adaugă invitat {email}"
   },
   "recipients": {
-    "title": "Destinatari",
-    "ph": "Adăugați nume sau e-mail…",
-    "organizer": "Organizați această ședință",
-    "owner": "Are o acțiune: reatribuiți-o mai întâi"
+    "ph": "Adăugați nume sau e-mail…"
   },
   "privacy": {
     "label": "Doar rețeaua spitalului",

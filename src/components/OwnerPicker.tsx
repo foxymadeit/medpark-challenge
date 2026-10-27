@@ -11,13 +11,13 @@ import { Highlight } from './ParticipantsField';
 type Option = { kind: 'person'; snap: ParticipantSnapshot } | { kind: 'new'; snap: ParticipantSnapshot; label: string };
 
 /**
- * Task owner: avatar + name + email as one button with a small chevron. It opens a list with a search box:
+ * Task owner while a task is being edited: avatar + name as one button with a small chevron. It opens a list with a search box:
  * the meeting's participants (empty search), saved participants by name as you type, or a new name /
  * an email only (a guest) — the same rules as the Recipients field. Picking replaces the whole owner.
  */
 export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeting; ownerId: string; name: string; onPick: (owner: ParticipantSnapshot) => void }) {
   const { t } = useI18n();
-  const { people, resolvePerson } = useStore();
+  const { people } = useStore();
   const id = useId();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -26,7 +26,6 @@ export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeti
   const wrap = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
 
-  const email = resolvePerson(ownerId)?.email ?? meeting.participants.find((p) => p.personId === ownerId)?.email;
   const q = query.trim();
 
   // Everyone pickable: this meeting's participants first, then the saved directory (once each).
@@ -80,10 +79,7 @@ export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeti
     <div className="owner-picker" ref={wrap}>
       <button ref={button} type="button" className="owner-picker__button" aria-haspopup="listbox" aria-expanded={open} aria-label={t('owner.change', { name })} onClick={() => (open ? close() : setOpen(true))}>
         <Avatar name={name} />
-        <span className="who__text">
-          <span className="who__name truncate">{name}</span>
-          <span className="who__sub truncate">{email ?? t('review.noEmail')}</span>
-        </span>
+        <span className="who__name truncate">{name}</span>
         <CaretDownIcon size={14} aria-hidden className="owner-picker__caret" />
       </button>
       {open && (
