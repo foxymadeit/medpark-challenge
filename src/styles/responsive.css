@@ -29,12 +29,14 @@
   .live-details { width: 340px; }
 }
 
-/* ── <1216: no room for a 640px MoM card + the 264px participants panel beside it (menu 240 + 48 + 640 + 288).
-   The panel goes under the card (its list scrolls), and the card takes the page's spare right margin too. ── */
+/* ── <1216: the MoM column would have to shrink below 640 to fit the participants panel beside it
+   (menu 240 + 48 + 640 + 288). The panel goes under the card instead, the column keeps its normal edges,
+   and the participants line up in as many columns as fit (avatar + name + email). ── */
 @media (max-width: 1215px) {
-  .review__layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; margin: 0 calc(-1 * var(--content-extra-right, 0px)) 0 0; }
-  .review__layout > * { grid-column: 1; }
-  .people-panel { grid-column: 1; grid-row: 3; justify-self: stretch; width: auto; max-height: 168px; margin-left: 0; }
+  .app:has(.review__layout) { --column-shrink: 0px; }
+  .review__layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; margin-right: 0; }
+  .people-panel { grid-column: 1; grid-row: 3; max-height: 168px; }
+  .people-panel__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 var(--sm-space-6); }
 }
 
 /* ── ≤1024: tablet ── */

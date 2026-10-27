@@ -281,22 +281,21 @@
 .review__title-input { height: 44px; max-width: 560px; font: 600 24px/30px var(--sm-font-sign); }
 
 /*
- * MoM screen (Figma "05 MoM · D4 B", 2089:2928). Grid [free | card | panel side]: the card (864 at 1440) sits at the
- * window's centre, the participants panel (240) 24px to its right. The grid reaches out over the page's side
- * margins (--review-bleed) so the right column can hold the panel; the left one only balances it and never gets
- * narrower than that margin, so the card never slides under the menu. When the window is too narrow for both, the
- * left column gives way first (the card moves left, down to the content's edge), then the card narrows.
+ * MoM screen (Figma "05 MoM · D4 B", 2089:2928). The card is the page's content column, edge to edge like the
+ * Participants table. The participants panel (240) sits in the page's right margin, 24px from the card: the grid
+ * reaches into that margin by the panel's room. If the margin is too small for the panel (+24 to the window edge),
+ * the column gives up the difference (--column-shrink, set on .app so the header status follows); left edge stays.
  */
+.app:has(.review__layout) { --panel-w: 240px; --column-shrink: max(0px, var(--sm-space-6) + var(--panel-w) + var(--sm-space-6) - var(--column-right)); }
 .review { padding: var(--sm-space-6) var(--sm-space-12); }
 .review__layout {
-  --review-bleed: max(0px, var(--content-extra-right, 0px) + var(--content-pad, 0px) - var(--sm-space-6));
   display: grid;
-  grid-template-columns: minmax(var(--review-bleed), 1fr) minmax(0, 864px) minmax(264px, 1fr);
+  grid-template-columns: minmax(0, 1fr) var(--panel-w);
   grid-template-rows: auto minmax(0, 1fr) auto;
-  row-gap: var(--sm-space-4);
-  margin: 0 calc(-1 * var(--review-bleed));
+  gap: var(--sm-space-4) var(--sm-space-6);
+  margin-right: calc(var(--column-shrink, 0px) - var(--panel-w) - var(--sm-space-6));
 }
-.review__layout > * { grid-column: 2; }
+.review__layout > * { grid-column: 1; }
 .review__header { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-6); min-height: 56px; }
 .review__title { margin: 0; }
 .review__title-btn { padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; cursor: text; }
@@ -353,7 +352,7 @@
 .task-confirm.is-on:hover:not(:disabled) { background: var(--sm-surface-hairline); }
 
 /* Participants panel: right of the card, same top and height; the list scrolls if it's long. */
-.people-panel { grid-column: 3; grid-row: 2; justify-self: start; display: flex; flex-direction: column; gap: 4px; width: 240px; min-height: 0; margin-left: var(--sm-space-6); padding: 20px 16px 12px; overflow-y: auto; }
+.people-panel { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: 4px; min-height: 0; padding: 20px 16px 12px; overflow-y: auto; }
 .people-panel__title { margin: 0 0 8px; color: var(--sm-ink-secondary); font: 500 13px/normal var(--sm-font-body); }
 .people-panel__list { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0 0 4px; border-bottom: 1px solid var(--sm-control-track); list-style: none; }
 .people-panel__person { display: flex; align-items: center; gap: 10px; padding: 8px 0; }

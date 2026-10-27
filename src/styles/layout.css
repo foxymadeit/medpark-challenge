@@ -32,13 +32,13 @@
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
 /* Privacy note: quiet like the header's secondary text; tooltip looks like the avatar name tips. */
 .privacy { position: relative; display: inline-flex; }
-/* In the app's top bar its right edge sits on the content's right edge (same margin as the page content: mirrored
-   right space + page padding). If the language switch + account (measured: --topbar-right-w) would be in the way,
-   it stops 16px before them instead, so they never move or get covered. */
+/* In the app's top bar its right edge sits on the content column's right edge (--column-right, narrowed on MoM by
+   --column-shrink). If the language switch + account (measured: --topbar-right-w) would be in the way, it stops
+   16px before them instead, so they never move or get covered. */
 .privacy--header {
   position: absolute;
   top: 50%;
-  right: max(calc(var(--content-extra-right, 0px) + var(--content-pad, 0px)), calc(var(--topbar-pad) + var(--topbar-right-w, 0px) + var(--sm-space-4)));
+  right: max(calc(var(--column-right, 0px) + var(--column-shrink, 0px)), calc(var(--topbar-pad) + var(--topbar-right-w, 0px) + var(--sm-space-4)));
   transform: translateY(-50%);
 }
 /* Reads "working, but local": green dot + green text, no chip fill (Figma 2089:2933). */
@@ -53,8 +53,8 @@
   max-width: 280px;
   padding: 6px 10px;
   border-radius: var(--sm-radius-inner);
-  background: var(--sm-control);
-  color: var(--sm-surface-panel);
+  background: var(--sm-control-track); /* quiet grey like the inactive elements, not a black button */
+  color: var(--sm-ink-primary);
   font: 500 13px/18px var(--sm-font-body);
   pointer-events: none;
   opacity: 0;
@@ -104,6 +104,8 @@
  *   --content-pad   the content's usual padding (.page)
  *   --content-min   the content never gets narrower than this: the extra right space shrinks first
  *   --content-extra-right  the extra space on the right = the menu's width, reduced to keep --content-min
+ *   --column-right  from the content column's right edge to the window's edge (extra right space + padding):
+ *                   every page's column ends here (Participants' table, MoM card…), and so does the header status
  * Set on .app so the top bar shares them (the privacy label lines up with the content's right edge).
  */
 .app {
@@ -111,6 +113,7 @@
   --content-pad: var(--sm-space-12);
   --content-min: 640px;
   --content-extra-right: clamp(0px, 100vw - var(--sidebar-live) - 2 * var(--content-pad) - var(--content-min), var(--sidebar-live));
+  --column-right: calc(var(--content-extra-right) + var(--content-pad));
 }
 .app__body {
   display: flex;
