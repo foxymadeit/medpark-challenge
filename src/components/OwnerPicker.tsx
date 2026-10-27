@@ -11,7 +11,8 @@ import { Highlight } from './ParticipantsField';
 type Option = { kind: 'person'; snap: ParticipantSnapshot } | { kind: 'new'; snap: ParticipantSnapshot; label: string };
 
 /**
- * Task owner while a task is being edited: avatar + name as one button with a small chevron. It opens a list with a search box:
+ * Task owner while a task is being edited: the same avatar + name as in the read row (one line, ellipsis), as one button;
+ * a small caret appears in the gap right of the column, so nothing moves. It opens a list with a search box:
  * the meeting's participants (empty search), saved participants by name as you type, or a new name /
  * an email only (a guest) — the same rules as the Recipients field. Picking replaces the whole owner.
  */
@@ -79,8 +80,8 @@ export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeti
     <div className="owner-picker" ref={wrap}>
       <button ref={button} type="button" className="owner-picker__button" aria-haspopup="listbox" aria-expanded={open} aria-label={t('owner.change', { name })} onClick={() => (open ? close() : setOpen(true))}>
         <Avatar name={name} />
-        <span className="who__name truncate">{name}</span>
-        <CaretDownIcon size={14} aria-hidden className="owner-picker__caret" />
+        <span className="task-owner__name truncate">{name}</span>
+        <CaretDownIcon size={14} aria-hidden className="dropdown__caret" />
       </button>
       {open && (
         <div className="dropdown__list owner-picker__panel" style={{ position: 'fixed', ...pos }}>

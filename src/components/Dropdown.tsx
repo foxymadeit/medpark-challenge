@@ -1,5 +1,5 @@
 import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react';
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 
 export interface DropdownOption {
   value: string;
@@ -20,12 +20,14 @@ interface Props {
   labelledBy?: string;
   /** Shown as a tooltip when disabled. */
   disabledReason?: string;
+  /** Own button content instead of the value + caret: a bare button that reads like the text it replaces, with a 14px caret. */
+  trigger?: ReactNode;
 }
 
 const CUSTOM = '__custom__';
 
 /** Select-like listbox (Figma "Select" + "Dropdown · role"). Keyboard: ↑ ↓ Home End Enter Esc. */
-export function Dropdown({ label, value, options, onChange, customLabel, customPlaceholder, width, variant = 'row', disabled, labelledBy, disabledReason }: Props) {
+export function Dropdown({ label, value, options, onChange, customLabel, customPlaceholder, width, variant = 'row', disabled, labelledBy, disabledReason, trigger }: Props) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [custom, setCustom] = useState(false);
@@ -109,7 +111,7 @@ export function Dropdown({ label, value, options, onChange, customLabel, customP
       <button
         ref={button}
         type="button"
-        className={`dropdown__button${variant === 'field' ? ' dropdown__button--field' : ''}`}
+        className={`dropdown__button${trigger ? ' dropdown__button--bare' : variant === 'field' ? ' dropdown__button--field' : ''}`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={labelledBy ? undefined : `${label}: ${current?.label ?? value}`}
@@ -124,10 +126,12 @@ export function Dropdown({ label, value, options, onChange, customLabel, customP
           }
         }}
       >
-        <span id={`${id}-value`} className="truncate">
-          {current?.label ?? value}
-        </span>
-        <CaretDownIcon size={16} aria-hidden />
+        {trigger ?? (
+          <span id={`${id}-value`} className="truncate">
+            {current?.label ?? value}
+          </span>
+        )}
+        <CaretDownIcon size={trigger ? 14 : 16} aria-hidden className={trigger ? 'dropdown__caret' : undefined} />
       </button>
       {open && (
         <ul

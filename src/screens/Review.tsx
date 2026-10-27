@@ -1,5 +1,5 @@
 import { DownloadSimpleIcon, PaperPlaneTiltIcon, PlusIcon } from '@phosphor-icons/react';
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState, type TextareaHTMLAttributes } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
@@ -17,6 +17,18 @@ import { meetingHeading, speakerNamer } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 import type { Meeting, ParticipantSnapshot, Task } from '../types';
+
+/** Task text edited in place: wraps and grows like the read-mode text (same font, no padding), Enter saves. */
+function InlineText(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = '0';
+    el.style.height = `${el.scrollHeight}px`;
+  });
+  return <textarea ref={ref} rows={1} {...props} />;
+}
 
 /** Deadline as said in the meeting ("Tomorrow", "In 3 days"…) plus the date it resolves to. */
 function useDueLabel(meetingDate: string) {
@@ -184,15 +196,27 @@ export function Review() {
                   {rows.map((task) =>
                     row && row.id === task.id ? (
                       <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
+                        {/* Edit keeps the read layout: the texts become editable in place, owner and deadline get a caret. */}
                         <td>
-                          <input className="input input--inline summary-table__patient-input" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
-                          <input className="input input--inline" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? saveRow() : e.key === 'Escape' ? cancelRow() : undefined)} />
+                          <input className="task-edit summary-table__patient" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
+                          <InlineText className="task-edit task-table__title" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? (e.preventDefault(), saveRow()) : e.key === 'Escape' ? cancelRow() : undefined)} />
                         </td>
                         <td>
                           <OwnerPicker meeting={meeting} ownerId={row.ownerId} name={nameOf(row.ownerId)} onPick={pickOwner} />
                         </td>
                         <td>
-                          <Dropdown variant="field" label={t('review.due')} value={row.due} options={dueOptions.map((d) => ({ value: d, label: [dueLabel(d).rel, dueLabel(d).date].filter(Boolean).join(' · ') }))} onChange={(v) => setRow({ ...row, due: v })} />
+                          <Dropdown
+                            label={t('review.due')}
+                            value={row.due}
+                            options={dueOptions.map((d) => ({ value: d, label: [dueLabel(d).rel, dueLabel(d).date].filter(Boolean).join(' · ') }))}
+                            onChange={(v) => setRow({ ...row, due: v })}
+                            trigger={
+                              <span className="due">
+                                <span className="due__rel">{dueLabel(row.due).rel}</span>
+                                {dueLabel(row.due).date && <span className="due__date">{dueLabel(row.due).date}</span>}
+                              </span>
+                            }
+                          />
                         </td>
                         <td>
                           <span className="task-actions">

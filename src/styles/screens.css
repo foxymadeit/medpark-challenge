@@ -57,7 +57,7 @@
 /* Editable headline: the meeting name, pen right after it. */
 .headline { display: flex; align-items: center; gap: var(--sm-space-2); min-width: 0; }
 .headline__text { min-width: 0; overflow-wrap: anywhere; cursor: text; }
-.headline__pen { flex-shrink: 0; width: 36px; height: 36px; }
+.headline .headline__pen { flex-shrink: 0; width: 32px; height: 32px; } /* a plain .icon-btn size (beats .edit-btn 28) */
 /* Header: the same two columns as the Record / Upload cards below (--nm-cols, --nm-col-gap on .new-meeting):
    the name stays in the first column (wraps there), the date starts where the Upload card starts. */
 .new-meeting__head { grid-template-columns: var(--nm-cols); column-gap: var(--nm-col-gap); }
@@ -97,9 +97,10 @@
 .emails-field__name { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
 .emails-field__name:focus-visible { text-decoration: underline; text-underline-offset: 2px; } /* keyboard only: no underline on hover */
 /* New meeting: Participants field framed exactly like the date chip on the same screen. */
-/* 7px + 1px border = 8px from every edge to the names, on one row or several: the input is as tall as a name (24px),
-   so the field is 40px with one row and grows by 32px (24 + 8 gap) per extra row. */
-.new-meeting .emails-field { min-height: 40px; padding: 7px var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); }
+/* 8px from every edge to the names, on one row or several: the input is as tall as a name (24px), so the field is 40px
+   with one row and grows by 32px (24 + 8 gap) per extra row. The 1px line is an inset ring, so it takes no room. */
+.new-meeting .emails-field { min-height: 40px; padding: var(--sm-space-2) var(--sm-space-3); border: 0; border-radius: var(--sm-radius-tile); box-shadow: inset 0 0 0 1px var(--sm-surface-hairline); }
+.new-meeting .emails-field:focus-within { border: 0; box-shadow: inset 0 0 0 1px var(--sm-ink-primary); }
 .emails-field__remove { display: inline-flex; padding: var(--sm-space-1); border: 0; border-radius: 4px; background: none; color: var(--sm-ink-secondary); }
 .emails-field__remove:hover { background: var(--sm-surface-hairline); }
 .new-meeting .emails-field__input { height: 24px; }
@@ -330,13 +331,20 @@
 /* Edit / Confirm / Confirmed share one width: 104 (Figma), wider where the longest label needs it ("Подтверждено"). */
 .task-table { --task-btn-w: 104px; }
 :lang(ru) .task-table { --task-btn-w: 136px; }
-/* Tasks: Task · Owner 220 · Deadline 104 · actions 216, 20px apart. One header row, stuck to the top while scrolling.
+/* Tasks: one grid for reading and editing, so a row never moves when Edit is pressed (only the carets appear).
+   Task · Owner 220 · Deadline 104 · actions 216, 20px apart (each column's right padding). Narrow windows: responsive.css.
    Doubled class: these beat the shared .summary-table rules further down (History uses those). */
-.summary-table.task-table th:nth-child(1) { width: auto; }
-.summary-table.task-table th:nth-child(2) { width: clamp(160px, 30%, 240px); } /* 240 (220 + gap) at Figma width; narrower windows: the name truncates */
-.summary-table.task-table th:nth-child(3) { width: 124px; }
-.summary-table.task-table th:nth-child(4) { width: calc(2 * var(--task-btn-w) + var(--sm-space-2)); }
-.summary-table.task-table:has(tr.is-editing) th:nth-child(3) { width: 252px; } /* the deadline reads in full while editing */
+@media (min-width: 641px) {
+  .summary-table.task-table {
+    --task-cols: minmax(240px, 1fr) clamp(160px, 30%, 240px) 124px calc(2 * var(--task-btn-w) + var(--sm-space-2));
+    display: grid;
+    grid-template-columns: var(--task-cols);
+  }
+  .summary-table.task-table :is(thead, tbody, tr) { display: contents; }
+  .summary-table.task-table th:nth-child(n) { width: auto; } /* each header cell spans its column (the shared .summary-table widths are for History) */
+  .summary-table.task-table :is(th, td) { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+  .summary-table.task-table :is(th, td):last-child { align-items: flex-end; }
+}
 .summary-table.task-table th, .summary-table.task-table td { padding: var(--sm-space-3) var(--sm-space-5) var(--sm-space-3) 0; vertical-align: middle; }
 .summary-table.task-table th:last-child, .summary-table.task-table td:last-child { padding-right: 0; text-align: right; }
 .summary-table.task-table th { position: sticky; top: 0; z-index: 1; border-bottom: 0; background: var(--sm-surface-panel); box-shadow: inset 0 -1px 0 var(--sm-surface-hairline); }
@@ -354,6 +362,18 @@
 .task-btn { width: var(--task-btn-w); height: 40px; padding: 0 var(--sm-space-3); box-shadow: none; }
 .task-confirm.is-on { background: var(--sm-control-track); color: var(--sm-ink-secondary); }
 .task-confirm.is-on:hover:not(:disabled) { background: var(--sm-surface-hairline); }
+/* Edit in place: patient and task text keep their read-mode font and spot, no box at rest; a hairline ring (outside
+   the text, takes no room) on hover and focus. */
+.task-edit { display: block; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 2px; background: none; resize: none; overflow: hidden; outline: 1px solid transparent; outline-offset: 4px; }
+.task-edit:hover, .task-edit:focus, .task-edit:focus-visible { outline-color: var(--sm-surface-hairline); }
+.task-edit::placeholder { color: var(--sm-ink-tertiary); opacity: 1; }
+input.task-edit.summary-table__patient { height: 20px; }
+/* Owner and deadline while editing: the read-mode content as a bare button; the 14px caret sits in the 20px gap after
+   the column, so the text keeps its width. */
+.summary-table.task-table :is(.owner-picker__button, .dropdown__button--bare) { position: relative; width: calc(100% + 28px); min-height: 0; margin: -4px -20px -4px -8px; padding: 4px 20px 4px 8px; }
+.dropdown__button--bare { display: flex; align-items: center; height: auto; border: 0; border-radius: var(--sm-radius-inner); background: none; color: inherit; text-align: left; cursor: pointer; }
+.dropdown__button--bare:hover, .dropdown__button--bare[aria-expanded='true'] { background: var(--sm-surface-ground); }
+.dropdown__caret { position: absolute; top: 50%; right: 3px; flex: none; color: var(--sm-ink-secondary); transform: translateY(-50%); }
 
 /* Participants panel: right of the card, same top and height; the list scrolls if it's long. */
 .people-panel { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: var(--sm-space-1); min-height: 0; padding: var(--sm-space-5) var(--sm-space-4) var(--sm-space-3); overflow-y: auto; }
@@ -403,9 +423,6 @@
 .review__sub-title { margin: 0; color: var(--sm-ink-primary); font: var(--sm-type-h3); }
 .record__tasks-title { margin: var(--sm-space-2) 0 var(--sm-space-3); }
 .summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
-.summary-table__patient-input { margin-bottom: var(--sm-space-2); }
-/* Editing a task: every field the same size. */
-.summary-table tr.is-editing .input, .summary-table tr.is-editing .dropdown__button { height: 40px; padding: 0 var(--sm-space-3); font: var(--sm-type-body-md); }
 .summary-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .summary-table th:nth-child(1) { width: 36%; }
 .summary-table th:nth-child(3) { width: 96px; }
@@ -415,7 +432,6 @@
 .owner-picker__button { display: flex; align-items: center; gap: var(--sm-space-2); min-height: 44px; margin: 0 -8px; padding: var(--sm-space-1) var(--sm-space-2); border: 0; border-radius: var(--sm-radius-tile); background: none; color: inherit; text-align: left; cursor: pointer; }
 .owner-picker__button:hover, .owner-picker__button[aria-expanded='true'] { background: var(--sm-surface-ground); }
 .owner-picker__button .who__text { min-width: 0; }
-.owner-picker__caret { flex: none; color: var(--sm-ink-secondary); }
 .owner-picker__panel { z-index: 50; width: 320px; padding: var(--sm-space-2); }
 .owner-picker__search { width: 100%; height: 40px; margin-bottom: var(--sm-space-1); }
 .owner-picker__error { margin: 0 var(--sm-space-1) var(--sm-space-1); }
@@ -436,9 +452,6 @@
 .due__rel { color: var(--sm-ink-primary); font: var(--sm-type-data-md); }
 .due__date { color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); font-variant-numeric: tabular-nums; }
 .summary-table td:nth-child(4) { padding-right: 0; }
-.summary-table tr.is-editing td { background: var(--sm-surface-ground); }
-.summary-table tr.is-editing td:first-child { padding-left: var(--sm-space-2); border-radius: var(--sm-radius-tile) 0 0 var(--sm-radius-tile); }
-.summary-table tr.is-editing td:nth-child(4) { border-radius: 0 var(--sm-radius-tile) var(--sm-radius-tile) 0; }
 .summary-table__patient { display: block; margin-bottom: 2px; color: var(--sm-title-muted); font: var(--sm-type-plate); letter-spacing: 0.24px; }
 .summary-table__owner { display: flex; align-items: flex-start; gap: var(--sm-space-2); min-width: 0; }
 .summary-table__owner .who__text { min-width: 0; }

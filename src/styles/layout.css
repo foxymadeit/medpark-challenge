@@ -54,7 +54,9 @@
   background: none;
   color: var(--sm-ink-primary);
 }
-.account__button:hover, .account__button[aria-expanded='true'] { background: var(--sm-surface-ground); }
+/* No hover fill (pointer only); keyboard focus gets the ring. */
+.account__button { cursor: pointer; }
+.account__button:focus-visible { outline: none; box-shadow: var(--sm-focus-ring); }
 .account__button svg { color: var(--sm-ink-secondary); }
 .account__text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
 .account__status { color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); }
