@@ -96,6 +96,9 @@
 .input--inline { height: 40px; padding: 0 12px; border-width: 1px; }
 /* Editable field: pen at the end; hidden while typing so it never covers text. */
 .input-wrap { position: relative; display: block; }
+/* Input + something on its right (TextField `after`). */
+.field__line { display: flex; align-items: center; gap: var(--sm-space-3); }
+.field__line > :first-child { flex: 1; min-width: 0; }
 .input-wrap .input { padding-right: 40px; }
 .input-wrap__pen { position: absolute; top: 50%; right: 14px; color: var(--sm-ink-secondary); transform: translateY(-50%); cursor: text; }
 .input-wrap:focus-within .input-wrap__pen { opacity: 0; }

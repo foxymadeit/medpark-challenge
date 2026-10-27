@@ -512,6 +512,11 @@
 .swatches { display: flex; flex-wrap: wrap; gap: var(--sm-space-2); }
 .swatch { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; }
 .swatch[aria-checked='true'] { box-shadow: 0 0 0 2px var(--sm-surface-panel), 0 0 0 3.5px var(--sm-ink-primary); }
+/* On the template name's line: the chosen colour only; the full set opens under it. */
+.color-pick { position: relative; flex: none; display: inline-flex; }
+.color-pick__button { cursor: pointer; }
+.color-pick__button:hover, .color-pick__button[aria-expanded='true'] { box-shadow: 0 0 0 2px var(--sm-surface-panel), 0 0 0 3.5px var(--sm-surface-hairline); }
+.color-pick__panel { position: absolute; top: calc(100% + 8px); right: -8px; z-index: 40; width: max-content; max-width: 220px; padding: var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06); }
 .tpl-card__actions { display: flex; justify-content: flex-end; gap: var(--sm-space-2); }
 .tpl-people { display: flex; flex-direction: column; margin: 0; padding: 0; border: 0; min-width: 0; }
 .tpl-people__head { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 0 8px; float: left; }

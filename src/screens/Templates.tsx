@@ -1,5 +1,5 @@
 import { ArrowsLeftRightIcon, CheckIcon, MicrophoneIcon, PlusIcon, UserPlusIcon, UsersThreeIcon } from '@phosphor-icons/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AddPersonRow } from '../components/AddPersonRow';
 import { Avatar } from '../components/Avatar';
@@ -44,6 +44,56 @@ function ReplacePersonDialog({ person, options, onPick, onNew, onClose }: { pers
   );
 }
 
+/** Template colour on the name's line: just the chosen colour; a click opens all of them. Esc / outside click closes. */
+function ColorPicker({ value, onChange }: { value: ColorKey; onChange: (c: ColorKey) => void }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const wrap = useRef<HTMLSpanElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    wrap.current?.querySelector<HTMLElement>('[aria-checked=true]')?.focus();
+    const onDown = (e: MouseEvent) => !wrap.current?.contains(e.target as Node) && setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [open]);
+  const close = () => (setOpen(false), button.current?.focus());
+  return (
+    <span className="color-pick" ref={wrap} onKeyDown={(e) => open && e.key === 'Escape' && (e.stopPropagation(), close())}>
+      <button
+        ref={button}
+        type="button"
+        className="swatch color-pick__button"
+        style={{ background: PALETTE[value].solid }}
+        aria-label={`${t('templates.color')}: ${t(`colors.${value}`)}`}
+        title={t(`colors.${value}`)}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => (open ? close() : setOpen(true))}
+      />
+      {open && (
+        <span className="swatches color-pick__panel" role="radiogroup" aria-label={t('templates.color')}>
+          {COLOR_KEYS.map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="radio"
+              aria-checked={value === c}
+              aria-label={t(`colors.${c}`)}
+              title={t(`colors.${c}`)}
+              className="swatch"
+              style={{ background: PALETTE[c].solid, color: 'var(--sm-on-solid)' }}
+              onClick={() => (onChange(c), close())}
+            >
+              {value === c && <CheckIcon size={16} weight="bold" aria-hidden />}
+            </button>
+          ))}
+        </span>
+      )}
+    </span>
+  );
+}
+
 /** T02 — template editor, shown as a centred modal. */
 function EditTemplatePanel({ template, onClose }: { template?: Template; onClose: () => void }) {
   const { t } = useI18n();
@@ -84,32 +134,10 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
 
   return (
     <Dialog title={template ? t('templates.panelTitle') : t('templates.new')} onClose={onClose} wide>
-      <TextField editable label={t('templates.name')} value={name} onChange={(e) => (setName(e.target.value), setError(undefined))} error={error} />
+      <TextField editable label={t('templates.name')} value={name} onChange={(e) => (setName(e.target.value), setError(undefined))} error={error} after={<ColorPicker value={color} onChange={setColor} />} />
       <div className="field">
         <span className="field__label">{t('templates.type')}</span>
         <Segmented<MeetingType> label={t('templates.type')} variant="fill" value={type} onChange={setType} options={MEETING_TYPES.map((m) => ({ value: m, label: t(`typesShort.${m}`), icon: <MeetingTypeIcon type={m} /> }))} />
-      </div>
-      <div className="field">
-        <span className="field__label" id="tpl-color">
-          {t('templates.color')}
-        </span>
-        <div className="swatches" role="radiogroup" aria-labelledby="tpl-color">
-          {COLOR_KEYS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              role="radio"
-              aria-checked={color === c}
-              aria-label={t(`colors.${c}`)}
-              title={t(`colors.${c}`)}
-              className="swatch"
-              style={{ background: PALETTE[c].solid, color: 'var(--sm-on-solid)' }}
-              onClick={() => setColor(c)}
-            >
-              {color === c && <CheckIcon size={16} weight="bold" aria-hidden />}
-            </button>
-          ))}
-        </div>
       </div>
       <fieldset className="tpl-people">
         <legend className="tpl-people__head">
