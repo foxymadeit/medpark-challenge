@@ -91,7 +91,7 @@
 /* ── ≤640: phone ── */
 @media (max-width: 640px) {
   :root { --content-pad: 16px; } /* .page padding here */
-  /* Phone: the privacy note keeps its lock (and tooltip); the words stay for screen readers only. */
+  /* Phone: the privacy note keeps only its dot; the words stay for screen readers only. */
   .privacy__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   /* Phone: the date drops under the name, left-aligned. */
   .new-meeting { --nm-cols: minmax(0, 1fr); } /* cards and name/date go to one column: the date drops under the name */

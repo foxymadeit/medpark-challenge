@@ -30,8 +30,8 @@
 /* Figma "Brand": "min" bold in the logo blue. */
 .wordmark__min { color: var(--sm-brand); font-weight: 700; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
-/* Privacy note: quiet like the header's secondary text; tooltip looks like the avatar name tips. */
-.privacy { position: relative; display: inline-flex; }
+/* Privacy note: green dot + green text, no chip fill (Figma 2089:2933). Reads "working, but local". */
+.privacy { display: inline-flex; align-items: center; gap: 8px; height: 32px; color: var(--sm-success); font: 500 14px/18px var(--sm-font-body); white-space: nowrap; }
 /* In the app's top bar its right edge sits on the content column's right edge (--column-right, narrowed on MoM by
    --column-shrink). If the language switch + account (measured: --topbar-right-w) would be in the way, it stops
    16px before them instead, so they never move or get covered. */
@@ -41,28 +41,10 @@
   right: max(calc(var(--column-right, 0px) + var(--column-shrink, 0px)), calc(var(--topbar-pad) + var(--topbar-right-w, 0px) + var(--sm-space-4)));
   transform: translateY(-50%);
 }
-/* Reads "working, but local": green dot + green text, no chip fill (Figma 2089:2933). */
-.privacy__button { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0; border: 0; background: none; color: var(--sm-success); font: 500 14px/18px var(--sm-font-body); white-space: nowrap; cursor: help; }
 .privacy__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--sm-success); }
-.privacy__tip {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 40;
-  width: max-content;
-  max-width: 280px;
-  padding: 6px 10px;
-  border-radius: var(--sm-radius-inner);
-  background: var(--sm-control-track); /* quiet grey like the inactive elements, not a black button */
-  color: var(--sm-ink-primary);
-  font: 500 13px/18px var(--sm-font-body);
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.12s ease;
-}
-.privacy:hover .privacy__tip, .privacy:focus-within .privacy__tip, .privacy.is-open .privacy__tip { opacity: 1; visibility: visible; }
-@media (prefers-reduced-motion: reduce) { .privacy__tip { transition: none; } }
+/* Hover: the dot blinks (same blink as the recorder's dot); leaving the note stops it. */
+.privacy:hover .privacy__dot { animation: rec-blink 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .privacy:hover .privacy__dot { animation: none; } }
 .account { position: relative; }
 .account__button {
   display: flex;

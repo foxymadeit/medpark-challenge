@@ -466,8 +466,7 @@
     "ph": "Adăugați nume sau e-mail…"
   },
   "privacy": {
-    "label": "Doar rețeaua spitalului",
-    "tip": "Audio și procesele-verbale nu părăsesc rețeaua Medpark."
+    "label": "Doar rețeaua spitalului"
   },
   "email": {
     "to": "Către",

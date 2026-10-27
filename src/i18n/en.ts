@@ -462,7 +462,6 @@ export const en = {
   },
   privacy: {
     label: 'Hospital network only',
-    tip: 'Audio and minutes never leave Medpark’s network.',
   },
   email: {
     to: 'To',

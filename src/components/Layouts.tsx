@@ -103,33 +103,15 @@ function LanguageSwitch() {
 }
 
 /**
- * Quiet privacy note next to the language switch: lock + "Hospital network only".
- * Hover, keyboard focus or a tap shows the tooltip; a tap elsewhere or Esc hides it.
+ * Quiet privacy note next to the language switch: green dot + "Hospital network only".
+ * The dot blinks while the pointer is over the note (it stops when the pointer leaves).
  */
 function PrivacyBadge({ className = '' }: { className?: string }) {
   const { t } = useI18n();
-  const id = useId();
-  const [open, setOpen] = useState(false); // tap / click toggles it on touch screens
-  const wrap = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => !wrap.current?.contains(e.target as Node) && setOpen(false);
-    const onKey = (e: globalThis.KeyboardEvent) => e.key === 'Escape' && setOpen(false);
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => (document.removeEventListener('mousedown', onDown), document.removeEventListener('keydown', onKey));
-  }, [open]);
-
   return (
-    <span className={`privacy${open ? ' is-open' : ''} ${className}`.trim()} ref={wrap}>
-      <button type="button" className="privacy__button" aria-describedby={`${id}-tip`} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
-        <span className="privacy__dot" aria-hidden />
-        <span className="privacy__label">{t('privacy.label')}</span>
-      </button>
-      <span role="tooltip" id={`${id}-tip`} className="privacy__tip">
-        {t('privacy.tip')}
-      </span>
+    <span className={`privacy ${className}`.trim()}>
+      <span className="privacy__dot" aria-hidden />
+      <span className="privacy__label">{t('privacy.label')}</span>
     </span>
   );
 }
