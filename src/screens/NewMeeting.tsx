@@ -6,6 +6,7 @@ import { ParticipantsField } from '../components/ParticipantsField';
 import { MicCheck } from '../components/MicCheck';
 import { UploadCard } from '../components/UploadCard';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
+import { PageHeader } from '../components/PageHeader';
 import { Segmented } from '../components/Segmented';
 import { TemplateBadge } from '../components/TemplateBadge';
 import { templateColor } from '../lib/colors';
@@ -36,44 +37,44 @@ export function NewMeeting() {
 
   return (
     <div className="page new-meeting">
-      <div className="new-meeting__main">
-        {/* The meeting's name is the headline; the pen (or a click on it) makes it editable. */}
-        <div className="stack" style={{ gap: 4 }}>
-          {/* Figma "Name row": [label over the name] and the date picker, bottom-aligned; the date wraps below on narrow screens. */}
-          <div className="headline-row">
-            <div className="headline-block">
-              <p className="form-label">{t('newMeeting.name')}</p>
-              {editingName ? (
-                <input
-                  autoFocus
-                  className="input headline-input"
-                  aria-label={t('newMeeting.name')}
-                  placeholder={suggestedName}
-                  value={nameDraft}
-                  maxLength={120}
-                  onChange={(e) => setNameDraft(e.target.value)}
-                  onFocus={(e) => e.target.select()}
-                  onBlur={commitName}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') commitName();
-                    if (e.key === 'Escape') setEditingName(false);
-                  }}
-                />
-              ) : (
-                <div className="headline">
-                  <h1 className="t-h1 headline__text" onClick={startName}>
-                    {draft.title?.trim() || suggestedName}
-                  </h1>
-                  <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
-                    <PencilSimpleIcon size={20} aria-hidden />
-                  </button>
-                </div>
-              )}
+      {/* The meeting's name is the headline (label above it, date on its right); the pen or a click makes it editable. */}
+      <PageHeader
+        className="new-meeting__head"
+        eyebrow={t('newMeeting.name')}
+        title={
+          editingName ? (
+            <input
+              autoFocus
+              className="input headline-input"
+              aria-label={t('newMeeting.name')}
+              placeholder={suggestedName}
+              value={nameDraft}
+              maxLength={120}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onFocus={(e) => e.target.select()}
+              onBlur={commitName}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commitName();
+                if (e.key === 'Escape') setEditingName(false);
+              }}
+            />
+          ) : (
+            <div className="headline">
+              <h1 className="t-h1 headline__text" onClick={startName}>
+                {draft.title?.trim() || suggestedName}
+              </h1>
+              <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('newMeeting.rename')} title={t('newMeeting.rename')} onClick={startName}>
+                <PencilSimpleIcon size={20} aria-hidden />
+              </button>
             </div>
-            <DatePicker label={t('newMeeting.date')} max={todayISO()} value={draft.date && draft.date < todayISO() ? draft.date : todayISO()} onChange={(v) => setDraft({ date: v === todayISO() ? undefined : v })} />
-          </div>
-          {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
-          {selectedTemplate && (
+          )
+        }
+        aside={<DatePicker label={t('newMeeting.date')} max={todayISO()} value={draft.date && draft.date < todayISO() ? draft.date : todayISO()} onChange={(v) => setDraft({ date: v === todayISO() ? undefined : v })} />}
+      />
+      <div className="new-meeting__main">
+        {selectedTemplate && (
+          <div>
+            {/* Set from Templates → Start; shown so it's clear where type and participants came from. */}
             <span className="tag template-tag">
               <TemplateBadge color={templateColor(selectedTemplate)} type={selectedTemplate.type} size={20} />
               {t('newMeeting.fromTemplate', { name: selectedTemplate.name })}
@@ -81,8 +82,8 @@ export function NewMeeting() {
                 <XIcon size={12} aria-hidden />
               </button>
             </span>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="stack" style={{ gap: 10 }}>
           <p className="form-label" id="nm-type">

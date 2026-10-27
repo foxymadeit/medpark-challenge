@@ -1,7 +1,6 @@
 import { PencilSimpleIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type ReactNode } from 'react';
 import { useI18n } from '../i18n/I18nProvider';
-import { PlusGlyph } from './AddPersonRow';
 import { Button } from './Button';
 import { Dialog } from './Dialog';
 
@@ -9,7 +8,7 @@ import { Dialog } from './Dialog';
  * The MoM summary: key points as a list. With `onChange` each point can be edited in place
  * (pen on hover, Enter saves, Esc cancels, empty removes) and new points added. The × asks before deleting.
  */
-export function SummaryPoints({ points, onChange, head }: { points: string[]; onChange?: (points: string[]) => void; /** Heading; when editable, the "+" (add point) sits on its right, like the one for tasks. */ head?: ReactNode }) {
+export function SummaryPoints({ points, onChange, head }: { points: string[]; onChange?: (points: string[]) => void; /** Heading; when editable, "Add point" sits on its right, like "Add task". */ head?: ReactNode }) {
   const { t } = useI18n();
   const [editing, setEditing] = useState<number | null>(null); // index; points.length = new point
   const [value, setValue] = useState('');
@@ -49,8 +48,8 @@ export function SummaryPoints({ points, onChange, head }: { points: string[]; on
   );
 
   const add = (
-    <button type="button" className="add-btn" aria-label={t('review.addPoint')} title={t('review.addPoint')} onClick={() => start(points.length)} disabled={editing !== null}>
-      <PlusGlyph />
+    <button type="button" className="note add-link" onClick={() => start(points.length)} disabled={editing !== null}>
+      {t('review.addPoint')}
     </button>
   );
 

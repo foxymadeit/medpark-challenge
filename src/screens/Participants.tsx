@@ -5,6 +5,8 @@ import { Dialog } from '../components/Dialog';
 import { Dropdown } from '../components/Dropdown';
 import { TextField } from '../components/TextField';
 import { Avatar } from '../components/Avatar';
+import { PageHeader } from '../components/PageHeader';
+import { SearchBar } from '../components/SearchBar';
 import { PersonProfileDialog } from '../components/PersonProfile';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
@@ -108,7 +110,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
       </td>
       <td>
         {editable ? (
-          <Dropdown label={t('participants.roleFor', { name: person.name })} value={person.role} options={roles.map((r) => ({ value: r, label: r }))} onChange={setRole} customLabel={t('participants.customRole')} customPlaceholder={t('participants.customRolePh')} width={240} />
+          <Dropdown label={t('participants.roleFor', { name: person.name })} value={person.role} options={roles.map((r) => ({ value: r, label: r }))} onChange={setRole} customLabel={t('participants.customRole')} customPlaceholder={t('participants.customRolePh')} width="100%" />
         ) : (
           <span className="t-body-md c-secondary">{person.role}</span>
         )}
@@ -121,7 +123,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
             options={ACCESS_LEVELS.map((a) => ({ value: a, label: t(`access.${a}`) }))}
             // Giving Organizer or Admin rights asks first; lowering to Participant applies at once.
             onChange={(v) => (v === 'receives' ? updatePerson(person.id, { access: 'receives' }) : setPendingAccess(v as Access))}
-            width={200}
+            width="100%"
             disabled={isYou && soleAdmin} // the only Admin cannot demote themselves
             disabledReason={t('participants.soleAdmin')}
           />
@@ -172,31 +174,29 @@ export function Participants() {
   const { t } = useI18n();
   const { people } = useStore();
   const [adding, setAdding] = useState(false);
+  const [query, setQuery] = useState('');
   const onlyYou = people.length <= 1;
+  // Search: name or email, any case, as you type.
+  const q = query.trim().toLowerCase();
+  const shown = q ? people.filter((p) => p.name.toLowerCase().includes(q) || !!p.email?.toLowerCase().includes(q)) : people;
   const soleAdmin = people.filter((p) => p.access === 'admin').length <= 1;
 
   return (
     <div className="page page--fit">
-      <div className={`page__head page__head--row ${onlyYou ? 'participants__head--bare' : 'participants__head'}`}>
-        <div className="page__head">
-          <h1 className="t-h1">{t('participants.title')}</h1>
-          {!onlyYou && <p className="lead">{t('participants.lead')}</p>}
-        </div>
-        {!onlyYou && (
-          <Button variant="ink" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
-            {t('participants.add')}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title={t('participants.title')}
+        aside={
+          !onlyYou && (
+            <Button variant="ink" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
+              {t('participants.add')}
+            </Button>
+          )
+        }
+      />
+      {!onlyYou && <SearchBar value={query} onChange={setQuery} placeholder={t('participants.search')} />}
 
       <div className="table-card">
         <table className="table table--people">
-          <colgroup>
-            <col />
-            <col style={{ width: 256 }} />
-            <col style={{ width: 208 }} />
-            <col style={{ width: 48 }} />
-          </colgroup>
           <thead>
             <tr>
               <th scope="col">{t('participants.colWho')}</th>
@@ -208,9 +208,16 @@ export function Participants() {
             </tr>
           </thead>
           <tbody>
-            {people.map((p) => (
+            {shown.map((p) => (
               <ParticipantRow key={p.id} person={p} editable={!onlyYou} soleAdmin={soleAdmin} />
             ))}
+            {!shown.length && (
+              <tr>
+                <td colSpan={4} className="note">
+                  {t('participants.noMatch', { query: query.trim() })}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

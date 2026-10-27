@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, DownloadSimpleIcon, FilePdfIcon, ListChecksIcon, LockSimpleIcon, MagnifyingGlassIcon, MicrophoneIcon, UploadSimpleIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, DownloadSimpleIcon, FilePdfIcon, ListChecksIcon, LockSimpleIcon, MicrophoneIcon, UploadSimpleIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
@@ -10,6 +10,8 @@ import { SummaryPoints } from '../components/SummaryPoints';
 import { StatusTag } from '../components/StatusTag';
 import { Segmented } from '../components/Segmented';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
+import { PageHeader } from '../components/PageHeader';
+import { SearchBar } from '../components/SearchBar';
 import { useI18n } from '../i18n/I18nProvider';
 import { dueRelative, formatDayMonth, formatFullDate, formatWeekdayDate } from '../lib/format';
 import { speakerNamer } from '../lib/meeting';
@@ -43,13 +45,8 @@ export function History() {
 
   return (
     <div className="page page--fit">
-      <h1 className="t-h1">{t('history.title')}</h1>
-      <div className="history-tools">
-        <label className="search">
-          <MagnifyingGlassIcon size={16} aria-hidden />
-          <span className="sr-only">{t('history.search')}</span>
-          <input type="search" placeholder={t('history.search')} value={query} onChange={(e) => setQuery(e.target.value)} />
-        </label>
+      <PageHeader title={t('history.title')} />
+      <SearchBar value={query} onChange={setQuery} placeholder={t('history.search')}>
         {/* Same toggle as the interface-language switch: warm track, raised white pill. */}
         <Segmented<MeetingType | 'all'>
           label={t('history.filter')}
@@ -62,18 +59,10 @@ export function History() {
             icon: f === 'all' ? undefined : <MeetingTypeIcon type={f} />,
           }))}
         />
-      </div>
+      </SearchBar>
 
       <div className="table-card">
-        <table className="table">
-          <colgroup>
-            <col />
-            <col style={{ width: 136 }} />
-            <col style={{ width: 136 }} />
-            <col style={{ width: 112 }} />
-            <col style={{ width: 144 }} />
-            <col style={{ width: 64 }} />
-          </colgroup>
+        <table className="table table--history">
           <thead>
             <tr>
               <th scope="col">{t('history.colMeeting')}</th>
@@ -95,10 +84,10 @@ export function History() {
                     <div className="who">
                       <Icon size={20} aria-hidden />
                       <div className="who__text">
-                        <Link to={recordPath(m)} className="who__name row-link truncate" onClick={(e) => e.stopPropagation()}>
+                        <Link to={recordPath(m)} className="who__name row-link history__title" onClick={(e) => e.stopPropagation()}>
                           {m.title}
                         </Link>
-                        <span className="who__sub">{m.source === 'uploaded' ? t('history.uploaded') : t('history.recorded')}</span>
+                        <span className="who__sub history__source">{m.source === 'uploaded' ? t('history.uploaded') : t('history.recorded')}</span>
                       </div>
                     </div>
                   </td>

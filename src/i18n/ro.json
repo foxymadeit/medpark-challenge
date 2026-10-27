@@ -113,7 +113,8 @@
   },
   "participants": {
     "title": "Participanți",
-    "lead": "Schimbați funcția sau dreptul de acces direct în rând. Ședințele trecute păstrează funcția veche.",
+    "search": "Căutați nume sau e-mail",
+    "noMatch": "Niciun participant nu corespunde cu „{query}”",
     "colWho": "Nume și e-mail",
     "colRole": "Funcție",
     "colAccess": "Acces",
@@ -393,7 +394,6 @@
     "meta_one": "{type} · {count} participant",
     "meta_few": "{type} · {count} participanți",
     "title": "Șabloane",
-    "lead": "Pornirea completează tipul și participanții. Orice ședință trimisă poate fi salvată ca șablon.",
     "meta": "{type} · {count} de participanți",
     "edit": "Editează",
     "start": "Pornește",

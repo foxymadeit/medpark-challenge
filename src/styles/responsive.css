@@ -39,6 +39,11 @@
   .people-panel__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 var(--sm-space-6); }
 }
 
+/* ── <1216: tables give their side columns less room first (Meeting / Name keeps its width longest) ── */
+@media (max-width: 1215px) {
+  .table--history th, .table--history td { padding-right: var(--sm-space-2); }
+}
+
 /* ── ≤1024: tablet ── */
 @media (max-width: 1024px) {
   .topbar { --topbar-pad: var(--sm-space-4); }
@@ -67,8 +72,6 @@
   .page { padding: 32px 24px; }
   .review { padding: 24px; }
 
-  .new-meeting { flex-direction: column; justify-content: flex-start; gap: var(--sm-space-8); }
-  .new-meeting__main { width: 100%; flex: none; }
 
   .recording { flex-direction: column; align-items: stretch; gap: var(--sm-space-6); padding: 32px 24px; }
   .recorder { min-height: 0; padding-top: 32px; }
@@ -90,15 +93,14 @@
   /* Phone: the privacy note keeps its lock (and tooltip); the words stay for screen readers only. */
   .privacy__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   /* Phone: the date drops under the name, left-aligned. */
-  .new-meeting__main { --nm-cols: minmax(0, 1fr); } /* cards and name/date go to one column: the date drops under the name */
-  .headline-row .datepicker, .headline-block:has(.headline-input) + .datepicker { margin-top: 0; }
+  .new-meeting { --nm-cols: minmax(0, 1fr); } /* cards and name/date go to one column: the date drops under the name */
+  .new-meeting__head .datepicker { grid-column: 1; grid-row: 3; }
   .topbar__right { gap: var(--sm-space-2); }
   .account__button .account__text, .account__button > svg { display: none; }
   .account__button { padding: 0 4px; }
   .brand__name { display: none; }
 
   .page { padding: 24px 16px; }
-  .page__head--row { flex-wrap: wrap; gap: var(--sm-space-4); }
   .review { padding: 20px 16px; }
   .onb { padding: 32px 16px; }
   .recording { padding: 24px 16px; }
@@ -136,7 +138,7 @@
   .add-row td:first-child { flex-basis: calc(100% - 44px); }
   .add-row td:has(> .icon-btn) { flex: 0 0 auto; }
 
-  .history-tools { flex-wrap: wrap; margin: 16px 0; }
+  .search-bar { flex-wrap: wrap; }
   .search { width: 100%; }
 
   .start-tile, .start-tile--record { flex: none; height: 164px; }

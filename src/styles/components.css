@@ -287,6 +287,11 @@
 .table--compact td { height: 56px; }
 .table--compact th:last-child,
 .table--compact td:last-child { padding-right: 16px; }
+/* Participants: Role 256 and Access 208 at full width (select 240 / 200 + gap), narrower on small windows so the
+   Name column keeps most of its room; the selects fill their column. */
+.table--people th:nth-child(2) { width: clamp(160px, 20vw, 256px); }
+.table--people th:nth-child(3) { width: clamp(144px, 16vw, 208px); } /* vw, not %: table cells ignore a % inside clamp() */
+.table--people th:nth-child(4) { width: 48px; }
 /* Participants: tighter edges — circles 16px from the card, the ✕ column hugs its 32px button. */
 .table--people th:first-child, .table--people td:first-child { padding-left: 16px; }
 .table--people th:last-child, .table--people td:last-child { padding-right: 12px; padding-left: 4px; }
@@ -301,6 +306,7 @@
 .table tbody tr:last-child td:last-child { border-bottom-right-radius: var(--sm-radius-panel); }
 
 .who { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; }
+.who > svg { flex-shrink: 0; } /* row icons keep their size */
 .who--button { max-width: 100%; margin: -6px -8px; padding: 6px 8px; border: 0; border-radius: var(--sm-radius-tile); background: none; color: inherit; text-align: left; cursor: pointer; }
 .who--button:hover { background: var(--sm-surface-ground); }
 .who__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

@@ -1,7 +1,6 @@
 import { DownloadSimpleIcon, PaperPlaneTiltIcon } from '@phosphor-icons/react';
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import { PlusGlyph } from '../components/AddPersonRow';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { SummaryPoints } from '../components/SummaryPoints';
@@ -160,7 +159,7 @@ export function Review() {
                 />
               </section>
 
-              {/* Tasks: one header row (title, count, Owner, Deadline, +), sticky while the card scrolls. */}
+              {/* Tasks: one header row (title, count, Owner, Deadline, Add task), sticky while the card scrolls. */}
               <table className="summary-table task-table" aria-label={t('review.tasks')}>
                 <thead>
                   <tr>
@@ -174,8 +173,8 @@ export function Review() {
                     <th scope="col">{t('review.due')}</th>
                     <th scope="col">
                       <span className="sr-only">{t('review.actions')}</span>
-                      <button type="button" className="add-btn" aria-label={t('review.addTask')} title={t('review.addTask')} onClick={addTask} disabled={!!row}>
-                        <PlusGlyph />
+                      <button type="button" className="note add-link" onClick={addTask} disabled={!!row}>
+                        {t('review.addTask')}
                       </button>
                     </th>
                   </tr>

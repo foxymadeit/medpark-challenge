@@ -171,10 +171,33 @@
   padding: var(--sm-space-12);
 }
 .page__head { display: flex; flex-direction: column; gap: var(--sm-space-2); }
-/* Title on the left, the page's main action top right. */
-.page__head--row { flex-direction: row; align-items: flex-start; justify-content: space-between; gap: var(--sm-space-6); }
+/*
+ * Section page header (PageHeader): one grid on every section, so nothing jumps when switching.
+ *   y 88  content top = the first menu item's top (64 top bar + --page-top)
+ *   y 88  small label, 16px line (kept empty when there's none)  · --page-eyebrow-gap 8
+ *   y 112 title, Onest 28/36; the page's main action (or the date) on the title's line, right
+ *   y 168 the first block (search row or container)  · --page-title-gap 20 under the title
+ * --page-block-gap: from the search row to the container under it.
+ */
+.page {
+  --page-top: var(--sm-space-6);
+  --page-eyebrow-gap: var(--sm-space-2);
+  --page-title-gap: var(--sm-space-5);
+  --page-block-gap: var(--sm-space-4);
+}
+.page:has(> .page-header) { padding-top: var(--page-top); }
+.page-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 16px auto; row-gap: var(--page-eyebrow-gap); column-gap: var(--sm-space-6); align-items: center; margin-bottom: var(--page-title-gap); }
+.page-header__main { display: contents; }
+.page-header__eyebrow { grid-column: 1; grid-row: 1; min-height: 16px; color: var(--sm-ink-secondary); font: 500 13px/16px var(--sm-font-body); }
+.page-header__main > :not(.page-header__eyebrow) { grid-column: 1; grid-row: 2; min-width: 0; }
+.page-header > :not(.page-header__main) { grid-column: 2; grid-row: 2; }
+/* Centred on the title's 36px line without making it taller: the 44px button / 40px date stick out evenly. */
+.page-header > .btn { margin: -4px 0; }
+.page-header > .datepicker { margin: -2px 0; }
 /* The page's main action (New participant, New template…): one size on every page. */
-.page__head--row > .btn { flex: none; min-width: 184px; justify-content: center; }
+.page-header > .btn { min-width: 184px; justify-content: center; }
+/* Search row above a list (SearchBar): search left, filters right. */
+.search-bar { display: flex; align-items: center; gap: var(--sm-space-4); margin-bottom: var(--page-block-gap); }
 .page__actions {
   display: flex;
   align-items: center;

@@ -2,6 +2,7 @@ import { CheckIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Button } from '../components/Button';
 import { TextField } from '../components/TextField';
+import { PageHeader } from '../components/PageHeader';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
 import { useStore } from '../store/AppStore';
@@ -40,10 +41,8 @@ export function Settings() {
 
   return (
     <div className="page settings">
-      <div className="page__head" style={{ marginBottom: 32 }}>
-        <h1 className="t-h1">{t('settings.title')}</h1>
-        <p className="lead">{t('settings.lead')}</p>
-      </div>
+      <PageHeader title={t('settings.title')} />
+      <p className="lead settings__lead">{t('settings.lead')}</p>
 
       <div className="settings__cols">
         <section className="card card--pad settings__section" aria-labelledby="set-profile">

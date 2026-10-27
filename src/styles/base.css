@@ -73,7 +73,7 @@ button {
 
 /* ── Text styles (Figma "v2/…"). Figma letter-spacing is in %, converted to px. ── */
 .t-display { font: 600 40px/46px var(--sm-font-sign); letter-spacing: -0.8px; }
-.t-h1      { font: 600 28px/34px var(--sm-font-sign); letter-spacing: -0.56px; }
+.t-h1      { font: 600 28px/36px var(--sm-font-sign); letter-spacing: -0.56px; }
 .t-h2      { font: 600 20px/26px var(--sm-font-sign); letter-spacing: -0.2px; }
 .t-h3      { font: 600 16px/22px var(--sm-font-sign); letter-spacing: -0.08px; }
 /* Icon + hint text: icon pinned to the first line, same in every language however the text wraps. */

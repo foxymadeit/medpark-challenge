@@ -7,6 +7,7 @@ import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
 import { PeopleStack } from '../components/PeopleStack';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
+import { PageHeader } from '../components/PageHeader';
 import { Segmented } from '../components/Segmented';
 import { TemplateBadge } from '../components/TemplateBadge';
 import { TextField } from '../components/TextField';
@@ -217,15 +218,14 @@ export function Templates() {
 
   return (
     <div className="page">
-      <div className="page__head page__head--row" style={{ marginBottom: 40 }}>
-        <div className="page__head">
-          <h1 className="t-h1">{t('templates.title')}</h1>
-          <p className="lead">{t('templates.lead')}</p>
-        </div>
-        <Button variant="ink" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setEditing('new')}>
-          {t('templates.new')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('templates.title')}
+        aside={
+          <Button variant="ink" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setEditing('new')}>
+            {t('templates.new')}
+          </Button>
+        }
+      />
       <ul className="tpl-grid">
         {templates.map((tpl) => (
           <li key={tpl.id} className="card card--pad tpl-card">

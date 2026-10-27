@@ -116,7 +116,8 @@ export const en = {
   },
   participants: {
     title: 'Participants',
-    lead: 'Change a role or access right in the row. Past meetings keep the old role.',
+    search: 'Search name or email',
+    noMatch: 'No participants match “{query}”',
     colWho: 'Name & email',
     colRole: 'Role',
     colAccess: 'Access',
@@ -388,7 +389,6 @@ export const en = {
   },
   templates: {
     title: 'Templates',
-    lead: 'Start fills type and participants. Save any sent meeting as a template.',
     meta: '{type} · {count} participants',
     meta_one: '{type} · {count} participant',
     edit: 'Edit',
