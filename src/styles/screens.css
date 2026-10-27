@@ -102,7 +102,9 @@
 /* The name opens the profile: the chip darkens on hover so it reads as clickable. */
 .emails-field__tag:has(.emails-field__name:hover) { background: var(--sm-surface-hairline); }
 .emails-field__name { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
-.emails-field__name:hover, .emails-field__name:focus-visible { text-decoration: underline; text-underline-offset: 2px; }
+.emails-field__name:focus-visible { text-decoration: underline; text-underline-offset: 2px; } /* keyboard only: no underline on hover */
+/* New meeting: Participants field framed exactly like the date chip on the same screen. */
+.new-meeting .emails-field { min-height: 40px; padding: 2px var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); }
 .emails-field__remove { display: inline-flex; padding: 4px; border: 0; border-radius: 4px; background: none; color: var(--sm-ink-secondary); }
 .emails-field__remove:hover { background: var(--sm-surface-hairline); }
 .emails-combo { position: relative; }
@@ -458,17 +460,27 @@
 .tpl-person__main .avatar { width: 28px; height: 28px; font-size: 11px; }
 /* "New participant" placeholder row: looks like a slot waiting to be filled. */
 .tpl-person--new { gap: var(--sm-space-3); }
-.tpl-person__plus { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px; margin-left: 30px; border: 1.5px dashed var(--sm-ink-tertiary); border-radius: 50%; color: var(--sm-ink-secondary); }
+.tpl-person__plus { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px; margin-left: 32px; border: 1.5px dashed var(--sm-ink-tertiary); border-radius: 50%; color: var(--sm-ink-secondary); }
 .tpl-person__input { flex: 1; min-width: 0; height: 36px; padding: 0 8px; border: 0; border-radius: var(--sm-radius-inner); background: transparent; color: var(--sm-ink-primary); font: 500 15px/22px var(--sm-font-body); }
 .tpl-person__input::placeholder { color: var(--sm-ink-tertiary); }
 .tpl-person__input:hover { background: var(--sm-surface-ground); }
 .tpl-person__input:focus { outline: none; background: var(--sm-surface-ground); box-shadow: inset 0 0 0 1.5px var(--sm-control); }
-.tpl-suggest { margin: 4px 0 8px 42px; padding: 4px; list-style: none; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06); }
+.tpl-suggest { margin: 4px 0 8px 44px; padding: 4px; list-style: none; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06); }
 .tpl-suggest__option { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; padding: 6px 8px; border-radius: var(--sm-radius-inner); cursor: pointer; }
 .tpl-suggest__option .who__text { min-width: 0; }
 .tpl-suggest__option.is-active { background: var(--sm-surface-ground); }
 .tpl-suggest__create { border-top: 1px solid var(--sm-surface-hairline); border-radius: 0 0 var(--sm-radius-inner) var(--sm-radius-inner); }
-.tpl-person__details { flex-shrink: 0; font-size: 13px; color: var(--sm-ink-secondary); }
+.tpl-person__add { color: var(--sm-ink-secondary); font: 500 15px/22px var(--sm-font-body); text-decoration: none; }
+.tpl-person__add:hover { color: var(--sm-ink-primary); }
+.tpl-person__error { margin: 4px 0 0 44px; }
+/* Template list: "Edit" is plain secondary text (no icon), a touch darker on hover. */
+.tpl-card__edit { color: var(--sm-ink-secondary); }
+.tpl-card__edit:hover:not(:disabled) { color: var(--sm-ink-primary); }
+/* Editor footer: Delete (quiet, red text) on the left, Save on the right at the normal button size. */
+.tpl-editor__actions { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
+.tpl-editor__save { min-width: 184px; margin-left: auto; justify-content: center; }
+.btn--danger-text { color: var(--sm-signal-danger); }
+.btn--danger-text:hover:not(:disabled) { background: var(--sm-signal-danger-tint); }
 .replace-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
 .replace-list li + li { border-top: 1px solid var(--sm-surface-hairline); }
 .replace-list__item { display: flex; align-items: center; gap: var(--sm-space-3); width: 100%; padding: var(--sm-space-2) 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }

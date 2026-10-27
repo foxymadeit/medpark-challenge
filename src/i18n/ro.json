@@ -400,7 +400,6 @@
     "name": "Nume",
     "type": "Tipul ședinței",
     "participants": "Participanți",
-    "selected": "{n} din {total} selectați",
     "more": "+încă {n}",
     "save": "Salvează șablonul",
     "addPerson": "Adaugă participant",
@@ -409,12 +408,14 @@
     "replaceHint": "Alegeți cine îi ia locul în acest șablon.",
     "noOthers": "Toate persoanele din listă sunt deja în acest șablon.",
     "newPerson": "Persoană nouă",
-    "newParticipantPh": "Participant nou: scrieți un nume",
     "add": "Adaugă",
-    "withDetails": "Adaugă cu detalii",
-    "createNamed": "Creează „{name}” ca participant nou",
     "saveChanges": "Salvează modificările",
-    "color": "Culoare"
+    "color": "Culoare",
+    "removeFrom": "Scoateți {name} din șablon",
+    "delete": "Șterge șablonul",
+    "deleteTitle": "Ștergeți acest șablon?",
+    "deleteLead": "Acțiunea nu poate fi anulată.",
+    "deleteConfirm": "Șterge"
   },
   "profile": {
     "meetingsCount_one": "{count} ședință",

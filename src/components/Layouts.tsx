@@ -1,4 +1,4 @@
-import { CaretDownIcon, ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
@@ -180,12 +180,11 @@ function AccountMenu() {
           <span className="t-button">{account.name}</span>
           {access && <span className="account__status">{t(`accessTitle.${access}`)}</span>}
         </span>
-        <CaretDownIcon size={16} aria-hidden />
       </button>
       {open && (
         <div className="account__menu" role="menu" aria-label={t('account.menu')}>
+          {/* The name is already on the button: here just email and role, in grey; then a divider (the border). */}
           <div className="account__who">
-            <span className="who__name">{account.name}</span>
             <span className="who__sub">{account.email}</span>
             {account.role && <span className="who__sub">{account.role}</span>}
           </div>

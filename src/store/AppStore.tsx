@@ -305,6 +305,7 @@ function useStoreValue() {
       return { ...s, templates: [...s.templates, { ...t, id: uid('t') }] };
     });
   }, []);
+  const deleteTemplate = useCallback((id: string) => setState((s) => ({ ...s, templates: s.templates.filter((x) => x.id !== id), draft: s.draft.templateId === id ? { ...s.draft, templateId: undefined } : s.draft })), []);
 
   /**
    * MOCK auth — any password works.
@@ -377,6 +378,7 @@ function useStoreValue() {
     removeLine,
     sendMeeting,
     saveTemplate,
+    deleteTemplate,
   };
 }
 

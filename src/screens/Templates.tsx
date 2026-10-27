@@ -1,4 +1,4 @@
-import { ArrowsLeftRightIcon, CheckIcon, MicrophoneIcon, PencilSimpleIcon, PlusIcon, UserPlusIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { ArrowsLeftRightIcon, CheckIcon, MicrophoneIcon, PlusIcon, UserPlusIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
@@ -12,6 +12,9 @@ import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
 import { COLOR_KEYS, PALETTE, templateColor, type ColorKey } from '../lib/colors';
 import { AddParticipantModal } from './Participants';
+import { Highlight } from '../components/ParticipantsField';
+import { isEmail } from '../lib/format';
+import { suggestByName } from '../lib/participants';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES, type MeetingType, type Person, type Template } from '../types';
 
@@ -46,44 +49,48 @@ function ReplacePersonDialog({ person, options, onPick, onNew, onClose }: { pers
 /** T02 — template editor, shown as a centred modal. */
 function EditTemplatePanel({ template, onClose }: { template?: Template; onClose: () => void }) {
   const { t } = useI18n();
-  const { account, people, resolvePerson, saveTemplate, addPerson } = useStore();
-  const [newName, setNewName] = useState('');
+  const { account, people, resolvePerson, saveTemplate, deleteTemplate, addPerson } = useStore();
   const [name, setName] = useState(template?.name ?? '');
   const [type, setType] = useState<MeetingType>(template?.type ?? 'medical');
   const [color, setColor] = useState<ColorKey>(template ? templateColor(template) : 'blue');
-  const [selected, setSelected] = useState<string[]>(template?.participantIds ?? people.map((p) => p.id));
+  // A new template starts with just you; the list shows only who's in the template.
+  const [selected, setSelected] = useState<string[]>(template?.participantIds ?? (account ? [account.personId] : []));
   const [error, setError] = useState<string>();
   const [replacing, setReplacing] = useState<Person | null>(null);
-  // 'add' = + button; a Person = "new person" chosen while replacing them.
-  const [creating, setCreating] = useState<'add' | Person | null>(null);
+  const [creating, setCreating] = useState<Person | null>(null); // "new person" chosen while replacing someone
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
-  // Everyone in the directory plus anyone the template already references.
-  const candidates = [...people.map((p) => p.id), ...(template?.participantIds ?? [])]
-    .filter((id, i, a) => a.indexOf(id) === i)
-    .map(resolvePerson)
-    .filter((p): p is Person => !!p);
+  const members = selected.map(resolvePerson).filter((p): p is Person => !!p);
+  const others = [...people, ...(template?.participantIds ?? []).map(resolvePerson).filter((p): p is Person => !!p)].filter((p, i, a) => a.findIndex((x) => x.id === p.id) === i && !selected.includes(p.id));
 
-  const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+  // Unticking removes them from the template (and from this list).
+  const remove = (id: string) => setSelected((s) => s.filter((x) => x !== id));
   const add = (id: string) => setSelected((s) => (s.includes(id) ? s : [...s, id]));
   // The newcomer takes the old participant's slot, so the template order is kept.
   const replace = (oldId: string, newId: string) =>
     setSelected((s) => (s.includes(newId) ? s.filter((x) => x !== oldId) : s.includes(oldId) ? s.map((x) => (x === oldId ? newId : x)) : [...s, newId]));
 
-  // Placeholder row at the bottom: type a name, Enter adds and ticks them. Details can be filled on Participants.
-  // Predictive: unticked people whose name, role or email contains what's typed.
+  // "+ Add participant": a search over saved participants (by first name / surname), or a new name, or just an email (a guest).
+  const [adding, setAdding] = useState(false);
+  const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
-  const q = newName.trim().toLowerCase();
-  const matches = q ? candidates.filter((p) => !selected.includes(p.id) && [p.name, p.role, p.email].some((v) => v?.toLowerCase().includes(q))).slice(0, 5) : [];
-  const pickExisting = (id: string) => (add(id), setNewName(''), setActive(0));
-
-  const addByName = () => {
-    const n = newName.trim();
-    if (!n) return;
-    add(addPerson({ name: n, role: '', access: 'receives' }));
-    setNewName('');
+  const [addError, setAddError] = useState<string>();
+  const q = query.trim();
+  const matches = q.includes('@') ? others.filter((p) => p.email?.toLowerCase().startsWith(q.toLowerCase())).slice(0, 5) : suggestByName(others, q, () => false, 5);
+  const exact = [...people, ...members].some((p) => p.name.toLowerCase() === q.toLowerCase() || p.email?.toLowerCase() === q.toLowerCase());
+  const canCreate = !!q && !exact;
+  const closeAdd = () => (setAdding(false), setQuery(''), setActive(0), setAddError(undefined));
+  const pickExisting = (id: string) => (add(id), setQuery(''), setActive(0));
+  const createTyped = () => {
+    if (q.includes('@')) {
+      if (!isEmail(q)) return setAddError(t('common.emailInvalid'));
+      add(addPerson({ name: q, email: q, role: '', access: 'receives' })); // guest: just an email
+    } else add(addPerson({ name: q, role: '', access: 'receives' }));
+    setQuery('');
+    setActive(0);
   };
 
-  const initial = template?.participantIds ?? people.map((p) => p.id);
+  const initial = template?.participantIds ?? (account ? [account.personId] : []);
   const dirty =
     name.trim() !== (template?.name ?? '') ||
     type !== (template?.type ?? 'medical') ||
@@ -132,96 +139,119 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
             <UsersThreeIcon size={20} aria-hidden />
             <span className="t-strong">{t('templates.participants')}</span>
           </span>
-          <span className="note">{t('templates.selected', { n: selected.length, total: candidates.length })}</span>
+          <span className="note">{t('common.participantsCount', { count: members.length })}</span>
         </legend>
-        {candidates.map((p) => (
+        {/* Only who's in the template; untick to take them out. */}
+        {members.map((p) => (
           <div key={p.id} className="tpl-person">
             <label className="tpl-person__main">
-              <input type="checkbox" className="checkbox" checked={selected.includes(p.id)} onChange={() => toggle(p.id)} />
+              <input type="checkbox" className="checkbox" checked onChange={() => remove(p.id)} aria-label={t('templates.removeFrom', { name: p.name })} />
               <Avatar name={p.name} />
               <span className="t-strong">{p.name}</span>
               {p.id === account?.personId && <span className="tag tag--me">{t('common.me')}</span>}
-              <span className="note truncate">{p.role}</span>
+              <span className="note truncate">{p.role || p.email}</span>
             </label>
             <button type="button" className="icon-btn" aria-label={t('templates.replace', { name: p.name })} title={t('templates.replace', { name: p.name })} onClick={() => setReplacing(p)}>
               <ArrowsLeftRightIcon size={20} aria-hidden />
             </button>
           </div>
         ))}
+        {/* Add row: the + sits in the avatars' column. */}
         <div className="tpl-person tpl-person--new">
           <span className="tpl-person__plus" aria-hidden>
             <PlusIcon size={16} weight="bold" />
           </span>
-          <input
-            className="tpl-person__input"
-            placeholder={t('templates.newParticipantPh')}
-            aria-label={t('templates.addPerson')}
-            role="combobox"
-            aria-expanded={q.length > 0}
-            aria-controls="tpl-suggest"
-            aria-autocomplete="list"
-            aria-activedescendant={q ? `tpl-opt-${active}` : undefined}
-            value={newName}
-            onChange={(e) => (setNewName(e.target.value), setActive(0))}
-            onKeyDown={(e) => {
-              if (!q) return;
-              if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, matches.length)));
-              else if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
-              else if (e.key === 'Escape') (e.stopPropagation(), setNewName(''));
-              else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (matches[active]) pickExisting(matches[active].id);
-                else addByName();
-              }
-            }}
-          />
-          {!q && (
-            <button type="button" className="link-btn tpl-person__details" onClick={() => setCreating('add')}>
-              {t('templates.withDetails')}
+          {adding ? (
+            <input
+              autoFocus
+              className="tpl-person__input"
+              placeholder={t('recipients.ph')}
+              aria-label={t('templates.addPerson')}
+              role="combobox"
+              aria-expanded={!!q}
+              aria-controls="tpl-suggest"
+              aria-autocomplete="list"
+              aria-activedescendant={q ? `tpl-opt-${active}` : undefined}
+              aria-invalid={addError ? true : undefined}
+              value={query}
+              onChange={(e) => (setQuery(e.target.value), setActive(0), setAddError(undefined))}
+              onBlur={() => !q && closeAdd()}
+              onKeyDown={(e) => {
+                const count = matches.length + (canCreate ? 1 : 0);
+                if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, count - 1)));
+                else if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
+                else if (e.key === 'Escape') (e.stopPropagation(), closeAdd());
+                else if (e.key === 'Enter') {
+                  e.preventDefault();
+                  if (matches[active]) pickExisting(matches[active].id);
+                  else if (canCreate) createTyped();
+                }
+              }}
+            />
+          ) : (
+            <button type="button" className="link-btn tpl-person__add" onClick={() => setAdding(true)}>
+              {t('templates.addPerson')}
             </button>
           )}
         </div>
-        {/* Predictive list: people already in Liminal first, "create new" last. Inline so the modal never clips it. */}
-        {q && (
+        {addError && <p className="field__error tpl-person__error">{addError}</p>}
+        {/* Saved participants first, "add new" last. Inline so the modal never clips it. */}
+        {adding && q && (matches.length > 0 || canCreate) && (
           <ul id="tpl-suggest" role="listbox" aria-label={t('templates.addPerson')} className="tpl-suggest">
             {matches.map((p, i) => (
               <li key={p.id} id={`tpl-opt-${i}`} role="option" aria-selected={i === active} className={`tpl-suggest__option${i === active ? ' is-active' : ''}`} onMouseEnter={() => setActive(i)} onMouseDown={(e) => e.preventDefault()} onClick={() => pickExisting(p.id)}>
                 <Avatar name={p.name} />
                 <span className="who__text">
-                  <span className="who__name truncate">{p.name}</span>
+                  <span className="who__name truncate">{q.includes('@') ? p.name : <Highlight text={p.name} query={q.toLowerCase()} />}</span>
                   <span className="who__sub truncate">{[p.role, p.email].filter(Boolean).join(' · ')}</span>
                 </span>
               </li>
             ))}
-            <li id={`tpl-opt-${matches.length}`} role="option" aria-selected={active === matches.length} className={`tpl-suggest__option tpl-suggest__create${active === matches.length ? ' is-active' : ''}`} onMouseEnter={() => setActive(matches.length)} onMouseDown={(e) => e.preventDefault()} onClick={addByName}>
-              <span className="tpl-person__plus" aria-hidden style={{ marginLeft: 0 }}>
-                <PlusIcon size={16} weight="bold" />
-              </span>
-              <span className="who__name truncate">{t('templates.createNamed', { name: newName.trim() })}</span>
-            </li>
+            {canCreate && (
+              <li id={`tpl-opt-${matches.length}`} role="option" aria-selected={active === matches.length} className={`tpl-suggest__option tpl-suggest__create${active === matches.length ? ' is-active' : ''}`} onMouseEnter={() => setActive(matches.length)} onMouseDown={(e) => e.preventDefault()} onClick={createTyped}>
+                <span className="tpl-person__plus" aria-hidden style={{ marginLeft: 0 }}>
+                  <PlusIcon size={16} weight="bold" />
+                </span>
+                <span className="who__name truncate">{q.includes('@') ? t('owner.addEmail', { email: q }) : t('owner.addName', { name: q })}</span>
+              </li>
+            )}
           </ul>
         )}
       </fieldset>
-      <Button variant="primary" disabled={!dirty} block onClick={save}>
-        {template ? t('templates.saveChanges') : t('templates.save')}
-      </Button>
+      <div className="tpl-editor__actions">
+        {template && (
+          <Button variant="ghost" className="btn--danger-text" onClick={() => setConfirmDelete(true)}>
+            {t('templates.delete')}
+          </Button>
+        )}
+        <Button variant="primary" disabled={!dirty} onClick={save} className="tpl-editor__save">
+          {template ? t('templates.saveChanges') : t('templates.save')}
+        </Button>
+      </div>
 
+      {confirmDelete && template && (
+        <Dialog title={t('templates.deleteTitle')} onClose={() => setConfirmDelete(false)}>
+          <p className="lead">{t('templates.deleteLead')}</p>
+          <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+            <Button variant="ghost" onClick={() => setConfirmDelete(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button variant="danger" onClick={() => (deleteTemplate(template.id), setConfirmDelete(false), onClose())}>
+              {t('templates.deleteConfirm')}
+            </Button>
+          </div>
+        </Dialog>
+      )}
       {replacing && (
         <ReplacePersonDialog
           person={replacing}
-          options={candidates.filter((p) => p.id !== replacing.id && !selected.includes(p.id))}
+          options={others}
           onPick={(id) => (replace(replacing.id, id), setReplacing(null))}
           onNew={() => (setCreating(replacing), setReplacing(null))}
           onClose={() => setReplacing(null)}
         />
       )}
-      {creating && (
-        <AddParticipantModal
-          title={creating === 'add' ? undefined : t('templates.replaceTitle', { name: creating.name })}
-          onAdded={(id) => (creating === 'add' ? add(id) : replace(creating.id, id))}
-          onClose={() => setCreating(null)}
-        />
-      )}
+      {creating && <AddParticipantModal title={t('templates.replaceTitle', { name: creating.name })} onAdded={(id) => replace(creating.id, id)} onClose={() => setCreating(null)} />}
     </Dialog>
   );
 }
@@ -256,7 +286,7 @@ export function Templates() {
             </div>
             <div className="tpl-card__actions">
               <PeopleStack ids={tpl.participantIds} />
-              <Button variant="ghost" icon={<PencilSimpleIcon size={20} aria-hidden />} aria-label={t('templates.editLabel', { name: tpl.name })} onClick={() => setEditing(tpl)}>
+              <Button variant="ghost" className="tpl-card__edit" aria-label={t('templates.editLabel', { name: tpl.name })} onClick={() => setEditing(tpl)}>
                 {t('templates.edit')}
               </Button>
               <Button
