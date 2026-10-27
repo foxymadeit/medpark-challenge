@@ -205,7 +205,8 @@
   font: var(--sm-type-plate);
   letter-spacing: 0.24px;
 }
-.avatar--sm { width: 24px; height: 24px; border-radius: 12px; letter-spacing: 0; }
+/* Three avatar sizes only: S 24 (.avatar--sm: stacks, transcript speakers), M 32 (.avatar: list rows), L 56 (profile, screens.css). */
+.avatar--sm { width: 24px; height: 24px; border-radius: 12px; font-size: 10px; line-height: 12px; letter-spacing: 0; }
 .status-tag {
   display: inline-flex;
   align-items: center;

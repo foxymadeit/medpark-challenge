@@ -20,10 +20,10 @@ export function PeopleStack({ ids, max = 5, names = true }: { ids: string[]; max
       <span className="avatar-stack">
         {people.slice(0, max).map((p) => (
           <button key={p.id} type="button" className="avatar-tip" data-name={label(p)} aria-label={t('profile.open', { name: label(p) })} onClick={() => setProfileId(p.id)}>
-            <Avatar name={p.name} />
+            <Avatar name={p.name} size="sm" />
           </button>
         ))}
-        {hidden > 0 && !names && <span className="avatar avatar--more">+{hidden}</span>}
+        {hidden > 0 && !names && <span className="avatar avatar--sm avatar--more">+{hidden}</span>}
       </span>
       {names && (
         <span className="note truncate">

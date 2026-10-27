@@ -533,11 +533,10 @@
 .tpl-person { display: flex; align-items: center; gap: var(--sm-space-2); height: 48px; border-top: 1px solid var(--sm-surface-hairline); clear: both; }
 .tpl-person__main { display: flex; flex: 1; align-items: center; gap: var(--sm-space-3); min-width: 0; height: 100%; cursor: pointer; }
 .tpl-person__main .t-strong { margin-right: -4px; white-space: nowrap; }
-.tpl-person__main .avatar { width: 28px; height: 28px; }
 /* "New participant" placeholder row: looks like a slot waiting to be filled. */
 /* "+ Add participant" (AddPersonRow) in the template editor: a list row, the + in the avatars' column (after the checkbox). */
 .tpl-people .add-person__row { height: 48px; border-top: 1px solid var(--sm-surface-hairline); }
-.tpl-people .add-person__row > .add-person__plus { width: 28px; height: 28px; margin-left: var(--sm-space-8); }
+.tpl-people .add-person__row > .add-person__plus { margin-left: var(--sm-space-8); }
 .tpl-people .add-person__open { font: var(--sm-type-button); }
 .tpl-people .add-person__list, .tpl-people .add-person__error { margin-left: 44px; }
 /* Template list: "Edit" is plain secondary text (no icon), a touch darker on hover. */
@@ -619,7 +618,7 @@
 .avatar-stack .avatar { box-shadow: 0 0 0 2px var(--sm-surface-panel); }
 .avatar-stack .avatar-tip + .avatar-tip { margin-left: -8px; }
 /* Avatars are buttons (open the profile) with a name tooltip on hover / keyboard focus. */
-.avatar-tip { position: relative; display: inline-flex; padding: 0; border: 0; border-radius: 16px; background: none; cursor: pointer; }
+.avatar-tip { position: relative; display: inline-flex; padding: 0; border: 0; border-radius: 12px; background: none; cursor: pointer; }
 .avatar-tip:hover, .avatar-tip:focus-visible { z-index: 1; }
 .avatar-tip:hover .avatar { color: var(--sm-ink-primary); }
 .avatar-tip::after {
