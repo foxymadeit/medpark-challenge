@@ -1,5 +1,5 @@
 import { ArrowsLeftRightIcon, CheckIcon, MicrophoneIcon, PlusIcon, UserPlusIcon, UsersThreeIcon } from '@phosphor-icons/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AddPersonRow } from '../components/AddPersonRow';
 import { Avatar } from '../components/Avatar';
@@ -13,21 +13,23 @@ import { TemplateBadge } from '../components/TemplateBadge';
 import { TextField } from '../components/TextField';
 import { useI18n } from '../i18n/I18nProvider';
 import { COLOR_KEYS, PALETTE, templateColor, type ColorKey } from '../lib/colors';
+import { suggestForType } from '../lib/participants';
 import { AddParticipantModal } from './Participants';
 import { useStore } from '../store/AppStore';
 import { MEETING_TYPES, type MeetingType, type Person, type Template } from '../types';
 
-/** Pick who takes a participant's place: someone not in the template yet, or a new person. */
+/** Pick who takes a participant's place: click someone (the row stays highlighted), then Replace; or a new person. */
 function ReplacePersonDialog({ person, options, onPick, onNew, onClose }: { person: Person; options: Person[]; onPick: (id: string) => void; onNew: () => void; onClose: () => void }) {
   const { t } = useI18n();
+  const [chosen, setChosen] = useState<string>();
   return (
-    <Dialog title={t('templates.replaceTitle', { name: person.name })} onClose={onClose}>
+    <Dialog title={t('templates.replaceTitle', { name: person.name })} onClose={onClose} className="modal--replace">
       <p className="note">{options.length ? t('templates.replaceHint') : t('templates.noOthers')}</p>
       {options.length > 0 && (
-        <ul className="replace-list">
+        <ul className="replace-list" role="radiogroup" aria-label={t('templates.replaceTitle', { name: person.name })}>
           {options.map((p) => (
             <li key={p.id}>
-              <button type="button" className="replace-list__item" onClick={() => onPick(p.id)}>
+              <button type="button" role="radio" aria-checked={chosen === p.id} className={`replace-list__item row-hover${chosen === p.id ? ' is-selected' : ''}`} onClick={() => setChosen(p.id)}>
                 <Avatar name={p.name} />
                 <span className="who__text">
                   <span className="who__name">{p.name}</span>
@@ -38,9 +40,14 @@ function ReplacePersonDialog({ person, options, onPick, onNew, onClose }: { pers
           ))}
         </ul>
       )}
-      <Button icon={<UserPlusIcon size={20} aria-hidden />} onClick={onNew}>
-        {t('templates.newPerson')}
-      </Button>
+      <div className="replace-actions">
+        <Button icon={<UserPlusIcon size={20} aria-hidden />} onClick={onNew}>
+          {t('templates.newPerson')}
+        </Button>
+        <Button variant="ink" disabled={!chosen} onClick={() => chosen && onPick(chosen)}>
+          {t('templates.replaceConfirm')}
+        </Button>
+      </div>
     </Dialog>
   );
 }
@@ -95,10 +102,10 @@ function ColorPicker({ value, onChange }: { value: ColorKey; onChange: (c: Color
   );
 }
 
-/** T02 — template editor, shown as a centred modal. */
+/** T02 — template editor (New and Edit are this one window), a centred modal of a fixed size: only the people list scrolls. */
 function EditTemplatePanel({ template, onClose }: { template?: Template; onClose: () => void }) {
   const { t } = useI18n();
-  const { account, people, resolvePerson, saveTemplate, deleteTemplate, addPerson } = useStore();
+  const { account, people, meetings, resolvePerson, saveTemplate, deleteTemplate, addPerson } = useStore();
   const [name, setName] = useState(template?.name ?? '');
   const [type, setType] = useState<MeetingType>(template?.type ?? 'medical');
   const [color, setColor] = useState<ColorKey>(template ? templateColor(template) : 'blue');
@@ -111,6 +118,21 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
 
   const members = selected.map(resolvePerson).filter((p): p is Person => !!p);
   const others = [...people, ...(template?.participantIds ?? []).map(resolvePerson).filter((p): p is Person => !!p)].filter((p, i, a) => a.findIndex((x) => x.id === p.id) === i && !selected.includes(p.id));
+
+  // Under the ticked people: suggestions for the meeting type, unticked, as many as fit in the list without scrolling
+  // (rows are 48px; one row stays for "Add participant"). Ticking one moves it up; the next suggestion takes its place.
+  const listRef = useRef<HTMLDivElement>(null);
+  const [rowsFit, setRowsFit] = useState(0);
+  useLayoutEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const measure = () => setRowsFit(Math.floor(el.clientHeight / 48));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const suggested = suggestForType(type, meetings, people, (id) => selected.includes(id), rowsFit - members.length - 1);
 
   // Unticking removes them from the template (and from this list).
   const remove = (id: string) => setSelected((s) => s.filter((x) => x !== id));
@@ -127,6 +149,8 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
     selected.length !== initial.length ||
     selected.some((id, i) => id !== initial[i]);
 
+  // Save: a name is needed; editing, something must have changed too.
+  const canSave = !!name.trim() && (!template || dirty);
   const save = () => {
     if (!name.trim()) return setError(t('common.required'));
     saveTemplate({ id: template?.id, name: name.trim(), type, color, participantIds: selected });
@@ -134,8 +158,8 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
   };
 
   return (
-    <Dialog title={template ? t('templates.panelTitle') : t('templates.new')} onClose={onClose} wide>
-      <TextField editable label={t('templates.name')} value={name} onChange={(e) => (setName(e.target.value), setError(undefined))} error={error} after={<ColorPicker value={color} onChange={setColor} />} />
+    <Dialog title={template ? t('templates.panelTitle') : t('templates.new')} onClose={onClose} wide className="modal--template">
+      <TextField editable label={t('templates.name')} placeholder={t(`templates.namePh.${type}`)} value={name} onChange={(e) => (setName(e.target.value), setError(undefined))} error={error} after={<ColorPicker value={color} onChange={setColor} />} />
       <div className="field">
         <span className="field__label">{t('templates.type')}</span>
         <Segmented<MeetingType> label={t('templates.type')} variant="fill" value={type} onChange={setType} options={MEETING_TYPES.map((m) => ({ value: m, label: t(`types.${m}`), icon: <MeetingTypeIcon type={m} /> }))} />
@@ -148,38 +172,51 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
           </span>
           <span className="note">{t('common.participantsCount', { count: members.length })}</span>
         </legend>
-        {/* Only who's in the template; untick to take them out. */}
-        {members.map((p) => (
-          <div key={p.id} className="tpl-person">
-            <label className="tpl-person__main">
-              <input type="checkbox" className="checkbox" checked onChange={() => remove(p.id)} aria-label={t('templates.removeFrom', { name: p.name })} />
-              <Avatar name={p.name} />
-              <span className="t-strong">{p.name}</span>
-              {p.id === account?.personId && <span className="tag tag--me">{t('common.me')}</span>}
-              <span className="note truncate">{p.role || p.email}</span>
-            </label>
-            <button type="button" className="icon-btn" aria-label={t('templates.replace', { name: p.name })} title={t('templates.replace', { name: p.name })} onClick={() => setReplacing(p)}>
-              <ArrowsLeftRightIcon size={20} aria-hidden />
-            </button>
-          </div>
-        ))}
-        {/* Add row: the + sits in the avatars' column; picked or created people join ticked. */}
-        <AddPersonRow
-          pool={others}
-          known={[...people, ...members]}
-          onPick={(p) => add(p.id)}
-          onCreate={(typed) => add(addPerson({ ...typed, role: '', access: 'receives' }))}
-        />
+        <div className="tpl-people__list" ref={listRef}>
+          {/* Who's in the template (untick to take them out), then suggestions for the type (tick to add). */}
+          {members.map((p) => (
+            <div key={p.id} className="tpl-person">
+              <label className="tpl-person__main">
+                <input type="checkbox" className="checkbox" checked onChange={() => remove(p.id)} aria-label={t('templates.removeFrom', { name: p.name })} />
+                <Avatar name={p.name} />
+                <span className="t-strong">{p.name}</span>
+                {p.id === account?.personId && <span className="tag tag--me">{t('common.me')}</span>}
+                <span className="note truncate">{p.role || p.email}</span>
+              </label>
+              <button type="button" className="icon-btn" aria-label={t('templates.replace', { name: p.name })} title={t('templates.replace', { name: p.name })} onClick={() => setReplacing(p)}>
+                <ArrowsLeftRightIcon size={20} aria-hidden />
+              </button>
+            </div>
+          ))}
+          {suggested.map((p) => (
+            <div key={p.id} className="tpl-person">
+              <label className="tpl-person__main">
+                <input type="checkbox" className="checkbox" checked={false} onChange={() => add(p.id)} aria-label={t('templates.addTo', { name: p.name })} />
+                <Avatar name={p.name} />
+                <span className="t-strong">{p.name}</span>
+                <span className="note truncate">{p.role || p.email}</span>
+              </label>
+            </div>
+          ))}
+          {/* Add row: the + sits in the avatars' column; picked or created people join ticked. */}
+          <AddPersonRow
+            pool={others}
+            known={[...people, ...members]}
+            onPick={(p) => add(p.id)}
+            onCreate={(typed) => add(addPerson({ ...typed, role: '', access: 'receives' }))}
+          />
+        </div>
       </fieldset>
+      {/* Save across the form, like "Create participant"; Delete (editing only) under it. */}
       <div className="tpl-editor__actions">
+        <Button variant="primary" block disabled={!canSave} onClick={save}>
+          {template ? t('templates.saveChanges') : t('templates.save')}
+        </Button>
         {template && (
-          <Button variant="ghost" className="btn--danger-text" onClick={() => setConfirmDelete(true)}>
+          <Button variant="ghost" block className="btn--danger-text" onClick={() => setConfirmDelete(true)}>
             {t('templates.delete')}
           </Button>
         )}
-        <Button variant="primary" disabled={!dirty} onClick={save} className="tpl-editor__save">
-          {template ? t('templates.saveChanges') : t('templates.save')}
-        </Button>
       </div>
 
       {confirmDelete && template && (

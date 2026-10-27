@@ -79,21 +79,21 @@
   width: 100%;
   height: 48px;
   padding: 0 14px;
-  border: 1.5px solid var(--sm-ink-tertiary);
+  border: var(--sm-field-border-w) solid var(--sm-surface-hairline); /* resting: thin grey like search and selects */
   border-radius: var(--sm-radius-tile);
   background: var(--sm-surface-panel);
   font: 400 15px/22px var(--sm-font-body);
   color: var(--sm-ink-primary);
 }
 .input::placeholder { color: var(--sm-ink-tertiary); opacity: 1; }
+/* Focus: only the colour changes (dark), never the thickness. */
 .input:focus-visible,
 .input:focus {
   outline: none;
   border-color: var(--sm-ink-primary);
-  box-shadow: 0 0 0 0.5px var(--sm-ink-primary);
 }
 .input[aria-invalid='true'] { border-color: var(--sm-signal-danger); }
-.input--inline { height: 40px; padding: 0 12px; border-width: 1px; }
+.input--inline { height: 40px; padding: 0 12px; }
 /* Editable field: pen at the end; hidden while typing so it never covers text. */
 .input-wrap { position: relative; display: block; }
 /* Input + something on its right (TextField `after`). */
@@ -301,10 +301,10 @@
 .table--people:has(tbody .dropdown) th:nth-child(2),
 .table--people:has(tbody .dropdown) th:nth-child(3) { padding-left: calc(var(--sm-field-border-w) + var(--sm-field-pad-x)); }
 .table tr.is-clickable { cursor: pointer; }
-/* Participants: the whole row lights up on hover (divider to divider, edge to edge); the name block has no own highlight.
-   Selects and × keep their own hover. Cursor and clicks unchanged. */
-.table--people tbody tr:has(.who--button):hover td { background: var(--sm-surface-ground); }
-.table--people .who--button:hover { background: none; }
+/* Row highlight, one style for every list: the whole row (divider to divider, edge to edge) on hover, and while chosen.
+   Participants table rows, the Replace list. Controls inside keep their own hover. */
+.row-hover:is(:hover, .is-selected), .row-hover:is(:hover, .is-selected) > td { background: var(--sm-surface-ground); }
+.table--people .who--button:hover { background: none; } /* the row lights up instead */
 .table tr.is-clickable:hover td { background: var(--sm-surface-ground); }
 .table tbody tr:last-child td:first-child { border-bottom-left-radius: var(--sm-radius-panel); }
 .table tbody tr:last-child td:last-child { border-bottom-right-radius: var(--sm-radius-panel); }
@@ -336,7 +336,7 @@
   text-align: left;
 }
 .dropdown__button:disabled { cursor: not-allowed; } /* looks like Figma's select; the guard is explained via title */
-.dropdown__button--field { height: 44px; padding: 0 12px; border-color: var(--sm-ink-tertiary); }
+.dropdown__button--field { height: 44px; padding: 0 12px; }
 .dropdown__list {
   position: absolute;
   z-index: 30;
@@ -432,6 +432,8 @@
   box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06), 0 24px 48px rgba(16, 16, 16, 0.05);
 }
 .modal--wide { width: 640px; }
+/* Nothing in a dialog gets squashed (a button once shrank to 22px); a long list scrolls inside instead (see .replace-list). */
+.modal > * { flex-shrink: 0; }
 /* MoM text preview: reads like the email/PDF that goes out. */
 /* MoM preview: exactly over the MoM card (same column variables), as tall as the window allows (24px top and bottom).
    Only the email body scrolls; To / Subject, the PDF line and the buttons stay put. */

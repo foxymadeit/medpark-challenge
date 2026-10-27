@@ -97,7 +97,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
   };
 
   return (
-    <tr>
+    <tr className="row-hover">
       <td>
         {/* Avatar + name open the profile, where email and role can be edited. */}
         <button type="button" className="who who--button" aria-label={t('profile.open', { name: displayName })} onClick={() => setProfileOpen(true)}>

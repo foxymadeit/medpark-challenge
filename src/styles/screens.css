@@ -261,7 +261,7 @@
 .transcript__head:hover { background: var(--sm-surface-hairline); }
 .transcript__edited { height: 20px; font-size: 12px; }
 .sentence-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: var(--sm-space-2); }
-.sentence-actions__btn { height: 32px; padding: 0 10px; font-size: 14px; }
+.sentence-actions__btn { height: 40px; padding: 0 12px; font-size: 14px; } /* 40, like Edit / Confirm in the tasks */
 .sentence-actions__remove { color: var(--sm-signal-danger); }
 .sentence-actions__close { margin-left: auto; }
 .sentence-player { display: flex; flex-direction: column; gap: 6px; flex: 1 1 100%; margin-top: 6px; }
@@ -372,10 +372,10 @@
 .add-person__row:hover .add-person__open, .add-person__open:focus-visible { color: var(--sm-ink-primary); }
 .add-person__row { position: relative; }
 .add-person__open::after { content: ''; position: absolute; inset: 0; } /* the whole row (the + too) is the button */
-.add-person__input { flex: 1; min-width: 0; height: 36px; padding: 0 8px; border: 0; border-radius: var(--sm-radius-inner); background: transparent; color: var(--sm-ink-primary); font: 400 15px/22px var(--sm-font-body); }
+.add-person__input { flex: 1; min-width: 0; height: 36px; padding: 0 8px; border: 1px solid transparent; border-radius: var(--sm-radius-inner); background: transparent; color: var(--sm-ink-primary); font: 400 15px/22px var(--sm-font-body); }
 .add-person__input::placeholder { color: var(--sm-ink-tertiary); }
 .add-person__input:hover { background: var(--sm-surface-ground); }
-.add-person__input:focus { outline: none; box-shadow: inset 0 0 0 1.5px var(--sm-control); }
+.add-person__input:focus { outline: none; border-color: var(--sm-ink-primary); }
 .add-person__error { margin: 4px 0 0; }
 .add-person__list { margin: 4px 0 8px; padding: 4px; list-style: none; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); box-shadow: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06); }
 .add-person__option { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; padding: 6px 8px; border-radius: var(--sm-radius-inner); cursor: pointer; }
@@ -543,14 +543,20 @@
 .tpl-card__edit { color: var(--sm-ink-secondary); }
 .tpl-card__edit:hover:not(:disabled) { color: var(--sm-ink-primary); }
 /* Editor footer: Delete (quiet, red text) on the left, Save on the right at the normal button size. */
-.tpl-editor__actions { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
-.tpl-editor__save { min-width: 184px; margin-left: auto; justify-content: center; }
+/* New / Edit template: one fixed size that never grows or jumps; the people list takes the space left and scrolls. */
+.modal--template { height: min(760px, calc(100vh - 48px)); overflow: hidden; }
+.modal--template > .tpl-people { flex: 1 1 auto; min-height: 0; }
+.tpl-people__list { flex: 1 1 auto; min-height: 0; overflow-y: auto; clear: both; }
+/* Save across the form (like "Create participant"), Delete template under it. */
+.tpl-editor__actions { display: flex; flex-direction: column; gap: var(--sm-space-2); }
 .btn--danger-text { color: var(--sm-signal-danger); }
 .btn--danger-text:hover:not(:disabled) { background: var(--sm-signal-danger-tint); }
-.replace-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.modal--replace { max-height: calc(100vh - 48px); overflow: hidden; }
+/* Edge to edge of the dialog (out over its 32px padding); scrolls inside when long. */
+.modal > .replace-list { flex-shrink: 1; min-height: 0; margin: 0 calc(-1 * var(--sm-space-8)); padding: 0; overflow-y: auto; list-style: none; border-block: 1px solid var(--sm-surface-hairline); }
 .replace-list li + li { border-top: 1px solid var(--sm-surface-hairline); }
-.replace-list__item { display: flex; align-items: center; gap: var(--sm-space-3); width: 100%; padding: var(--sm-space-2) 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
-.replace-list__item:hover .who__name { text-decoration: underline; text-underline-offset: 3px; }
+.replace-list__item { display: flex; align-items: center; gap: var(--sm-space-3); width: 100%; padding: var(--sm-space-2) var(--sm-space-8); border: 0; background: none; color: inherit; text-align: left; cursor: pointer; }
+.replace-actions { display: flex; justify-content: space-between; gap: var(--sm-space-3); }
 
 /* ── Clickable transcript words ── */
 .word {

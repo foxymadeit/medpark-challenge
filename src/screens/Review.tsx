@@ -12,8 +12,8 @@ import { OwnerPicker } from '../components/OwnerPicker';
 import { ParticipantsPanel } from '../components/ParticipantsPanel';
 import { Segmented } from '../components/Segmented';
 import { useI18n } from '../i18n/I18nProvider';
-import { addDays, DUE_OFFSETS, dueRelative, formatDayMonth, formatWeekdayDate, uid } from '../lib/format';
-import { speakerNamer } from '../lib/meeting';
+import { addDays, DUE_OFFSETS, dueRelative, formatWeekdayDate, uid } from '../lib/format';
+import { meetingHeading, speakerNamer } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 import type { Meeting, ParticipantSnapshot, Task } from '../types';
@@ -57,7 +57,7 @@ function EditableTitle({ meeting }: { meeting: Meeting }) {
   return (
     <h1 className="t-h1 review__title">
       <button type="button" className="review__title-btn" title={t('review.renameLabel')} onClick={() => setEditing(true)}>
-        {meeting.title} · {formatDayMonth(meeting.date, lang)}
+        {meetingHeading(meeting, lang)}
       </button>
     </h1>
   );

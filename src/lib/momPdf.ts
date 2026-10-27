@@ -1,6 +1,6 @@
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { groupTasks } from '../components/Minutes';
-import { speakerNamer } from './meeting';
+import { meetingHeading, speakerNamer } from './meeting';
 import type { Lang } from '../i18n/I18nProvider';
 import type { Meeting } from '../types';
 import { dueRelative, formatDayMonth, formatFullDate, todayISO } from './format';
@@ -68,7 +68,7 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
   const doc: TDocumentDefinitions = {
     pageSize: 'A4',
     pageMargins: [48, 56, 48, 56],
-    info: { title: `${t('pdf.title')} — ${meeting.title}`, creator: 'Liminal' },
+    info: { title: `${t('pdf.title')} — ${meetingHeading(meeting, lang)}`, creator: 'Liminal' },
     defaultStyle: { font: 'Roboto', fontSize: 10.5, color: INK, lineHeight: 1.25 },
     styles: {
       plate: { fontSize: 8.5, color: INK_2, characterSpacing: 0.4 },
@@ -94,12 +94,12 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
     }),
     content: [
       { text: t('pdf.title').toUpperCase(), style: 'plate' },
-      { text: meeting.title, style: 'h1' },
+      { text: meetingHeading(meeting, lang), style: 'h1' },
       { text: meta, style: 'note' },
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 499, y2: 0, lineWidth: 0.75, lineColor: HAIRLINE }], margin: [0, 14, 0, 0] },
 
-      // The final MoM holds only decisions (the summary) and action items (owner, deadline).
-      { text: t('mom.decisions'), style: 'h2' },
+      // The final MoM holds only the summary and action items (owner, deadline).
+      { text: t('review.summary'), style: 'h2' },
       meeting.summary?.length ? { ul: meeting.summary.map((point) => ({ text: point, margin: [0, 0, 0, 4] })), margin: [0, 0, 0, 4] } : { text: t('review.noSummary'), style: 'note' },
 
       { text: t('mom.actions'), style: 'h2' },

@@ -1,6 +1,6 @@
 import { useI18n } from '../i18n/I18nProvider';
 import { dueRelative, formatDayMonth, formatFullDate } from '../lib/format';
-import { speakerNamer } from '../lib/meeting';
+import { meetingHeading, speakerNamer } from '../lib/meeting';
 import { useStore } from '../store/AppStore';
 import type { Meeting } from '../types';
 import { groupTasks } from './Minutes';
@@ -8,7 +8,7 @@ import { momFileName } from '../lib/momPdf';
 import { FilePdfIcon } from '@phosphor-icons/react';
 
 /**
- * The final MoM as it goes out, as text: decisions (the summary), then action items grouped by owner with deadlines.
+ * The final MoM as it goes out, as text: the summary, then action items grouped by owner with deadlines.
  * Same content as the PDF.
  */
 export function MomPreview({ meeting }: { meeting: Meeting }) {
@@ -38,10 +38,10 @@ export function MomPreview({ meeting }: { meeting: Meeting }) {
       </dl>
       <article className="mom-preview">
         <p className="mom-preview__plate">{t('pdf.title')}</p>
-        <h3 className="mom-preview__title">{meeting.title}</h3>
+        <h3 className="mom-preview__title">{meetingHeading(meeting, lang)}</h3>
         <p className="note">{t('record.metaUnsent', { type: t(`types.${meeting.type}`), date: formatFullDate(meeting.date, lang), n: meeting.durationMin })}</p>
 
-          <h4 className="mom-preview__h">{t('mom.decisions')}</h4>
+        <h4 className="mom-preview__h">{t('review.summary')}</h4>
         {meeting.summary?.length ? (
           <ul className="mom-preview__list">
             {meeting.summary.map((point, i) => (

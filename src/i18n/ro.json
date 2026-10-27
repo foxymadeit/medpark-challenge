@@ -406,10 +406,17 @@
     "replaceHint": "Alegeți cine îi ia locul în acest șablon.",
     "noOthers": "Toate persoanele din listă sunt deja în acest șablon.",
     "newPerson": "Persoană nouă",
+    "replaceConfirm": "Înlocuiește",
     "add": "Adaugă",
     "saveChanges": "Salvează modificările",
     "color": "Culoare",
     "removeFrom": "Scoateți {name} din șablon",
+    "addTo": "Adăugați pe {name} în șablon",
+    "namePh": {
+      "medical": "ex. Vizita de dimineață",
+      "executive": "ex. Ședința săptămânală a conducerii",
+      "administrative": "ex. Planificarea aprovizionării"
+    },
     "delete": "Șterge șablonul",
     "deleteTitle": "Ștergeți acest șablon?",
     "deleteLead": "Acțiunea nu poate fi anulată.",
@@ -469,7 +476,6 @@
     "attached": "PDF atașat"
   },
   "mom": {
-    "decisions": "Decizii",
     "actions": "Acțiuni"
   },
   "pdf": {

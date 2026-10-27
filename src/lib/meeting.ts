@@ -2,7 +2,9 @@ import { useI18n } from '../i18n/I18nProvider';
 import { demoPeople, YOU_ID } from '../mocks';
 import { draftParticipants } from './participants';
 import { useStore } from '../store/AppStore';
+import type { Lang } from '../i18n/I18nProvider';
 import type { Meeting, Person } from '../types';
+import { formatDayMonth } from './format';
 
 /** Title + participants for the meeting being set up (from the draft/template). */
 export function useDraftMeeting() {
@@ -29,3 +31,6 @@ export function speakerNamer(meeting: Meeting, resolve: (id: string) => { name: 
   const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id) && !resolve(id));
   return (pid: string) => meeting.participants.find((p) => p.personId === pid)?.name ?? resolve(pid)?.name ?? t('recording.speakerN', { n: unknown.indexOf(pid) + 1 });
 }
+
+/** The meeting's heading everywhere it's shown as a document: "Cardiology board · 26 Sep" (review screen, MoM preview, PDF). */
+export const meetingHeading = (meeting: Pick<Meeting, 'title' | 'date'>, lang: Lang) => `${meeting.title} · ${formatDayMonth(meeting.date, lang)}`;

@@ -402,10 +402,17 @@ export const en = {
     replaceHint: 'Choose who takes their place in this template.',
     noOthers: 'Everyone in the directory is already in this template.',
     newPerson: 'New person',
+    replaceConfirm: 'Replace',
     add: 'Add',
     saveChanges: 'Save changes',
     color: 'Colour',
     removeFrom: 'Remove {name} from the template',
+    addTo: 'Add {name} to the template',
+    namePh: {
+      medical: 'e.g. Morning ward round',
+      executive: 'e.g. Weekly executive sync',
+      administrative: 'e.g. Supply planning',
+    },
     delete: 'Delete template',
     deleteTitle: 'Delete this template?',
     deleteLead: 'This can’t be undone.',
@@ -464,7 +471,6 @@ export const en = {
     attached: 'PDF attached',
   },
   mom: {
-    decisions: 'Decisions',
     actions: 'Action items',
   },
   pdf: {
