@@ -309,8 +309,9 @@
 .review__count-head { display: inline-flex; align-items: baseline; gap: 10px; }
 
 /* Summary: at most half of the card (its own scroll only if it's longer). */
-.review__summary { display: flex; flex-direction: column; max-height: 50cqh; padding: var(--sm-space-6) 0 28px; }
-.review__summary .summary-points { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: 14px 0 0; }
+.review__summary { display: flex; flex-direction: column; max-height: 50cqh; padding: var(--sm-space-6) 0 24px; }
+/* 4px inside the list's own scroll (taken off the gaps around it): the pen / × sit 4px above and below the line and would be clipped. */
+.review__summary .summary-points { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: 10px 0 0; padding: 4px 0; }
 .review__summary .summary-points__item { font: 400 15px/24px var(--sm-font-body); }
 
 /* "+" (add point, add task): the thin 10px glyph in a 28px click area, no fill, grey like the counts. */
