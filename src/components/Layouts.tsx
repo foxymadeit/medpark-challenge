@@ -104,7 +104,6 @@ function LanguageSwitch() {
 
 /**
  * Quiet privacy note next to the language switch: green dot + "Hospital network only".
- * The dot blinks while the pointer is over the note (it stops when the pointer leaves).
  */
 function PrivacyBadge({ className = '' }: { className?: string }) {
   const { t } = useI18n();

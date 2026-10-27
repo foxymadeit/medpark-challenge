@@ -42,10 +42,6 @@
   transform: translateY(-50%);
 }
 .privacy__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--sm-success); }
-/* Hover: the dot blinks on / off (no fade between); leaving the note stops it. */
-.privacy:hover .privacy__dot { animation: privacy-blink 1s step-end infinite; }
-@keyframes privacy-blink { 50% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .privacy:hover .privacy__dot { animation: none; } }
 .account { position: relative; }
 .account__button {
   display: flex;
