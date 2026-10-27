@@ -349,7 +349,7 @@
 .summary-table.task-table th:last-child, .summary-table.task-table td:last-child { padding-right: 0; text-align: right; }
 .summary-table.task-table th { position: sticky; top: 0; z-index: 1; border-bottom: 0; background: var(--sm-surface-panel); box-shadow: inset 0 -1px 0 var(--sm-surface-hairline); }
 .summary-table.task-table td { border-bottom: 1px solid var(--sm-surface-hairline); }
-.summary-table.task-table .summary-table__patient { color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); letter-spacing: 0; }
+.summary-table.task-table .summary-table__patient { margin-bottom: var(--sm-space-3); color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); letter-spacing: 0; } /* 12px: room for the edit rings below */
 .task-table__title { display: block; color: var(--sm-ink-primary); font: var(--sm-type-body-md); }
 .task-owner { display: flex; align-items: center; gap: var(--sm-space-2); min-width: 0; }
 .task-owner__name { min-width: 0; color: var(--sm-ink-primary); font: var(--sm-type-strong); }
@@ -362,9 +362,10 @@
 .task-btn { width: var(--task-btn-w); height: 40px; padding: 0 var(--sm-space-3); box-shadow: none; }
 .task-confirm.is-on { background: var(--sm-control-track); color: var(--sm-ink-secondary); }
 .task-confirm.is-on:hover:not(:disabled) { background: var(--sm-surface-hairline); }
-/* Edit in place: patient and task text keep their read-mode font and spot, no box at rest; a hairline ring (outside
-   the text, takes no room) on hover and focus. */
-.task-edit { display: block; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 2px; background: none; resize: none; overflow: hidden; outline: 1px solid transparent; outline-offset: 4px; }
+/* Edit in place: patient and task text keep their read-mode font and spot, no box at rest. On hover and focus a hairline
+   ring 2px above / below the text and 10px beside it (8px padding pulled back by a -8px margin, so nothing moves).
+   Patient and task are 12px apart, so the two rings stay 6px apart. */
+.task-edit { display: block; width: calc(100% + 16px); margin: 0 -8px; padding: 0 var(--sm-space-2); border: 0; border-radius: 2px; background: none; resize: none; overflow: hidden; outline: 1px solid transparent; outline-offset: 2px; }
 .task-edit:hover, .task-edit:focus, .task-edit:focus-visible { outline-color: var(--sm-surface-hairline); }
 .task-edit::placeholder { color: var(--sm-ink-tertiary); opacity: 1; }
 input.task-edit.summary-table__patient { height: 20px; }

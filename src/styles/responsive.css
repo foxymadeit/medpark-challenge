@@ -91,8 +91,14 @@
 /* ── 641–1023: task rows. Width goes first to the task text (min 240), then the owner (name truncates), then the
    deadline (as wide as its two lines, max 112), then the buttons, which stack: Edit / Cancel on top, Confirm / Save below. ── */
 @media (min-width: 641px) and (max-width: 1023px) {
-  .summary-table.task-table { --task-cols: minmax(240px, 1fr) minmax(72px, 200px) fit-content(132px) var(--task-btn-w); }
+  .summary-table.task-table { --task-cols: minmax(240px, 1fr) minmax(72px, 200px) fit-content(136px) var(--task-btn-w); }
+  .summary-table.task-table :is(th, td):not(:last-child) { padding-right: var(--sm-space-6); } /* 24px between columns */
   .summary-table.task-table .task-actions { flex-direction: column; }
+}
+/* Below 1024 owner and deadline open their lists on click without a caret: there's no room for one beside them. */
+@media (max-width: 1023px) {
+  .summary-table.task-table .dropdown__caret { display: none; }
+  .summary-table.task-table :is(.owner-picker__button, .dropdown__button--bare) { width: calc(100% + 16px); margin: -4px -8px; padding: 4px 8px; }
 }
 
 /* ── ≤640: phone ── */
@@ -174,10 +180,6 @@
   .summary-table td:first-child { flex: 1 1 calc(100% - 44px); }
   .summary-table td:nth-child(2) { flex: 1 1 60%; min-width: 0; }
   .summary-table td:nth-child(3) { padding: 0; }
-  /* Editing on a phone: owner and deadline share a line 12px apart, too little for the caret, so the owner's caret
-     follows the name inside its own cell (the deadline's still sits in the card's margin). */
-  .summary-table.task-table .owner-picker__button { width: calc(100% + 16px); margin: -4px -8px; padding: 4px 8px; }
-  .summary-table.task-table .owner-picker__button .dropdown__caret { position: static; transform: none; }
 
   .tpl-card__actions { flex-wrap: wrap; }
   .tpl-card__actions .people-stack { flex: 1 1 100%; }
