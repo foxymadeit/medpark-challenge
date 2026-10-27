@@ -104,15 +104,16 @@
  *   --content-pad   the content's usual padding (.page)
  *   --content-min   the content never gets narrower than this: the extra right space shrinks first
  *   --content-extra-right  the extra space on the right = the menu's width, reduced to keep --content-min
- *   --column-right  from the content column's right edge to the window's edge (extra right space + padding):
- *                   every page's column ends here (Participants' table, MoM card…), and so does the header status
- * Set on .app so the top bar shares them (the privacy label lines up with the content's right edge).
+ *   --column-left / --column-right  from the window's edges to the content column's edges: every page's column
+ *                   sits between them (Participants' table, MoM card…); the header status ends on --column-right
+ * Set on :root so the top bar and dialogs (rendered outside .app) share them, e.g. the MoM preview over the card.
  */
-.app {
+:root {
   --sidebar-live: var(--sm-sidebar-w);
   --content-pad: var(--sm-space-12);
   --content-min: 640px;
   --content-extra-right: clamp(0px, 100vw - var(--sidebar-live) - 2 * var(--content-pad) - var(--content-min), var(--sidebar-live));
+  --column-left: calc(var(--sidebar-live) + var(--content-pad));
   --column-right: calc(var(--content-extra-right) + var(--content-pad));
 }
 .app__body {
@@ -197,7 +198,7 @@
 /* The page's main action (New participant, New template…): one size on every page. */
 .page-header > .btn { min-width: 184px; justify-content: center; }
 /* Search row above a list (SearchBar): search left, filters right. */
-.search-bar { display: flex; align-items: center; gap: var(--sm-space-4); margin-bottom: var(--page-block-gap); }
+.search-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sm-space-4); margin-bottom: var(--page-block-gap); } /* filters drop under the search only when they don't fit */
 .page__actions {
   display: flex;
   align-items: center;

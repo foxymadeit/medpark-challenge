@@ -34,11 +34,6 @@
     "executive": "Руководство",
     "administrative": "Административное"
   },
-  "typesShort": {
-    "medical": "Медицинское",
-    "executive": "Руководство",
-    "administrative": "Админ."
-  },
   "nav": {
     "newMeeting": "Новое совещание",
     "history": "История",

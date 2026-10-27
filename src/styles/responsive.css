@@ -33,7 +33,7 @@
    (menu 240 + 48 + 640 + 288). The panel goes under the card instead, the column keeps its normal edges,
    and the participants line up in as many columns as fit (avatar + name + email). ── */
 @media (max-width: 1215px) {
-  .app:has(.review__layout) { --column-shrink: 0px; }
+  :root:has(.review__layout) { --column-shrink: 0px; }
   .review__layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; margin-right: 0; }
   .people-panel { grid-column: 1; grid-row: 3; max-height: 168px; }
   .people-panel__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 var(--sm-space-6); }
@@ -51,7 +51,8 @@
   .brand { margin-right: auto; }
 
   /* Sidebar is a drawer here: it takes no space, so no mirrored right margin either. */
-  .app { --sidebar-live: 0px; --content-pad: 24px; } /* .page padding here */
+  :root { --sidebar-live: 0px; --content-pad: 24px; } /* .page padding here */
+  .scrim:not(.scrim--right):has(> .modal--mom) { padding: var(--sm-space-6) var(--sm-space-4); } /* MoM preview: the width of the window, 16px from its edges */
 
   /* Sidebar → slide-in drawer under the top bar. */
   .sidenav {
@@ -89,7 +90,7 @@
 
 /* ── ≤640: phone ── */
 @media (max-width: 640px) {
-  .app { --content-pad: 16px; } /* .page padding here */
+  :root { --content-pad: 16px; } /* .page padding here */
   /* Phone: the privacy note keeps its lock (and tooltip); the words stay for screen readers only. */
   .privacy__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   /* Phone: the date drops under the name, left-aligned. */
@@ -139,7 +140,7 @@
   .add-row td:has(> .icon-btn) { flex: 0 0 auto; }
 
   .search-bar { flex-wrap: wrap; }
-  .search { width: 100%; }
+  .search-bar__combo { flex-basis: 100%; max-width: none; }
 
   .start-tile, .start-tile--record { flex: none; height: 164px; }
 

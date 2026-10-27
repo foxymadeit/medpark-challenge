@@ -301,6 +301,10 @@
 .table--people:has(tbody .dropdown) th:nth-child(2),
 .table--people:has(tbody .dropdown) th:nth-child(3) { padding-left: calc(var(--sm-field-border-w) + var(--sm-field-pad-x)); }
 .table tr.is-clickable { cursor: pointer; }
+/* Participants: the whole row lights up on hover (divider to divider, edge to edge); the name block has no own highlight.
+   Selects and × keep their own hover. Cursor and clicks unchanged. */
+.table--people tbody tr:has(.who--button):hover td { background: var(--sm-surface-ground); }
+.table--people .who--button:hover { background: none; }
 .table tr.is-clickable:hover td { background: var(--sm-surface-ground); }
 .table tbody tr:last-child td:first-child { border-bottom-left-radius: var(--sm-radius-panel); }
 .table tbody tr:last-child td:last-child { border-bottom-right-radius: var(--sm-radius-panel); }
@@ -429,7 +433,12 @@
 }
 .modal--wide { width: 640px; }
 /* MoM text preview: reads like the email/PDF that goes out. */
-.modal--mom { width: min(960px, 100%); }
+/* MoM preview: exactly over the MoM card (same column variables), as tall as the window allows (24px top and bottom).
+   Only the email body scrolls; To / Subject, the PDF line and the buttons stay put. */
+.scrim:not(.scrim--right):has(> .modal--mom) { padding: var(--sm-space-6) calc(var(--column-right) + var(--column-shrink, 0px)) var(--sm-space-6) var(--column-left); }
+.modal.modal--mom { width: 100%; max-height: 100%; overflow: hidden; }
+.modal--mom .mom-email { flex: 1 1 auto; }
+.modal--mom .mom-email .mom-preview { flex: 1 1 auto; min-height: 0; max-height: none; }
 .modal--mom .page__actions > .btn { min-width: 184px; justify-content: center; } /* Download PDF and Send MoM the same size */
 .mom-email { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); overflow: hidden; }
 .mom-email__head { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 12px var(--sm-space-6); border-bottom: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); font: 400 14px/20px var(--sm-font-body); }

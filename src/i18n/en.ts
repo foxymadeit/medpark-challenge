@@ -36,11 +36,6 @@ export const en = {
     executive: 'Executive',
     administrative: 'Administrative',
   },
-  typesShort: {
-    medical: 'Medical',
-    executive: 'Executive',
-    administrative: 'Admin',
-  },
   nav: {
     newMeeting: 'New meeting',
     history: 'History',

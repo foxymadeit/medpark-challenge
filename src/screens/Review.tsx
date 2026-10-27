@@ -1,4 +1,4 @@
-import { DownloadSimpleIcon, PaperPlaneTiltIcon } from '@phosphor-icons/react';
+import { DownloadSimpleIcon, PaperPlaneTiltIcon, PlusIcon } from '@phosphor-icons/react';
 import { useRef, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
@@ -174,6 +174,7 @@ export function Review() {
                     <th scope="col">
                       <span className="sr-only">{t('review.actions')}</span>
                       <button type="button" className="note add-link" onClick={addTask} disabled={!!row}>
+                        <PlusIcon size={16} aria-hidden />
                         {t('review.addTask')}
                       </button>
                     </th>

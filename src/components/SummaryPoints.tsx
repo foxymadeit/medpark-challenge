@@ -1,8 +1,9 @@
-import { PencilSimpleIcon, XIcon } from '@phosphor-icons/react';
+import { PencilSimpleIcon, PlusIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type ReactNode } from 'react';
 import { useI18n } from '../i18n/I18nProvider';
 import { Button } from './Button';
 import { Dialog } from './Dialog';
+import { FadeScroll } from './FadeScroll';
 
 /**
  * The MoM summary: key points as a list. With `onChange` each point can be edited in place
@@ -49,6 +50,7 @@ export function SummaryPoints({ points, onChange, head }: { points: string[]; on
 
   const add = (
     <button type="button" className="note add-link" onClick={() => start(points.length)} disabled={editing !== null}>
+      <PlusIcon size={16} aria-hidden />
       {t('review.addPoint')}
     </button>
   );
@@ -61,7 +63,7 @@ export function SummaryPoints({ points, onChange, head }: { points: string[]; on
           {onChange && add}
         </div>
       )}
-      <div className="summary-points">
+      <FadeScroll className="summary-points">
         {points.length === 0 && editing === null && <p className="note">{t('review.noSummary')}</p>}
         <ul className="summary-points__list">
           {points.map((p, i) => (
@@ -88,7 +90,7 @@ export function SummaryPoints({ points, onChange, head }: { points: string[]; on
           {editing === points.length && <li className="summary-points__item">{editor}</li>}
         </ul>
         {onChange && !head && editing === null && add}
-      </div>
+      </FadeScroll>
       {onChange && removing !== null && (
         <Dialog title={t('review.deletePointTitle')} onClose={() => setRemoving(null)}>
           <p className="lead">{points[removing]}</p>

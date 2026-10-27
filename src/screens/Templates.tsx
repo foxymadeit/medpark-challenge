@@ -138,7 +138,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
       <TextField editable label={t('templates.name')} value={name} onChange={(e) => (setName(e.target.value), setError(undefined))} error={error} after={<ColorPicker value={color} onChange={setColor} />} />
       <div className="field">
         <span className="field__label">{t('templates.type')}</span>
-        <Segmented<MeetingType> label={t('templates.type')} variant="fill" value={type} onChange={setType} options={MEETING_TYPES.map((m) => ({ value: m, label: t(`typesShort.${m}`), icon: <MeetingTypeIcon type={m} /> }))} />
+        <Segmented<MeetingType> label={t('templates.type')} variant="fill" value={type} onChange={setType} options={MEETING_TYPES.map((m) => ({ value: m, label: t(`types.${m}`), icon: <MeetingTypeIcon type={m} /> }))} />
       </div>
       <fieldset className="tpl-people">
         <legend className="tpl-people__head">
@@ -221,7 +221,7 @@ export function Templates() {
       <PageHeader
         title={t('templates.title')}
         aside={
-          <Button variant="ink" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setEditing('new')}>
+          <Button icon={<PlusIcon size={20} aria-hidden />} onClick={() => setEditing('new')}>
             {t('templates.new')}
           </Button>
         }
@@ -233,7 +233,7 @@ export function Templates() {
               <TemplateBadge color={templateColor(tpl)} type={tpl.type} />
               <div className="stack" style={{ gap: 4, minWidth: 0 }}>
                 <h2 className="t-h3">{tpl.name}</h2>
-                <p className="note">{t('templates.meta', { type: t(`typesShort.${tpl.type}`), count: tpl.participantIds.length })}</p>
+                <p className="note">{t('templates.meta', { type: t(`types.${tpl.type}`), count: tpl.participantIds.length })}</p>
               </div>
             </div>
             <div className="tpl-card__actions">

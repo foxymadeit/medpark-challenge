@@ -33,11 +33,6 @@
     "executive": "Executivă",
     "administrative": "Administrativă"
   },
-  "typesShort": {
-    "medical": "Medicală",
-    "executive": "Executivă",
-    "administrative": "Admin."
-  },
   "nav": {
     "newMeeting": "Ședință nouă",
     "history": "Istoric",

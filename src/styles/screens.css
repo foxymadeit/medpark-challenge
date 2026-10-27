@@ -277,9 +277,9 @@
  * MoM screen (Figma "05 MoM · D4 B", 2089:2928). The card is the page's content column, edge to edge like the
  * Participants table. The participants panel (240) sits in the page's right margin, 24px from the card: the grid
  * reaches into that margin by the panel's room. If the margin is too small for the panel (+24 to the window edge),
- * the column gives up the difference (--column-shrink, set on .app so the header status follows); left edge stays.
+ * the column gives up the difference (--column-shrink, set on :root so the header status and the preview follow); left edge stays.
  */
-.app:has(.review__layout) { --panel-w: 240px; --column-shrink: max(0px, var(--sm-space-6) + var(--panel-w) + var(--sm-space-6) - var(--column-right)); }
+:root:has(.review__layout) { --panel-w: 240px; --column-shrink: max(0px, var(--sm-space-6) + var(--panel-w) + var(--sm-space-6) - var(--column-right)); }
 .review { padding: var(--sm-space-6) var(--sm-space-12); }
 .review__layout {
   display: grid;
@@ -304,7 +304,14 @@
 /* Summary: at most half of the card (its own scroll only if it's longer). */
 .review__summary { display: flex; flex-direction: column; max-height: 50cqh; padding: var(--sm-space-6) 0 24px; }
 /* 4px inside the list's own scroll (taken off the gaps around it): the pen / × sit 4px above and below the line and would be clipped. */
-.review__summary .summary-points { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: 10px 0 0; padding: 4px 0; }
+.review__summary .fade-scroll { flex: 0 1 auto; margin-top: 10px; }
+.review__summary .summary-points { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: 4px 0; }
+/* FadeScroll: the edge fades into the card only where there's more text (has-above / has-below). */
+.fade-scroll { position: relative; display: flex; flex-direction: column; min-height: 0; }
+.fade-scroll::before, .fade-scroll::after { content: ''; position: absolute; right: 0; left: 0; z-index: 1; height: 28px; opacity: 0; pointer-events: none; transition: opacity 120ms ease; }
+.fade-scroll::before { top: 0; background: linear-gradient(var(--sm-surface-panel), transparent); }
+.fade-scroll::after { bottom: 0; background: linear-gradient(transparent, var(--sm-surface-panel)); }
+.fade-scroll.has-above::before, .fade-scroll.has-below::after { opacity: 1; }
 .review__summary .summary-points__item { font: 400 15px/24px var(--sm-font-body); }
 
 /* Thin 10px "+" (1.5px lines), coloured by the text: the dashed "+ Add participant" circle. */
@@ -312,8 +319,9 @@
 .plus-glyph::before, .plus-glyph::after { content: ''; position: absolute; border-radius: 0.75px; background: currentColor; }
 .plus-glyph::before { top: 4.25px; left: 0; width: 10px; height: 1.5px; }
 .plus-glyph::after { top: 0; left: 4.25px; width: 1.5px; height: 10px; }
-/* "Add point" / "Add task": text only, same size and grey as "6 points" (.note); dark on hover; 32px tall click area. */
-.add-link { height: 32px; padding: 0; border: 0; background: none; cursor: pointer; white-space: nowrap; }
+/* "+ Add point" / "+ Add task": same size and grey as "6 points" (.note), the + (16px, like the summary ×) takes the
+   text colour, so both go dark on hover; 32px tall click area. */
+.add-link { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; white-space: nowrap; }
 .add-link:hover:not(:disabled), .add-link:focus-visible { color: var(--sm-ink-primary); }
 .add-link:disabled { opacity: 0.4; cursor: default; }
 
@@ -348,12 +356,12 @@
 /* Participants panel: right of the card, same top and height; the list scrolls if it's long. */
 .people-panel { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: 4px; min-height: 0; padding: 20px 16px 12px; overflow-y: auto; }
 .people-panel__title { margin: 0 0 8px; color: var(--sm-ink-secondary); font: 500 13px/normal var(--sm-font-body); }
-.people-panel__list { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0 0 4px; border-bottom: 1px solid var(--sm-control-track); list-style: none; }
+.people-panel__list { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
 .people-panel__person { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
 .people-panel__person .who__text { gap: 0; }
 .people-panel__name { color: var(--sm-ink-primary); font: 600 14px/normal var(--sm-font-body); }
 .people-panel__email { color: var(--sm-ink-secondary); font: 400 12px/normal var(--sm-font-body); }
-.people-panel .add-person__row { padding: 10px 0 6px; }
+.people-panel .add-person__row { padding: 8px 0; } /* the same cell as a person: 32px circle where the avatar is */
 .people-panel .add-person__row.is-adding > .add-person__plus { display: none; } /* the box takes the whole row */
 .people-panel .add-person__input { height: 40px; padding: 0 12px; border: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-panel); }
 
@@ -471,7 +479,7 @@
   display: flex;
   align-items: center;
   gap: var(--sm-space-2);
-  width: 360px;
+  width: 100%;
   height: 40px;
   padding-left: var(--sm-space-3);
   border: 1px solid var(--sm-surface-hairline);
@@ -479,6 +487,7 @@
   background: var(--sm-surface-panel);
 }
 .search:focus-within { border-color: var(--sm-ink-primary); }
+.search-bar__combo { flex: 1 1 200px; max-width: 360px; } /* 360 wide, down to 200 before the filters drop to the next line; suggestions open under it, as wide */
 .search input { flex: 1; height: 100%; border: 0; outline: none; background: transparent; font: 400 15px/22px var(--sm-font-body); }
 .search input::placeholder { color: var(--sm-ink-tertiary); opacity: 1; }
 .row-link { color: inherit; text-decoration: none; }

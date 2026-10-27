@@ -10,6 +10,7 @@ import { SearchBar } from '../components/SearchBar';
 import { PersonProfileDialog } from '../components/PersonProfile';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
+import { suggestByName } from '../lib/participants';
 import { roleSuggestions } from '../mocks';
 import { useStore } from '../store/AppStore';
 import { ACCESS_LEVELS, type Access, type Person } from '../types';
@@ -175,10 +176,13 @@ export function Participants() {
   const { people } = useStore();
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState('');
+  const [pickedId, setPickedId] = useState<string>(); // a suggestion picked: just that person
   const onlyYou = people.length <= 1;
-  // Search: name or email, any case, as you type.
+  // Search: first name or surname starting with what's typed (the same rule as every name suggestion), or the start
+  // of the email once there's an @. The suggestions under the field and the table follow the same rule.
   const q = query.trim().toLowerCase();
-  const shown = q ? people.filter((p) => p.name.toLowerCase().includes(q) || !!p.email?.toLowerCase().includes(q)) : people;
+  const matches = q.includes('@') ? people.filter((p) => p.email?.toLowerCase().startsWith(q)) : suggestByName(people, q, () => false, people.length);
+  const shown = pickedId ? people.filter((p) => p.id === pickedId) : q ? people.filter((p) => matches.includes(p)) : people;
   const soleAdmin = people.filter((p) => p.access === 'admin').length <= 1;
 
   return (
@@ -187,13 +191,21 @@ export function Participants() {
         title={t('participants.title')}
         aside={
           !onlyYou && (
-            <Button variant="ink" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
+            <Button icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
               {t('participants.add')}
             </Button>
           )
         }
       />
-      {!onlyYou && <SearchBar value={query} onChange={setQuery} placeholder={t('participants.search')} />}
+      {!onlyYou && (
+        <SearchBar
+          value={query}
+          onChange={(v) => (setQuery(v), setPickedId(undefined))}
+          placeholder={t('participants.search')}
+          options={pickedId ? [] : matches.slice(0, 5).map((p) => ({ id: p.id, name: p.name, sub: p.email }))}
+          onPick={(o) => (setQuery(o.name), setPickedId(o.id))}
+        />
+      )}
 
       <div className="table-card">
         <table className="table table--people">

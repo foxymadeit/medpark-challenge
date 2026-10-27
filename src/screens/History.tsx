@@ -55,7 +55,7 @@ export function History() {
           onChange={setFilter}
           options={(['all', ...MEETING_TYPES] as const).map((f) => ({
             value: f,
-            label: f === 'all' ? t('history.all') : t(`typesShort.${f}`),
+            label: f === 'all' ? t('history.all') : t(`types.${f}`),
             icon: f === 'all' ? undefined : <MeetingTypeIcon type={f} />,
           }))}
         />
@@ -91,7 +91,7 @@ export function History() {
                       </div>
                     </div>
                   </td>
-                  <td className="t-body-md">{t(`typesShort.${m.type}`)}</td>
+                  <td className="t-body-md">{t(`types.${m.type}`)}</td>
                   <td className="t-data-sm">{formatDayMonth(m.date, lang)}</td>
                   <td className="t-data-sm">{t('common.minutes', { n: m.durationMin })}</td>
                   <td>
