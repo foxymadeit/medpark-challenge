@@ -53,7 +53,7 @@ export interface TranscriptLine {
   edited?: boolean;
 }
 
-/** kw = highlighted term (patient, bed, room, name, date); space/punct are not clickable. */
+/** kw = highlighted term (patient, room, name, date); space/punct are not clickable. */
 export interface TranscriptToken {
   kind: 'kw' | 'word' | 'punct' | 'space';
   text: string;
@@ -69,7 +69,7 @@ export const SPOKEN_LANGS: SpokenLang[] = ['ro', 'ru', 'en'];
 export interface Task {
   id: string;
   ownerId: string;
-  patient: string; // "Bed 8", "Room 204"
+  patient: string; // "Patient 48" (floor 4, place 8), or a topic: "ICU", "Room 110"
   title: string;
   due: string; // ISO date
   /** Checked on Review before sending: Send stays off until every action item is confirmed. */

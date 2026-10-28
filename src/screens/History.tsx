@@ -245,7 +245,7 @@ export function HistoryRecord() {
                 .map((task) => (
                   <tr key={task.id}>
                     <td>
-                      <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>
+                      <span className="summary-table__patient">{task.patient}</span>
                       <span className="t-body-md">{task.title}</span>
                     </td>
                     <td>

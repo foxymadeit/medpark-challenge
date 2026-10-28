@@ -282,7 +282,6 @@
     "meta": "{type} · {n} мин · {count} участника",
     "transcript": "Расшифровка",
     "tasks": "Поручения",
-    "patient": "Пациент · {name}",
     "noEmail": "Нет e-mail",
     "task": "Поручение",
     "owner": "Ответственный",

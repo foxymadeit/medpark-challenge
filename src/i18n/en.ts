@@ -301,7 +301,6 @@ export const en = {
     pointLabel: 'Summary point',
     pointPh: 'A key point, decision or result',
     noSummary: 'No summary yet.',
-    patient: 'Patient · {name}',
     noEmail: 'No email',
     task: 'Action item',
     owner: 'Owner',

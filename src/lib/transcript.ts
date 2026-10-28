@@ -3,7 +3,7 @@ import type { TranscriptLine, TranscriptToken } from '../types';
 
 const TOKEN = /\[\[(.+?)\]\]|[\p{L}\p{N}][\p{L}\p{N}'’-]*|\s+|[^\s\p{L}\p{N}]+/gu;
 
-/** "[[Bed 8]]: I will…" → tokens (lossless: joining the texts gives the plain sentence). */
+/** "[[Patient 48]]: I will…" → tokens (lossless: joining the texts gives the plain sentence). */
 export function tokenize(text: string): TranscriptToken[] {
   const out: TranscriptToken[] = [];
   for (const m of text.matchAll(TOKEN)) {
@@ -30,7 +30,7 @@ export const originalText = (line: TranscriptLine) => line.text.replace(/\[\[(.+
 
 /**
  * Re-tokenise an edited sentence, keeping the old highlighted terms highlighted where they still appear
- * (longest first, so "Bed 8" wins over "8").
+ * (longest first, so "Patient 48" wins over "48").
  */
 export function retokenize(text: string, previous: TranscriptToken[]): TranscriptToken[] {
   const kws = [...new Set(previous.filter((t) => t.kind === 'kw').map((t) => t.text))].sort((a, b) => b.length - a.length);
