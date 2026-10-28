@@ -232,7 +232,7 @@ export function HistoryRecord() {
             <thead>
               <tr>
                 <th scope="col">
-                  {/* "Tasks" is already the heading above; keep the column name for screen readers only. */}
+                  {/* "Action items" is already the heading above; keep the column name for screen readers only. */}
                   <span className="sr-only">{t('review.task')}</span>
                 </th>
                 <th scope="col">{t('review.owner')}</th>

@@ -521,7 +521,9 @@ input.task-edit.summary-table__patient { height: 20px; }
 .record__list { margin: 0; padding: 0; list-style: none; }
 .record__person { display: flex; align-items: center; gap: var(--sm-space-4); height: 56px; padding: 0 var(--sm-space-6); border-bottom: 1px solid var(--sm-surface-hairline); }
 .record__person:last-child { border-bottom: 0; }
-.record__minutes { display: flex; flex-direction: column; gap: var(--sm-space-4); flex: 1; }
+.record__minutes { display: flex; flex-direction: column; gap: var(--sm-space-4); flex: 1; min-height: 0; overflow-y: auto; }
+/* Summary, action items: full height each, the card scrolls (the summary's fade box would otherwise shrink to 0 and spill). */
+.record__minutes > * { flex-shrink: 0; }
 .record__minutes .task { align-items: flex-start; }
 
 /* ── Templates ── */
