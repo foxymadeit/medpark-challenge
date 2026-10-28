@@ -274,6 +274,7 @@ export const en = {
     listening: 'Transcribing the next part',
   },
   review: {
+    sendTo: 'Send to',
     confirmed: 'Confirmed',
     saveShort: 'Save',
     view: 'View',

@@ -272,6 +272,7 @@
     "listening": "Se transcrie partea următoare"
   },
   "review": {
+    "sendTo": "Trimite la",
     "meta_one": "{type} · {n} min · {count} participant",
     "meta_few": "{type} · {n} min · {count} participanți",
     "meta": "{type} · {n} min · {count} de participanți",

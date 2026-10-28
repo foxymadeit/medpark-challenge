@@ -275,6 +275,7 @@
     "listening": "Расшифровывается следующая часть"
   },
   "review": {
+    "sendTo": "Кому отправить",
     "meta_one": "{type} · {n} мин · {count} участник",
     "meta_few": "{type} · {n} мин · {count} участника",
     "meta_many": "{type} · {n} мин · {count} участников",

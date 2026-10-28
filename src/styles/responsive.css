@@ -35,7 +35,7 @@
 @media (max-width: 1215px) {
   :root:has(.review__layout) { --column-shrink: 0px; }
   .review__layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto auto; margin-right: 0; }
-  .people-panel { grid-column: 1; grid-row: 3; max-height: 168px; }
+  .people-panel { grid-column: 1; grid-row: 3; max-height: 176px; } /* the head + two rows of people; more scroll */
   .people-panel__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 var(--sm-space-6); }
 }
 

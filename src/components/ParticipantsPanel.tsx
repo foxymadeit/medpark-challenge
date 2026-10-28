@@ -6,7 +6,7 @@ import { AddPersonRow } from './AddPersonRow';
 import { Avatar } from './Avatar';
 
 /**
- * Who was in the meeting, and so who gets the MoM (Review, right of the MoM card): avatar, name, email.
+ * "Send to": who was in the meeting, and so who gets the MoM (Review, right of the MoM card): avatar, name, email.
  * "+ Add participant" is the list's last cell (same size as a person, also in the 2–3 column layout): a saved
  * contact (suggested as you type, people already here left out), a new name, or just an email (a guest, format checked).
  */
@@ -18,9 +18,13 @@ export function ParticipantsPanel({ meeting, onChange }: { meeting: Meeting; onC
 
   return (
     <aside className="card people-panel" aria-labelledby="rv-people">
-      <h2 id="rv-people" className="people-panel__title">
-        {t('common.participantsCount', { count: list.length })}
-      </h2>
+      {/* Same head as Summary and Tasks: the count alone (the page subtitle already says "N participants"). */}
+      <span className="review__count-head people-panel__head">
+        <h2 id="rv-people" className="review__pane-title">
+          {t('review.sendTo')}
+        </h2>
+        <span className="note">{list.length}</span>
+      </span>
       <ul className="people-panel__list">
         {list.map((p) => (
           <li key={p.personId} className="people-panel__person">

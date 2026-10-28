@@ -377,8 +377,8 @@ input.task-edit.summary-table__patient { height: 20px; }
 .dropdown__caret { position: absolute; top: 50%; right: 3px; flex: none; color: var(--sm-ink-secondary); transform: translateY(-50%); }
 
 /* Participants panel: right of the card, same top and height; the list scrolls if it's long. */
-.people-panel { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: var(--sm-space-1); min-height: 0; padding: var(--sm-space-5) var(--sm-space-4) var(--sm-space-3); overflow-y: auto; }
-.people-panel__title { margin: 0 0 var(--sm-space-2); color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); font-weight: 500; }
+.people-panel { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: var(--sm-space-1); min-height: 0; padding: var(--sm-space-6) var(--sm-space-4) var(--sm-space-3); overflow-y: auto; }
+.people-panel__head { padding: 2px 0; margin-bottom: var(--sm-space-1); } /* a 32px row like the Summary head, so the titles line up; then 8px to the first person */
 .people-panel__list { display: flex; flex-direction: column; gap: var(--sm-space-1); margin: 0; padding: 0; list-style: none; }
 .people-panel__person { display: flex; align-items: center; gap: var(--sm-space-2); padding: var(--sm-space-2) 0; }
 .people-panel__person .who__text { gap: 0; }
@@ -420,7 +420,7 @@ input.task-edit.summary-table__patient { height: 20px; }
 .summary-points__item::marker { color: var(--sm-ink-tertiary); }
 .summary-points__tools { position: absolute; top: -4px; right: 0; display: flex; gap: 2px; opacity: 0; transition: opacity var(--sm-duration-fast); }
 .summary-points__item:hover .summary-points__tools, .summary-points__item:focus-within .summary-points__tools { opacity: 1; }
-.summary-points__input { width: 100%; min-height: 60px; padding: var(--sm-space-2) var(--sm-space-3); resize: vertical; font: inherit; }
+.summary-points__input { width: 100%; min-height: calc(64px + 2 * var(--sm-field-border-w)); /* two 24px lines + 8px padding top and bottom, plus the 1px border */ padding: var(--sm-space-2) var(--sm-space-3); resize: vertical; font: inherit; }
 .review__sub-title { margin: 0; color: var(--sm-ink-primary); font: var(--sm-type-h3); }
 .record__tasks-title { margin: var(--sm-space-2) 0 var(--sm-space-3); }
 .summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
