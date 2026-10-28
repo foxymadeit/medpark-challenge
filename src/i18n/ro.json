@@ -472,10 +472,11 @@
   "email": {
     "to": "Către",
     "subject": "Subiect",
-    "subjectLine": "Proces-verbal: {title} · {date}",
+    "subjectLine": "PV: {title} · {date}",
     "attached": "PDF atașat"
   },
   "mom": {
+    "meta": "{type} · {n} min",
     "actions": "Acțiuni"
   },
   "pdf": {

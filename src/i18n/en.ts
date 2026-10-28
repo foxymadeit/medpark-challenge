@@ -467,10 +467,11 @@ export const en = {
   email: {
     to: 'To',
     subject: 'Subject',
-    subjectLine: 'Minutes: {title} · {date}',
+    subjectLine: 'MoM: {title} · {date}',
     attached: 'PDF attached',
   },
   mom: {
+    meta: '{type} · {n} min',
     actions: 'Action items',
   },
   pdf: {

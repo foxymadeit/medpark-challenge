@@ -1,6 +1,6 @@
 import { useI18n } from '../i18n/I18nProvider';
 import { dueRelative, formatDayMonth, formatFullDate } from '../lib/format';
-import { meetingHeading, speakerNamer } from '../lib/meeting';
+import { speakerNamer } from '../lib/meeting';
 import { useStore } from '../store/AppStore';
 import type { Meeting } from '../types';
 import { groupTasks } from './Minutes';
@@ -37,9 +37,10 @@ export function MomPreview({ meeting }: { meeting: Meeting }) {
         </div>
       </dl>
       <article className="mom-preview">
-        <p className="mom-preview__plate">{t('pdf.title')}</p>
-        <h3 className="mom-preview__title">{meetingHeading(meeting, lang)}</h3>
-        <p className="note">{t('record.metaUnsent', { type: t(`types.${meeting.type}`), date: formatFullDate(meeting.date, lang), n: meeting.durationMin })}</p>
+        <h3 className="mom-preview__title">
+          {meeting.title} · {formatFullDate(meeting.date, lang)}
+        </h3>
+        <p className="note">{t('mom.meta', { type: t(`types.${meeting.type}`), n: meeting.durationMin })}</p>
 
         <h4 className="mom-preview__h">{t('review.summary')}</h4>
         {meeting.summary?.length ? (

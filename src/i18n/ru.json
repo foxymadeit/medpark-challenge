@@ -486,6 +486,7 @@
     "attached": "PDF во вложении"
   },
   "mom": {
+    "meta": "{type} · {n} мин",
     "actions": "Поручения"
   },
   "pdf": {

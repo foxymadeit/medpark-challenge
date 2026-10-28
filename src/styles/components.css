@@ -452,7 +452,6 @@
 .mom-email__attachment svg { flex: none; color: var(--sm-signal-danger); }
 .mom-email__attachment .note { margin-left: auto; flex: none; }
 .mom-preview { display: flex; flex-direction: column; gap: var(--sm-space-2); max-height: 64vh; overflow: auto; padding: var(--sm-space-6); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); }
-.mom-preview__plate { margin: 0; color: var(--sm-ink-secondary); font: var(--sm-type-plate); letter-spacing: 0.6px; text-transform: uppercase; }
 .mom-preview__title { margin: 0; font: var(--sm-type-h2); }
 .mom-preview__h { margin: var(--sm-space-4) 0 var(--sm-space-1); padding-bottom: var(--sm-space-2); border-bottom: 1px solid var(--sm-surface-hairline); font: var(--sm-type-h3); }
 .mom-preview__list { display: flex; flex-direction: column; gap: var(--sm-space-2); margin: 0; padding-left: var(--sm-space-4); font: var(--sm-type-body-md); }
