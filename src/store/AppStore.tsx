@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { draftParticipants } from '../lib/participants';
-import { cardioSummary, cardioTasks, cardioTranscript, demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, YOU_ID } from '../mocks';
+import { demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, wardRoundMinutes, wardRoundSummary, wardRoundTasks, wardRoundTranscript, YOU_ID } from '../mocks';
 import { todayISO, uid } from '../lib/format';
 import { retokenize, tokenize } from '../lib/transcript';
 import type { Preferences, Account, Meeting, MeetingSource, MeetingType, ParticipantSnapshot, Person, Task, Template, SpokenLang } from '../types';
@@ -192,15 +192,16 @@ function useStoreValue() {
         title,
         type: draft.type,
         date,
-        durationMin: Math.max(1, durationMin),
+        // MOCK: a recording always comes out as the 56-minute example meeting, however long the demo recording was.
+        durationMin: source === 'recorded' ? wardRoundMinutes : Math.max(1, durationMin),
         source,
         fileName,
         status: 'processing',
         participants,
-        // MOCK: the AI output is the example Cardiology board minutes.
-        transcript: cardioTranscript,
-        summary: cardioSummary,
-        tasks: materialiseTasks(date, id, cardioTasks),
+        // MOCK: the AI output is the example ward round (mocks/wardRound.ts): long transcript, short summary, 20 action items.
+        transcript: wardRoundTranscript,
+        summary: wardRoundSummary,
+        tasks: materialiseTasks(date, id, wardRoundTasks),
       };
       // Name, date and added people belong to this meeting only; the next one starts fresh (type and template stay).
       setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined, date: undefined, participants: undefined } }));
