@@ -75,6 +75,7 @@
 
 
   .recording { flex-direction: column; align-items: stretch; gap: var(--sm-space-6); padding: var(--sm-space-8) var(--sm-space-6); }
+  .live-details { contain: none; overflow: visible; } /* stacked: the side card is as tall as its content */
   .recorder { min-height: 0; padding-top: var(--sm-space-8); }
   .recorder__note { margin-top: var(--sm-space-4); text-align: center; }
   .live-details { width: 100%; }

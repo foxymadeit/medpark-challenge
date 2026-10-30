@@ -157,7 +157,9 @@
 .start-tile--record:has(.start-tile__main:focus-visible) { outline: 2px solid var(--sm-ink-primary); outline-offset: 2px; }
 
 /* ── Recording ── */
-.recording { flex-direction: row; align-items: flex-start; gap: var(--sm-space-6); padding: var(--sm-space-12); }
+/* The recorder and the side card side by side, always the same height: the recorder sets it, the side card fills it and
+   scrolls its list when there are many people (contain: size, so its content never makes the row taller). */
+.recording { flex-direction: row; align-items: stretch; gap: var(--sm-space-6); padding: var(--sm-space-12); }
 /* Soft tint, continuing the Record tile on New meeting (Figma 2042:2215 has no recording variant). */
 .recorder {
   display: flex;
@@ -191,7 +193,7 @@
 .recorder__actions--slots { display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 0; max-width: 100%; }
 .recorder__actions--slots .recorder__sizer { grid-column: 2; height: 0; padding-block: 0; border-block-width: 0; overflow: hidden; visibility: hidden; }
 .recorder__note { margin-top: auto; }
-.live-details { display: flex; flex-direction: column; gap: var(--sm-space-4); width: 368px; flex-shrink: 0; padding: var(--sm-space-6); }
+.live-details { display: flex; flex-direction: column; gap: var(--sm-space-4); width: 368px; flex-shrink: 0; padding: var(--sm-space-6); contain: size; overflow-y: auto; }
 .voices { display: flex; flex-direction: column; gap: var(--sm-space-4); margin: 0; padding: 0; list-style: none; }
 .voice { display: flex; align-items: flex-start; gap: var(--sm-space-2); }
 .voice .who__text { flex: 1; }
