@@ -44,7 +44,7 @@ function ReplacePersonDialog({ person, options, onPick, onNew, onClose }: { pers
         <Button icon={<UserPlusIcon size={20} aria-hidden />} onClick={onNew}>
           {t('templates.newPerson')}
         </Button>
-        <Button variant="ink" disabled={!chosen} onClick={() => chosen && onPick(chosen)}>
+        <Button variant="primary" disabled={!chosen} onClick={() => chosen && onPick(chosen)}>
           {t('templates.replaceConfirm')}
         </Button>
       </div>

@@ -422,7 +422,6 @@
 /* Footer: Preview / Send (176 each) at the window's centre; "confirmed 2/12" just right of Send, outside the centring. */
 .review__actions { position: relative; display: flex; justify-content: center; gap: var(--sm-space-3); justify-self: center; }
 .review__btn { width: 176px; height: 48px; }
-.review__btn:disabled { background: var(--sm-ink-disabled); box-shadow: none; opacity: 1; }
 .review__confirmed { position: absolute; top: 50%; left: calc(100% + var(--sm-space-3)); transform: translateY(-50%); color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); white-space: nowrap; font-variant-numeric: tabular-nums; }
 .review__confirmed.is-done { color: var(--sm-success); }
 

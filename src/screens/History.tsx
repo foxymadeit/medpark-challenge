@@ -300,7 +300,7 @@ export function HistoryRecord() {
           <form className="stack" style={{ gap: 'var(--sm-space-4)' }} onSubmit={(e) => (e.preventDefault(), saveAsTemplate())}>
             <p className="note">{t('record.saveTemplateLead', { count: meeting.participants.filter((p) => resolvePerson(p.personId)).length })}</p>
             <TextField editable label={t('templates.name')} value={tplName} onChange={(e) => setTplName(e.target.value)} />
-            <Button type="submit" variant="ink" block disabled={!tplName.trim()}>
+            <Button type="submit" variant="primary" block disabled={!tplName.trim()}>
               {t('templates.save')}
             </Button>
           </form>
