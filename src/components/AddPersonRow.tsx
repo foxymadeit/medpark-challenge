@@ -4,6 +4,7 @@ import { isEmail } from '../lib/format';
 import { suggestByName } from '../lib/participants';
 import type { Person } from '../types';
 import { Avatar } from './Avatar';
+import { Button } from './Button';
 import { Highlight } from './ParticipantsField';
 
 /** The thin "+" from Figma (10px, 1.5px lines): two bars, coloured by the text colour. */
@@ -16,8 +17,10 @@ export function PlusGlyph() {
  * a click opens a search box. Suggests saved people by first name / surname (by email once there's an @),
  * or offers to add the typed name, or just an email (a guest, format checked). `pool` is who can be suggested
  * (already added people left out); `known` is everyone with a name/email already, so the same one isn't created twice.
+ * `guestButton` (MoM "Send to" panel): matches only in the list, and a full-width "Add guest" button under the field
+ * saves what was typed instead of an "Add …" list option.
  */
-export function AddPersonRow({ pool, known, onPick, onCreate }: { pool: Person[]; known: { name: string; email?: string }[]; onPick: (p: Person) => void; onCreate: (typed: { name: string; email?: string }) => void }) {
+export function AddPersonRow({ pool, known, onPick, onCreate, guestButton }: { pool: Person[]; known: { name: string; email?: string }[]; onPick: (p: Person) => void; onCreate: (typed: { name: string; email?: string }) => void; guestButton?: boolean }) {
   const { t } = useI18n();
   const id = useId();
   const [adding, setAdding] = useState(false);
@@ -29,7 +32,8 @@ export function AddPersonRow({ pool, known, onPick, onCreate }: { pool: Person[]
   const lower = q.toLowerCase();
   const matches = q.includes('@') ? pool.filter((p) => p.email?.toLowerCase().startsWith(lower)).slice(0, 5) : suggestByName(pool, q, () => false, 5);
   const canCreate = !!q && !known.some((p) => p.name.toLowerCase() === lower || p.email?.toLowerCase() === lower);
-  const count = matches.length + (canCreate ? 1 : 0);
+  const offerCreate = canCreate && !guestButton; // as a list option; with guestButton it's the button
+  const count = matches.length + (offerCreate ? 1 : 0);
 
   const reset = () => (setQuery(''), setActive(0), setError(undefined));
   const close = () => (setAdding(false), reset());
@@ -91,7 +95,7 @@ export function AddPersonRow({ pool, known, onPick, onCreate }: { pool: Person[]
               </span>
             </li>
           ))}
-          {canCreate && (
+          {offerCreate && (
             <li id={`${id}-opt-${matches.length}`} role="option" aria-selected={active === matches.length} className={`add-person__option add-person__create${active === matches.length ? ' is-active' : ''}`} onMouseEnter={() => setActive(matches.length)} onMouseDown={(e) => e.preventDefault()} onClick={create}>
               <span className="add-person__plus" aria-hidden>
                 <PlusGlyph />
@@ -100,6 +104,11 @@ export function AddPersonRow({ pool, known, onPick, onCreate }: { pool: Person[]
             </li>
           )}
         </ul>
+      )}
+      {adding && guestButton && (
+        <Button block className="add-person__guest" disabled={!canCreate} onMouseDown={(e) => e.preventDefault()} onClick={create}>
+          {t('common.addGuest')}
+        </Button>
       )}
     </div>
   );

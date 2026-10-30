@@ -170,7 +170,7 @@
 .segmented .segmented__item { height: 36px; color: var(--sm-ink-secondary); font-weight: 500; }
 .segmented .segmented__item:hover { color: var(--sm-ink-primary); }
 .segmented .segmented__item[aria-checked='true'] { background: var(--sm-surface-panel); color: var(--sm-ink-primary); font-weight: 600; box-shadow: 0 2px 8px rgba(16, 16, 16, 0.06), 0 1px 3px rgba(16, 16, 16, 0.08); }
-.segmented--fill { display: flex; width: 100%; }
+.segmented.segmented--fill { display: flex; width: 100%; padding: 1px 6px; }
 .segmented--fill .segmented__item { flex: 1; width: auto; }
 .segmented--lang .segmented__item { width: 40px; height: 32px; }
 .segmented__item { gap: var(--sm-space-2); }
@@ -473,11 +473,18 @@
   background: var(--sm-surface-panel);
   box-shadow: var(--sm-elevation-modal);
 }
-.dialog-head { display: flex; align-items: center; justify-content: space-between; }
+/* Every modal and side panel: 24px above the title; the close button pinned 16px from the top and right corner, so the
+   title sits on its own line (room kept on its right for the button). */
+.modal, .side-panel { position: relative; padding-top: var(--sm-space-6); }
+.dialog-head { padding-right: var(--sm-space-8); }
+.dialog-head .icon-btn { position: absolute; top: var(--sm-space-4); right: var(--sm-space-4); }
 .dialog-head .icon-btn svg { width: 20px; height: 20px; }
 
 /* ── Keyword highlight in transcripts ────────────────────── */
 .kw {
+  display: inline-block;
+  height: 18px;
+  line-height: 18px;
   padding: 0 var(--sm-space-1);
   border-radius: 4px;
   background: var(--sm-surface-hairline);

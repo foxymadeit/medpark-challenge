@@ -1,4 +1,4 @@
-import { CaretDownIcon, UserPlusIcon } from '@phosphor-icons/react';
+import { UserPlusIcon } from '@phosphor-icons/react';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail, uid } from '../lib/format';
@@ -11,12 +11,12 @@ import { Highlight } from './ParticipantsField';
 type Option = { kind: 'person'; snap: ParticipantSnapshot } | { kind: 'new'; snap: ParticipantSnapshot; label: string };
 
 /**
- * Task owner while a task is being edited: the same avatar + name as in the read row (one line, ellipsis), as one button;
- * a small caret appears in the gap right of the column, so nothing moves. It opens a list with a search box:
+ * Task owner while a task is being edited: the same avatar + name as in the read row (one line, ellipsis), as one button.
+ * An unknown voice ("Speaker 1") opens the list with nothing selected, so the reviewer maps it to a participant. It opens a list with a search box:
  * the meeting's participants (empty search), saved participants by name as you type, or a new name /
  * an email only (a guest) — the same rules as the Recipients field. Picking replaces the whole owner.
  */
-export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeting; ownerId: string; name: string; onPick: (owner: ParticipantSnapshot) => void }) {
+export function OwnerPicker({ meeting, ownerId, name, badge, onPick }: { meeting: Meeting; ownerId: string; name: string; badge?: { label: string; fill: string }; onPick: (owner: ParticipantSnapshot) => void }) {
   const { t } = useI18n();
   const { people } = useStore();
   const id = useId();
@@ -43,7 +43,9 @@ export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeti
     options.push({ kind: 'new', snap: guest, label: q.includes('@') ? t('owner.addEmail', { email: q }) : t('owner.addName', { name: q }) });
   }
 
-  useEffect(() => setActive(0), [q]);
+  // Highlight the current owner; none for an unknown voice (no option is theirs) until the arrows move.
+  const ownIndex = options.findIndex((o) => o.kind === 'person' && o.snap.personId === ownerId);
+  useEffect(() => setActive(q ? 0 : ownIndex), [q, open]); // eslint-disable-line react-hooks/exhaustive-deps
   // The list is pinned to the window (it lives inside a scrolling container that would clip it):
   // below the button, or above it when there's no room below. Scrolling anything else closes it.
   const [pos, setPos] = useState<{ left: number; top?: number; bottom?: number }>({ left: 0 });
@@ -51,7 +53,8 @@ export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeti
     if (!open || !button.current) return;
     const r = button.current.getBoundingClientRect();
     const below = innerHeight - r.bottom;
-    setPos(below >= 300 || below >= r.top ? { left: r.left, top: r.bottom + 4 } : { left: r.left, bottom: innerHeight - r.top + 4 });
+    const left = Math.max(8, Math.min(r.left, innerWidth - 320 - 8));
+    setPos(below >= 360 || below >= r.top ? { left, top: r.bottom + 4 } : { left, bottom: innerHeight - r.top + 4 });
   }, [open]);
   useEffect(() => {
     if (!open) return;
@@ -79,9 +82,8 @@ export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeti
   return (
     <div className="owner-picker" ref={wrap}>
       <button ref={button} type="button" className="owner-picker__button" aria-haspopup="listbox" aria-expanded={open} aria-label={t('owner.change', { name })} onClick={() => (open ? close() : setOpen(true))}>
-        <Avatar name={name} />
+        <Avatar name={name} {...badge} />
         <span className="task-owner__name truncate">{name}</span>
-        <CaretDownIcon size={14} aria-hidden className="dropdown__caret" />
       </button>
       {open && (
         <div className="dropdown__list owner-picker__panel" style={{ position: 'fixed', ...pos }}>
@@ -93,7 +95,7 @@ export function OwnerPicker({ meeting, ownerId, name, onPick }: { meeting: Meeti
             role="combobox"
             aria-expanded
             aria-controls={`${id}-list`}
-            aria-activedescendant={options.length ? `${id}-opt-${active}` : undefined}
+            aria-activedescendant={options[active] ? `${id}-opt-${active}` : undefined}
             aria-label={t('owner.search')}
             aria-invalid={error ? true : undefined}
             onChange={(e) => (setQuery(e.target.value), setError(undefined))}

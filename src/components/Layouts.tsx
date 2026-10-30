@@ -1,4 +1,4 @@
-import { ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, MicrophoneIcon, ShieldCheckIcon, SignOutIcon, UsersThreeIcon, XIcon } from '@phosphor-icons/react';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
@@ -103,13 +103,13 @@ function LanguageSwitch() {
 }
 
 /**
- * Quiet privacy note next to the language switch: green dot + "Hospital network only".
+ * Quiet privacy note next to the language switch: green shield + "Hospital network only".
  */
 function PrivacyBadge({ className = '' }: { className?: string }) {
   const { t } = useI18n();
   return (
     <span className={`privacy ${className}`.trim()}>
-      <span className="privacy__dot" aria-hidden />
+      <ShieldCheckIcon size={24} aria-hidden className="privacy__icon" />
       <span className="privacy__label">{t('privacy.label')}</span>
     </span>
   );

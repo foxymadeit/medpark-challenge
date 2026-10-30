@@ -13,7 +13,7 @@ import { ParticipantsPanel } from '../components/ParticipantsPanel';
 import { Segmented } from '../components/Segmented';
 import { useI18n } from '../i18n/I18nProvider';
 import { addDays, DUE_OFFSETS, dueRelative, formatWeekdayDate, uid } from '../lib/format';
-import { meetingHeading, speakerNamer } from '../lib/meeting';
+import { meetingHeading, speakerBadge, speakerNamer } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 import type { Meeting, ParticipantSnapshot, Task } from '../types';
@@ -103,6 +103,7 @@ export function Review() {
   if (meeting.status === 'processing') return <Navigate to={`/processing/${meeting.id}`} replace />;
 
   const nameOf = speakerNamer(meeting, resolvePerson, t);
+  const badgeOf = speakerBadge(meeting, resolvePerson); // unknown voice as owner: "S1" on its speaker colour
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
   const dueOptions = [...new Set([...DUE_OFFSETS.map((n) => addDays(meeting.date, n)), ...(row ? [row.due] : [])])].sort();
   // Send is on only when every action item is confirmed.
@@ -196,13 +197,13 @@ export function Review() {
                   {rows.map((task) =>
                     row && row.id === task.id ? (
                       <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
-                        {/* Edit keeps the read layout: the texts become editable in place, owner and deadline get a caret. */}
+                        {/* Edit: same columns as reading; the row lights up across the card, the texts become fields. */}
                         <td>
                           <input className="task-edit summary-table__patient" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
                           <InlineText className="task-edit task-table__title" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? (e.preventDefault(), saveRow()) : e.key === 'Escape' ? cancelRow() : undefined)} />
                         </td>
                         <td>
-                          <OwnerPicker meeting={meeting} ownerId={row.ownerId} name={nameOf(row.ownerId)} onPick={pickOwner} />
+                          <OwnerPicker meeting={meeting} ownerId={row.ownerId} name={nameOf(row.ownerId)} badge={badgeOf(row.ownerId)} onPick={pickOwner} />
                         </td>
                         <td>
                           <Dropdown
@@ -237,7 +238,7 @@ export function Review() {
                         </td>
                         <td>
                           <span className="task-owner">
-                            <Avatar name={nameOf(task.ownerId)} />
+                            <Avatar name={nameOf(task.ownerId)} {...badgeOf(task.ownerId)} />
                             <span className="task-owner__name truncate">{nameOf(task.ownerId)}</span>
                           </span>
                         </td>
@@ -259,6 +260,7 @@ export function Review() {
                               aria-pressed={!!task.confirmed}
                               aria-label={task.confirmed ? t('review.unconfirmTask', { title: task.title }) : t('review.confirmTask', { title: task.title })}
                               onClick={() => toggleConfirm(task)}
+                              disabled={!!row}
                             >
                               {task.confirmed ? t('review.confirmed') : t('review.confirm')}
                             </Button>
@@ -284,7 +286,7 @@ export function Review() {
           <Button className="review__btn" onClick={() => setPreviewOpen(true)}>
             {t('review.preview')}
           </Button>
-          <Button variant="ink" className="review__btn" onClick={send} disabled={!allConfirmed} title={sendBlocked}>
+          <Button variant="primary" className="review__btn" onClick={send} disabled={!allConfirmed} title={sendBlocked}>
             {t('review.send')}
           </Button>
           {meeting.tasks.length > 0 && (
@@ -303,7 +305,7 @@ export function Review() {
               {t('record.download')}
             </Button>
             <Button
-              variant="ink"
+              variant="primary"
               icon={<PaperPlaneTiltIcon size={20} aria-hidden />}
               disabled={!allConfirmed}
               title={sendBlocked}

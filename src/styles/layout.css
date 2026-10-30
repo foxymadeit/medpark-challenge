@@ -30,8 +30,8 @@
 /* Figma "Brand": "min" bold in the logo blue. */
 .wordmark__min { color: var(--sm-brand); font-weight: 700; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
-/* Privacy note: green dot + green text, no chip fill (Figma 2089:2933). Reads "working, but local". */
-.privacy { display: inline-flex; align-items: center; gap: var(--sm-space-2); height: 32px; color: var(--sm-success); font: var(--sm-type-data-md); white-space: nowrap; }
+/* Privacy note: green shield + green text, no chip fill (Figma 2089:2933). Reads "working, but local". */
+.privacy { display: inline-flex; align-items: center; gap: var(--sm-space-1); height: 32px; color: var(--sm-success); font: var(--sm-type-data-md); white-space: nowrap; }
 /* In the app's top bar its right edge sits on the content column's right edge (--column-right, narrowed on MoM by
    --column-shrink). If the language switch + account (measured: --topbar-right-w) would be in the way, it stops
    16px before them instead, so they never move or get covered. */
@@ -41,7 +41,7 @@
   right: max(calc(var(--column-right, 0px) + var(--column-shrink, 0px)), calc(var(--topbar-pad) + var(--topbar-right-w, 0px) + var(--sm-space-4)));
   transform: translateY(-50%);
 }
-.privacy__dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--sm-success); }
+.privacy__icon { flex: none; color: var(--sm-success); }
 .account { position: relative; }
 .account__button {
   display: flex;

@@ -4,7 +4,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { ProgressBar } from '../components/ProgressBar';
 import { useI18n } from '../i18n/I18nProvider';
-import { formatDayMonth } from '../lib/format';
+import { formatDayMonth, formatFullDate } from '../lib/format';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 
@@ -55,13 +55,15 @@ export function Sent() {
             )}
           </span>
           <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
+            {/* Same heading as the MoM preview: title · date with the year. */}
             <h1 className="t-h1">
-              {meeting.title}
+              {meeting.title} · {formatFullDate(meeting.date, lang)}
             </h1>
-            <p className="lead" role="status" aria-live="polite">
-              {done ? t('sent.doneLead', { count: meeting.sentTo ?? withEmail.length }) : t('sent.sendingLead', { count: withEmail.length })}
+            <p className="lead sent__lead" role="status" aria-live="polite">
+              {done
+                ? `${t('sent.doneLead', { count: meeting.sentTo ?? withEmail.length })} ${t('sent.saved', { date: formatDayMonth(meeting.date, lang) })}`
+                : t('sent.sendingLead', { count: withEmail.length })}
             </p>
-            {done && <p className="lead">{t('sent.saved', { date: formatDayMonth(meeting.date, lang) })}</p>}
           </div>
           {!done && (
             <div className="processing__progress sent__progress">
@@ -90,7 +92,7 @@ export function Sent() {
                 <DownloadSimpleIcon size={16} aria-hidden />
                 {pdfBusy ? t('pdf.preparing') : t('sent.download')}
               </button>
-              <Button variant="ink" onClick={() => navigate('/history')}>
+              <Button variant="primary" onClick={() => navigate('/history')}>
                 {t('sent.toHistory')}
               </Button>
             </div>

@@ -167,8 +167,8 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
       <fieldset className="tpl-people">
         <legend className="tpl-people__head">
           <span className="row" style={{ gap: 'var(--sm-space-2)' }}>
-            <UsersThreeIcon size={20} aria-hidden />
-            <span className="t-strong">{t('templates.participants')}</span>
+            <UsersThreeIcon size={20} aria-hidden className="c-secondary" />
+            <span className="form-label">{t('templates.participants')}</span>
           </span>
           <span className="note">{t('common.participantsCount', { count: members.length })}</span>
         </legend>

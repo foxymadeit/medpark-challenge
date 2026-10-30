@@ -20,7 +20,7 @@ interface Props {
   labelledBy?: string;
   /** Shown as a tooltip when disabled. */
   disabledReason?: string;
-  /** Own button content instead of the value + caret: a bare button that reads like the text it replaces, with a 14px caret. */
+  /** Own button content instead of the value + caret: a bare button that reads like the text it replaces. */
   trigger?: ReactNode;
 }
 
@@ -131,7 +131,7 @@ export function Dropdown({ label, value, options, onChange, customLabel, customP
             {current?.label ?? value}
           </span>
         )}
-        <CaretDownIcon size={trigger ? 14 : 16} aria-hidden className={trigger ? 'dropdown__caret' : undefined} />
+        {!trigger && <CaretDownIcon size={16} aria-hidden />}
       </button>
       {open && (
         <ul

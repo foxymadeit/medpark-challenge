@@ -28,8 +28,22 @@ export function useDraftMeeting() {
  * else "Speaker n" for voices nobody could be matched to (numbered by first appearance).
  */
 export function speakerNamer(meeting: Meeting, resolve: (id: string) => { name: string } | undefined, t: (key: string, vars?: Record<string, string | number>) => string) {
-  const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id) && !resolve(id));
+  const unknown = unknownSpeakers(meeting, resolve);
   return (pid: string) => meeting.participants.find((p) => p.personId === pid)?.name ?? resolve(pid)?.name ?? t('recording.speakerN', { n: unknown.indexOf(pid) + 1 });
+}
+
+/** Voices nobody could be matched to, in order of first appearance (their "Speaker n" number is index + 1). */
+export function unknownSpeakers(meeting: Meeting, resolve: (id: string) => { name: string } | undefined) {
+  return [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id) && !resolve(id));
+}
+
+/** An unknown speaker as an avatar: "S1" on that speaker's colour (--sm-speaker-01…04, repeating). Undefined for known people. */
+export function speakerBadge(meeting: Meeting, resolve: (id: string) => { name: string } | undefined) {
+  const unknown = unknownSpeakers(meeting, resolve);
+  return (pid: string) => {
+    const i = unknown.indexOf(pid);
+    return i < 0 ? undefined : { label: `S${i + 1}`, fill: `var(--sm-speaker-${String((i % 4) + 1).padStart(2, '0')})` };
+  };
 }
 
 /** The meeting's heading everywhere it's shown as a document: "Cardiology board · 26 Sep" (review screen, MoM preview, PDF). */

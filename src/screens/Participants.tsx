@@ -191,7 +191,7 @@ export function Participants() {
         title={t('participants.title')}
         aside={
           !onlyYou && (
-            <Button icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
+            <Button variant="primary" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
               {t('participants.add')}
             </Button>
           )
@@ -241,7 +241,7 @@ export function Participants() {
             <UsersThreeIcon size={32} aria-hidden />
             <h2 className="t-h2">{t('participants.emptyTitle')}</h2>
             <p className="lead">{t('participants.emptyLead')}</p>
-            <Button variant="ink" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)} className="empty-state__cta">
+            <Button variant="primary" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)} className="empty-state__cta">
               {t('participants.add')}
             </Button>
           </div>

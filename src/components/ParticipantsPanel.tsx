@@ -7,8 +7,8 @@ import { Avatar } from './Avatar';
 
 /**
  * "Send to": who was in the meeting, and so who gets the MoM (Review, right of the MoM card): avatar, name, email.
- * "+ Add participant" is the list's last cell (same size as a person, also in the 2–3 column layout): a saved
- * contact (suggested as you type, people already here left out), a new name, or just an email (a guest, format checked).
+ * "+ Add participant" is the list's last cell (same size as a person, also in the 2–3 column layout): typing suggests
+ * saved contacts (people already here left out); "Add guest" under the field saves the typed name or email (format checked).
  */
 export function ParticipantsPanel({ meeting, onChange }: { meeting: Meeting; onChange: (participants: ParticipantSnapshot[]) => void }) {
   const { t } = useI18n();
@@ -39,6 +39,7 @@ export function ParticipantsPanel({ meeting, onChange }: { meeting: Meeting; onC
         ))}
         <li>
           <AddPersonRow
+            guestButton
             pool={people.filter((p) => !isIn(p))}
             known={[...people, ...list]}
             onPick={(p) => onChange([...list, { personId: p.id, name: p.name, email: p.email, roleThen: p.role }])}

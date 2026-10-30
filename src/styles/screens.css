@@ -21,9 +21,9 @@
 .access-stack .access-card { width: 100%; }
 .demo-accounts { display: flex; flex-direction: column; gap: var(--sm-space-1); padding: var(--sm-space-2) 0 0; }
 .demo-accounts__title { margin: 0 0 var(--sm-space-1); padding: 0 var(--sm-space-2); color: var(--sm-title-muted); font: var(--sm-type-plate); letter-spacing: 0.24px; }
-.form-alert { display: flex; align-items: flex-start; gap: var(--sm-space-2); padding: var(--sm-space-3); border: 1px solid var(--sm-signal-danger-line); border-radius: var(--sm-radius-tile); background: var(--sm-signal-danger-tint); color: var(--sm-signal-danger); font: var(--sm-type-body-sm); }
+.form-alert { display: flex; align-items: center; gap: var(--sm-space-2); padding: var(--sm-space-3); border: 1px solid var(--sm-signal-danger-line); border-radius: var(--sm-radius-tile); background: var(--sm-signal-danger-tint); color: var(--sm-signal-danger); font: var(--sm-type-body-sm); }
 .form-alert p { margin: 0; }
-.form-alert svg { flex-shrink: 0; margin-top: 1px; }
+.form-alert svg { flex-shrink: 0; }
 .demo-accounts__item { display: flex; align-items: center; gap: var(--sm-space-3); width: 100%; padding: var(--sm-space-2); border: 0; border-radius: var(--sm-radius-tile); background: none; text-align: left; }
 .demo-accounts__item:hover { background: var(--sm-surface-ground); }
 
@@ -362,19 +362,31 @@
 .task-btn { width: var(--task-btn-w); height: 40px; padding: 0 var(--sm-space-3); box-shadow: none; }
 .task-confirm.is-on { background: var(--sm-control-track); color: var(--sm-ink-secondary); }
 .task-confirm.is-on:hover:not(:disabled) { background: var(--sm-surface-hairline); }
-/* Edit in place: patient and task text keep their read-mode font and spot, no box at rest. On hover and focus a hairline
-   ring 2px above / below the text and 10px beside it (8px padding pulled back by a -8px margin, so nothing moves).
-   Patient and task are 12px apart, so the two rings stay 6px apart. */
-.task-edit { display: block; width: calc(100% + 16px); margin: 0 -8px; padding: 0 var(--sm-space-2); border: 0; border-radius: 2px; background: none; resize: none; overflow: hidden; outline: 1px solid transparent; outline-offset: 2px; }
-.task-edit:hover, .task-edit:focus, .task-edit:focus-visible { outline-color: var(--sm-surface-hairline); }
+/* The row being edited (Figma "Action item · Edit"): ground fill and hairlines across the whole card, behind the cells
+   (a layer under the first cell, card-wide: 100cqw of the card, pulled left over the 24px side padding). */
+.summary-table.task-table { isolation: isolate; }
+.summary-table.task-table tr.is-editing > td:first-child { position: relative; }
+.summary-table.task-table tr.is-editing > td:first-child::before { content: ''; position: absolute; z-index: -1; top: -1px; bottom: 0; left: calc(-1 * var(--sm-space-6)); width: 100cqw; border-block: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); }
+/* Patient and task text as white fields, hairline inside, radius 8, 4px above / below and 8px beside the text: the text
+   keeps its read-mode spot (the padding is pulled back by negative margins), the two fields are 4px apart. */
+.task-edit { display: block; width: calc(100% + 16px); margin: calc(-1 * var(--sm-space-1)) calc(-1 * var(--sm-space-2)); padding: var(--sm-space-1) var(--sm-space-2); border: 0; border-radius: var(--sm-radius-inner); background: var(--sm-surface-panel); box-shadow: inset 0 0 0 1px var(--sm-surface-hairline); resize: none; overflow: hidden; outline: none; }
+.task-edit:focus-visible { box-shadow: inset 0 0 0 1px var(--sm-ink-primary); }
 .task-edit::placeholder { color: var(--sm-ink-tertiary); opacity: 1; }
-input.task-edit.summary-table__patient { height: 20px; }
-/* Owner and deadline while editing: the read-mode content as a bare button; the 14px caret sits in the 20px gap after
-   the column, so the text keeps its width. */
-.summary-table.task-table :is(.owner-picker__button, .dropdown__button--bare) { position: relative; width: calc(100% + 28px); min-height: 0; margin: -4px -20px -4px -8px; padding: 4px 20px 4px 8px; }
+.summary-table.task-table input.task-edit.summary-table__patient { box-sizing: content-box; width: 100%; height: 20px; margin-bottom: var(--sm-space-1); }
+.summary-table.task-table textarea.task-edit { margin-top: 0; }
+/* Owner and deadline while editing: the read-mode content as a bare button (hover fill, no caret). */
+.summary-table.task-table :is(.owner-picker__button, .dropdown__button--bare) { width: calc(100% + 16px); min-height: 0; margin: calc(-1 * var(--sm-space-1)) calc(-1 * var(--sm-space-2)); padding: var(--sm-space-1) var(--sm-space-2); }
 .dropdown__button--bare { display: flex; align-items: center; height: auto; border: 0; border-radius: var(--sm-radius-inner); background: none; color: inherit; text-align: left; cursor: pointer; }
-.dropdown__button--bare:hover, .dropdown__button--bare[aria-expanded='true'] { background: var(--sm-surface-ground); }
-.dropdown__caret { position: absolute; top: 50%; right: 3px; flex: none; color: var(--sm-ink-secondary); transform: translateY(-50%); }
+.dropdown__button--bare:hover, .dropdown__button--bare[aria-expanded='true'] { background: var(--sm-surface-panel); }
+.summary-table.task-table .owner-picker__button:is(:hover, [aria-expanded='true']) { background: var(--sm-surface-panel); }
+/* Owner: one person block (avatar + name, ellipsis) the width of the column, so avatars line up in every row. */
+.summary-table.task-table .task-owner { width: 100%; }
+/* Deadline: its two lines centred in the column. */
+@media (min-width: 641px) {
+  .summary-table.task-table :is(th, td):nth-child(3) { align-items: center; text-align: center; }
+  .summary-table.task-table td:nth-child(3) .due { align-items: center; }
+  .summary-table.task-table .dropdown__button--bare { justify-content: center; }
+}
 
 /* Participants panel: right of the card, same top and height; the list scrolls if it's long. */
 .people-panel { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; gap: var(--sm-space-1); min-height: 0; padding: var(--sm-space-6) var(--sm-space-4) var(--sm-space-3); overflow-y: auto; }
@@ -385,8 +397,9 @@ input.task-edit.summary-table__patient { height: 20px; }
 .people-panel__name { color: var(--sm-ink-primary); font: var(--sm-type-strong); }
 .people-panel__email { color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); }
 .people-panel .add-person__row { padding: var(--sm-space-2) 0; } /* the same cell as a person: 32px circle where the avatar is */
-.people-panel .add-person__row.is-adding > .add-person__plus { display: none; } /* the box takes the whole row */
-.people-panel .add-person__input { height: 40px; padding: 0 var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-panel); }
+/* Typing: the dashed + stays on the avatars' line, the 32px field right after it; "Add guest" full width below. */
+.people-panel .add-person__input { height: 32px; padding: 0 var(--sm-space-2); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-inner); background: var(--sm-surface-panel); }
+.people-panel .add-person__guest { margin-top: var(--sm-space-2); }
 
 /* "+ Add participant" (AddPersonRow), shared by the panel and the template editor. */
 .add-person__row { display: flex; align-items: center; gap: var(--sm-space-2); }
@@ -433,7 +446,9 @@ input.task-edit.summary-table__patient { height: 20px; }
 .owner-picker__button { display: flex; align-items: center; gap: var(--sm-space-2); min-height: 44px; margin: 0 -8px; padding: var(--sm-space-1) var(--sm-space-2); border: 0; border-radius: var(--sm-radius-tile); background: none; color: inherit; text-align: left; cursor: pointer; }
 .owner-picker__button:hover, .owner-picker__button[aria-expanded='true'] { background: var(--sm-surface-ground); }
 .owner-picker__button .who__text { min-width: 0; }
-.owner-picker__panel { z-index: 50; width: 320px; padding: var(--sm-space-2); }
+/* Pinned to the window (position: fixed, left + top or bottom from OwnerPicker): 320 wide, not the list's "as wide as the
+   button" and not its "below the button" top, which with fixed meant full-window width and both top and bottom. */
+.owner-picker__panel { z-index: 50; top: auto; width: 320px; min-width: 0; padding: var(--sm-space-2); }
 .owner-picker__search { width: 100%; height: 40px; margin-bottom: var(--sm-space-1); }
 .owner-picker__error { margin: 0 var(--sm-space-1) var(--sm-space-1); }
 .owner-picker__list { max-height: 240px; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
@@ -479,6 +494,7 @@ input.task-edit.summary-table__patient { height: 20px; }
 .sent__check-icon { animation: sent-check 320ms ease-out 120ms both; }
 @keyframes sent-pop { 0% { transform: scale(0.8); } 100% { transform: scale(1); } }
 @keyframes sent-check { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.sent__lead { max-width: 328px; } /* the two sentences wrap to two lines, centred */
 .sent__after { display: flex; flex-direction: column; align-items: center; gap: var(--sm-space-4); }
 @media (prefers-reduced-motion: reduce) { .sent__badge.is-done, .sent__check-icon { animation: none; } }
 

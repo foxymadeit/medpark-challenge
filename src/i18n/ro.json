@@ -18,7 +18,8 @@
     "save": "Salvează",
     "required": "Obligatoriu",
     "emailInvalid": "Introduceți un e-mail valid",
-    "addPerson": "Adaugă participant"
+    "addPerson": "Adaugă participant",
+    "addGuest": "Adaugă invitat"
   },
   "lang": {
     "en": "EN",
@@ -285,7 +286,7 @@
     "today": "Azi",
     "editTask": "Editează acțiunea: {title}",
     "renameLabel": "Redenumește ședința",
-    "addTask": "Adaugă acțiune",
+    "addTask": "Adaugă punct",
     "patientField": "Pacient sau subiect (opțional)",
     "taskPh": "Ce trebuie făcut",
     "titleLabel": "Titlul ședinței",
