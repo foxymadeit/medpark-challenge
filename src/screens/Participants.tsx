@@ -191,7 +191,7 @@ export function Participants() {
         title={t('participants.title')}
         aside={
           !onlyYou && (
-            <Button variant="primary" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
+            <Button icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
               {t('participants.add')}
             </Button>
           )
