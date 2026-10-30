@@ -200,6 +200,7 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
           ))}
           {/* Add row: the + sits in the avatars' column; picked or created people join ticked. */}
           <AddPersonRow
+            createLabel={t('templates.newPerson')}
             pool={others}
             known={[...people, ...members]}
             onPick={(p) => add(p.id)}

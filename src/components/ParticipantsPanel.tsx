@@ -39,7 +39,7 @@ export function ParticipantsPanel({ meeting, onChange }: { meeting: Meeting; onC
         ))}
         <li>
           <AddPersonRow
-            guestButton
+            createLabel={t('common.addGuest')}
             pool={people.filter((p) => !isIn(p))}
             known={[...people, ...list]}
             onPick={(p) => onChange([...list, { personId: p.id, name: p.name, email: p.email, roleThen: p.role }])}

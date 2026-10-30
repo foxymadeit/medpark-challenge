@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
 import { suggestByName } from '../lib/participants';
@@ -13,27 +13,30 @@ export function PlusGlyph() {
 }
 
 /**
- * "+ Add participant" (template editor, MoM participants panel): a dashed + in the avatars' column;
- * a click opens a search box. Suggests saved people by first name / surname (by email once there's an @),
- * or offers to add the typed name, or just an email (a guest, format checked). `pool` is who can be suggested
- * (already added people left out); `known` is everyone with a name/email already, so the same one isn't created twice.
- * `guestButton` (MoM "Send to" panel): matches only in the list, and a full-width "Add guest" button under the field
- * saves what was typed instead of an "Add …" list option.
+ * "+ Add participant" (template editor, MoM "Send to" panel): a dashed + in the avatars' column; a click opens a
+ * search box (the + stays). Typing suggests saved people by first name / surname (by email once there's an @); a
+ * full-width button under the field (`createLabel`: "Add guest", "New person") saves what was typed instead — a name,
+ * or just an email (format checked). `pool` is who can be suggested (already added people left out); `known` is
+ * everyone with a name/email already, so the same one isn't created twice.
  */
-export function AddPersonRow({ pool, known, onPick, onCreate, guestButton }: { pool: Person[]; known: { name: string; email?: string }[]; onPick: (p: Person) => void; onCreate: (typed: { name: string; email?: string }) => void; guestButton?: boolean }) {
+export function AddPersonRow({ pool, known, onPick, onCreate, createLabel }: { pool: Person[]; known: { name: string; email?: string }[]; onPick: (p: Person) => void; onCreate: (typed: { name: string; email?: string }) => void; createLabel: string }) {
   const { t } = useI18n();
   const id = useId();
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [error, setError] = useState<string>();
+  const box = useRef<HTMLDivElement>(null);
+  // In a scrolling list (template editor) the field and the button under it come into view when typing starts.
+  useEffect(() => {
+    if (adding) box.current?.querySelector('.add-person__create')?.scrollIntoView({ block: 'nearest' });
+  }, [adding]);
 
   const q = query.trim();
   const lower = q.toLowerCase();
   const matches = q.includes('@') ? pool.filter((p) => p.email?.toLowerCase().startsWith(lower)).slice(0, 5) : suggestByName(pool, q, () => false, 5);
   const canCreate = !!q && !known.some((p) => p.name.toLowerCase() === lower || p.email?.toLowerCase() === lower);
-  const offerCreate = canCreate && !guestButton; // as a list option; with guestButton it's the button
-  const count = matches.length + (offerCreate ? 1 : 0);
+  const count = matches.length;
 
   const reset = () => (setQuery(''), setActive(0), setError(undefined));
   const close = () => (setAdding(false), reset());
@@ -45,7 +48,7 @@ export function AddPersonRow({ pool, known, onPick, onCreate, guestButton }: { p
   };
 
   return (
-    <div className="add-person">
+    <div className="add-person" ref={box}>
       <div className={`add-person__row${adding ? ' is-adding' : ''}`}>
         <span className="add-person__plus" aria-hidden>
           <PlusGlyph />
@@ -83,7 +86,7 @@ export function AddPersonRow({ pool, known, onPick, onCreate, guestButton }: { p
         )}
       </div>
       {error && <p className="field__error add-person__error">{error}</p>}
-      {/* Saved people first, "add new" last. Inline, so a modal or a scrolling panel never clips it. */}
+      {/* Saved people that match. Inline, so a modal or a scrolling panel never clips it. */}
       {adding && count > 0 && (
         <ul id={`${id}-list`} role="listbox" aria-label={t('common.addPerson')} className="add-person__list">
           {matches.map((p, i) => (
@@ -95,19 +98,11 @@ export function AddPersonRow({ pool, known, onPick, onCreate, guestButton }: { p
               </span>
             </li>
           ))}
-          {offerCreate && (
-            <li id={`${id}-opt-${matches.length}`} role="option" aria-selected={active === matches.length} className={`add-person__option add-person__create${active === matches.length ? ' is-active' : ''}`} onMouseEnter={() => setActive(matches.length)} onMouseDown={(e) => e.preventDefault()} onClick={create}>
-              <span className="add-person__plus" aria-hidden>
-                <PlusGlyph />
-              </span>
-              <span className="who__name truncate">{q.includes('@') ? t('owner.addEmail', { email: q }) : t('owner.addName', { name: q })}</span>
-            </li>
-          )}
         </ul>
       )}
-      {adding && guestButton && (
-        <Button block className="add-person__guest" disabled={!canCreate} onMouseDown={(e) => e.preventDefault()} onClick={create}>
-          {t('common.addGuest')}
+      {adding && (
+        <Button block className="add-person__create" disabled={!canCreate} onMouseDown={(e) => e.preventDefault()} onClick={create}>
+          {createLabel}
         </Button>
       )}
     </div>

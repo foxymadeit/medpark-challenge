@@ -13,7 +13,7 @@ import { ParticipantsPanel } from '../components/ParticipantsPanel';
 import { Segmented } from '../components/Segmented';
 import { useI18n } from '../i18n/I18nProvider';
 import { addDays, DUE_OFFSETS, dueRelative, formatWeekdayDate, uid } from '../lib/format';
-import { meetingHeading, speakerBadge, speakerNamer } from '../lib/meeting';
+import { meetingHeading, speakers } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 import type { Meeting, ParticipantSnapshot, Task } from '../types';
@@ -102,8 +102,7 @@ export function Review() {
   if (meeting.status === 'sent' && !sent.current) return <Navigate to={`/history/${meeting.id}`} replace />;
   if (meeting.status === 'processing') return <Navigate to={`/processing/${meeting.id}`} replace />;
 
-  const nameOf = speakerNamer(meeting, resolvePerson, t);
-  const badgeOf = speakerBadge(meeting, resolvePerson); // unknown voice as owner: "S1" on its speaker colour
+  const { nameOf, badgeOf } = speakers(meeting, resolvePerson, t); // badgeOf: an unknown voice as owner, "S1" on its colour
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
   const dueOptions = [...new Set([...DUE_OFFSETS.map((n) => addDays(meeting.date, n)), ...(row ? [row.due] : [])])].sort();
   // Send is on only when every action item is confirmed.
@@ -194,18 +193,20 @@ export function Review() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((task) =>
+                  {rows.map((task, i) =>
                     row && row.id === task.id ? (
                       <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
-                        {/* Edit: same columns as reading; the row lights up across the card, the texts become fields. */}
-                        <td>
+                        {/* Edit: same columns as reading; the row lights up across the card (a backdrop cell, last, spanning the
+                            whole grid line under the cells), the texts become fields. Every cell is placed on the row's grid line
+                            (header = 1) and its own column, so they sit over the backdrop instead of being moved aside. */}
+                        <td style={{ gridRow: i + 2, gridColumn: 1 }}>
                           <input className="task-edit summary-table__patient" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
                           <InlineText className="task-edit task-table__title" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? (e.preventDefault(), saveRow()) : e.key === 'Escape' ? cancelRow() : undefined)} />
                         </td>
-                        <td>
+                        <td style={{ gridRow: i + 2, gridColumn: 2 }}>
                           <OwnerPicker meeting={meeting} ownerId={row.ownerId} name={nameOf(row.ownerId)} badge={badgeOf(row.ownerId)} onPick={pickOwner} />
                         </td>
-                        <td>
+                        <td style={{ gridRow: i + 2, gridColumn: 3 }}>
                           <Dropdown
                             label={t('review.due')}
                             value={row.due}
@@ -219,7 +220,7 @@ export function Review() {
                             }
                           />
                         </td>
-                        <td>
+                        <td style={{ gridRow: i + 2, gridColumn: 4 }}>
                           <span className="task-actions">
                             <Button className="task-btn" onClick={cancelRow}>
                               {t('review.cancel')}
@@ -229,6 +230,7 @@ export function Review() {
                             </Button>
                           </span>
                         </td>
+                        <td className="task-row__backdrop" aria-hidden style={{ gridRow: i + 2 }} />
                       </tr>
                     ) : (
                       <tr key={task.id} className={task.confirmed ? 'is-confirmed' : undefined}>

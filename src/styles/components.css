@@ -335,6 +335,11 @@
   font: var(--sm-type-body-md);
   text-align: left;
 }
+/* Own trigger (Dropdown `trigger`): reads like the text it replaces; a light fill on hover / while open. */
+.dropdown__button--bare { display: flex; align-items: center; height: auto; border: 0; border-radius: var(--sm-radius-inner); background: none; color: inherit; text-align: left; cursor: pointer; }
+.dropdown__button--bare:hover, .dropdown__button--bare[aria-expanded='true'] { background: var(--sm-surface-panel); }
+/* Its list is pinned to the window (left + top or bottom set inline), so a scrolling card never clips it. */
+.dropdown__list.dropdown__list--pinned { position: fixed; top: auto; z-index: 50; min-width: 200px; width: max-content; }
 .dropdown__button:disabled { cursor: not-allowed; } /* looks like Figma's select; the guard is explained via title */
 .dropdown__button--field { height: 44px; padding: 0 var(--sm-space-3); }
 .dropdown__list {

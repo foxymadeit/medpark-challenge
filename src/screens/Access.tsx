@@ -66,7 +66,7 @@ export function Welcome() {
       {/* The greeting itself sits above the card (AccessLayout). */}
       <h1 className="lead welcome__lead">{t('welcome.lead')}</h1>
       <div className="stack" style={{ gap: 'var(--sm-space-3)' }}>
-        <Button variant="ink" block onClick={() => navigate('/login')}>
+        <Button variant="primary" block onClick={() => navigate('/login')}>
           {t('login.submit')}
         </Button>
         <Button block onClick={() => navigate('/signup')}>

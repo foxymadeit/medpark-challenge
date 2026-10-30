@@ -343,10 +343,10 @@
   .summary-table.task-table :is(thead, tbody, tr) { display: contents; }
   .summary-table.task-table th:nth-child(n) { width: auto; } /* each header cell spans its column (the shared .summary-table widths are for History) */
   .summary-table.task-table :is(th, td) { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-  .summary-table.task-table :is(th, td):last-child { align-items: flex-end; }
+  .summary-table.task-table :is(th, td):nth-child(4) { align-items: flex-end; }
 }
 .summary-table.task-table th, .summary-table.task-table td { padding: var(--sm-space-3) var(--sm-space-5) var(--sm-space-3) 0; vertical-align: middle; }
-.summary-table.task-table th:last-child, .summary-table.task-table td:last-child { padding-right: 0; text-align: right; }
+.summary-table.task-table :is(th, td):nth-child(4) { padding-right: 0; text-align: right; } /* by position: the edit row has a backdrop cell after it */
 .summary-table.task-table th { position: sticky; top: 0; z-index: 1; border-bottom: 0; background: var(--sm-surface-panel); box-shadow: inset 0 -1px 0 var(--sm-surface-hairline); }
 .summary-table.task-table td { border-bottom: 1px solid var(--sm-surface-hairline); }
 .summary-table.task-table .summary-table__patient { margin-bottom: var(--sm-space-3); color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); letter-spacing: 0; } /* 12px: room for the edit rings below */
@@ -362,11 +362,13 @@
 .task-btn { width: var(--task-btn-w); height: 40px; padding: 0 var(--sm-space-3); box-shadow: none; }
 .task-confirm.is-on { background: var(--sm-control-track); color: var(--sm-ink-secondary); }
 .task-confirm.is-on:hover:not(:disabled) { background: var(--sm-surface-hairline); }
-/* The row being edited (Figma "Action item · Edit"): ground fill and hairlines across the whole card, behind the cells
-   (a layer under the first cell, card-wide: 100cqw of the card, pulled left over the 24px side padding). */
-.summary-table.task-table { isolation: isolate; }
-.summary-table.task-table tr.is-editing > td:first-child { position: relative; }
-.summary-table.task-table tr.is-editing > td:first-child::before { content: ''; position: absolute; z-index: -1; top: -1px; bottom: 0; left: calc(-1 * var(--sm-space-6)); width: 100cqw; border-block: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); }
+/* The row being edited (Figma "Action item · Edit"): ground fill and hairlines across the whole card. A backdrop cell
+   spans the row's grid line (all columns) under the other cells and reaches over the 24px side padding of the card. */
+.task-row__backdrop { display: none; }
+@media (min-width: 641px) {
+  .summary-table.task-table { isolation: isolate; } /* the backdrop's z-index -1 stays inside the table, above the card */
+  .summary-table.task-table .task-row__backdrop { position: relative; z-index: -1; display: block; grid-column: 1 / -1; margin: -1px calc(-1 * var(--sm-space-6)) 0; padding: 0; border-block: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); }
+}
 /* Patient and task text as white fields, hairline inside, radius 8, 4px above / below and 8px beside the text: the text
    keeps its read-mode spot (the padding is pulled back by negative margins), the two fields are 4px apart. */
 .task-edit { display: block; width: calc(100% + 16px); margin: calc(-1 * var(--sm-space-1)) calc(-1 * var(--sm-space-2)); padding: var(--sm-space-1) var(--sm-space-2); border: 0; border-radius: var(--sm-radius-inner); background: var(--sm-surface-panel); box-shadow: inset 0 0 0 1px var(--sm-surface-hairline); resize: none; overflow: hidden; outline: none; }
@@ -376,8 +378,6 @@
 .summary-table.task-table textarea.task-edit { margin-top: 0; }
 /* Owner and deadline while editing: the read-mode content as a bare button (hover fill, no caret). */
 .summary-table.task-table :is(.owner-picker__button, .dropdown__button--bare) { width: calc(100% + 16px); min-height: 0; margin: calc(-1 * var(--sm-space-1)) calc(-1 * var(--sm-space-2)); padding: var(--sm-space-1) var(--sm-space-2); }
-.dropdown__button--bare { display: flex; align-items: center; height: auto; border: 0; border-radius: var(--sm-radius-inner); background: none; color: inherit; text-align: left; cursor: pointer; }
-.dropdown__button--bare:hover, .dropdown__button--bare[aria-expanded='true'] { background: var(--sm-surface-panel); }
 .summary-table.task-table .owner-picker__button:is(:hover, [aria-expanded='true']) { background: var(--sm-surface-panel); }
 /* Owner: one person block (avatar + name, ellipsis) the width of the column, so avatars line up in every row. */
 .summary-table.task-table .task-owner { width: 100%; }
@@ -397,9 +397,9 @@
 .people-panel__name { color: var(--sm-ink-primary); font: var(--sm-type-strong); }
 .people-panel__email { color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); }
 .people-panel .add-person__row { padding: var(--sm-space-2) 0; } /* the same cell as a person: 32px circle where the avatar is */
-/* Typing: the dashed + stays on the avatars' line, the 32px field right after it; "Add guest" full width below. */
+/* Typing: the dashed + stays on the avatars' line, the 32px field right after it; "Add guest" full width below (AddPersonRow). */
 .people-panel .add-person__input { height: 32px; padding: 0 var(--sm-space-2); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-inner); background: var(--sm-surface-panel); }
-.people-panel .add-person__guest { margin-top: var(--sm-space-2); }
+.add-person__create { margin-top: var(--sm-space-2); }
 
 /* "+ Add participant" (AddPersonRow), shared by the panel and the template editor. */
 .add-person__row { display: flex; align-items: center; gap: var(--sm-space-2); }
@@ -417,7 +417,6 @@
 .add-person__option { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; padding: var(--sm-space-2) var(--sm-space-2); border-radius: var(--sm-radius-inner); cursor: pointer; }
 .add-person__option .who__text { min-width: 0; }
 .add-person__option.is-active { background: var(--sm-surface-ground); }
-.add-person__create { border-top: 1px solid var(--sm-surface-hairline); border-radius: 0 0 var(--sm-radius-inner) var(--sm-radius-inner); }
 
 /* Footer: Preview / Send (176 each) at the window's centre; "confirmed 2/12" just right of Send, outside the centring. */
 .review__actions { position: relative; display: flex; justify-content: center; gap: var(--sm-space-3); justify-self: center; }
@@ -569,7 +568,8 @@
 .tpl-people .add-person__row { height: 48px; border-top: 1px solid var(--sm-surface-hairline); }
 .tpl-people .add-person__row > .add-person__plus { margin-left: var(--sm-space-8); }
 .tpl-people .add-person__open { font: var(--sm-type-button); }
-.tpl-people .add-person__list, .tpl-people .add-person__error { margin-left: 44px; }
+.tpl-people :is(.add-person__list, .add-person__error, .add-person__create) { margin-left: 44px; width: calc(100% - 44px); }
+.tpl-people .add-person__create { margin-bottom: var(--sm-space-2); }
 /* Template list: "Edit" is plain secondary text (no icon), a touch darker on hover. */
 .tpl-card__edit { color: var(--sm-ink-secondary); }
 .tpl-card__edit:hover:not(:disabled) { color: var(--sm-ink-primary); }

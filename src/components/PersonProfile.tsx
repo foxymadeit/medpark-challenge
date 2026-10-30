@@ -181,7 +181,7 @@ export function PersonProfileDialog({ personId, onClose, showManage = true }: { 
             <Button variant="ghost" onClick={() => setPendingAccess(null)}>
               {t('common.cancel')}
             </Button>
-            <Button variant="ink" onClick={() => (updatePerson(person.id, { access: pendingAccess }), setPendingAccess(null))}>
+            <Button variant="primary" onClick={() => (updatePerson(person.id, { access: pendingAccess }), setPendingAccess(null))}>
               {t('participants.accessConfirm')}
             </Button>
           </div>

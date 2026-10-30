@@ -92,7 +92,7 @@
    deadline (as wide as its two lines, max 112), then the buttons, which stack: Edit / Cancel on top, Confirm / Save below. ── */
 @media (min-width: 641px) and (max-width: 1023px) {
   .summary-table.task-table { --task-cols: minmax(240px, 1fr) minmax(72px, 200px) fit-content(136px) var(--task-btn-w); }
-  .summary-table.task-table :is(th, td):not(:last-child) { padding-right: var(--sm-space-6); } /* 24px between columns */
+  .summary-table.task-table :is(th, td):nth-child(-n + 3) { padding-right: var(--sm-space-6); } /* 24px between columns */
   .summary-table.task-table .task-actions { flex-direction: column; }
 }
 
@@ -172,7 +172,6 @@
   .summary-table tr { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sm-space-2) var(--sm-space-3); padding: var(--sm-space-3) 0; border-bottom: 1px solid var(--sm-surface-hairline); }
   .summary-table tbody tr:last-child { border-bottom: 0; }
   /* The row being edited: the fill and lines span the card here too (the row is a flex line, so it carries them itself). */
-  .summary-table.task-table tr.is-editing > td:first-child::before { display: none; }
   .summary-table.task-table tr.is-editing { margin: -1px calc(-1 * var(--sm-space-6)) 0; padding: var(--sm-space-3) var(--sm-space-6); border-top: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); }
   .summary-table td, .summary-table td:first-child, .summary-table td:last-child { display: block; width: auto; padding: 0; border: 0; }
   .summary-table td:first-child { flex: 1 1 calc(100% - 44px); }

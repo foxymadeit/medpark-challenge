@@ -273,11 +273,11 @@ export function HistoryRecord() {
       {/* Centred on the window (vp-center), not on the content area. */}
       <div className="page__actions vp-center no-print">
         <div className="vp-center__group">
-          <Button variant="ink" icon={<ListChecksIcon size={20} aria-hidden />} onClick={() => setTplName(meeting.title)}>
+          <Button icon={<ListChecksIcon size={20} aria-hidden />} onClick={() => setTplName(meeting.title)}>
             {t('record.saveTemplate')}
           </Button>
           <Button
-            variant="ink"
+            variant="primary"
             icon={<DownloadSimpleIcon size={20} aria-hidden />}
             disabled={pdfBusy}
             aria-busy={pdfBusy}

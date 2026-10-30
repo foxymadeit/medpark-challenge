@@ -43,9 +43,9 @@ export function OwnerPicker({ meeting, ownerId, name, badge, onPick }: { meeting
     options.push({ kind: 'new', snap: guest, label: q.includes('@') ? t('owner.addEmail', { email: q }) : t('owner.addName', { name: q }) });
   }
 
-  // Highlight the current owner; none for an unknown voice (no option is theirs) until the arrows move.
-  const ownIndex = options.findIndex((o) => o.kind === 'person' && o.snap.personId === ownerId);
-  useEffect(() => setActive(q ? 0 : ownIndex), [q, open]); // eslint-disable-line react-hooks/exhaustive-deps
+  // With an empty search the list is the meeting's participants: highlight the current owner there; none for an
+  // unknown voice (no option is theirs) until the arrows move. Typing highlights the first match.
+  const ownIndex = meeting.participants.findIndex((p) => p.personId === ownerId);
   // The list is pinned to the window (it lives inside a scrolling container that would clip it):
   // below the button, or above it when there's no room below. Scrolling anything else closes it.
   const [pos, setPos] = useState<{ left: number; top?: number; bottom?: number }>({ left: 0 });
@@ -81,7 +81,7 @@ export function OwnerPicker({ meeting, ownerId, name, badge, onPick }: { meeting
 
   return (
     <div className="owner-picker" ref={wrap}>
-      <button ref={button} type="button" className="owner-picker__button" aria-haspopup="listbox" aria-expanded={open} aria-label={t('owner.change', { name })} onClick={() => (open ? close() : setOpen(true))}>
+      <button ref={button} type="button" className="owner-picker__button" aria-haspopup="listbox" aria-expanded={open} aria-label={t('owner.change', { name })} onClick={() => (open ? close() : (setActive(ownIndex), setOpen(true)))}>
         <Avatar name={name} {...badge} />
         <span className="task-owner__name truncate">{name}</span>
       </button>
@@ -98,7 +98,7 @@ export function OwnerPicker({ meeting, ownerId, name, badge, onPick }: { meeting
             aria-activedescendant={options[active] ? `${id}-opt-${active}` : undefined}
             aria-label={t('owner.search')}
             aria-invalid={error ? true : undefined}
-            onChange={(e) => (setQuery(e.target.value), setError(undefined))}
+            onChange={(e) => (setQuery(e.target.value), setActive(e.target.value.trim() ? 0 : ownIndex), setError(undefined))}
             onKeyDown={onKey}
           />
           {error && <p className="field__error owner-picker__error">{error}</p>}
