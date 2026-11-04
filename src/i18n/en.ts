@@ -206,7 +206,8 @@ export const en = {
     suggestions: 'Participants',
     record: 'Start recording',
     upload: 'Upload audio',
-    uploadHint: 'WAV, MP3, M4A · 3h',
+    uploadHint: 'WAV, MP3, M4A · max 3h',
+    uploadHintShort: 'WAV, MP3, M4A · 3h',
     // Realistic default names per type, used until the user renames the meeting.
     defaultName: {
       medical: 'Morning ward round',

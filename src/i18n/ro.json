@@ -205,7 +205,8 @@
     "suggestions": "Participanți",
     "record": "Înregistrează",
     "upload": "Încarcă audio",
-    "uploadHint": "WAV, MP3, M4A · 3h",
+    "uploadHint": "WAV, MP3, M4A · max 3h",
+    "uploadHintShort": "WAV, MP3, M4A · 3h",
     "defaultName": {
       "medical": "Vizita de dimineață",
       "executive": "Ședința săptămânală a conducerii",

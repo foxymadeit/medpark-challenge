@@ -113,8 +113,7 @@
   .mic-check { flex-wrap: nowrap; gap: var(--sm-space-1); width: 100%; font: var(--sm-type-plate); }
   .mic-check .dropdown { flex: 0 1 auto; }
   .mic-check .dropdown__button { gap: var(--sm-space-0-5); }
-  .mic-check__sep, .mic-check__link svg, .mic-check__full { display: none; }
-  .mic-check__short { display: inline; }
+  .mic-check__sep, .mic-check__link svg { display: none; }
   /* .vp-center's `auto` column ignores max-width and keeps the item's 560px, which scrolls the page sideways. One column here. */
   .app__body .vp-center { grid-template-columns: minmax(0, 1fr); }
   .app__body .vp-center > * { grid-column: 1; justify-self: center; }
