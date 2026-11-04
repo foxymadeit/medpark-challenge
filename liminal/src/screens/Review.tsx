@@ -43,6 +43,9 @@ function useDueLabel(meetingDate: string) {
 
 /** Meeting name, renamed as on New meeting: click it or its pen, the field opens on the same line in the same type with
  * the name selected; Enter or leaving it saves, Esc cancels. */
+const HEADLINE_PEN_ROOM = 40; // the pen and its gap after the name
+const HEAD_GAPS = 40; // name to date 16, date to view switch 24
+
 function EditableTitle({ meeting }: { meeting: Meeting }) {
   const { t } = useI18n();
   const { updateMeeting } = useStore();
@@ -82,6 +85,29 @@ function EditableTitle({ meeting }: { meeting: Meeting }) {
   );
 }
 
+/** Do the name and meta line, the date and the view switch fit on one row? Hidden `.fit-probe` copies give the name and meta
+ * their full width, which differs per language and meeting, so a breakpoint can't decide it. Only used from 641 up. */
+function useHeadFits(title: string, meta: string) {
+  const head = useRef<HTMLElement>(null);
+  const [fits, setFits] = useState(true);
+
+  useLayoutEffect(() => {
+    const el = head.current;
+    if (!el) return;
+    const width = (selector: string) => el.querySelector(selector)?.getBoundingClientRect().width ?? 0;
+    const measure = () => {
+      const text = Math.max(width('.review__fit-title') + HEADLINE_PEN_ROOM, width('.review__fit-meta'));
+      setFits(text + width('.datepicker') + width('.segmented') + HEAD_GAPS <= el.clientWidth);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    void document.fonts.ready.then(measure); // the probes are narrower in the fallback font
+    return () => observer.disconnect();
+  }, [title, meta]);
+
+  return { head, fits };
+}
+
 /** 05 — Review the AI minutes, then send (Figma "05 MoM · D4 B"). One white card with one scroll: Summary (at most half
  * the card), then Tasks under a sticky header; confirm every task. Participants (= who gets the MoM) in a panel on the
  * right. Preview / Send under the card, centred on the window. Transcript tab: read-only, in the same card. */
@@ -95,6 +121,8 @@ export function Review() {
   const [tab, setTab] = useState<'mom' | 'transcript'>('mom'); // MoM first
   const [previewOpen, setPreviewOpen] = useState(false); // MoM text preview popup
   const dueLabel = useDueLabel(meeting?.date ?? '');
+  const meta = meeting ? t('review.meta', { type: t(`types.${meeting.type}`), n: meeting.durationMin, count: meeting.participants.length }) : '';
+  const { head, fits } = useHeadFits(meeting?.title ?? '', meta);
 
   const sent = useRef(false);
   const send = () => {
@@ -151,12 +179,14 @@ export function Review() {
   return (
     <div className="page review page--fit">
       <div className="review__layout">
-        <header className="review__header">
+        <header ref={head} className={`review__header${fits ? '' : ' review__header--stacked'}`}>
+          <span className="fit-probe t-h1 review__fit-title" aria-hidden>{meeting.title}</span>
+          <span className="fit-probe note review__fit-meta" aria-hidden>{meta}</span>
           {/* Name and date in two columns, as on New meeting. */}
           <div className="review__head-main">
             <div className="stack review__head-text" style={{ gap: 'var(--sm-space-1)' }}>
               <EditableTitle meeting={meeting} />
-              <p className="note">{t('review.meta', { type: t(`types.${meeting.type}`), n: meeting.durationMin, count: meeting.participants.length })}</p>
+              <p className="note">{meta}</p>
             </div>
             <DatePicker label={t('newMeeting.date')} max={todayISO()} value={meeting.date} onChange={changeDate} />
           </div>

@@ -387,7 +387,8 @@ div.task-check { gap: var(--sm-space-2); cursor: default; } /* the edit row: the
 .summary-table.task-table tr.is-confirmed :is(.task-table__title, .task-owner__name, .due__rel) { color: var(--sm-ink-secondary); }
 .task-actions { display: inline-flex; align-items: center; gap: var(--sm-space-2); }
 /* Reading: one quiet pencil, its glyph on the column's right edge. Editing: Cancel / Save, the same 104×40. */
-.task-edit-btn { margin-right: calc(-1 * var(--sm-space-1) - 2px); }
+.task-edit-btn { margin-right: calc(-1 * var(--sm-space-1) - 2px); color: var(--sm-ink-secondary); } /* quiet, like Add item and the column labels */
+.task-edit-btn:hover { color: var(--sm-ink-primary); }
 .task-btn { width: var(--task-btn-w); height: 40px; padding: 0 var(--sm-space-3); box-shadow: none; }
 /* Patient and task text as white fields (Figma "Mode=Edit"): hairline inside (takes no room), radius 8, 4px above / below
    and 8px beside the text, 28 and 32 tall, 4px apart. */

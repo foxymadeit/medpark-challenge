@@ -23,8 +23,8 @@
   /* Container titles sit a step quieter than the content inside them. */
   --sm-title-muted: var(--sm-ink-secondary);
 
-  /* Brand: the blue "min" in the Liminal wordmark (Figma "Brand" 2009:1603) and meeting names. One blue across the product. */
-  --sm-brand: var(--sm-action);
+  /* Brand: the blue "min" in the Liminal wordmark (Figma "Brand" 2009:1603) and meeting names. The logo keeps its own bright blue; actions use --sm-action. */
+  --sm-brand: #007aff;
   /* Hover shades for the solid buttons, and the warm track behind segmented toggles. */
   --sm-ink-hover: #2b2b2b;
   --sm-control-track: #efede8;
