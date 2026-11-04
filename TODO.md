@@ -42,6 +42,7 @@
 - [x] `Participant row` и `Participants header` шириной 1152 (640 / 256 / 208 / 48), `Template card` шириной 564.
 - [x] Текст Participant в `Modal / New participant` как в коде. На 10a и 11a кнопка отправки Disabled: форма пустая.
 - [x] Тени кнопок: клип снят с `Content` на 10, 10a, 11, 11a, с сегмент-контрола в `Modal / New template`, с наборов `Page header` и `People panel / Add participant`.
+- [x] Log in, Sign up, Welcome: блок поднят, отступ сверху 9% высоты окна, на 1728×873 всё видно без скролла. В Figma `01 Sign up` так же, 78 сверху.
 - [x] Review: последний action item без дивайдера и без пустого места снизу, в коде и в Figma (04, 04b, 05, 06, 07).
 
 ### Review и Preview MoM
