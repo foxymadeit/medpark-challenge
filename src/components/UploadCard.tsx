@@ -16,6 +16,7 @@ export function UploadCard() {
   const [error, setError] = useState<string>();
   const [over, setOver] = useState(false);
   const { probe, fits } = useFitsTile(t('newMeeting.uploadHint'));
+  const title = useFitsTile(t('newMeeting.upload'));
 
   const take = async (f?: File) => {
     if (!f) return;
@@ -41,7 +42,10 @@ export function UploadCard() {
       <button type="button" className={`start-tile start-tile--upload${over ? ' is-over' : ''}`} onClick={() => input.current?.click()} {...drop}>
         <UploadSimpleIcon size={32} aria-hidden />
         <span className="start-tile__spacer" />
-        <span className="t-h2">{t('newMeeting.upload')}</span>
+        <span className="t-h2">
+          {title.fits ? t('newMeeting.upload') : t('newMeeting.uploadShort')}
+          <span ref={title.probe} className="fit-probe">{t('newMeeting.upload')}</span>
+        </span>
         <span className={`note${error ? ' c-danger' : ''}`} role={error ? 'alert' : undefined}>
           {error ?? (fits ? t('newMeeting.uploadHint') : t('newMeeting.uploadHintShort'))}
           <span ref={probe} className="fit-probe">{t('newMeeting.uploadHint')}</span>

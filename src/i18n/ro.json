@@ -205,6 +205,7 @@
     "suggestions": "Participanți",
     "record": "Înregistrează",
     "upload": "Încarcă audio",
+    "uploadShort": "Încarcă",
     "uploadHint": "WAV, MP3, M4A · max 3h",
     "uploadHintShort": "WAV, MP3, M4A · 3h",
     "defaultName": {

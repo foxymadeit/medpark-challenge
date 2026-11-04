@@ -206,6 +206,7 @@ export const en = {
     suggestions: 'Participants',
     record: 'Start recording',
     upload: 'Upload audio',
+    uploadShort: 'Upload',
     uploadHint: 'WAV, MP3, M4A · max 3h',
     uploadHintShort: 'WAV, MP3, M4A · 3h',
     // Realistic default names per type, used until the user renames the meeting.

@@ -208,6 +208,7 @@
     "suggestions": "Участники",
     "record": "Начать запись",
     "upload": "Загрузить аудио",
+    "uploadShort": "Загрузить",
     "uploadHint": "WAV, MP3, M4A · макс. 3 ч",
     "uploadHintShort": "WAV, MP3, M4A · 3 ч",
     "defaultName": {
