@@ -23,10 +23,10 @@
 - **Used in:** нет на экранах (в коде Onboarding, Recording, DatePicker)
 
 ### Review actions
-- **Назначение:** нижняя панель Review с Preview и Send
+- **Назначение:** кнопки футера Review, Preview и Send
 - **Варианты:** State: Pending | Ready
 - **Node ID:** `39:177`
-- **Used in:** нет на экранах, футеры 04–07 собраны вручную
+- **Used in:** футеры 04–07, 04b
 
 ## Ввод
 
@@ -42,7 +42,7 @@
 
 ### Selection control
 - **Назначение:** чекбокс и радио, чёрные в выбранном состоянии
-- **Варианты:** Type: Checkbox | Radio; State: Off | On
+- **Варианты:** Type: Checkbox | Radio; State: Off | On | Indeterminate | Disabled (последние два только у Checkbox)
 - **Node ID:** `12:67`
 
 ### Search
@@ -65,7 +65,7 @@
 - **Назначение:** поле участников с чипами
 - **Варианты:** State: Default | Focus
 - **Node ID:** `17:88`
-- **Used in:** нет на экранах, на 01 Start собран вручную
+- **Used in:** 01 Start, ширина 1152
 
 ### Email chip
 - **Назначение:** участник внутри поля, с крестиком
@@ -76,7 +76,7 @@
 - **Назначение:** ответственный в строке задачи
 - **Варианты:** Mode: Edit | Read; State: Default | Hover
 - **Node ID:** `17:109`
-- **Used in:** нет на экранах, панель на 05 собрана вручную
+- **Used in:** нет на экранах. Панель на 05 собрана из `Person`
 
 ### Date chip, Date picker, Date picker day
 - **Назначение:** выбор даты
