@@ -26,9 +26,9 @@ export function PeopleStack({ ids, max = 5, names = true }: { ids: string[]; max
         {hidden > 0 && !names && <span className="avatar avatar--sm avatar--more">+{hidden}</span>}
       </span>
       {names && (
-        <span className="note truncate">
-          {shown.join(', ')}
-          {rest > 0 && ` ${t('templates.more', { n: rest })}`}
+        <span className="note people-stack__names">
+          <span className="people-stack__who">{shown.join(', ')}</span>
+          {rest > 0 && <span className="people-stack__more">{t('templates.more', { n: rest })}</span>}
         </span>
       )}
       {profileId && <PersonProfileDialog personId={profileId} onClose={() => setProfileId(null)} />}

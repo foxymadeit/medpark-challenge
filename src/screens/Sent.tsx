@@ -5,6 +5,7 @@ import { Button } from '../components/Button';
 import { ProgressBar } from '../components/ProgressBar';
 import { useI18n } from '../i18n/I18nProvider';
 import { formatDayMonth, formatFullDate } from '../lib/format';
+import { meetingHeading } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 
@@ -57,7 +58,7 @@ export function Sent() {
           <div className="page__head" style={{ alignItems: 'center', textAlign: 'center' }}>
             {/* Same heading as the MoM preview: title · date with the year. */}
             <h1 className="t-h1">
-              {meeting.title} · {formatFullDate(meeting.date, lang)}
+              {meetingHeading(meeting, lang, formatFullDate)}
             </h1>
             <p className="lead sent__lead" role="status" aria-live="polite">
               {done

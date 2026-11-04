@@ -39,11 +39,6 @@
   .people-panel__list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 var(--sm-space-6); }
 }
 
-/* ── <1216: tables give their side columns less room first (Meeting / Name keeps its width longest) ── */
-@media (max-width: 1215px) {
-  .table--history th, .table--history td { padding-right: var(--sm-space-2); }
-}
-
 /* ── ≤1024: tablet ── */
 @media (max-width: 1024px) {
   .topbar { --topbar-pad: var(--sm-space-4); }
@@ -89,11 +84,15 @@
   .processing__box { margin-top: 0; }
 }
 
-/* ── 641–1023: task rows. Width goes first to the task text (min 240), then the owner (name truncates), then the
-   deadline (as wide as its two lines, max 112), then the buttons, which stack: Edit / Cancel on top, Confirm / Save below. ── */
-@media (min-width: 641px) and (max-width: 1023px) {
-  .summary-table.task-table { --task-cols: minmax(240px, 1fr) minmax(72px, 200px) fit-content(136px) var(--task-btn-w); }
+/* ── MoM card under 860 (any window where the card is that tight, ≥641; on a phone the card is no container): task rows.
+   Width goes first to the task text, then the owner (name truncates), then the deadline (as wide as its two lines),
+   then the actions, which stack: Cancel on top, Save below. ── */
+@container (max-width: 860px) {
+  .summary-table.task-table { --task-cols: minmax(180px, 1fr) minmax(72px, 200px) fit-content(136px) calc(var(--task-btn-w) + var(--sm-space-5)); }
   .summary-table.task-table :is(th, td):nth-child(-n + 3) { padding-right: var(--sm-space-6); } /* 24px between columns */
+  .summary-table.task-table td:nth-child(2) { padding-left: 0; }
+  .summary-table.task-table th:nth-child(2) { padding-left: 0; }
+  .summary-table.task-table th:nth-child(3) { padding-left: 0; }
   .summary-table.task-table .task-actions { flex-direction: column; }
 }
 
@@ -102,13 +101,26 @@
   :root { --content-pad: 16px; } /* .page padding here */
   /* Phone: the privacy note keeps only its dot; the words stay for screen readers only. */
   .privacy__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  /* Phone: the date drops under the name, left-aligned. */
-  .new-meeting { --nm-cols: minmax(0, 1fr); } /* cards and name/date go to one column: the date drops under the name */
-  .new-meeting__head .datepicker { grid-column: 1; grid-row: 3; }
+  /* Phone: the name/date header drops to one column (date under the name)… */
+  .new-meeting { --nm-cols: minmax(0, 1fr); }
+  .new-meeting__head .datepicker { grid-column: 1; grid-row: 3; margin-top: var(--sm-space-4); } /* room under the name, not flush against it */
+  /* …but the two big Record / Upload cards stay side by side (content keeps priority, not one under the other). */
+  .start-options { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .topbar__right { gap: var(--sm-space-2); }
   .account__button .account__text, .account__button > svg { display: none; }
   .account__button { padding: 0 var(--sm-space-1); }
-  .brand__name { display: none; }
+  /* Burger: its glyph lines up with the content gutter below, not inset by the 40px button's own padding. */
+  .topbar__menu { margin-left: -10px; }
+
+  /* Segmented controls fill the row and never overflow (Meeting type, History filter, MoM / Transcript):
+     items share the width, icons drop to make room, the label ellipsizes only if it's still too tight. */
+  .segmented:not(.segmented--lang) { display: flex; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .segmented:not(.segmented--lang)::-webkit-scrollbar { display: none; }
+  /* Items size to their word (flex-basis auto), grow to fill when there's room, and never shrink below the word
+     (flex-shrink 0) — so a long label like "Administrativă" is shown in full; if the four together don't fit, the
+     track scrolls horizontally instead of chopping the longest one. */
+  .segmented:not(.segmented--lang) .segmented__item { flex: 1 0 auto; width: auto; min-width: 0; gap: var(--sm-space-1); padding: 0 var(--sm-space-2); }
+  .segmented:not(.segmented--lang) .segmented__item > svg { display: none; }
 
   .page { padding: var(--sm-space-6) var(--sm-space-4); }
   .review { padding: var(--sm-space-5) var(--sm-space-4); }
@@ -151,17 +163,21 @@
   .search-bar { flex-wrap: wrap; }
   .search-bar__combo { flex-basis: 100%; max-width: none; }
 
-  .start-tile, .start-tile--record { flex: none; height: 164px; }
+  .start-tile, .start-tile--record { flex: none; height: auto; min-height: 164px; padding: var(--sm-space-4); } /* grow instead of squashing the icon; tighter gutters for the narrow 2-up cards */
 
   .review__header { height: auto; flex-wrap: wrap; gap: var(--sm-space-3); }
-  .review__header .t-h1, .record .t-h1 { font: var(--sm-type-h2); letter-spacing: -0.2px; }
+  .review__header :is(.t-h1, .headline-input), .record .t-h1 { font: var(--sm-type-h2); letter-spacing: -0.2px; }
+  .review__head-main { flex-basis: 100%; flex-wrap: wrap; gap: var(--sm-space-3); }
+  .review__head-text { flex-basis: 100%; }
   /* MoM on a phone: the page scrolls, so the card grows with its content; the buttons share the width, the count above them. */
   .review__card { container-type: normal; }
-  .review__summary { max-height: none; }
+  .review__summary { max-height: none; padding-inline: 0; }
+  .review__scroll { padding-inline: var(--sm-space-6); }
   .people-panel { max-height: none; }
-  .review__actions { flex-wrap: wrap; justify-self: stretch; }
-  .review__btn { flex: 1 1 0; width: auto; }
-  .review__confirmed { position: static; order: -1; flex-basis: 100%; transform: none; text-align: center; }
+  .review__actions { display: flex; flex-direction: column; align-items: stretch; gap: var(--sm-space-3); }
+  .review__confirm-all { padding-left: 0; }
+  .review__btn, :lang(ru) .review__btn { flex: 1 1 0; width: auto; min-width: 0; }
+  .review__summary { --summary-free: 0px; }
   .summary-table.task-table thead { display: block; }
   .summary-table.task-table thead tr { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; padding: 0; border: 0; }
   .summary-table.task-table th:nth-child(2), .summary-table.task-table th:nth-child(3) { display: none; }
@@ -179,12 +195,81 @@
   .summary-table td:nth-child(2) { flex: 1 1 60%; min-width: 0; }
   .summary-table td:nth-child(3) { padding: 0; }
 
-  .tpl-card__actions { flex-wrap: wrap; }
-  .tpl-card__actions .people-stack { flex: 1 1 100%; }
+  /* MoM preview items: the patient on its own line, the task and date under it. */
+  .mom-preview__tasks li { grid-template-columns: minmax(0, 1fr) auto; gap: 0 var(--sm-space-3); }
+  .mom-preview__patient { grid-column: 1 / -1; }
+
+  /* Templates: the people preview stays on the buttons' line — compact (≤2 avatars, the names ellipsize). */
+  .tpl-card__actions { flex-wrap: nowrap; gap: var(--sm-space-2); }
+  .tpl-card__actions .people-stack { flex: 1 1 auto; min-width: 0; margin-right: auto; }
+  .tpl-card__actions .btn { flex: 0 0 auto; }
   .frozen-banner { align-items: flex-start; }
 
   .side-panel { padding: var(--sm-space-6); }
   .modal { padding: var(--sm-space-6); }
   .modal .row:has(> .field) { flex-direction: column; align-items: stretch !important; }
+}
+
+/* ── ≤735: Participants rows become stacked cards ──
+   The desktop row is a grid (components.css) whose hard minimum (~688px, the Name column is protected) can't fit
+   below ~736px without shoving the × into a horizontal scroll. So here the row stacks: name on top, then Role and
+   Access each full-width, one under the other. The × (remove) is desktop-only — it's dropped here, not scrolled
+   off (removing a person stays available from their profile). Starts at 735, before the grid would overflow, so
+   the × is never lost to a scrollbar at any width. Placed after the ≤640 block so it wins where they overlap. */
+@media (max-width: 735px) {
+  .table--people, .table--people tbody { display: block; }
+  .table--people thead { display: none; }
+  /* Two columns: col 1 = avatar + name + email (spans both rows), col 2 = the two selects, one under the other. */
+  .table--people tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(140px, 160px); /* names keep priority; the selects take just enough */
+    gap: var(--sm-space-2) var(--sm-space-3);
+    align-items: center;
+    padding: var(--sm-space-4);
+    border-bottom: 1px solid var(--sm-surface-hairline);
+  }
+  .table--people tbody tr:last-child { border-bottom: 0; }
+  .table--people :is(th, td) { display: block; width: auto; height: auto; min-width: 0; padding: 0; border: 0; }
+  .table--people td:first-child { grid-column: 1; grid-row: 1 / span 2; } /* who, left, spans both select rows */
+  .table--people td:nth-child(2) { grid-column: 2; grid-row: 1; } /* Role */
+  .table--people td:nth-child(3) { grid-column: 2; grid-row: 2; padding-right: 0; } /* Access */
+  .table--people td[colspan] { grid-column: 1 / -1; grid-row: auto; } /* "no match" row */
+  .table--people td:has(.dropdown) .dropdown { width: 100% !important; }
+  .table--people td:nth-child(4) { display: none; } /* × column is desktop-only — hide it always (also the empty "me" cell, so every row has equal height) */
+}
+
+/* ── ≤640: History rows become cards ──
+   Six columns don't fit as a table on a phone (the shared reflow overlaps the nowrap Type / Date / Length / Status).
+   Line 1: the meeting (icon + title) with the status on the right. Line 2: type · date · length, PDF on the right. */
+@media (max-width: 640px) {
+  .table--history, .table--history tbody { display: block; }
+  .table--history thead { display: none; }
+  .table--history tr {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--sm-space-2);
+    row-gap: var(--sm-space-1);
+    padding: var(--sm-space-4);
+    border-bottom: 1px solid var(--sm-surface-hairline);
+  }
+  .table--history tbody tr:last-child { border-bottom: 0; }
+  .table--history td { display: flex; align-items: center; min-width: 0; width: auto; height: auto; padding: 0; border: 0; white-space: nowrap; }
+  .table--history td:not(:first-child) { width: auto; } /* beat the desktop `width: 1%`, or the cells collapse and overlap */
+  .table--history .who { min-width: 0; } /* beat the desktop 20ch floor */
+  /* The icon already shows recorded vs uploaded, so hide the duplicate "Recorded / Uploaded audio" label here —
+     but keep it for screen readers (the icon is aria-hidden). */
+  .table--history .history__source { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  /* Line 1: the meeting (title wraps to 2 lines), with room kept on its right for the status badge. */
+  .table--history td:first-child { order: 0; flex: 1 1 100%; min-width: 0; padding-right: 148px; white-space: normal; }
+  .table--history td:nth-child(5) { position: absolute; top: var(--sm-space-4); right: var(--sm-space-4); } /* status — top-right */
+  /* Line 2: type · date · length on the left, the PDF on the right. */
+  .table--history td:nth-child(2) { order: 1; color: var(--sm-ink-secondary); } /* type */
+  .table--history td:nth-child(3) { order: 2; color: var(--sm-ink-secondary); } /* date */
+  .table--history td:nth-child(4) { order: 3; color: var(--sm-ink-secondary); } /* length */
+  .table--history td:nth-child(3)::before, .table--history td:nth-child(4)::before { content: '·'; margin-right: var(--sm-space-2); color: var(--sm-ink-tertiary); } /* · between them */
+  .table--history td:nth-child(6) { order: 4; margin-left: auto; } /* PDF — line 2, right */
+  .table--history td[colspan] { order: 0; flex: 1 1 100%; padding-right: 0; white-space: normal; } /* "no meetings" row */
 }
 

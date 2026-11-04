@@ -126,6 +126,7 @@
   text-align: left;
 }
 .start-tile:hover { box-shadow: var(--sm-elevation-card); }
+.start-tile > svg { flex-shrink: 0; } /* the icon keeps its 32px — never squashed when the card is tight */
 .start-tile__spacer { flex: 1; }
 .start-tile--record { flex: 1 1 0; border: 1.5px solid var(--sm-record-line); }
 .start-tile--record > svg, .start-tile--record .start-tile__main { color: var(--sm-record-ink); }
@@ -276,7 +277,6 @@
 .sentence-edit__input { height: auto; min-height: 72px; padding: var(--sm-space-2) var(--sm-space-3); resize: vertical; font: var(--sm-type-body-md); }
 /* Review pane titles (Transcript, Summary): black and larger than container labels. */
 .review__pane-title { margin: 0; color: var(--sm-ink-primary); font: var(--sm-type-h2); letter-spacing: -0.2px; }
-.review__title-input { height: 44px; max-width: 560px; font: var(--sm-type-h2); }
 
 /*
  * MoM screen (Figma "05 MoM · D4 B", 2089:2928). The card is the page's content column, edge to edge like the
@@ -294,30 +294,37 @@
   margin-right: calc(var(--column-shrink, 0px) - var(--panel-w) - var(--sm-space-6));
 }
 .review__layout > * { grid-column: 1; }
-.review__header { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-6); min-height: 56px; }
-.review__title { margin: 0; }
-.review__title-btn { padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-align: left; cursor: text; }
-.review__title-btn:hover { text-decoration: underline; text-decoration-color: var(--sm-surface-hairline); text-underline-offset: 6px; }
+.review__header { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-6); min-height: 56px; container-type: inline-size; } /* above the card: the calendar opens over it */
+/* Name and date: the two columns of New meeting (see .new-meeting__head), so the rename field is as long as there. */
+.review__head-main { display: flex; flex: 1; align-items: flex-start; gap: var(--sm-space-4); min-width: 0; }
+.review__head-text { flex: 0 1 calc((100cqw - var(--sm-space-4)) / 2); min-width: 0; }
+.review__head-main .datepicker { flex: none; margin-top: 0; }
+.review__title { margin: 0; min-width: 0; }
 .review__header .segmented { flex: none; }
 .review__header .segmented__item { height: 36px; padding: 0 var(--sm-space-4); } /* Figma: 36px items */
 .review__card { display: flex; flex-direction: column; min-height: 0; overflow: hidden; container-type: size; }
-.review__scroll { padding: 0 var(--sm-space-6) var(--sm-space-6); }
-.review__transcript { padding-top: var(--sm-space-6); }
+/* Figma: the card has no side padding: the summary and each action item row bring their own 20px, the rows and their
+   dividers run edge to edge. */
+.review__scroll { padding: 0; } /* the list ends on its last row: no empty strip under it */
+.review__scroll.review__transcript { padding: var(--sm-space-6); }
 /* Section title + grey count ("Summary  6 points", "Tasks  12"). */
 .review__count-head { display: inline-flex; align-items: baseline; gap: var(--sm-space-2); }
 
 /* Summary: at most half of the card (its own scroll only if it's longer). */
-.review__summary { display: flex; flex-direction: column; max-height: 50cqh; padding: var(--sm-space-6) 0 var(--sm-space-6); }
-/* 4px inside the list's own scroll (taken off the gaps around it): the pen / × sit 4px above and below the line and would be clipped. */
+.review__summary { display: flex; flex-direction: column; max-height: 50cqh; padding: var(--sm-space-6) var(--sm-space-5); }
+/* Figma "Summary": 8px under the head, then the text with 4px above and below it inside its own scroll, 64px free on the
+   right. The scroll reaches past the text (13px on the sides, 9px above and below), so the field (padding + border) fits
+   whole and opens with the text exactly where it was, wrapping the same. */
 .review__summary .fade-scroll { flex: 0 1 auto; margin-top: var(--sm-space-2); }
-.review__summary .summary-points { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: 0; padding: var(--sm-space-1) 0; }
+.review__summary { --summary-free: 64px; }
+.review__summary .summary-text { flex: 0 1 auto; min-height: 0; overflow-y: auto; margin: -5px -13px; padding: 9px 13px; }
+.review__summary .summary-text__body { padding-right: var(--summary-free); }
 /* FadeScroll: the edge fades into the card only where there's more text (has-above / has-below). */
 .fade-scroll { position: relative; display: flex; flex-direction: column; min-height: 0; }
 .fade-scroll::before, .fade-scroll::after { content: ''; position: absolute; right: 0; left: 0; z-index: 1; height: 28px; opacity: 0; pointer-events: none; transition: opacity var(--sm-duration-fast) ease; }
 .fade-scroll::before { top: 0; background: linear-gradient(var(--sm-surface-panel), transparent); }
 .fade-scroll::after { bottom: 0; background: linear-gradient(transparent, var(--sm-surface-panel)); }
 .fade-scroll.has-above::before, .fade-scroll.has-below::after { opacity: 1; }
-.review__summary .summary-points__item { font: var(--sm-type-body-md); }
 
 /* Thin 10px "+" (1.5px lines), coloured by the text: the dashed "+ Add participant" circle. */
 .plus-glyph { position: relative; display: block; width: 10px; height: 10px; }
@@ -330,15 +337,16 @@
 .add-link:hover:not(:disabled), .add-link:focus-visible { color: var(--sm-ink-primary); }
 .add-link:disabled { opacity: 0.4; cursor: default; }
 
-/* Edit / Confirm / Confirmed share one width: 104 (Figma), wider where the longest label needs it ("Подтверждено"). */
+/* Cancel / Save share one width: 104 (Figma), wider where the longest label needs it. */
 .task-table { --task-btn-w: 104px; }
 :lang(ru) .task-table { --task-btn-w: 136px; }
-/* Tasks: one grid for reading and editing, so a row never moves when Edit is pressed (only the carets appear).
-   Task · Owner 220 · Deadline 104 · actions 216, 20px apart (each column's right padding). Narrow windows: responsive.css.
+/* Tasks (Figma "Action item row"): one grid for reading and editing, so a row never moves when Edit is pressed.
+   At 1152: Task 529 · Owner 250 · Deadline 124 · Actions 249, the first and last holding the row's 20px side padding.
+   A tight card: responsive.css.
    Doubled class: these beat the shared .summary-table rules further down (History uses those). */
 @media (min-width: 641px) {
   .summary-table.task-table {
-    --task-cols: minmax(240px, 1fr) clamp(160px, 30%, 240px) 124px calc(2 * var(--task-btn-w) + var(--sm-space-2));
+    --task-cols: minmax(260px, 1fr) minmax(160px, 250px) 124px calc(2 * var(--task-btn-w) + var(--sm-space-2) + 13px + var(--sm-space-5));
     display: grid;
     grid-template-columns: var(--task-cols);
   }
@@ -348,45 +356,55 @@
   .summary-table.task-table :is(th, td):nth-child(4) { align-items: flex-end; }
 }
 .summary-table.task-table th, .summary-table.task-table td { padding: var(--sm-space-3) var(--sm-space-5) var(--sm-space-3) 0; vertical-align: middle; }
-.summary-table.task-table :is(th, td):nth-child(4) { padding-right: 0; text-align: right; } /* by position: the edit row has a backdrop cell after it */
-.summary-table.task-table th { position: sticky; top: 0; z-index: 1; border-bottom: 0; background: var(--sm-surface-panel); box-shadow: inset 0 -1px 0 var(--sm-surface-hairline); }
-.summary-table.task-table td { border-bottom: 1px solid var(--sm-surface-hairline); }
-.summary-table.task-table .summary-table__patient { margin-bottom: var(--sm-space-3); color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); letter-spacing: 0; } /* 12px: room for the edit rings below */
+.summary-table.task-table :is(th, td):nth-child(4) { padding-right: 0; text-align: right; }
+.summary-table.task-table th { position: sticky; top: 0; z-index: 1; border-bottom: 0; background: var(--sm-surface-panel); }
+/* One divider under every row, edge to edge, except the last, which ends the card like Participants and History; none above and none under the header. It counts in the row's 80. */
+@media (min-width: 641px) {
+  .summary-table.task-table :is(th, td):first-child { padding-left: var(--sm-space-5); }
+  .summary-table.task-table :is(th, td):nth-child(4) { padding-right: var(--sm-space-5); }
+  .summary-table.task-table tbody tr:nth-child(n) td { padding-bottom: 11px; border-top: 0; border-bottom: 1px solid var(--sm-surface-hairline); }
+  .summary-table.task-table tbody tr:last-child td { padding-bottom: var(--sm-space-3); border-bottom: 0; }
+  .summary-table.task-table tr.is-editing td { background: var(--sm-surface-ground); }
+}
+.summary-table.task-table .summary-table__patient { margin-bottom: var(--sm-space-3); color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); letter-spacing: 0; }
 .task-table__title { display: block; color: var(--sm-ink-primary); font: var(--sm-type-body-md); }
 .task-owner { display: flex; align-items: center; gap: var(--sm-space-2); min-width: 0; }
 .task-owner__name { min-width: 0; color: var(--sm-ink-primary); font: var(--sm-type-strong); }
 .summary-table.task-table .due__rel { font: var(--sm-type-strong); }
 .summary-table.task-table .due__date { font: var(--sm-type-body-sm); }
+/* Figma "Action item row": the same geometry in reading and editing, on the 4px grid, so nothing moves. The text starts
+   36 from the checkbox's left, Patient and the task 12 apart, the row 80 tall. Checkbox leads, the text is its label. */
+.task-check { display: flex; align-items: center; gap: var(--sm-space-4); min-width: 0; cursor: pointer; }
+.task-check__text { flex: 1; min-width: 0; }
+div.task-check { gap: var(--sm-space-2); cursor: default; } /* the edit row: the fields start 8px after the checkbox, 8px inside them is the text */
+.is-editing .task-check__text { margin-block: calc(-1 * var(--sm-space-1)); } /* the fields reach 4px past the text above and below */
 /* Confirmed: the row goes grey (text only). */
 .summary-table.task-table tr.is-confirmed :is(.task-table__title, .task-owner__name, .due__rel) { color: var(--sm-ink-secondary); }
 .task-actions { display: inline-flex; align-items: center; gap: var(--sm-space-2); }
-/* Edit / Confirm / Confirmed: the same 104×40; confirming changes only the colour. */
+/* Reading: one quiet pencil, its glyph on the column's right edge. Editing: Cancel / Save, the same 104×40. */
+.task-edit-btn { margin-right: calc(-1 * var(--sm-space-1) - 2px); }
 .task-btn { width: var(--task-btn-w); height: 40px; padding: 0 var(--sm-space-3); box-shadow: none; }
-.task-confirm.is-on { background: var(--sm-control-track); color: var(--sm-ink-secondary); }
-.task-confirm.is-on:hover:not(:disabled) { background: var(--sm-surface-hairline); }
-/* The row being edited (Figma "Action item · Edit"): ground fill and hairlines across the whole card. A backdrop cell
-   spans the row's grid line (all columns) under the other cells and reaches over the 24px side padding of the card. */
-.task-row__backdrop { display: none; }
-@media (min-width: 641px) {
-  .summary-table.task-table { isolation: isolate; } /* the backdrop's z-index -1 stays inside the table, above the card */
-  .summary-table.task-table .task-row__backdrop { position: relative; z-index: -1; display: block; grid-column: 1 / -1; margin: -1px calc(-1 * var(--sm-space-6)) 0; padding: 0; border-block: 1px solid var(--sm-surface-hairline); background: var(--sm-surface-ground); }
-}
-/* Patient and task text as white fields, hairline inside, radius 8, 4px above / below and 8px beside the text: the text
-   keeps its read-mode spot (the padding is pulled back by negative margins), the two fields are 4px apart. */
-.task-edit { display: block; width: calc(100% + 16px); margin: calc(-1 * var(--sm-space-1)) calc(-1 * var(--sm-space-2)); padding: var(--sm-space-1) var(--sm-space-2); border: 0; border-radius: var(--sm-radius-inner); background: var(--sm-surface-panel); box-shadow: inset 0 0 0 1px var(--sm-surface-hairline); resize: none; overflow: hidden; outline: none; }
+/* Patient and task text as white fields (Figma "Mode=Edit"): hairline inside (takes no room), radius 8, 4px above / below
+   and 8px beside the text, 28 and 32 tall, 4px apart. */
+.task-edit { display: block; width: 100%; margin: 0; padding: var(--sm-space-1) var(--sm-space-2); border: 0; border-radius: var(--sm-radius-inner); background: var(--sm-surface-panel); box-shadow: inset 0 0 0 1px var(--sm-surface-hairline); resize: none; overflow: hidden; outline: none; }
 .task-edit:focus-visible { box-shadow: inset 0 0 0 1px var(--sm-ink-primary); }
 .task-edit::placeholder { color: var(--sm-ink-tertiary); opacity: 1; }
-.summary-table.task-table input.task-edit.summary-table__patient { box-sizing: content-box; width: 100%; height: 20px; margin-bottom: var(--sm-space-1); }
-.summary-table.task-table textarea.task-edit { margin-top: 0; }
+.summary-table.task-table textarea.task-edit.summary-table__patient { margin-bottom: var(--sm-space-1); }
 /* Owner and deadline while editing: the read-mode content as a bare button (hover fill, no caret). */
 .summary-table.task-table :is(.owner-picker__button, .dropdown__button--bare) { width: calc(100% + 16px); min-height: 0; margin: calc(-1 * var(--sm-space-1)) calc(-1 * var(--sm-space-2)); padding: var(--sm-space-1) var(--sm-space-2); }
 .summary-table.task-table .owner-picker__button:is(:hover, [aria-expanded='true']) { background: var(--sm-surface-panel); }
 /* Owner: one person block (avatar + name, ellipsis) the width of the column, so avatars line up in every row. */
 .summary-table.task-table .task-owner { width: 100%; }
-/* Deadline: its two lines centred in the column. */
+/* Owner: the person 15px into the column; the header sits over the names, past the 32px avatar. */
 @media (min-width: 641px) {
-  .summary-table.task-table :is(th, td):nth-child(3) { align-items: center; text-align: center; }
-  .summary-table.task-table td:nth-child(3) .due { align-items: center; }
+  .summary-table.task-table td:nth-child(2) { padding-left: 15px; }
+  .summary-table.task-table th:nth-child(2) { padding-left: calc(15px + 32px + var(--sm-space-2)); }
+}
+/* Deadline: its two lines, left-aligned with each other, as a block centred in the column. */
+@media (min-width: 641px) {
+  .summary-table.task-table td:nth-child(3) { align-items: center; padding-right: 0; text-align: left; }
+  .summary-table.task-table th:nth-child(3) { padding: var(--sm-space-3) 0 var(--sm-space-3) 27px; }
+  .summary-table.task-table td:nth-child(3) .due { align-items: flex-start; }
   .summary-table.task-table .dropdown__button--bare { justify-content: center; }
 }
 
@@ -420,20 +438,22 @@
 .add-person__option .who__text { min-width: 0; }
 .add-person__option.is-active { background: var(--sm-surface-ground); }
 
-/* Footer: Preview / Send (176 each) at the window's centre; "confirmed 2/12" just right of Send, outside the centring. */
-.review__actions { position: relative; display: flex; justify-content: center; gap: var(--sm-space-3); justify-self: center; }
-.review__btn { width: 176px; height: 48px; }
-.review__confirmed { position: absolute; top: 50%; left: calc(100% + var(--sm-space-3)); transform: translateY(-50%); color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.review__confirmed.is-done { color: var(--sm-success); }
+/* Footer: Preview / Send (176 each) at the window's centre; confirm-all on the left, in the row checkboxes' column
+   (the rows' 20px padding). On a tight column it keeps its text whole and the buttons give way to the right. */
+.review__actions { display: grid; grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(0, 1fr); align-items: center; gap: var(--sm-space-3); }
+.review__actions-row { grid-column: 2; display: flex; gap: var(--sm-space-3); }
+.review__btn { flex: 0 1 auto; width: 176px; min-width: 168px; height: 48px; padding-inline: var(--sm-space-1); }
+:lang(ru) .review__btn { width: 232px; } /* the longer Russian labels get the same air as the English ones; a tight column takes it back */
+.review__confirm-all { display: flex; align-items: center; gap: var(--sm-space-3); padding-left: var(--sm-space-5); color: var(--sm-ink-secondary); font: var(--sm-type-body-md); cursor: pointer; }
+.review__confirm-all .checkbox:not(:disabled) { opacity: 0.7; } /* quieter than the items' own checkboxes */
+.review__confirm-text { display: flex; align-items: baseline; gap: var(--sm-space-2); white-space: nowrap; }
+.review__confirm-all .note { font-variant-numeric: tabular-nums; }
 
-/* MoM summary: key points above the tasks (Review, History record). */
-.summary-points { display: flex; flex-direction: column; gap: var(--sm-space-2); margin: var(--sm-space-3) 0 var(--sm-space-6); }
-.summary-points__list { display: flex; flex-direction: column; gap: var(--sm-space-2); margin: 0; padding: 0 0 0 var(--sm-space-4); }
-.summary-points__item { position: relative; padding-right: 64px; color: var(--sm-ink-primary); font: var(--sm-type-body-md); }
-.summary-points__item::marker { color: var(--sm-ink-tertiary); }
-.summary-points__tools { position: absolute; top: -4px; right: 0; display: flex; gap: 2px; opacity: 0; transition: opacity var(--sm-duration-fast); }
-.summary-points__item:hover .summary-points__tools, .summary-points__item:focus-within .summary-points__tools { opacity: 1; }
-.summary-points__input { width: 100%; min-height: calc(64px + 2 * var(--sm-field-border-w)); /* two 24px lines + 8px padding top and bottom, plus the 1px border */ padding: var(--sm-space-2) var(--sm-space-3); resize: vertical; font: inherit; }
+/* MoM summary: one running text above the tasks (Review, History record). */
+.summary-text { margin: var(--sm-space-3) 0 var(--sm-space-6); }
+.summary-text__body { margin: 0; color: var(--sm-ink-primary); font: var(--sm-type-body-md); white-space: pre-wrap; }
+/* Editing (Figma: ink border 1, radius 12, padding 8/12): the whole text in one field, over the text it replaces. */
+.summary-text__input { display: block; width: calc(100% - var(--summary-free, 0px) + 26px); height: auto; margin: -9px -13px; padding: var(--sm-space-2) var(--sm-space-3); border-color: var(--sm-ink-primary); overflow: hidden; resize: none; }
 .review__sub-title { margin: 0; color: var(--sm-ink-primary); font: var(--sm-type-h3); }
 .record__tasks-title { margin: var(--sm-space-2) 0 var(--sm-space-3); }
 .summary-head { display: flex; align-items: center; justify-content: space-between; gap: var(--sm-space-3); }
@@ -499,10 +519,16 @@
 @media (prefers-reduced-motion: reduce) { .sent__badge.is-done, .sent__check-icon { animation: none; } }
 
 /* ── History ── */
-/* List: Meeting takes the rest and gives way last (never under ~20 characters); Type, Date, Length, Status and PDF
-   hug their content, never wrap, and their gaps tighten first on narrow windows (responsive.css). */
+/* List (Figma "History row"): Meeting takes the rest and gives way last (never under ~20 characters); Type, Date, Length
+   and Status are 140 each, centred, PDF 44. On narrow windows those give up their slack first, down to their content. */
 .table--history { table-layout: auto; }
-.table--history th:not(:first-child), .table--history td:not(:first-child) { width: 1%; white-space: nowrap; }
+.table--history th:not(:first-child), .table--history td:not(:first-child) { white-space: nowrap; }
+@media (min-width: 641px) {
+  .table--history td { height: 60px; }
+  .table--history th:first-child { padding-left: calc(var(--sm-space-6) + 20px + var(--sm-space-3)); } /* over the titles, past the icon */
+  .table--history :is(th, td):not(:first-child) { width: 140px; padding: 0 var(--sm-space-1); text-align: center; }
+  .table--history :is(th, td):last-child { width: 44px; padding: 0; }
+}
 .table--history .who { min-width: calc(20px + var(--sm-space-3) + 20ch); }
 .history__title { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; } /* 2 lines, then … */
 .history__source { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
@@ -564,7 +590,9 @@
 
 .tpl-person { display: flex; align-items: center; gap: var(--sm-space-2); height: 48px; border-top: 1px solid var(--sm-surface-hairline); clear: both; }
 .tpl-person__main { display: flex; flex: 1; align-items: center; gap: var(--sm-space-3); min-width: 0; height: 100%; cursor: pointer; }
-.tpl-person__main .t-strong { margin-right: -4px; white-space: nowrap; }
+/* Name (and "me") in a column of its own, so every role starts on one vertical whatever the name's length. */
+.tpl-person__name { display: flex; flex: none; align-items: center; width: min(210px, 40%); min-width: 0; }
+.tpl-person__main .t-strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* "New participant" placeholder row: looks like a slot waiting to be filled. */
 /* "+ Add participant" (AddPersonRow) in the template editor: a list row, the + in the avatars' column (after the checkbox). */
 .tpl-people .add-person__row { height: 48px; border-top: 1px solid var(--sm-surface-hairline); }
@@ -572,7 +600,7 @@
 .tpl-people .add-person__open { font: var(--sm-type-button); }
 .tpl-people :is(.add-person__list, .add-person__error, .add-person__create) { margin-left: 44px; width: calc(100% - 44px); }
 .tpl-people .add-person__create { margin-bottom: var(--sm-space-2); }
-/* Template list: "Edit" is plain secondary text (no icon), a touch darker on hover. */
+/* Template list: the edit pencil is quiet, a touch darker on hover. */
 .tpl-card__edit { color: var(--sm-ink-secondary); }
 .tpl-card__edit:hover:not(:disabled) { color: var(--sm-ink-primary); }
 /* Editor footer: Delete (quiet, red text) on the left, Save on the right at the normal button size. */
@@ -645,6 +673,10 @@
 
 .tpl-card__actions { align-items: center; }
 .people-stack { display: flex; align-items: center; gap: var(--sm-space-3); min-width: 0; }
+/* Names + "+N more": only the names ellipsize; the "+N more" always stays (so the count shows even when tight). */
+.people-stack__names { display: flex; align-items: baseline; gap: var(--sm-space-1); min-width: 0; }
+.people-stack__who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.people-stack__more { flex: none; white-space: nowrap; }
 .tpl-card__actions .people-stack { margin-right: auto; }
 .avatar--more { margin-left: -8px; box-shadow: 0 0 0 2px var(--sm-surface-panel); }
 .avatar-stack { display: flex; flex-shrink: 0; }

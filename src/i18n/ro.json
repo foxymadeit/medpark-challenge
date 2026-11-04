@@ -10,6 +10,8 @@
     "menu": "Meniu",
     "language": "Limba interfeței",
     "participantsCount": "{count} de participanți",
+    "addPerson": "Adaugă participant",
+    "addGuest": "Adaugă invitat",
     "minutes": "{n} min",
     "close": "Închide",
     "continue": "Continuă",
@@ -17,9 +19,7 @@
     "cancel": "Anulează",
     "save": "Salvează",
     "required": "Obligatoriu",
-    "emailInvalid": "Introduceți un e-mail valid",
-    "addPerson": "Adaugă participant",
-    "addGuest": "Adaugă invitat"
+    "emailInvalid": "Introduceți un e-mail valid"
   },
   "lang": {
     "en": "EN",
@@ -205,7 +205,7 @@
     "suggestions": "Participanți",
     "record": "Începe înregistrarea",
     "upload": "Încarcă audio",
-    "uploadHint": "WAV, MP3 sau M4A, până la 3 ore",
+    "uploadHint": "WAV, MP3 sau M4A · max 3 h",
     "defaultName": {
       "medical": "Vizita de dimineață",
       "executive": "Ședința săptămânală a conducerii",
@@ -214,7 +214,7 @@
   },
   "mic": {
     "choose": "Microfon",
-    "test": "Testează microfonul",
+    "test": "Test mic",
     "stopTest": "Oprește testul",
     "listening": "Spuneți ceva: barele ar trebui să se miște.",
     "playing": "Se redă ce s-a auzit…",
@@ -230,6 +230,7 @@
     "resume": "Reia",
     "stop": "Oprește și scrie PV",
     "startingIn": "Înregistrarea începe în",
+    "langsAfterCountdown": "Limbile apar după ce începe înregistrarea.",
     "startNow": "Începe acum",
     "noteLive": "Înregistrarea rămâne pe acest calculator până la oprire.",
     "notePaused": "Înregistrarea de până acum este păstrată pe acest calculator.",
@@ -244,8 +245,7 @@
     "speaking": "Vorbește",
     "notHeard": "Nu a vorbit încă",
     "speakerN": "Vorbitorul {n}",
-    "unmatched": "Voce neasociată unui participant",
-    "langsAfterCountdown": "Limbile apar după ce începe înregistrarea."
+    "unmatched": "Voce neasociată unui participant"
   },
   "upload": {
     "title": "Încarcă audio",
@@ -273,12 +273,27 @@
     "listening": "Se transcrie partea următoare"
   },
   "review": {
-    "sendTo": "Trimite la",
     "meta_one": "{type} · {n} min · {count} participant",
     "meta_few": "{type} · {n} min · {count} participanți",
+    "sendTo": "Trimite la",
+    "confirmed": "Confirmat",
+    "saveShort": "Salvează",
+    "view": "Vizualizare",
+    "tabMom": "PV",
+    "actions": "Confirmă sau editează",
+    "confirm": "Confirmă",
+    "unconfirm": "Anulează confirmarea",
+    "confirmTask": "Confirmă acțiunea: {title}",
+    "unconfirmTask": "Anulează confirmarea: {title}",
+    "confirmAllFirst": "Confirmați toate acțiunile pentru a trimite",
+    "allCorrect": "Toate punctele sunt corecte",
+    "allConfirmed": "Toate punctele sunt confirmate",
     "meta": "{type} · {n} min · {count} de participanți",
     "transcript": "Transcriere",
     "tasks": "Acțiuni",
+    "summary": "Rezumat",
+    "editSummary": "Editează rezumatul",
+    "noSummary": "Încă nu există rezumat.",
     "noEmail": "Fără e-mail",
     "task": "Acțiune",
     "owner": "Responsabil",
@@ -292,6 +307,7 @@
     "titleLabel": "Titlul ședinței",
     "edit": "Editează",
     "send": "Trimite PV",
+    "preview": "Previzualizează PV",
     "cancel": "Anulează",
     "save": "Salvează modificările",
     "sentence": {
@@ -314,31 +330,7 @@
       "label": "{word} — clic pentru corectare",
       "labelUnsure": "{word} — posibil auzit greșit, clic pentru verificare",
       "labelFixed": "{word} — corectat"
-    },
-    "summary": "Rezumat",
-    "pointsCount": "{count} de puncte",
-    "pointsCount_one": "{count} punct",
-    "pointsCount_few": "{count} puncte",
-    "addPoint": "Adaugă punct",
-    "editPoint": "Editează punctul",
-    "removePoint": "Elimină punctul",
-    "deletePointTitle": "Ștergeți acest punct?",
-    "deletePoint": "Șterge",
-    "pointLabel": "Punct din rezumat",
-    "pointPh": "Un punct cheie, o decizie sau un rezultat",
-    "noSummary": "Încă nu există rezumat.",
-    "preview": "Previzualizează PV",
-    "view": "Vizualizare",
-    "tabMom": "PV",
-    "actions": "Confirmă sau editează",
-    "confirm": "Confirmă",
-    "unconfirm": "Anulează confirmarea",
-    "confirmTask": "Confirmă acțiunea: {title}",
-    "unconfirmTask": "Anulează confirmarea: {title}",
-    "confirmedCount": "confirmate {n}/{total}",
-    "confirmAllFirst": "Confirmați toate acțiunile pentru a trimite",
-    "confirmed": "Confirmat",
-    "saveShort": "Salvează"
+    }
   },
   "sent": {
     "sendingLead_one": "Se trimite la {count} participant",
@@ -472,7 +464,7 @@
   "email": {
     "to": "Către",
     "subject": "Subiect",
-    "subjectLine": "PV: {title} · {date}",
+    "subjectLine": "PV: {heading}",
     "attached": "PDF atașat"
   },
   "mom": {

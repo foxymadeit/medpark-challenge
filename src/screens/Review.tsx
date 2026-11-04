@@ -1,9 +1,10 @@
-import { DownloadSimpleIcon, PaperPlaneTiltIcon, PlusIcon } from '@phosphor-icons/react';
+import { DownloadSimpleIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon } from '@phosphor-icons/react';
 import { useLayoutEffect, useRef, useState, type TextareaHTMLAttributes } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
-import { SummaryPoints } from '../components/SummaryPoints';
+import { DatePicker } from '../components/DatePicker';
+import { SummaryText } from '../components/SummaryText';
 import { Dialog } from '../components/Dialog';
 import { MomPreview } from '../components/MomPreview';
 import { Dropdown } from '../components/Dropdown';
@@ -12,8 +13,8 @@ import { OwnerPicker } from '../components/OwnerPicker';
 import { ParticipantsPanel } from '../components/ParticipantsPanel';
 import { Segmented } from '../components/Segmented';
 import { useI18n } from '../i18n/I18nProvider';
-import { addDays, DUE_OFFSETS, dueRelative, formatWeekdayDate, uid } from '../lib/format';
-import { meetingHeading, speakers } from '../lib/meeting';
+import { addDays, daysBetween, DUE_OFFSETS, dueRelative, formatWeekdayDate, todayISO, uid } from '../lib/format';
+import { speakers } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
 import { useStore } from '../store/AppStore';
 import type { Meeting, ParticipantSnapshot, Task } from '../types';
@@ -40,38 +41,44 @@ function useDueLabel(meetingDate: string) {
   };
 }
 
-/** Meeting title: click it to rename; Enter saves, Esc cancels. */
+/** Meeting name, renamed as on New meeting: click it or its pen, the field opens on the same line in the same type with
+ * the name selected; Enter or leaving it saves, Esc cancels. */
 function EditableTitle({ meeting }: { meeting: Meeting }) {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const { updateMeeting } = useStore();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(meeting.title);
+  const start = () => (setValue(meeting.title), setEditing(true));
   const commit = () => {
     if (value.trim()) updateMeeting(meeting.id, { title: value.trim() });
-    else setValue(meeting.title);
     setEditing(false);
   };
   if (editing)
     return (
       <input
         autoFocus
-        className="input review__title-input"
+        className="input headline-input"
         aria-label={t('review.titleLabel')}
         value={value}
+        maxLength={120}
         onChange={(e) => setValue(e.target.value)}
+        onFocus={(e) => e.target.select()}
         onBlur={commit}
         onKeyDown={(e) => {
           if (e.key === 'Enter') commit();
-          if (e.key === 'Escape') (setValue(meeting.title), setEditing(false));
+          if (e.key === 'Escape') setEditing(false);
         }}
       />
     );
   return (
-    <h1 className="t-h1 review__title">
-      <button type="button" className="review__title-btn" title={t('review.renameLabel')} onClick={() => setEditing(true)}>
-        {meetingHeading(meeting, lang)}
+    <div className="headline">
+      <h1 className="t-h1 headline__text review__title" onClick={start}>
+        {meeting.title}
+      </h1>
+      <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('review.renameLabel')} title={t('review.renameLabel')} onClick={start}>
+        <PencilSimpleIcon size={20} aria-hidden />
       </button>
-    </h1>
+    </div>
   );
 }
 
@@ -105,11 +112,20 @@ export function Review() {
   const { nameOf, badgeOf } = speakers(meeting, resolvePerson, t); // badgeOf: an unknown voice as owner, "S1" on its colour
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
   const dueOptions = [...new Set([...DUE_OFFSETS.map((n) => addDays(meeting.date, n)), ...(row ? [row.due] : [])])].sort();
-  // Send is on only when every action item is confirmed.
+  // Send is on only when every action item is confirmed. Confirm per row (the row checkbox), or all at once with the
+  // footer checkbox, which also takes them all back.
   const confirmed = meeting.tasks.filter((x) => x.confirmed).length;
   const allConfirmed = confirmed === meeting.tasks.length;
+  const someConfirmed = confirmed > 0 && !allConfirmed;
   const toggleConfirm = (task: Task) => setTasks(meeting.id, meeting.tasks.map((x) => (x.id === task.id ? { ...x, confirmed: !x.confirmed } : x)));
+  const setAllConfirmed = (on: boolean) => setTasks(meeting.id, meeting.tasks.map((x) => ({ ...x, confirmed: on })));
   const setParticipants = (participants: ParticipantSnapshot[]) => updateMeeting(meeting.id, { participants });
+  // A new meeting date moves the deadlines with it, so "Tomorrow" stays tomorrow.
+  const changeDate = (date: string) => {
+    const shift = daysBetween(meeting.date, date);
+    updateMeeting(meeting.id, { date, tasks: meeting.tasks.map((x) => ({ ...x, due: addDays(x.due, shift) })) });
+    if (row) setRow({ ...row, due: addDays(row.due, shift) });
+  };
 
   const isNew = !!row && !meeting.tasks.some((x) => x.id === row.id);
   // A new task shows as an editing row on top; it's only added once saved.
@@ -136,9 +152,13 @@ export function Review() {
     <div className="page review page--fit">
       <div className="review__layout">
         <header className="review__header">
-          <div className="stack" style={{ gap: 'var(--sm-space-1)', minWidth: 0 }}>
-            <EditableTitle meeting={meeting} />
-            <p className="note">{t('review.meta', { type: t(`types.${meeting.type}`), n: meeting.durationMin, count: meeting.participants.length })}</p>
+          {/* Name and date in two columns, as on New meeting. */}
+          <div className="review__head-main">
+            <div className="stack review__head-text" style={{ gap: 'var(--sm-space-1)' }}>
+              <EditableTitle meeting={meeting} />
+              <p className="note">{t('review.meta', { type: t(`types.${meeting.type}`), n: meeting.durationMin, count: meeting.participants.length })}</p>
+            </div>
+            <DatePicker label={t('newMeeting.date')} max={todayISO()} value={meeting.date} onChange={changeDate} />
           </div>
           <Segmented<'mom' | 'transcript'>
             label={t('review.view')}
@@ -157,16 +177,13 @@ export function Review() {
             <div className="review__scroll">
               {/* Summary: at most half the card; a longer one scrolls inside. */}
               <section className="review__summary" aria-labelledby="rv-summary">
-                <SummaryPoints
+                <SummaryText
                   points={meeting.summary ?? []}
                   onChange={(points) => setSummary(meeting.id, points)}
                   head={
-                    <span className="review__count-head">
-                      <h2 id="rv-summary" className="review__pane-title">
-                        {t('review.summary')}
-                      </h2>
-                      <span className="note">{t('review.pointsCount', { count: meeting.summary?.length ?? 0 })}</span>
-                    </span>
+                    <h2 id="rv-summary" className="review__pane-title">
+                      {t('review.summary')}
+                    </h2>
                   }
                 />
               </section>
@@ -193,20 +210,25 @@ export function Review() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((task, i) =>
+                  {rows.map((task) =>
                     row && row.id === task.id ? (
                       <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
-                        {/* Edit: same columns as reading; the row lights up across the card (a backdrop cell, last, spanning the
-                            whole grid line under the cells), the texts become fields. Every cell is placed on the row's grid line
-                            (header = 1) and its own column, so they sit over the backdrop instead of being moved aside. */}
-                        <td style={{ gridRow: i + 2, gridColumn: 1 }}>
-                          <input className="task-edit summary-table__patient" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
-                          <InlineText className="task-edit task-table__title" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? (e.preventDefault(), saveRow()) : e.key === 'Escape' ? cancelRow() : undefined)} />
+                        {/* Edit: same columns as reading; the row lights up across the card, the texts become fields. */}
+                        <td>
+                          {/* The checkbox stays, inactive, so the fields keep the read-mode text's spot. */}
+                          <div className="task-check">
+                            <input type="checkbox" className="checkbox" checked={false} disabled readOnly aria-hidden />
+                            <div className="task-check__text">
+                              {/* A textarea like the task's, not an input: browsers place an input's text on their own, and it would jump. */}
+                              <InlineText className="task-edit summary-table__patient" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? (e.preventDefault(), saveRow()) : e.key === 'Escape' ? cancelRow() : undefined)} />
+                              <InlineText className="task-edit task-table__title" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? (e.preventDefault(), saveRow()) : e.key === 'Escape' ? cancelRow() : undefined)} />
+                            </div>
+                          </div>
                         </td>
-                        <td style={{ gridRow: i + 2, gridColumn: 2 }}>
+                        <td>
                           <OwnerPicker meeting={meeting} ownerId={row.ownerId} name={nameOf(row.ownerId)} badge={badgeOf(row.ownerId)} onPick={pickOwner} />
                         </td>
-                        <td style={{ gridRow: i + 2, gridColumn: 3 }}>
+                        <td>
                           <Dropdown
                             label={t('review.due')}
                             value={row.due}
@@ -220,7 +242,7 @@ export function Review() {
                             }
                           />
                         </td>
-                        <td style={{ gridRow: i + 2, gridColumn: 4 }}>
+                        <td>
                           <span className="task-actions">
                             <Button className="task-btn" onClick={cancelRow}>
                               {t('review.cancel')}
@@ -230,13 +252,25 @@ export function Review() {
                             </Button>
                           </span>
                         </td>
-                        <td className="task-row__backdrop" aria-hidden style={{ gridRow: i + 2 }} />
                       </tr>
                     ) : (
                       <tr key={task.id} className={task.confirmed ? 'is-confirmed' : undefined}>
                         <td>
-                          {task.patient && <span className="summary-table__patient">{task.patient}</span>}
-                          <span className="task-table__title">{task.title}</span>
+                          {/* Confirm this item: a checkbox leads the row; the whole text is its label, so tapping the task toggles it. */}
+                          <label className="task-check">
+                            <input
+                              type="checkbox"
+                              className="checkbox"
+                              checked={!!task.confirmed}
+                              disabled={!!row}
+                              aria-label={task.confirmed ? t('review.unconfirmTask', { title: task.title }) : t('review.confirmTask', { title: task.title })}
+                              onChange={() => toggleConfirm(task)}
+                            />
+                            <span className="task-check__text">
+                              {task.patient && <span className="summary-table__patient">{task.patient}</span>}
+                              <span className="task-table__title">{task.title}</span>
+                            </span>
+                          </label>
                         </td>
                         <td>
                           <span className="task-owner">
@@ -251,21 +285,11 @@ export function Review() {
                           </span>
                         </td>
                         <td>
-                          {/* Edit then Confirm; confirmed → grey "Confirmed", same size, tap again to undo. */}
+                          {/* Confirming moved to the row checkbox; edit stays here as a quiet pencil. */}
                           <span className="task-actions">
-                            <Button className="task-btn" aria-label={t('review.editTask', { title: task.title })} onClick={() => setRow(task)} disabled={!!row}>
-                              {t('review.edit')}
-                            </Button>
-                            <Button
-                              variant="ink"
-                              className={`task-btn task-confirm${task.confirmed ? ' is-on' : ''}`}
-                              aria-pressed={!!task.confirmed}
-                              aria-label={task.confirmed ? t('review.unconfirmTask', { title: task.title }) : t('review.confirmTask', { title: task.title })}
-                              onClick={() => toggleConfirm(task)}
-                              disabled={!!row}
-                            >
-                              {task.confirmed ? t('review.confirmed') : t('review.confirm')}
-                            </Button>
+                            <button type="button" className="icon-btn task-edit-btn" aria-label={t('review.editTask', { title: task.title })} onClick={() => setRow(task)} disabled={!!row}>
+                              <PencilSimpleIcon size={20} aria-hidden />
+                            </button>
                           </span>
                         </td>
                       </tr>
@@ -283,19 +307,34 @@ export function Review() {
 
         <ParticipantsPanel meeting={meeting} onChange={setParticipants} />
 
-        {/* Preview / Send centred on the window; "confirmed 2/12" just right of Send. */}
+        {/* Confirm-all, the same checkbox as the rows': ticks every item (Send turns on), and unticking takes them all back. */}
         <div className="review__actions">
-          <Button className="review__btn" onClick={() => setPreviewOpen(true)}>
-            {t('review.preview')}
-          </Button>
-          <Button variant="primary" className="review__btn" onClick={send} disabled={!allConfirmed} title={sendBlocked}>
-            {t('review.send')}
-          </Button>
           {meeting.tasks.length > 0 && (
-            <span className={`review__confirmed note${allConfirmed ? ' is-done' : ''}`} role="status">
-              {t('review.confirmedCount', { n: confirmed, total: meeting.tasks.length })}
-            </span>
+            <label className="review__confirm-all">
+              <input
+                type="checkbox"
+                className="checkbox"
+                ref={(el) => {
+                  if (el) el.indeterminate = someConfirmed; // "partial": a dash, not a tick
+                }}
+                checked={allConfirmed}
+                disabled={!!row}
+                onChange={() => setAllConfirmed(!allConfirmed)}
+              />
+              <span className="review__confirm-text">
+                {allConfirmed ? t('review.allConfirmed') : t('review.allCorrect')}
+                {someConfirmed && <span className="note">{confirmed}/{meeting.tasks.length}</span>}
+              </span>
+            </label>
           )}
+          <div className="review__actions-row">
+            <Button className="review__btn" onClick={() => setPreviewOpen(true)}>
+              {t('review.preview')}
+            </Button>
+            <Button variant="primary" className="review__btn" onClick={send} disabled={!allConfirmed} title={sendBlocked}>
+              {t('review.send')}
+            </Button>
+          </div>
         </div>
       </div>
       {/* The MoM exactly as it will be sent, in a popup; download from here, or close and keep editing. */}

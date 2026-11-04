@@ -46,4 +46,7 @@ export function speakers(meeting: Meeting, resolve: Resolve, t: T) {
 export const speakerNamer = (meeting: Meeting, resolve: Resolve, t: T) => speakers(meeting, resolve, t).nameOf;
 
 /** The meeting's heading everywhere it's shown as a document: "Cardiology board · 26 Sep" (review screen, MoM preview, PDF). */
-export const meetingHeading = (meeting: Pick<Meeting, 'title' | 'date'>, lang: Lang) => `${meeting.title} · ${formatDayMonth(meeting.date, lang)}`;
+/** The summary as it goes out: its points as one running text (a point without closing punctuation gets a full stop). */
+export const summaryProse = (points: string[]) => points.map((p) => (/[.!?…]$/.test(p.trim()) ? p.trim() : `${p.trim()}.`)).join(' ');
+
+export const meetingHeading = (meeting: Pick<Meeting, 'title' | 'date'>, lang: Lang, format = formatDayMonth) => `${meeting.title} · ${format(meeting.date, lang)}`;

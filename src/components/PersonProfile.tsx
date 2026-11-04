@@ -1,4 +1,4 @@
-import { CheckIcon, EnvelopeSimpleIcon, PencilSimpleIcon, UsersThreeIcon, XIcon } from '@phosphor-icons/react';
+import { CheckIcon, PencilSimpleIcon, UsersThreeIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/I18nProvider';
@@ -115,7 +115,7 @@ export function PersonProfileDialog({ personId, onClose, showManage = true }: { 
           display={
             person.email ? (
               <a className="link-btn" href={`mailto:${person.email}`}>
-                <EnvelopeSimpleIcon size={16} aria-hidden /> {person.email}
+                {person.email}
               </a>
             ) : (
               <span className="c-secondary">{t('review.noEmail')}</span>

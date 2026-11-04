@@ -47,7 +47,7 @@ export function Segmented<T extends string>({ label, options, value, onChange, v
             onKeyDown={(e) => move(e, i)}
           >
             {o.icon}
-            {o.label}
+            <span className="segmented__label">{o.label}</span>
           </button>
         );
       })}

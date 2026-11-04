@@ -6,7 +6,7 @@ import { Dialog } from '../components/Dialog';
 import { Avatar } from '../components/Avatar';
 import { TranscriptLines } from '../components/Minutes';
 import { TextField } from '../components/TextField';
-import { SummaryPoints } from '../components/SummaryPoints';
+import { SummaryText } from '../components/SummaryText';
 import { StatusTag } from '../components/StatusTag';
 import { Segmented } from '../components/Segmented';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
@@ -226,7 +226,7 @@ export function HistoryRecord() {
           <h2 id="rec-minutes" className="section-title">
             {t('review.summary')}
           </h2>
-          <SummaryPoints points={meeting.summary ?? []} />
+          <SummaryText points={meeting.summary ?? []} />
           <h3 className="review__sub-title record__tasks-title">{t('review.tasks')}</h3>
           <table className="summary-table">
             <thead>

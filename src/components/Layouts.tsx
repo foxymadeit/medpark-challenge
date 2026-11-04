@@ -236,7 +236,7 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
   );
 }
 
-// Sidebar order follows the real screens (New meeting · History · Participants · Templates).
+// Sidebar order, as in Figma: New meeting · Participants · Templates · History.
 const NAV = [
   { to: '/new', key: 'nav.newMeeting', Icon: MicrophoneIcon, match: ['/new', '/recording', '/upload', '/processing', '/review', '/sent'] },
   { to: '/participants', key: 'nav.participants', Icon: UsersThreeIcon, match: ['/participants'] },

@@ -170,12 +170,14 @@
 .segmented .segmented__item { height: 36px; color: var(--sm-ink-secondary); font-weight: 500; }
 .segmented .segmented__item:hover { color: var(--sm-ink-primary); }
 .segmented .segmented__item[aria-checked='true'] { background: var(--sm-surface-panel); color: var(--sm-ink-primary); font-weight: 600; box-shadow: 0 2px 8px rgba(16, 16, 16, 0.06), 0 1px 3px rgba(16, 16, 16, 0.08); }
-.segmented.segmented--fill { display: flex; width: 100%; padding: 1px 6px; }
+.segmented.segmented--fill { display: flex; width: 100%; padding: var(--sm-space-1); } /* same 4px track padding as the others, so the selected pill isn't nearly as tall as the track */
 .segmented--fill .segmented__item { flex: 1; width: auto; }
 .segmented--lang .segmented__item { width: 40px; height: 32px; }
 .segmented__item { gap: var(--sm-space-2); }
 .segmented--auto { align-self: flex-start; }
 .segmented--auto .segmented__item { width: auto; height: 32px; padding: 0 var(--sm-space-4); } /* 32px items in a 4px track */
+.segmented { max-width: 100%; } /* never wider than its row */
+.segmented__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ── Surfaces ────────────────────────────────────────────── */
 .card {
@@ -287,11 +289,20 @@
 .table--compact td { height: 56px; }
 .table--compact th:last-child,
 .table--compact td:last-child { padding-right: var(--sm-space-4); }
-/* Participants: Role 256 and Access 208 at full width (select 240 / 200 + gap), narrower on small windows so the
-   Name column keeps most of its room; the selects fill their column. */
-.table--people th:nth-child(2) { width: clamp(160px, 20vw, 256px); }
-.table--people th:nth-child(3) { width: clamp(144px, 16vw, 208px); } /* vw, not %: table cells ignore a % inside clamp() */
-.table--people th:nth-child(4) { width: 48px; }
+/* Participants rows are a grid (≥641) so the columns give up space in priority order — not the Name column first.
+   The Name column holds its comfortable width (≥272: name + email shown in full); the slack in Role and Access
+   collapses before it — their near-half-empty selects tighten until the caret sits by the word, Access (more
+   slack) before Role (its long titles leave little). Only once both are tight does a name/email finally clip.
+   Grid, not table-layout: only minmax can both cap a column at full width (256 / 208) and let it shrink first.
+   The grid's hard minimum is ~688 (name 272 is protected); below ~736px window it would push the × into a
+   horizontal scroll, so there the row becomes a stacked card instead (responsive.css, ≤735). */
+@media (min-width: 736px) {
+  .table--people { display: grid; grid-template-columns: minmax(272px, 1fr) minmax(220px, 256px) minmax(148px, 208px) 48px; }
+  .table--people :is(thead, tbody, tr) { display: contents; }
+  .table--people :is(th, td) { display: flex; align-items: center; min-width: 0; }
+  .table--people td .dropdown { width: 100%; }
+  .table--people td[colspan] { grid-column: 1 / -1; } /* the "no match" row spans all columns */
+}
 /* Participants: tighter edges — circles 16px from the card, the ✕ column hugs its 32px button. */
 .table--people th:first-child, .table--people td:first-child { padding-left: var(--sm-space-4); }
 .table--people th:last-child, .table--people td:last-child { padding-right: var(--sm-space-3); padding-left: var(--sm-space-1); }
@@ -413,6 +424,15 @@
     center / 14px no-repeat;
 }
 
+/* "Partial": some of the items are ticked — a dash, not a tick. */
+.checkbox:indeterminate {
+  border-color: var(--sm-control);
+  background: var(--sm-control)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23fff' d='M224 140H32a12 12 0 0 1 0-24h192a12 12 0 0 1 0 24z'/%3E%3C/svg%3E")
+    center / 14px no-repeat;
+}
+.checkbox:disabled { cursor: default; opacity: 0.4; }
+
 /* ── Modal & side panel ──────────────────────────────────── */
 .scrim {
   position: fixed;
@@ -440,11 +460,12 @@
 /* Nothing in a dialog gets squashed (a button once shrank to 22px); a long list scrolls inside instead (see .replace-list). */
 .modal > * { flex-shrink: 0; }
 /* MoM text preview: reads like the email/PDF that goes out. */
-/* MoM preview: exactly over the MoM card (same column variables), as tall as the window allows (24px top and bottom).
-   Only the email body scrolls; To / Subject, the PDF line and the buttons stay put. */
+/* MoM preview: exactly over the MoM card (same column variables), always as tall as the window allows (24px top and
+   bottom), so its buttons cover the page's own Send MoM. Head, email and buttons sit 32px apart; only the email body
+   scrolls; To / Subject, the PDF line and the buttons stay put. */
 .scrim:not(.scrim--right):has(> .modal--mom) { padding: var(--sm-space-6) calc(var(--column-right) + var(--column-shrink, 0px)) var(--sm-space-6) var(--column-left); }
-.modal.modal--mom { width: 100%; max-height: 100%; overflow: hidden; }
-.modal--mom .mom-email { flex: 1 1 auto; }
+.modal.modal--mom { width: 100%; height: 100%; max-height: 100%; gap: var(--sm-space-8); justify-content: space-between; overflow: hidden; }
+.modal--mom .mom-email { flex: 1 1 0; }
 .modal--mom .mom-email .mom-preview { flex: 1 1 auto; min-height: 0; max-height: none; }
 .modal--mom .page__actions > .btn { min-width: 184px; justify-content: center; } /* Download PDF and Send MoM the same size */
 .mom-email { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); overflow: hidden; }
@@ -459,14 +480,15 @@
 .mom-preview { display: flex; flex-direction: column; gap: var(--sm-space-2); max-height: 64vh; overflow: auto; padding: var(--sm-space-6); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); }
 .mom-preview__title { margin: 0; font: var(--sm-type-h2); }
 .mom-preview__h { margin: var(--sm-space-4) 0 var(--sm-space-1); padding-bottom: var(--sm-space-2); border-bottom: 1px solid var(--sm-surface-hairline); font: var(--sm-type-h3); }
-.mom-preview__list { display: flex; flex-direction: column; gap: var(--sm-space-2); margin: 0; padding-left: var(--sm-space-4); font: var(--sm-type-body-md); }
+.mom-preview__summary { margin: 0; font: var(--sm-type-body-md); }
 .mom-preview__owner { margin-top: var(--sm-space-2); }
-.mom-preview__owner-name { margin: 0 0 var(--sm-space-1); font: var(--sm-type-strong); }
-.mom-preview__tasks { display: flex; flex-direction: column; gap: var(--sm-space-1); margin: 0; padding-left: var(--sm-space-4); font: var(--sm-type-body-md); }
-.mom-preview__tasks li::marker { color: var(--sm-ink-tertiary); }
-.mom-preview__tasks li > span:first-child { margin-right: var(--sm-space-2); }
-.mom-preview__patient { color: var(--sm-ink-secondary); }
-.mom-preview__due { color: var(--sm-ink-secondary); white-space: nowrap; }
+.mom-preview__h + .mom-preview__owner { margin-top: var(--sm-space-4); }
+.mom-preview__owner-name { margin: 0 0 var(--sm-space-2); font: var(--sm-type-strong); }
+/* Items: 24px in from the owner's name, so they read as a sub-list. One row each: Patient/topic · Task · Date. */
+.mom-preview__tasks { display: flex; flex-direction: column; gap: var(--sm-space-1); margin: 0; padding: 0 0 0 var(--sm-space-6); list-style: none; font: var(--sm-type-body-md); }
+.mom-preview__tasks li { display: grid; grid-template-columns: 110px minmax(0, 1fr) 90px; gap: var(--sm-space-4); }
+.mom-preview__patient { color: var(--sm-ink-secondary); overflow-wrap: anywhere; }
+.mom-preview__due { text-align: right; white-space: nowrap; }
 .side-panel {
   display: flex;
   flex-direction: column;
@@ -482,7 +504,7 @@
    title sits on its own line (room kept on its right for the button). */
 .modal, .side-panel { position: relative; padding-top: var(--sm-space-6); }
 .dialog-head { padding-right: var(--sm-space-8); }
-.dialog-head .icon-btn { position: absolute; top: var(--sm-space-4); right: var(--sm-space-4); }
+.dialog-head .icon-btn { position: absolute; top: var(--sm-space-3); right: var(--sm-space-3); } /* top-right corner, above/right of the title (not level with it) */
 .dialog-head .icon-btn svg { width: 20px; height: 20px; }
 
 /* ── Keyword highlight in transcripts ────────────────────── */

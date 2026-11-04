@@ -95,7 +95,7 @@ export interface Meeting {
   status: MeetingStatus;
   participants: ParticipantSnapshot[];
   transcript: TranscriptLine[];
-  /** Key points of the meeting (the MoM summary), shown above the tasks. */
+  /** The MoM summary, shown above the tasks as one running text: an edited one is a single entry, the AI's are its key points. */
   summary: string[];
   tasks: Task[];
   sentTo?: number;

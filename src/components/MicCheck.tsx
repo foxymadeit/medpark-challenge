@@ -6,7 +6,7 @@ import { Dropdown, type DropdownOption } from './Dropdown';
 
 /** MOCK: shown until the browser reveals real device names (it only does after mic permission). */
 const MOCK_MICS: DropdownOption[] = [
-  { value: 'mock-external', label: 'External microphone (USB)' },
+  { value: 'mock-external', label: 'External Mic' },
   { value: 'mock-builtin', label: 'Built-in microphone' },
   { value: 'mock-headset', label: 'Bluetooth headset' },
 ];

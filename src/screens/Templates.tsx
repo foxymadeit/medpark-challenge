@@ -1,4 +1,4 @@
-import { ArrowsLeftRightIcon, CheckIcon, MicrophoneIcon, PlusIcon, UserPlusIcon, UsersThreeIcon } from '@phosphor-icons/react';
+import { ArrowsLeftRightIcon, CheckIcon, MicrophoneIcon, PencilSimpleIcon, PlusIcon, UserPlusIcon, UsersThreeIcon } from '@phosphor-icons/react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AddPersonRow } from '../components/AddPersonRow';
@@ -179,8 +179,10 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
               <label className="tpl-person__main">
                 <input type="checkbox" className="checkbox" checked onChange={() => remove(p.id)} aria-label={t('templates.removeFrom', { name: p.name })} />
                 <Avatar name={p.name} />
-                <span className="t-strong">{p.name}</span>
-                {p.id === account?.personId && <span className="tag tag--me">{t('common.me')}</span>}
+                <span className="tpl-person__name">
+                  <span className="t-strong">{p.name}</span>
+                  {p.id === account?.personId && <span className="tag tag--me">{t('common.me')}</span>}
+                </span>
                 <span className="note truncate">{p.role || p.email}</span>
               </label>
               <button type="button" className="icon-btn" aria-label={t('templates.replace', { name: p.name })} title={t('templates.replace', { name: p.name })} onClick={() => setReplacing(p)}>
@@ -193,7 +195,9 @@ function EditTemplatePanel({ template, onClose }: { template?: Template; onClose
               <label className="tpl-person__main">
                 <input type="checkbox" className="checkbox" checked={false} onChange={() => add(p.id)} aria-label={t('templates.addTo', { name: p.name })} />
                 <Avatar name={p.name} />
-                <span className="t-strong">{p.name}</span>
+                <span className="tpl-person__name">
+                  <span className="t-strong">{p.name}</span>
+                </span>
                 <span className="note truncate">{p.role || p.email}</span>
               </label>
             </div>
@@ -275,10 +279,10 @@ export function Templates() {
               </div>
             </div>
             <div className="tpl-card__actions">
-              <PeopleStack ids={tpl.participantIds} />
-              <Button variant="ghost" className="tpl-card__edit" aria-label={t('templates.editLabel', { name: tpl.name })} onClick={() => setEditing(tpl)}>
-                {t('templates.edit')}
-              </Button>
+              <PeopleStack ids={tpl.participantIds} names={false} />
+              <button type="button" className="icon-btn icon-btn--lg tpl-card__edit" aria-label={t('templates.editLabel', { name: tpl.name })} title={t('templates.edit')} onClick={() => setEditing(tpl)}>
+                <PencilSimpleIcon size={20} aria-hidden />
+              </button>
               <Button
                 icon={<MicrophoneIcon size={20} aria-hidden />}
                 aria-label={t('templates.startLabel', { name: tpl.name })}
