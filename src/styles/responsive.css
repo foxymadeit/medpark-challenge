@@ -106,6 +106,13 @@
   .new-meeting__head .datepicker { grid-column: 1; grid-row: 3; margin-top: var(--sm-space-4); } /* room under the name, not flush against it */
   /* …but the two big Record / Upload cards stay side by side (content keeps priority, not one under the other). */
   .start-options { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  /* The record card is narrow: the microphone gets its own line, Test mic goes under it. */
+  .mic-check { flex-wrap: wrap; row-gap: var(--sm-space-1); }
+  .mic-check .dropdown { flex: 1 0 100%; }
+  .mic-check__sep { display: none; }
+  /* .vp-center's `auto` column ignores max-width and keeps the item's 560px, which scrolls the page sideways. One column here. */
+  .app__body .vp-center { grid-template-columns: minmax(0, 1fr); }
+  .app__body .vp-center > * { grid-column: 1; justify-self: center; }
   .topbar__right { gap: var(--sm-space-2); }
   .account__button .account__text, .account__button > svg { display: none; }
   .account__button { padding: 0 var(--sm-space-1); }
@@ -220,10 +227,10 @@
 @media (max-width: 735px) {
   .table--people, .table--people tbody { display: block; }
   .table--people thead { display: none; }
-  /* Two columns: col 1 = avatar + name + email (spans both rows), col 2 = the two selects, one under the other. */
+  /* The person across the row, so names and emails show in full; Role and Access side by side under them. */
   .table--people tr {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(140px, 160px); /* names keep priority; the selects take just enough */
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); /* roles run longer than access levels */
     gap: var(--sm-space-2) var(--sm-space-3);
     align-items: center;
     padding: var(--sm-space-4);
@@ -231,8 +238,8 @@
   }
   .table--people tbody tr:last-child { border-bottom: 0; }
   .table--people :is(th, td) { display: block; width: auto; height: auto; min-width: 0; padding: 0; border: 0; }
-  .table--people td:first-child { grid-column: 1; grid-row: 1 / span 2; } /* who, left, spans both select rows */
-  .table--people td:nth-child(2) { grid-column: 2; grid-row: 1; } /* Role */
+  .table--people td:first-child { grid-column: 1 / -1; grid-row: 1; }
+  .table--people td:nth-child(2) { grid-column: 1; grid-row: 2; } /* Role */
   .table--people td:nth-child(3) { grid-column: 2; grid-row: 2; padding-right: 0; } /* Access */
   .table--people td[colspan] { grid-column: 1 / -1; grid-row: auto; } /* "no match" row */
   .table--people td:has(.dropdown) .dropdown { width: 100% !important; }
