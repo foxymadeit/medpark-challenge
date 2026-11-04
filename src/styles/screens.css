@@ -231,6 +231,9 @@
 .processing__progress .progress { flex: 1; }
 .processing__pct { min-width: 44px; color: var(--sm-success); font: var(--sm-type-strong); font-variant-numeric: tabular-nums; text-align: right; }
 /* Live transcript: chunks appear as they are transcribed; readable while processing continues. */
+.processing__actions { display: flex; justify-content: center; gap: var(--sm-space-3); }
+.step.is-failed { color: var(--sm-signal-danger); }
+.step__fail { flex: none; }
 .processing__live { display: flex; flex-direction: column; overflow: hidden; }
 .processing__live-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sm-space-3); padding: var(--sm-space-4) var(--sm-space-6) var(--sm-space-2); }
 .processing__live-body { max-height: 300px; overflow: auto; padding: var(--sm-space-2) var(--sm-space-6) var(--sm-space-5); }

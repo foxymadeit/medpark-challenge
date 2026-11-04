@@ -263,6 +263,10 @@ export const en = {
   },
   processing: {
     title: 'Writing the MoM',
+    failedTitle: 'We could not finish the MoM',
+    failedNote: 'Nothing is lost: the audio stays on the hospital network. Try again, or start over from New meeting.',
+    retry: 'Try again',
+    backToNew: 'Back to New meeting',
     lead: '{title} · {n} min of audio',
     step1: 'Transcribing audio',
     step2: 'Recognising people and keywords',

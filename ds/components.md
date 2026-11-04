@@ -1,7 +1,7 @@
 # Components (scan)
 
 **Источник:** страницы COMPONENTS (`1:10`) и PATTERNS (`1:12`), файл `QYy8I55YDJRojTI6UCZENa`
-**Кол-во компонентов и наборов:** 25 на COMPONENTS, 27 на PATTERNS
+**Кол-во компонентов и наборов:** 25 на COMPONENTS, 30 на PATTERNS
 **Used in:** «нет на экранах» значит 0 инстансов на странице Screens на 2026-11-04
 
 ## Действия
@@ -18,9 +18,9 @@
 
 ### Chip
 - **Назначение:** выбираемая плашка
-- **Варианты:** Size: Md | Sm; State: Default | Hover | Selected
+- **Варианты:** Size: Md | Sm; State: Default | Hover | Selected; Icon (опционально), Icon swap
 - **Node ID:** `12:84`
-- **Used in:** нет на экранах (в коде Onboarding, Recording, DatePicker)
+- **Used in:** 01c Your meetings
 
 ### Review actions
 - **Назначение:** кнопки футера Review, Preview и Send
@@ -129,12 +129,12 @@
 
 ### Progress bar
 - **Назначение:** прогресс, процент задан вариантом
-- **Варианты:** Value: 30 | 5
+- **Варианты:** Value: 5 | 30 (Tone=Success, Processing); 33 | 67 | 100 (Tone=Action, Onboarding)
 - **Node ID:** `292:2405`
 
 ### Participant row, Participants header
 - **Назначение:** таблица участников, 1152, колонки 640 / 256 / 208 / 48
-- **Варианты:** State: Default | Hover | Me
+- **Варианты:** State: Default | Hover | Me | Me read-only
 - **Node ID:** `41:230`, `54:399`
 
 ### History row, History header
@@ -156,7 +156,7 @@
 - **Назначение:** реплика в расшифровке
 - **Варианты:** Content: Plain | Keyword
 - **Node ID:** `40:180`
-- **Used in:** нет на экранах, вкладка Transcript не нарисована
+- **Used in:** 04c Transcript
 
 ### Template card
 - **Назначение:** шаблон встречи, 564
@@ -177,7 +177,7 @@
 - **Назначение:** секция настроек
 - **Варианты:** одиночный
 - **Node ID:** `59:391`
-- **Used in:** нет на экранах, Settings не нарисован
+- **Used in:** 12 Settings, ширина 1104
 
 ## Фидбэк
 
@@ -185,15 +185,33 @@
 - **Назначение:** красный блок ошибки в форме
 - **Варианты:** одиночный
 - **Node ID:** `17:47`
-- **Used in:** нет на экранах (в коде Log in)
+- **Used in:** 01e Log in error, 03a Processing failed
 
 ### Empty state
 - **Назначение:** пустое состояние
 - **Варианты:** одиночный
 - **Node ID:** `17:110`
-- **Used in:** нет на экранах (в коде Participants)
+- **Used in:** 10d Only you
 
 ## Модалки
+
+### Modal / Confirm
+- **Назначение:** диалог подтверждения 560: заголовок, текст, необязательная заметка, Cancel и кнопка действия
+- **Варианты:** Tone: Danger | Primary; Title, Lead, Note, Has note
+- **Node ID:** `345:673`
+- **Used in:** 10b, 10c, 11c
+
+### Modal / Replace person
+- **Назначение:** замена человека в шаблоне, список от края до края
+- **Варианты:** одиночный
+- **Node ID:** `345:674`
+- **Used in:** 11b
+
+### Template person
+- **Назначение:** строка людей в редакторе шаблона, 576×48
+- **Варианты:** State: In template | Suggested; Name, Role, Me
+- **Node ID:** `345:776`
+- **Used in:** Modal / New template
 
 ### Modal / Preview MoM, New participant, New template, Profile
 - **Назначение:** модалки. Preview 1152, New template 640, остальные 560

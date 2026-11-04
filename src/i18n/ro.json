@@ -261,6 +261,10 @@
   },
   "processing": {
     "title": "Se scrie procesul-verbal",
+    "failedTitle": "Nu am putut finaliza procesul-verbal",
+    "failedNote": "Nimic nu s-a pierdut: audio rămâne în rețeaua spitalului. Încercați din nou sau începeți de la o ședință nouă.",
+    "retry": "Încercați din nou",
+    "backToNew": "Înapoi la ședință nouă",
     "lead": "{title} · {n} min de audio",
     "step1": "Transcrierea audio",
     "step2": "Recunoașterea persoanelor și a cuvintelor-cheie",
