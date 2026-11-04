@@ -219,6 +219,11 @@
 - **Node ID:** `345:776`
 - **Used in:** Modal / New template
 
+### Modal / New participant / Mobile, New template / Mobile, Preview MoM / Mobile
+- **Назначение:** диалоги на телефоне, ширина 370 (поля по 16), паддинг 24, секция Responsive на PATTERNS
+- **Отличия от десктопа:** Role и Email друг под другом; подписи типов без иконок, имя 40% строки, строки шаблона отвязаны; кнопки Preview друг под другом, письмо скроллится внутри
+- **Used in:** `M 11`, `M 12`, `M 17`
+
 ### Modal / Preview MoM, New participant, New template, Profile
 - **Назначение:** модалки. Preview 1152, New template 640, остальные 560
 - **Варианты:** одиночные
