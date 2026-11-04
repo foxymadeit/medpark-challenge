@@ -141,8 +141,8 @@
 /* ── Segmented control (also the language switch) ────────── */
 .segmented {
   display: inline-flex;
-  gap: 2px;
-  padding: 2px;
+  gap: var(--sm-space-0-5);
+  padding: var(--sm-space-0-5);
   border: 1px solid var(--sm-surface-hairline);
   border-radius: var(--sm-radius-tile);
   background: var(--sm-surface-panel);
@@ -166,7 +166,7 @@
   font-weight: 600;
 }
 /* Ink-outline variant (2045:2619): warm track, selected item is a raised white pill — everywhere, top-bar language switch included. */
-.segmented { gap: 2px; padding: var(--sm-space-1); border: 0; background: var(--sm-control-track); }
+.segmented { gap: var(--sm-space-0-5); padding: var(--sm-space-1); border: 0; background: var(--sm-control-track); }
 .segmented .segmented__item { height: 36px; color: var(--sm-ink-secondary); font-weight: 500; }
 .segmented .segmented__item:hover { color: var(--sm-ink-primary); }
 .segmented .segmented__item[aria-checked='true'] { background: var(--sm-surface-panel); color: var(--sm-ink-primary); font-weight: 600; box-shadow: 0 2px 8px rgba(16, 16, 16, 0.06), 0 1px 3px rgba(16, 16, 16, 0.08); }
@@ -203,12 +203,13 @@
   border: 1px solid var(--sm-surface-hairline);
   border-radius: 16px;
   background: var(--sm-surface-ground);
+  box-shadow: 0 0 0 var(--sm-avatar-ring-m) var(--sm-surface-panel);
   color: var(--sm-ink-secondary);
   font: var(--sm-type-plate);
   letter-spacing: 0.24px;
 }
 /* Three avatar sizes only: S 24 (.avatar--sm: stacks, transcript speakers), M 32 (.avatar: list rows), L 56 (profile, screens.css). */
-.avatar--sm { width: 24px; height: 24px; border-radius: 12px; font-size: 10px; line-height: 12px; letter-spacing: 0; }
+.avatar--sm { width: 24px; height: 24px; border-radius: 12px; box-shadow: 0 0 0 var(--sm-avatar-ring-s) var(--sm-surface-panel); font: var(--sm-type-avatar-s); letter-spacing: 0; }
 .status-tag {
   display: inline-flex;
   align-items: center;
@@ -324,7 +325,7 @@
 .who > svg { flex-shrink: 0; } /* row icons keep their size */
 .who--button { max-width: 100%; margin: -8px; padding: var(--sm-space-2) var(--sm-space-2); border: 0; border-radius: var(--sm-radius-tile); background: none; color: inherit; text-align: left; cursor: pointer; }
 .who--button:hover { background: var(--sm-surface-ground); }
-.who__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.who__text { display: flex; flex-direction: column; gap: var(--sm-space-0-5); min-width: 0; }
 .who__name { font: var(--sm-type-strong); color: var(--sm-ink-primary); }
 .who__sub { font: var(--sm-type-body-sm); color: var(--sm-ink-secondary); }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -398,7 +399,7 @@
   height: 20px;
   margin: 0;
   border: 1.5px solid var(--sm-ink-tertiary);
-  border-radius: 50%;
+  border-radius: var(--sm-radius-full);
   background: var(--sm-surface-panel);
 }
 .radio:checked { border: 6px solid var(--sm-control); }
@@ -413,7 +414,7 @@
   height: 20px;
   margin: 0;
   border: 1.5px solid var(--sm-ink-tertiary);
-  border-radius: 4px;
+  border-radius: var(--sm-radius-xs);
   background: var(--sm-surface-panel);
   cursor: pointer;
 }
@@ -441,7 +442,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(16, 16, 16, 0.32);
+  background: var(--sm-scrim);
 }
 .scrim--right { justify-content: flex-end; align-items: stretch; }
 .modal {
@@ -513,7 +514,7 @@
   height: 18px;
   line-height: 18px;
   padding: 0 var(--sm-space-1);
-  border-radius: 4px;
+  border-radius: var(--sm-radius-xs);
   background: var(--sm-surface-hairline);
   color: var(--sm-ink-primary);
   font-weight: 600;
@@ -526,10 +527,10 @@
 .date-chip { display: inline-flex; align-items: center; gap: var(--sm-space-2); height: 40px; padding: 0 var(--sm-space-3); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-tile); background: var(--sm-surface-panel); color: var(--sm-ink-secondary); }
 .date-chip:hover, .date-chip[aria-expanded='true'] { background: var(--sm-surface-ground); }
 .date-chip__value { color: var(--sm-ink-primary); font: var(--sm-type-strong); }
-.date-chip__tag { padding: 2px var(--sm-space-2); border-radius: var(--sm-radius-inner); background: var(--sm-control-track); color: var(--sm-ink-secondary); font: var(--sm-type-plate); }
+.date-chip__tag { padding: var(--sm-space-0-5) var(--sm-space-2); border-radius: var(--sm-radius-inner); background: var(--sm-control-track); color: var(--sm-ink-secondary); font: var(--sm-type-plate); }
 .date-chip[aria-expanded='true'] .date-chip__tag { background: var(--sm-surface-panel); }
 .datepicker__panel { position: absolute; top: calc(100% + 6px); left: 0; z-index: 30; width: 304px; padding: var(--sm-space-4); border: 1px solid var(--sm-surface-hairline); border-radius: var(--sm-radius-panel); background: var(--sm-surface-panel); box-shadow: var(--sm-elevation-popover); }
-.datepicker__head { display: flex; align-items: center; gap: 2px; margin-bottom: var(--sm-space-2); }
+.datepicker__head { display: flex; align-items: center; gap: var(--sm-space-0-5); margin-bottom: var(--sm-space-2); }
 .datepicker__month { flex: 1; margin: 0 0 0 var(--sm-space-1); color: var(--sm-ink-primary); font: var(--sm-type-h3); text-transform: capitalize; }
 .datepicker__grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .datepicker__grid th { padding: var(--sm-space-1) 0 var(--sm-space-2); color: var(--sm-ink-secondary); font: var(--sm-type-plate); text-align: center; text-transform: capitalize; }

@@ -62,7 +62,7 @@
     transition: transform var(--sm-duration-base) ease, visibility 0s linear var(--sm-duration-base);
   }
   .sidenav.is-open { transform: none; visibility: visible; transition: transform var(--sm-duration-base) ease; }
-  .nav-scrim { display: block; position: fixed; inset: var(--sm-topbar-h) 0 0 0; z-index: 25; background: rgba(16, 16, 16, 0.32); }
+  .nav-scrim { display: block; position: fixed; inset: var(--sm-topbar-h) 0 0 0; z-index: 25; background: var(--sm-scrim); }
   @media (prefers-reduced-motion: reduce) { .sidenav, .sidenav.is-open { transition: none; } }
 
   .page { padding: var(--sm-space-8) var(--sm-space-6); }

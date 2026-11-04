@@ -86,12 +86,12 @@ button {
 
 /* Icon + hint text: icon pinned to the first line, same in every language however the text wraps. */
 .hint { display: flex; align-items: flex-start; gap: var(--sm-space-2); margin: 0; }
-.hint svg { flex-shrink: 0; margin-top: 2px; }
+.hint svg { flex-shrink: 0; margin-top: var(--sm-space-0-5); }
 
 /* Container titles: one step quieter than the content they hold. */
 .section-title { margin: 0; color: var(--sm-title-muted); font: var(--sm-type-strong); }
 /* Field labels on New meeting (Figma 2051:2358): small, medium weight, secondary ink. */
-.form-label { margin: 0; color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); font-weight: 500; }
+.form-label { margin: 0; color: var(--sm-ink-secondary); font: var(--sm-type-label); }
 
 .c-secondary { color: var(--sm-ink-secondary); }
 .c-tertiary  { color: var(--sm-ink-tertiary); }

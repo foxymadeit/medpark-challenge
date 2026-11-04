@@ -1,4 +1,4 @@
-/* Design tokens — read from Figma variables (file bnCzuQd39C1F9AkGe7lwo7, "Liminal — minimal v3").
+/* Design tokens — read from Figma variables (file QYy8I55YDJRojTI6UCZENa, "Liminal — Design System").
    Names mirror the Figma variable names (--sm-*) so code ↔ design lookups stay 1:1. */
 :root {
   /* surface */
@@ -60,14 +60,21 @@
   --sm-speaker-04: #6450a1;
 
   /* radius */
+  --sm-radius-xs: 4px; /* checkboxes, keywords */
   --sm-radius-tile: 12px;
   /* Selects (dropdowns): border width and the inner left padding before the text. Column headers above them line up with the text using these. */
   --sm-field-border-w: 1px;
   --sm-field-pad-x: 12px;
   --sm-radius-panel: 16px;
   --sm-radius-inner: 8px; /* segmented / language switch items */
+  --sm-radius-full: 50%;
+  /* White ring around avatars, in proportion to their size (S 24, M 32, L 56). */
+  --sm-avatar-ring-s: 1px;
+  --sm-avatar-ring-m: 1.5px;
+  --sm-avatar-ring-l: 2px;
 
   /* spacing — 8-pt grid, 4 for micro gaps */
+  --sm-space-0-5: 2px; /* micro gaps inside a line */
   --sm-space-1: 4px;
   --sm-space-2: 8px;
   --sm-space-3: 12px;
@@ -112,6 +119,12 @@
   --sm-type-data-md: 500 15px/20px var(--sm-font-body);
   --sm-type-data-sm: 400 13px/20px var(--sm-font-body);
   --sm-type-timer: 500 72px/80px var(--sm-font-body);
+  --sm-type-label: 500 13px/20px var(--sm-font-body);
+  --sm-type-avatar-s: 500 10px/12px var(--sm-font-sign);
+  --sm-type-avatar-l: 500 18px/24px var(--sm-font-sign);
+
+  /* dialogs and the drawer dim the page */
+  --sm-scrim: rgba(16, 16, 16, 0.32);
 
   /* layout */
   --sm-topbar-h: 64px;

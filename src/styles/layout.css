@@ -76,7 +76,7 @@
   background: var(--sm-surface-panel);
   box-shadow: var(--sm-elevation-popover);
 }
-.account__who { display: flex; flex-direction: column; gap: 2px; padding: var(--sm-space-3) var(--sm-space-3) var(--sm-space-3); border-bottom: 1px solid var(--sm-surface-hairline); margin-bottom: var(--sm-space-1); }
+.account__who { display: flex; flex-direction: column; gap: var(--sm-space-0-5); padding: var(--sm-space-3) var(--sm-space-3) var(--sm-space-3); border-bottom: 1px solid var(--sm-surface-hairline); margin-bottom: var(--sm-space-1); }
 .account__item { width: 100%; border: 0; background: none; text-align: left; }
 .account__item:hover, .account__item:focus-visible { background: var(--sm-surface-ground); outline: none; }
 .account__item .row { gap: var(--sm-space-3); }
@@ -193,7 +193,7 @@
 .page:has(> .page-header) { padding-top: var(--page-top); }
 .page-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 20px auto; row-gap: var(--page-eyebrow-gap); column-gap: var(--sm-space-6); align-items: center; margin-bottom: var(--page-title-gap); }
 .page-header__main { display: contents; }
-.page-header__eyebrow { grid-column: 1; grid-row: 1; min-height: 20px; color: var(--sm-ink-secondary); font: var(--sm-type-body-sm); font-weight: 500; }
+.page-header__eyebrow { grid-column: 1; grid-row: 1; min-height: 20px; color: var(--sm-ink-secondary); font: var(--sm-type-label); }
 .page-header__main > :not(.page-header__eyebrow) { grid-column: 1; grid-row: 2; min-width: 0; }
 .page-header > :not(.page-header__main) { grid-column: 2; grid-row: 2; }
 /* Centred on the title's 36px line without making it taller: the 44px button / 40px date stick out evenly. */
