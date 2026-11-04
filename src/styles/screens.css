@@ -146,6 +146,7 @@
 .mic-check .dropdown__button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mic-check .dropdown__list { min-width: 220px; font: var(--sm-type-body-md); }
 .mic-check__sep { opacity: 0.6; }
+.mic-check__short { display: none; }
 .mic-check__link { display: inline-flex; flex: none; align-items: center; gap: var(--sm-space-1); padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); cursor: pointer; }
 .mic-check__status { display: inline-flex; align-items: center; gap: var(--sm-space-2); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mic-check__ok { flex: none; color: var(--sm-success); }

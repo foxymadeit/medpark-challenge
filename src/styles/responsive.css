@@ -106,10 +106,15 @@
   .new-meeting__head .datepicker { grid-column: 1; grid-row: 3; margin-top: var(--sm-space-4); } /* room under the name, not flush against it */
   /* …but the two big Record / Upload cards stay side by side (content keeps priority, not one under the other). */
   .start-options { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  /* The record card is narrow: the microphone gets its own line, Test mic goes under it. */
-  .mic-check { flex-wrap: wrap; row-gap: var(--sm-space-1); }
-  .mic-check .dropdown { flex: 1 0 100%; }
-  .mic-check__sep { display: none; }
+  /* Both start cards stay two lines on the narrowest phones: the title on one line, the grey text on one line. */
+  .start-options { gap: var(--sm-space-2); }
+  .start-tile__main, .start-tile--upload > .t-h2 { max-width: 100%; overflow: hidden; font: var(--sm-type-h3); letter-spacing: -0.08px; text-overflow: ellipsis; white-space: nowrap; }
+  .start-tile--upload > .note { max-width: 100%; overflow: hidden; font: var(--sm-type-plate); text-overflow: ellipsis; white-space: nowrap; }
+  .mic-check { flex-wrap: nowrap; gap: var(--sm-space-1); width: 100%; font: var(--sm-type-plate); }
+  .mic-check .dropdown { flex: 0 1 auto; }
+  .mic-check .dropdown__button { gap: var(--sm-space-0-5); }
+  .mic-check__sep, .mic-check__link svg, .mic-check__full { display: none; }
+  .mic-check__short { display: inline; }
   /* .vp-center's `auto` column ignores max-width and keeps the item's 560px, which scrolls the page sideways. One column here. */
   .app__body .vp-center { grid-template-columns: minmax(0, 1fr); }
   .app__body .vp-center > * { grid-column: 1; justify-self: center; }
@@ -171,7 +176,7 @@
   .search-bar { flex-wrap: wrap; }
   .search-bar__combo { flex-basis: 100%; max-width: none; }
 
-  .start-tile, .start-tile--record { flex: none; height: auto; min-height: 164px; padding: var(--sm-space-4); } /* grow instead of squashing the icon; tighter gutters for the narrow 2-up cards */
+  .start-tile, .start-tile--record { flex: none; height: auto; min-height: 136px; padding: clamp(var(--sm-space-2), 3vw, var(--sm-space-3)); } /* grow instead of squashing the icon; tighter gutters for the narrow 2-up cards */
 
   .review__header { height: auto; flex-wrap: wrap; gap: var(--sm-space-3); }
   .review__header :is(.t-h1, .headline-input), .record .t-h1 { font: var(--sm-type-h2); letter-spacing: -0.2px; }

@@ -203,9 +203,9 @@
     "emailsPh": "Adăugați nume sau e-mail…",
     "removeEmail": "Elimină {email}",
     "suggestions": "Participanți",
-    "record": "Începe înregistrarea",
+    "record": "Înregistrează",
     "upload": "Încarcă audio",
-    "uploadHint": "WAV, MP3 sau M4A · max 3 h",
+    "uploadHint": "WAV, MP3, M4A · 3h",
     "defaultName": {
       "medical": "Vizita de dimineață",
       "executive": "Ședința săptămânală a conducerii",
@@ -215,6 +215,7 @@
   "mic": {
     "choose": "Microfon",
     "test": "Test mic",
+    "testShort": "Test",
     "stopTest": "Oprește testul",
     "listening": "Spuneți ceva: barele ar trebui să se miște.",
     "playing": "Se redă ce s-a auzit…",

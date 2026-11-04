@@ -172,7 +172,12 @@ export function MicCheck() {
       <span className="mic-check__sep" aria-hidden>·</span>
       <button type="button" className="mic-check__link" onClick={busy ? stop : phase === 'done' ? () => setPhase('idle') : start}>
         {busy ? <StopIcon size={14} aria-hidden /> : phase === 'done' ? null : <WaveformIcon size={14} aria-hidden />}
-        {busy ? t('mic.stopTest') : phase === 'done' ? t('mic.change') : t('mic.test')}
+        {busy ? t('mic.stopTest') : phase === 'done' ? t('mic.change') : (
+          <>
+            <span className="mic-check__full">{t('mic.test')}</span>
+            <span className="mic-check__short">{t('mic.testShort')}</span>
+          </>
+        )}
       </button>
     </div>
   );
