@@ -8,7 +8,7 @@
 
 ### Палитра
 - gray: 0 #ffffff, 50 #f7f6f3, 100 #efede8, 200 #eae6df, 300 #ddd8cf, 400 #d9d6d1, 500 #c9c6c0, 600 #6f685f, 700 #5b544b, 800 #2b2b2b, 900 #101010
-- brand/500 #007aff
+- brand/500 #007aff (не используется: бренд, Upload и кнопки на одном синем blue/600)
 - blue: 50 #eaf1fd, 100 #ddebff, 200 #a9c8f5, 400 #4f86f0, 500 #2f6feb, 600 #1f5fd1, 700 #1a50b3
 - red: 50 #fdf1f0, 100 #ffe1de, 200 #f1c6c2, 300 #f5b5ae, 400 #e5635a, 500 #d9463d, 600 #b3261e, 700 #9a1f18
 - green: 50 #e3f3ea, 700 #1e7f4f
