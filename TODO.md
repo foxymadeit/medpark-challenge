@@ -44,6 +44,7 @@
 - [x] Токены: в Figma `space/10`, `radius/xs`; в коде `--sm-space-0-5`, `--sm-radius-xs`, `--sm-radius-full`, `--sm-scrim`, `--sm-type-label`, `--sm-type-avatar-s`, `--sm-type-avatar-l`.
 - [x] Topbar: подгонка 43 убрана, Account как в коде (169), EN совпал с кодом. Надпись закреплена на 288 от правого края.
 - [x] Белое кольцо у всех аватарок: S 1, M 1.5, L 2, снаружи, в компоненте `Avatar` и в коде (`--sm-avatar-ring-*`).
+- [x] Похожие компоненты: `People panel / Person` заменён на `Person`, неиспользуемый `Account` удалён, блок аккаунта живёт в Topbar.
 - [x] `Confirm all`: зазор 12, Body/MD. Шапка таблицы задач: 55 и 27 совпадают с кодом, оставлены; 26 на 05 исправлено.
 
 ### Participants и Templates в Figma
