@@ -142,7 +142,7 @@
 - **Варианты:** State: Default | Hover | Needs review | Processing
 - **Node ID:** `47:448`, `270:1966`
 
-### Action item row — Edit
+### Action item row
 - **Назначение:** строка задачи в Review
 - **Варианты:** Mode: Edit | Read
 - **Node ID:** `231:932`
@@ -226,4 +226,3 @@
 - **Used in:** Profile нет на экранах
 
 ## Замечания после сканирования
-- [ ] Подозрительные имена: `Action item row — Edit` (в наборе Edit и Read)
