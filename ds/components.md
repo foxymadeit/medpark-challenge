@@ -1,7 +1,7 @@
 # Components (scan)
 
 **Источник:** страницы COMPONENTS (`1:10`) и PATTERNS (`1:12`), файл `QYy8I55YDJRojTI6UCZENa`
-**Кол-во компонентов и наборов:** 25 на COMPONENTS, 30 на PATTERNS
+**Кол-во компонентов и наборов:** 25 на COMPONENTS, 34 на PATTERNS
 **Used in:** «нет на экранах» значит 0 инстансов на странице Screens на 2026-11-04
 
 ## Действия
@@ -97,7 +97,7 @@
 
 ### Topbar
 - **Назначение:** шапка. App в приложении, Access на экранах входа (без логотипа и аккаунта)
-- **Варианты:** Type: App | Access
+- **Варианты:** Type: App | Access | Tablet | Access Tablet | Mobile | Access Mobile
 - **Node ID:** `327:597`
 
 ### Sidenav, Nav item
@@ -178,6 +178,12 @@
 - **Варианты:** одиночный
 - **Node ID:** `59:391`
 - **Used in:** 12 Settings, ширина 1104
+
+### History row / Mobile, Participant row / Mobile, Action item row / Mobile, Action item row / Tablet
+- **Назначение:** строки таблиц на узких экранах, секция Responsive
+- **Варианты:** одиночные, тексты свойствами
+- **Node ID:** `357:699`, `357:716`, `357:736`, `357:737`
+- **Used in:** страница Screens Responsive
 
 ## Фидбэк
 
