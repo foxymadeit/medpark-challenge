@@ -726,7 +726,6 @@ div.task-check { gap: var(--sm-space-2); cursor: default; } /* the edit row: the
 @media (max-width: 640px) { .profile__facts > div { grid-template-columns: 1fr; gap: 2px; } }
 /* Access screens are top-anchored (not vertically centred) so the greeting sits in the same spot
    on Welcome, Log in and Sign up, whatever the card's height. */
-.main--access { justify-content: flex-start; min-height: 100vh; padding-top: clamp(32px, 9vh, 160px); }
-.access-lang { position: absolute; z-index: 2; top: 16px; right: 16px; display: flex; align-items: center; gap: var(--sm-space-4); }
+.main--access { justify-content: flex-start; padding-top: clamp(24px, calc(9vh - 54px), 96px); }
 .access-card__title { text-align: center; }
 .access-card__head { align-items: center; text-align: center; }

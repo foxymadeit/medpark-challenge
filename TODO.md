@@ -14,6 +14,7 @@
 - [ ] **Mobile и tablet.** Отдельные экраны под эти размеры, не через Narrow-варианты (их удалили).
 - [ ] **Название `Action item row — Edit`.** В сете есть и Edit, и Read, логичнее `Action item row`. Решает Cristina.
 - [ ] **Подложка у Preview MoM на PATTERNS.** Вернуть серую подложку или нет. Решает Cristina.
+- [ ] **EN в шапке.** В Figma 1483–1504, в коде 1498.6–1519.3: разница 15. Бейдж совпадает. Решает Cristina.
 - [ ] **Карандаш в Template card.** Сейчас 40px, в шапке Review 32px. Решает Cristina.
 - [ ] **Футер и карандаш строки.** Подпись от чекбокса: в Figma 10, в коде 12. Карандаш от верха строки: в Figma 29,
   в коде 30. Предложение: поставить в Figma 12 и 30.
@@ -42,7 +43,8 @@
 - [x] `Participant row` и `Participants header` шириной 1152 (640 / 256 / 208 / 48), `Template card` шириной 564.
 - [x] Текст Participant в `Modal / New participant` как в коде. На 10a и 11a кнопка отправки Disabled: форма пустая.
 - [x] Тени кнопок: клип снят с `Content` на 10, 10a, 11, 11a, с сегмент-контрола в `Modal / New template`, с наборов `Page header` и `People panel / Add participant`.
-- [x] Log in, Sign up, Welcome: блок поднят, отступ сверху 9% высоты окна, на 1728×873 всё видно без скролла. В Figma `01 Sign up` так же, 78 сверху.
+- [x] Log in, Sign up, Welcome: шапка приложения без логотипа и аккаунта (в Figma `Topbar`, `Type=Access`), бейдж и язык на тех же координатах, что в приложении. Блок на 24 под шапкой, на 1728×873 всё видно без скролла.
+- [x] Новый кадр `01a Log in` (`325:3299`). Неактивная кнопка на Sign up и Log in бледно-синяя.
 - [x] Review: последний action item без дивайдера и без пустого места снизу, в коде и в Figma (04, 04b, 05, 06, 07).
 
 ### Review и Preview MoM

@@ -109,6 +109,7 @@
   .topbar__right { gap: var(--sm-space-2); }
   .account__button .account__text, .account__button > svg { display: none; }
   .account__button { padding: 0 var(--sm-space-1); }
+  .topbar__account-space { width: 40px; }
   /* Burger: its glyph lines up with the content gutter below, not inset by the 40px button's own padding. */
   .topbar__menu { margin-left: -10px; }
 

@@ -30,6 +30,9 @@
 /* Figma "Brand": "min" bold in the logo blue. */
 .wordmark__min { color: var(--sm-brand); font-weight: 700; }
 .topbar__right { display: flex; align-items: center; gap: var(--sm-space-4); }
+/* Access screens: the account's place stays empty, so the language and the status sit exactly where they do in the app. */
+.topbar--bare { justify-content: flex-end; }
+.topbar__account-space { width: 168.7px; }
 /* Privacy note: green shield + green text, no chip fill (Figma 2089:2933). Reads "working, but local". */
 .privacy { display: inline-flex; align-items: center; gap: var(--sm-space-1); height: 32px; color: var(--sm-success); font: var(--sm-type-data-md); white-space: nowrap; }
 /* In the app's top bar its right edge sits on the content column's right edge (--column-right, narrowed on MoM by

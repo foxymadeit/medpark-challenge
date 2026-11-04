@@ -195,7 +195,7 @@ function AccountMenu() {
   );
 }
 
-function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuOpen?: boolean; onMenu?: () => void }) {
+function TopBar({ showAccount, bare, menuOpen, onMenu }: { showAccount: boolean; /** Access screens: no logo or account, the status and language stay where they are in the app. */ bare?: boolean; menuOpen?: boolean; onMenu?: () => void }) {
   const { t } = useI18n();
   const { account, signedIn } = useStore();
   // Width of language switch + account, so the privacy label can stop before them (see .privacy--header).
@@ -211,7 +211,7 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
     return () => ro.disconnect();
   }, []);
   return (
-    <header className="topbar" ref={bar}>
+    <header className={`topbar${bare ? ' topbar--bare' : ''}`} ref={bar}>
       <a href="#main" className="skip-link">
         {t('common.skipToContent')}
       </a>
@@ -221,16 +221,19 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
           {menuOpen ? <XIcon size={20} aria-hidden /> : <ListIcon size={20} aria-hidden />}
         </button>
       )}
-      <Link to={signedIn ? '/new' : '/'} className="brand">
-        <Logo size={34} />
-        <span className="brand__name" aria-label={t('common.appName')}>
-          <Wordmark />
-        </span>
-      </Link>
+      {!bare && (
+        <Link to={signedIn ? '/new' : '/'} className="brand">
+          <Logo size={34} />
+          <span className="brand__name" aria-label={t('common.appName')}>
+            <Wordmark />
+          </span>
+        </Link>
+      )}
       <PrivacyBadge className="privacy--header" />
       <div className="topbar__right" ref={right}>
         <LanguageSwitch />
         {showAccount && account && <AccountMenu />}
+        {bare && <span className="topbar__account-space" aria-hidden />}
       </div>
     </header>
   );
@@ -267,11 +270,8 @@ export function AccessLayout() {
   const { t } = useI18n();
   return (
     <div className="app">
-      {/* No top bar here: the big greeting is the brand. Only the language switch stays, top right. */}
-      <div className="access-lang">
-        <PrivacyBadge />
-        <LanguageSwitch />
-      </div>
+      {/* The app's top bar without logo and account: the big greeting is the brand. */}
+      <TopBar showAccount={false} bare />
       <main id="main" className="main main--center main--access">
         {/* Brand greeting above every access card (welcome, log in, sign up). */}
         <div className="access-brand">
