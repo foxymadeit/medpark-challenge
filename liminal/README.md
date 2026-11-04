@@ -28,7 +28,7 @@ On **Log in**, click one of the demo accounts under the form (any password works
 6. **Send MoM** → sending bar → sent. **Go to History** → open the record → **Download PDF** / **Save as template**.
 7. Switch **EN / RO / RU** in the top bar at any point.
 
-Tips: start from **Templates** (e.g. *Tumor board*) to get a meeting with its participants pre-filled. Settings → *Default review mode: Auto* sends the minutes without the review step.
+Tips: start from **Templates** (e.g. *Tumor board*) to get a meeting with its participants pre-filled.
 
 ## Run locally
 

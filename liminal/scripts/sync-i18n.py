@@ -10,8 +10,9 @@ root = pathlib.Path(__file__).resolve().parent.parent / 'src' / 'i18n'
 src = (root / 'en.ts').read_text()
 body = src[src.index('{', src.index('export const en')):src.rindex('};') + 1]
 body = re.sub(r'//.*', '', body)
-body = re.sub(r"(\w+):", r'"\1":', body)
-body = re.sub(r"'((?:[^'\\]|\\.)*)'", lambda m: json.dumps(m.group(1)), body)
+body = re.sub(r"^(\s*)(\w+):", r'\1"\2":', body, flags=re.M)  # keys only: a value can hold "word:" too
+# Single-quoted values become JSON strings; double-quoted ones (they hold an apostrophe) are already JSON.
+body = re.sub(r""""(?:[^"\\]|\\.)*"|'((?:[^'\\]|\\.)*)'""", lambda m: m.group(0) if m.group(1) is None else json.dumps(m.group(1)), body)
 body = re.sub(r',(\s*[}\]])', r'\1', body)
 en = json.loads(body)
 

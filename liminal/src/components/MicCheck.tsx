@@ -1,18 +1,21 @@
 import { CheckIcon, PlayIcon, StopIcon, WarningIcon, WaveformIcon } from '@phosphor-icons/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useI18n } from '../i18n/I18nProvider';
+import { useFitsTile } from '../lib/useFitsTile';
 import { useStore } from '../store/AppStore';
 import { Dropdown, type DropdownOption } from './Dropdown';
 
 /** MOCK: shown until the browser reveals real device names (it only does after mic permission). */
 const MOCK_MICS: DropdownOption[] = [
-  { value: 'mock-external', label: 'External microphone (USB)' },
+  { value: 'mock-external', label: 'External Mic' },
   { value: 'mock-builtin', label: 'Built-in microphone' },
   { value: 'mock-headset', label: 'Bluetooth headset' },
 ];
 
 const TEST_MS = 4000;
 const METER_BARS = 12;
+/** Beside the full test label the mic name keeps at least 64, plus its 16 chevron and the 4 gap. */
+const MIC_NAME_RESERVE = 64 + 16 + 4;
 
 type Phase = 'idle' | 'listening' | 'playing' | 'done';
 
@@ -24,6 +27,7 @@ type Phase = 'idle' | 'listening' | 'playing' | 'done';
 export function MicCheck() {
   const { t } = useI18n();
   const { preferences, updatePreferences } = useStore();
+  const { probe, fits } = useFitsTile(t('mic.test'), MIC_NAME_RESERVE);
   const [mics, setMics] = useState<DropdownOption[]>(MOCK_MICS);
   const [phase, setPhase] = useState<Phase>('idle');
   const [level, setLevel] = useState(0);
@@ -172,8 +176,9 @@ export function MicCheck() {
       <span className="mic-check__sep" aria-hidden>·</span>
       <button type="button" className="mic-check__link" onClick={busy ? stop : phase === 'done' ? () => setPhase('idle') : start}>
         {busy ? <StopIcon size={14} aria-hidden /> : phase === 'done' ? null : <WaveformIcon size={14} aria-hidden />}
-        {busy ? t('mic.stopTest') : phase === 'done' ? t('mic.change') : t('mic.test')}
+        {busy ? t('mic.stopTest') : phase === 'done' ? t('mic.change') : fits ? t('mic.test') : t('mic.testShort')}
       </button>
+      <span ref={probe} className="fit-probe">{t('mic.test')}</span>
     </div>
   );
 }

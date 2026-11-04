@@ -19,7 +19,7 @@ function PasswordField({ label, placeholder, value, onChange, error, autoComplet
   const describedBy = [error && `${id}-err`, caps && `${id}-caps`].filter(Boolean).join(' ') || undefined;
   return (
     <div className="field">
-      <label className="field__label" htmlFor={id}>
+      <label className="form-label" htmlFor={id}>
         {label}
       </label>
       <span className="input-wrap">
@@ -42,7 +42,7 @@ function PasswordField({ label, placeholder, value, onChange, error, autoComplet
         </button>
       </span>
       {caps && (
-        <p id={`${id}-caps`} className="note row" style={{ gap: 6 }}>
+        <p id={`${id}-caps`} className="note row" style={{ gap: 'var(--sm-space-2)' }}>
           <WarningIcon size={14} aria-hidden />
           {t('login.capsLock')}
         </p>
@@ -65,8 +65,8 @@ export function Welcome() {
     <div className="card access-card welcome">
       {/* The greeting itself sits above the card (AccessLayout). */}
       <h1 className="lead welcome__lead">{t('welcome.lead')}</h1>
-      <div className="stack" style={{ gap: 12 }}>
-        <Button variant="ink" block onClick={() => navigate('/login')}>
+      <div className="stack" style={{ gap: 'var(--sm-space-3)' }}>
+        <Button variant="primary" block onClick={() => navigate('/login')}>
           {t('login.submit')}
         </Button>
         <Button block onClick={() => navigate('/signup')}>
@@ -133,7 +133,7 @@ export function SignUp() {
       <div data-field="email">
         <TextField label={t('signup.email')} placeholder={t('signup.emailPh')} type="email" autoComplete="email" value={form.email} onChange={(e) => set('email')(e.target.value)} error={errors.email} />
         {taken && (
-          <p className="field__error" role="alert" style={{ marginTop: 8 }}>
+          <p className="field__error" role="alert" style={{ marginTop: 'var(--sm-space-2)' }}>
             {t('signup.emailTaken')}{' '}
             <Link to="/login" className="link-btn">
               {t('signup.logIn')}
@@ -144,7 +144,7 @@ export function SignUp() {
       <div data-field="password">
         <PasswordField label={t('signup.password')} placeholder={t('signup.passwordPh')} autoComplete="new-password" value={form.password} onChange={set('password')} error={errors.password} />
       </div>
-      <Button type="submit" variant="ink" block disabled={!form.name.trim() || !form.email.trim() || !form.password}>
+      <Button type="submit" variant="primary" block disabled={!form.name.trim() || !form.email.trim() || !form.password}>
         {t('signup.submit')}
       </Button>
       <p className="access-alt">
@@ -216,7 +216,7 @@ export function LogIn() {
         />
         <PasswordField label={t('signup.password')} placeholder={t('login.passwordPh')} autoComplete="current-password" value={password} onChange={(v) => (setPassword(v), setErrors((er) => ({ ...er, password: undefined })))} error={errors.password} />
         {/* Inactive until both fields have something; format errors still show on submit. */}
-        <Button type="submit" variant="ink" block disabled={!email.trim() || !password}>
+        <Button type="submit" variant="primary" block disabled={!email.trim() || !password}>
           {t('login.submit')}
         </Button>
         {/* Always offered, even when an account already exists on this device. */}

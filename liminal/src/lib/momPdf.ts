@@ -1,9 +1,9 @@
 import type { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 import { groupTasks } from '../components/Minutes';
-import { speakerNamer } from './meeting';
+import { meetingHeading, speakerNamer, summaryProse } from './meeting';
 import type { Lang } from '../i18n/I18nProvider';
 import type { Meeting } from '../types';
-import { dueRelative, formatDayMonth, formatFullDate, todayISO } from './format';
+import { formatDayMonth, formatFullDate, todayISO } from './format';
 
 type T = (key: string, vars?: Record<string, string | number>) => string;
 
@@ -36,11 +36,6 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
   pdfMake.vfs = vfs;
 
   const date = formatFullDate(meeting.date, lang);
-  // "Tomorrow · 27 Sep": how it was said in the meeting plus the date it resolves to.
-  const dueText = (due: string) => {
-    const r = dueRelative(meeting.date, due);
-    return r ? `${t(r.key, r.vars)} · ${formatDayMonth(due, lang)}` : formatDayMonth(due, lang);
-  };
   const nameOf = speakerNamer(meeting, () => undefined, t);
   const type = t(`types.${meeting.type}`);
 
@@ -49,14 +44,14 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
     {
       table: {
         headerRows: 1,
-        widths: ['*', 110, 70],
+        widths: [110, '*', 70],
         body: [
-          [t('pdf.colTask'), t('pdf.colPatient'), t('pdf.colDue')].map((h) => ({ text: h, style: 'th' })),
-          ...g.patients.flatMap((p) => p.tasks.map((task) => [task.title, { text: p.patient, color: INK_2 }, dueText(task.due)])),
+          [{ text: t('pdf.colPatient'), style: 'th' }, { text: t('pdf.colTask'), style: 'th' }, { text: t('pdf.colDue'), style: 'th', alignment: 'right' }],
+          ...g.patients.flatMap((p) => p.tasks.map((task) => [{ text: p.patient, color: INK_2 }, task.title, { text: formatDayMonth(task.due, lang), alignment: 'right' }])),
         ],
       },
       layout: hairlineTable,
-      margin: [0, 0, 0, 10],
+      margin: [24, 0, 0, 10], // items sit 24 in from the owner's name, as a sub-list
     } as Content,
   ]);
 
@@ -68,7 +63,7 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
   const doc: TDocumentDefinitions = {
     pageSize: 'A4',
     pageMargins: [48, 56, 48, 56],
-    info: { title: `${t('pdf.title')} — ${meeting.title}`, creator: 'Liminal' },
+    info: { title: `${t('pdf.title')} — ${meetingHeading(meeting, lang)}`, creator: 'Liminal' },
     defaultStyle: { font: 'Roboto', fontSize: 10.5, color: INK, lineHeight: 1.25 },
     styles: {
       plate: { fontSize: 8.5, color: INK_2, characterSpacing: 0.4 },
@@ -94,13 +89,13 @@ async function buildMomPdf(meeting: Meeting, t: T, lang: Lang) {
     }),
     content: [
       { text: t('pdf.title').toUpperCase(), style: 'plate' },
-      { text: meeting.title, style: 'h1' },
+      { text: meetingHeading(meeting, lang), style: 'h1' },
       { text: meta, style: 'note' },
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 499, y2: 0, lineWidth: 0.75, lineColor: HAIRLINE }], margin: [0, 14, 0, 0] },
 
-      // The final MoM holds only decisions (the summary) and action items (owner, deadline).
-      { text: t('mom.decisions'), style: 'h2' },
-      meeting.summary?.length ? { ul: meeting.summary.map((point) => ({ text: point, margin: [0, 0, 0, 4] })), margin: [0, 0, 0, 4] } : { text: t('review.noSummary'), style: 'note' },
+      // The final MoM holds only the summary and action items (owner, deadline).
+      { text: t('review.summary'), style: 'h2' },
+      meeting.summary?.length ? { text: summaryProse(meeting.summary), margin: [0, 0, 0, 4] } : { text: t('review.noSummary'), style: 'note' },
 
       { text: t('mom.actions'), style: 'h2' },
       ...(tasks.length ? tasks : [{ text: t('pdf.noTasks'), style: 'note' } as Content]),

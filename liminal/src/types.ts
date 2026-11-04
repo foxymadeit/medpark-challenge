@@ -53,7 +53,7 @@ export interface TranscriptLine {
   edited?: boolean;
 }
 
-/** kw = highlighted term (patient, bed, room, name, date); space/punct are not clickable. */
+/** kw = highlighted term (patient, room, name, date); space/punct are not clickable. */
 export interface TranscriptToken {
   kind: 'kw' | 'word' | 'punct' | 'space';
   text: string;
@@ -69,9 +69,11 @@ export const SPOKEN_LANGS: SpokenLang[] = ['ro', 'ru', 'en'];
 export interface Task {
   id: string;
   ownerId: string;
-  patient: string; // "Bed 8", "Room 204"
+  patient: string; // "Patient 48" (floor 4, place 8), or a topic: "ICU", "Room 110"
   title: string;
   due: string; // ISO date
+  /** Checked on Review before sending: Send stays off until every action item is confirmed. */
+  confirmed?: boolean;
 }
 
 /** Participant as recorded at the meeting date — frozen once sent. */
@@ -93,7 +95,7 @@ export interface Meeting {
   status: MeetingStatus;
   participants: ParticipantSnapshot[];
   transcript: TranscriptLine[];
-  /** Key points of the meeting (the MoM summary), shown above the tasks. */
+  /** The MoM summary, shown above the tasks as one running text: an edited one is a single entry, the AI's are its key points. */
   summary: string[];
   tasks: Task[];
   sentTo?: number;

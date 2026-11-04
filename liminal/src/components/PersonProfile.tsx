@@ -1,4 +1,4 @@
-import { CheckIcon, EnvelopeSimpleIcon, PencilSimpleIcon, UsersThreeIcon, XIcon } from '@phosphor-icons/react';
+import { CheckIcon, PencilSimpleIcon, UsersThreeIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/I18nProvider';
@@ -7,6 +7,8 @@ import { useStore } from '../store/AppStore';
 import { Avatar } from './Avatar';
 import { Button } from './Button';
 import { Dialog } from './Dialog';
+import { Dropdown } from './Dropdown';
+import { ACCESS_LEVELS, type Access } from '../types';
 
 /** One fact row with a pen: view → inline input → ✓ saves (dimmed until changed), Esc / ✕ cancels. */
 function EditableFact({ label, value, display, type = 'text', placeholder, validate, onSave }: { label: string; value: string; display: ReactNode; type?: string; placeholder?: string; validate?: (v: string) => string | undefined; onSave: (v: string) => void }) {
@@ -28,8 +30,8 @@ function EditableFact({ label, value, display, type = 'text', placeholder, valid
       <dt>{label}</dt>
       <dd>
         {editing ? (
-          <span className="stack" style={{ gap: 4 }}>
-            <span className="row" style={{ gap: 4 }}>
+          <span className="stack" style={{ gap: 'var(--sm-space-1)' }}>
+            <span className="row" style={{ gap: 'var(--sm-space-1)' }}>
               <input
                 autoFocus
                 type={type}
@@ -73,10 +75,15 @@ function EditableFact({ label, value, display, type = 'text', placeholder, valid
 export function PersonProfileDialog({ personId, onClose, showManage = true }: { personId: string; onClose: () => void; showManage?: boolean }) {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
-  const { account, resolvePerson, templates, meetings, updatePerson, updateAccount } = useStore();
+  const { account, people, resolvePerson, templates, meetings, updatePerson, updateAccount } = useStore();
+  const [pendingAccess, setPendingAccess] = useState<Access | null>(null); // raising access waits for a yes
   const person = resolvePerson(personId);
   if (!person) return null;
   const isMe = person.id === account?.personId;
+  // Access can be changed by an Admin, as on the Participants page; the only Admin can't demote themselves.
+  const viewerIsAdmin = !!account && resolvePerson(account.personId)?.access === 'admin';
+  const soleAdmin = person.access === 'admin' && people.filter((p) => p.access === 'admin').length <= 1;
+  const changeAccess = (v: Access) => (v === 'receives' ? updatePerson(person.id, { access: v }) : setPendingAccess(v));
 
   const inTemplates = templates.filter((tpl) => tpl.participantIds.includes(personId));
   const attended = meetings.filter((m) => m.participants.some((p) => p.personId === personId)).sort((a, b) => b.date.localeCompare(a.date));
@@ -108,7 +115,7 @@ export function PersonProfileDialog({ personId, onClose, showManage = true }: { 
           display={
             person.email ? (
               <a className="link-btn" href={`mailto:${person.email}`}>
-                <EnvelopeSimpleIcon size={16} aria-hidden /> {person.email}
+                {person.email}
               </a>
             ) : (
               <span className="c-secondary">{t('review.noEmail')}</span>
@@ -127,7 +134,21 @@ export function PersonProfileDialog({ personId, onClose, showManage = true }: { 
         />
         <div>
           <dt>{t('profile.access')}</dt>
-          <dd>{t(`access.${person.access}`)}</dd>
+          <dd>
+            {viewerIsAdmin ? (
+              <Dropdown
+                label={t('participants.accessFor', { name: person.name })}
+                value={person.access}
+                options={ACCESS_LEVELS.map((a) => ({ value: a, label: t(`access.${a}`) }))}
+                onChange={(v) => changeAccess(v as Access)}
+                width={200}
+                disabled={soleAdmin}
+                disabledReason={t('participants.soleAdmin')}
+              />
+            ) : (
+              t(`access.${person.access}`)
+            )}
+          </dd>
         </div>
         <div>
           <dt>{t('profile.templates')}</dt>
@@ -147,11 +168,63 @@ export function PersonProfileDialog({ personId, onClose, showManage = true }: { 
           </dd>
         </div>
       </dl>
+      {/* Giving Organizer or Admin rights asks first (same wording as on the Participants page). */}
+      {pendingAccess && (
+        <div className="stack" style={{ gap: 'var(--sm-space-3)' }} role="group" aria-label={t('participants.accessTitle', { access: t(`accessTitle.${pendingAccess}`) })}>
+          <p className="lead" style={{ margin: 0 }}>
+            {t('participants.accessLead', { name: person.name, access: t(`accessTitle.${pendingAccess}`) })}
+          </p>
+          <p className="note" style={{ margin: 0 }}>
+            {t(`access.${pendingAccess}Desc`)}
+          </p>
+          <div className="row" style={{ justifyContent: 'flex-end', gap: 'var(--sm-space-3)' }}>
+            <Button variant="ghost" onClick={() => setPendingAccess(null)}>
+              {t('common.cancel')}
+            </Button>
+            <Button variant="primary" onClick={() => (updatePerson(person.id, { access: pendingAccess }), setPendingAccess(null))}>
+              {t('participants.accessConfirm')}
+            </Button>
+          </div>
+        </div>
+      )}
       {showManage && (
         <Button icon={<UsersThreeIcon size={20} aria-hidden />} onClick={() => navigate('/participants')}>
           {t('profile.manage')}
         </Button>
       )}
+    </Dialog>
+  );
+}
+
+/** Profile preview for someone who isn't in the directory yet (a name typed on New meeting): what we know about them. */
+export function GuestProfileDialog({ name, role, email, onClose }: { name: string; role?: string; email?: string; onClose: () => void }) {
+  const { t } = useI18n();
+  return (
+    <Dialog title={t('profile.title')} onClose={onClose}>
+      <div className="profile__head">
+        <Avatar name={name} />
+        <span className="who__text">
+          <span className="profile__name">
+            <span className="t-h2">{name}</span>
+          </span>
+          {role && <span className="who__sub">{role}</span>}
+        </span>
+      </div>
+      <dl className="profile__facts">
+        <div>
+          <dt>{t('profile.email')}</dt>
+          <dd className={email ? undefined : 'c-secondary'}>{email ?? t('review.noEmail')}</dd>
+        </div>
+        <div>
+          <dt>{t('profile.role')}</dt>
+          <dd>{role || <span className="c-secondary">{t('profile.noRole')}</span>}</dd>
+        </div>
+        <div>
+          <dt>{t('profile.access')}</dt>
+          <dd>{t('profile.guest')}</dd>
+        </div>
+      </dl>
+      {!email && <p className="note">{t('profile.guestNote')}</p>}
     </Dialog>
   );
 }

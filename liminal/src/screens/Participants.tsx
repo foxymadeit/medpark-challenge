@@ -1,13 +1,16 @@
-import { UserPlusIcon, UsersThreeIcon, XIcon } from '@phosphor-icons/react';
+import { PlusIcon, UsersThreeIcon, XIcon } from '@phosphor-icons/react';
 import { useState, type FormEvent } from 'react';
 import { Button } from '../components/Button';
 import { Dialog } from '../components/Dialog';
 import { Dropdown } from '../components/Dropdown';
 import { TextField } from '../components/TextField';
 import { Avatar } from '../components/Avatar';
+import { PageHeader } from '../components/PageHeader';
+import { SearchBar } from '../components/SearchBar';
 import { PersonProfileDialog } from '../components/PersonProfile';
 import { useI18n } from '../i18n/I18nProvider';
 import { isEmail } from '../lib/format';
+import { suggestByName } from '../lib/participants';
 import { roleSuggestions } from '../mocks';
 import { useStore } from '../store/AppStore';
 import { ACCESS_LEVELS, type Access, type Person } from '../types';
@@ -38,14 +41,14 @@ export function AddParticipantModal({ onClose, onAdded, title, initialName = '' 
 
   return (
     <Dialog title={title ?? t('addParticipant.title')} onClose={onClose}>
-      <form className="stack" style={{ gap: 16 }} onSubmit={submit} noValidate>
+      <form className="stack" style={{ gap: 'var(--sm-space-4)' }} onSubmit={submit} noValidate>
         <TextField label={t('addParticipant.name')} placeholder={t('addParticipant.namePh')} value={name} onChange={(e) => setName(e.target.value)} error={errors.name} />
-        <div className="row" style={{ gap: 16, alignItems: 'flex-start' }}>
+        <div className="row" style={{ gap: 'var(--sm-space-4)', alignItems: 'flex-start' }}>
           <TextField label={t('addParticipant.role')} placeholder={t('addParticipant.rolePh')} value={role} onChange={(e) => setRole(e.target.value)} />
           <TextField label={t('addParticipant.email')} placeholder={t('addParticipant.emailPh')} type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
         </div>
         <fieldset className="stack access-options">
-          <legend className="field__label">{t('addParticipant.access')}</legend>
+          <legend className="form-label">{t('addParticipant.access')}</legend>
           {/* Everyone gets the minutes; Organizer and Admin add rights on top. Admin includes Organizer. */}
           <label className="access-check is-fixed">
             <input type="checkbox" className="checkbox" checked disabled />
@@ -94,7 +97,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
   };
 
   return (
-    <tr>
+    <tr className="row-hover">
       <td>
         {/* Avatar + name open the profile, where email and role can be edited. */}
         <button type="button" className="who who--button" aria-label={t('profile.open', { name: displayName })} onClick={() => setProfileOpen(true)}>
@@ -108,7 +111,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
       </td>
       <td>
         {editable ? (
-          <Dropdown label={t('participants.roleFor', { name: person.name })} value={person.role} options={roles.map((r) => ({ value: r, label: r }))} onChange={setRole} customLabel={t('participants.customRole')} customPlaceholder={t('participants.customRolePh')} width={240} />
+          <Dropdown label={t('participants.roleFor', { name: person.name })} value={person.role} options={roles.map((r) => ({ value: r, label: r }))} onChange={setRole} customLabel={t('participants.customRole')} customPlaceholder={t('participants.customRolePh')} width="100%" />
         ) : (
           <span className="t-body-md c-secondary">{person.role}</span>
         )}
@@ -121,7 +124,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
             options={ACCESS_LEVELS.map((a) => ({ value: a, label: t(`access.${a}`) }))}
             // Giving Organizer or Admin rights asks first; lowering to Participant applies at once.
             onChange={(v) => (v === 'receives' ? updatePerson(person.id, { access: 'receives' }) : setPendingAccess(v as Access))}
-            width={200}
+            width="100%"
             disabled={isYou && soleAdmin} // the only Admin cannot demote themselves
             disabledReason={t('participants.soleAdmin')}
           />
@@ -139,11 +142,11 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
           <Dialog title={t('participants.accessTitle', { access: t(`accessTitle.${pendingAccess}`) })} onClose={() => setPendingAccess(null)}>
             <p className="lead">{t('participants.accessLead', { name: person.name, access: t(`accessTitle.${pendingAccess}`) })}</p>
             <p className="note">{t(`access.${pendingAccess}Desc`)}</p>
-            <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+            <div className="row" style={{ justifyContent: 'flex-end', gap: 'var(--sm-space-3)' }}>
               <Button variant="ghost" onClick={() => setPendingAccess(null)}>
                 {t('common.cancel')}
               </Button>
-              <Button variant="ink" onClick={() => (updatePerson(person.id, { access: pendingAccess }), setPendingAccess(null))}>
+              <Button variant="primary" onClick={() => (updatePerson(person.id, { access: pendingAccess }), setPendingAccess(null))}>
                 {t('participants.accessConfirm')}
               </Button>
             </div>
@@ -152,7 +155,7 @@ function ParticipantRow({ person, editable, soleAdmin }: { person: Person; edita
         {confirming && (
           <Dialog title={t('participants.removeTitle')} onClose={() => setConfirming(false)}>
             <p className="lead">{t('participants.removeLead', { name: person.name })}</p>
-            <div className="row" style={{ justifyContent: 'flex-end', gap: 12 }}>
+            <div className="row" style={{ justifyContent: 'flex-end', gap: 'var(--sm-space-3)' }}>
               <Button variant="ghost" onClick={() => setConfirming(false)}>
                 {t('common.cancel')}
               </Button>
@@ -172,31 +175,40 @@ export function Participants() {
   const { t } = useI18n();
   const { people } = useStore();
   const [adding, setAdding] = useState(false);
+  const [query, setQuery] = useState('');
+  const [pickedId, setPickedId] = useState<string>(); // a suggestion picked: just that person
   const onlyYou = people.length <= 1;
+  // Search: first name or surname starting with what's typed (the same rule as every name suggestion), or the start
+  // of the email once there's an @. The suggestions under the field and the table follow the same rule.
+  const q = query.trim().toLowerCase();
+  const matches = q.includes('@') ? people.filter((p) => p.email?.toLowerCase().startsWith(q)) : suggestByName(people, q, () => false, people.length);
+  const shown = pickedId ? people.filter((p) => p.id === pickedId) : q ? people.filter((p) => matches.includes(p)) : people;
   const soleAdmin = people.filter((p) => p.access === 'admin').length <= 1;
 
   return (
-    <div className="page">
-      <div className={`page__head page__head--row ${onlyYou ? 'participants__head--bare' : 'participants__head'}`}>
-        <div className="page__head">
-          <h1 className="t-h1">{t('participants.title')}</h1>
-          {!onlyYou && <p className="lead">{t('participants.lead')}</p>}
-        </div>
-        {!onlyYou && (
-          <Button variant="ink" icon={<UserPlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
-            {t('participants.add')}
-          </Button>
-        )}
-      </div>
+    <div className="page page--fit">
+      <PageHeader
+        title={t('participants.title')}
+        aside={
+          !onlyYou && (
+            <Button icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)}>
+              {t('participants.add')}
+            </Button>
+          )
+        }
+      />
+      {!onlyYou && (
+        <SearchBar
+          value={query}
+          onChange={(v) => (setQuery(v), setPickedId(undefined))}
+          placeholder={t('participants.search')}
+          options={pickedId ? [] : matches.slice(0, 5).map((p) => ({ id: p.id, name: p.name, sub: p.email }))}
+          onPick={(o) => (setQuery(o.name), setPickedId(o.id))}
+        />
+      )}
 
       <div className="table-card">
         <table className="table table--people">
-          <colgroup>
-            <col />
-            <col style={{ width: 256 }} />
-            <col style={{ width: 208 }} />
-            <col style={{ width: 48 }} />
-          </colgroup>
           <thead>
             <tr>
               <th scope="col">{t('participants.colWho')}</th>
@@ -208,21 +220,31 @@ export function Participants() {
             </tr>
           </thead>
           <tbody>
-            {people.map((p) => (
+            {shown.map((p) => (
               <ParticipantRow key={p.id} person={p} editable={!onlyYou} soleAdmin={soleAdmin} />
             ))}
+            {!shown.length && (
+              <tr>
+                <td colSpan={4} className="note">
+                  {t('participants.noMatch', { query: query.trim() })}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
       {onlyYou ? (
-        <div className="empty-state">
-          <UsersThreeIcon size={32} aria-hidden />
-          <h2 className="t-h2">{t('participants.emptyTitle')}</h2>
-          <p className="lead">{t('participants.emptyLead')}</p>
-          <Button variant="ink" icon={<UserPlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)} className="empty-state__cta">
-            {t('participants.add')}
-          </Button>
+        <div className="vp-center">
+          {/* Centred on the window (vp-center), not on the content area. */}
+          <div className="empty-state">
+            <UsersThreeIcon size={32} aria-hidden />
+            <h2 className="t-h2">{t('participants.emptyTitle')}</h2>
+            <p className="lead">{t('participants.emptyLead')}</p>
+            <Button variant="primary" icon={<PlusIcon size={20} aria-hidden />} onClick={() => setAdding(true)} className="empty-state__cta">
+              {t('participants.add')}
+            </Button>
+          </div>
         </div>
       ) : null}
 

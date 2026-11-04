@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { cardioSummary, cardioTasks, cardioTranscript, demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, YOU_ID } from '../mocks';
+import { draftParticipants } from '../lib/participants';
+import { demoAccounts, demoDirectory, demoPeople, materialiseTasks, seedMeetings, seedTemplates, wardRoundMinutes, wardRoundSummary, wardRoundTasks, wardRoundTranscript, YOU_ID } from '../mocks';
 import { todayISO, uid } from '../lib/format';
 import { retokenize, tokenize } from '../lib/transcript';
 import type { Preferences, Account, Meeting, MeetingSource, MeetingType, ParticipantSnapshot, Person, Task, Template, SpokenLang } from '../types';
@@ -16,7 +17,15 @@ export interface Draft {
   title?: string;
   /** Meeting date chosen on New meeting (ISO); defaults to today. */
   date?: string;
-  emails: string[];
+  /** Participant chips on New meeting (name, optional role). Unset = the template's people or the type's defaults. */
+  participants?: DraftParticipant[];
+}
+
+export interface DraftParticipant {
+  name: string;
+  role?: string;
+  /** Guests added by email only (no name): the minutes go to this address. */
+  email?: string;
 }
 
 interface State {
@@ -38,7 +47,7 @@ const STORAGE_KEY = 'liminal:state';
  * Bump when the shape of the saved data or the seed data changes: browsers holding an older
  * version start fresh instead of mixing stale meetings with new code.
  */
-const DATA_VERSION = 2;
+const DATA_VERSION = 4; // 3: 60-person directory · 4: patients as "Patient NN", "action items" copy
 const LEGACY_KEYS = ['liminal:state:v1'];
 
 const initialState = (): State => ({
@@ -48,7 +57,7 @@ const initialState = (): State => ({
   people: [],
   meetings: seedMeetings,
   templates: seedTemplates,
-  draft: { type: 'medical', emails: [] },
+  draft: { type: 'medical' },
 });
 
 function load(): State {
@@ -162,13 +171,17 @@ function useStoreValue() {
       const id = uid('m');
       const { draft, templates, people } = state;
       const template = templates.find((t) => t.id === draft.templateId);
-      const ids = template ? template.participantIds : [state.account?.personId ?? YOU_ID];
-      const participants = ids.map(snapshot).filter((x): x is ParticipantSnapshot => !!x);
-      // Optional emails typed on New meeting become "Receives MoM" guests of this meeting.
-      for (const email of draft.emails) {
-        const known = people.find((p) => p.email?.toLowerCase() === email.toLowerCase());
-        if (known && !participants.some((x) => x.personId === known.id)) participants.push(snapshot(known.id)!);
-        if (!known) participants.push({ personId: uid('guest'), name: email, email, roleThen: '' });
+      // The organizer, then the participant chips from New meeting: a name found in the directory becomes that person,
+      // any other name a guest of this meeting (no email).
+      const youId = state.account?.personId ?? YOU_ID;
+      const participants = [snapshot(youId)].filter((x): x is ParticipantSnapshot => !!x);
+      for (const chip of draftParticipants(draft, template, resolvePerson)) {
+        const known = [...people, ...demoPeople].find((p) => p.name.toLowerCase() === chip.name.toLowerCase());
+        if (known) {
+          if (!participants.some((x) => x.personId === known.id)) participants.push(snapshot(known.id)!);
+        } else if (!participants.some((x) => x.name.toLowerCase() === chip.name.toLowerCase())) {
+          participants.push({ personId: uid('guest'), name: chip.name, email: chip.email, roleThen: chip.role ?? '' });
+        }
       }
       // Meetings can't be dated ahead (the picker also blocks it); an older saved future date falls back to today.
       const date = draft.date && draft.date < todayISO() ? draft.date : todayISO();
@@ -179,21 +192,22 @@ function useStoreValue() {
         title,
         type: draft.type,
         date,
-        durationMin: Math.max(1, durationMin),
+        // MOCK: a recording always comes out as the 56-minute example meeting, however long the demo recording was.
+        durationMin: source === 'recorded' ? wardRoundMinutes : Math.max(1, durationMin),
         source,
         fileName,
         status: 'processing',
         participants,
-        // MOCK: the AI output is the example Cardiology board minutes.
-        transcript: cardioTranscript,
-        summary: cardioSummary,
-        tasks: materialiseTasks(date, id, cardioTasks),
+        // MOCK: the AI output is the example ward round (mocks/wardRound.ts): long transcript, short summary, 20 action items.
+        transcript: wardRoundTranscript,
+        summary: wardRoundSummary,
+        tasks: materialiseTasks(date, id, wardRoundTasks),
       };
       // Name, date and added people belong to this meeting only; the next one starts fresh (type and template stay).
-      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined, date: undefined, emails: [] } }));
+      setState((s) => ({ ...s, meetings: [meeting, ...s.meetings], draft: { ...s.draft, title: undefined, date: undefined, participants: undefined } }));
       return id;
     },
-    [state, snapshot],
+    [state, snapshot, resolvePerson],
   );
 
   /** Replace one transcript token (word / term). A corrected term that names a patient also renames it in tasks. */
@@ -292,6 +306,7 @@ function useStoreValue() {
       return { ...s, templates: [...s.templates, { ...t, id: uid('t') }] };
     });
   }, []);
+  const deleteTemplate = useCallback((id: string) => setState((s) => ({ ...s, templates: s.templates.filter((x) => x.id !== id), draft: s.draft.templateId === id ? { ...s.draft, templateId: undefined } : s.draft })), []);
 
   /**
    * MOCK auth — any password works.
@@ -364,6 +379,7 @@ function useStoreValue() {
     removeLine,
     sendMeeting,
     saveTemplate,
+    deleteTemplate,
   };
 }
 

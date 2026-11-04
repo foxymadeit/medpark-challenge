@@ -1,4 +1,4 @@
-/* Design tokens — read from Figma variables (file bnCzuQd39C1F9AkGe7lwo7, "Liminal — minimal v3").
+/* Design tokens — read from Figma variables (file QYy8I55YDJRojTI6UCZENa, "Liminal — Design System").
    Names mirror the Figma variable names (--sm-*) so code ↔ design lookups stay 1:1. */
 :root {
   /* surface */
@@ -30,6 +30,9 @@
   --sm-control-track: #efede8;
   /* Text/icons on solid colour fills (template badges). */
   --sm-on-solid: #ffffff;
+  /* MoM screen (Figma 2089:2928): dashed "+ Add participant" circle, and a disabled Send. */
+  --sm-line-dashed: #d9d6d1;
+  --sm-ink-disabled: #c9c6c0;
   /* Keyword chip hover in the transcript. */
   --sm-keyword-hover: #ddd8cf;
 
@@ -57,11 +60,21 @@
   --sm-speaker-04: #6450a1;
 
   /* radius */
-  --sm-radius-tile: 10px;
-  --sm-radius-panel: 18px;
+  --sm-radius-xs: 4px; /* checkboxes, keywords */
+  --sm-radius-tile: 12px;
+  /* Selects (dropdowns): border width and the inner left padding before the text. Column headers above them line up with the text using these. */
+  --sm-field-border-w: 1px;
+  --sm-field-pad-x: 12px;
+  --sm-radius-panel: 16px;
   --sm-radius-inner: 8px; /* segmented / language switch items */
+  --sm-radius-full: 50%;
+  /* White ring around avatars, in proportion to their size (S 24, M 32, L 56). */
+  --sm-avatar-ring-s: 1px;
+  --sm-avatar-ring-m: 1.5px;
+  --sm-avatar-ring-l: 2px;
 
   /* spacing — 8-pt grid, 4 for micro gaps */
+  --sm-space-0-5: 2px; /* micro gaps inside a line */
   --sm-space-1: 4px;
   --sm-space-2: 8px;
   --sm-space-3: 12px;
@@ -77,11 +90,41 @@
     0 16px 32px 0 rgba(16, 16, 16, 0.03);
   --sm-elevation-button: inset 0 1px 0 0 rgba(255, 255, 255, 0.16), 0 1px 2px 0 rgba(16, 16, 16, 0.12),
     0 4px 8px 0 rgba(16, 16, 16, 0.08);
+  --sm-elevation-raised: 0 1px 1px rgba(16, 16, 16, 0.04), 0 4px 6px rgba(16, 16, 16, 0.04), 0 16px 16px rgba(16, 16, 16, 0.03); /* white buttons */
+  --sm-elevation-popover: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06); /* menus, suggestion lists, date picker */
+  --sm-elevation-modal: 0 2px 4px rgba(16, 16, 16, 0.05), 0 8px 20px rgba(16, 16, 16, 0.06), 0 24px 48px rgba(16, 16, 16, 0.05); /* dialogs, side panels */
+  --sm-focus-ring: 0 0 0 2px var(--sm-surface-panel), 0 0 0 4px var(--sm-ink-primary);
+
+  /* motion */
+  --sm-duration-fast: 120ms; /* hovers, fades, small bars */
+  --sm-duration-base: 200ms; /* drawers, progress */
+  --sm-duration-slow: 280ms; /* state changes that should be noticed */
 
   /* fonts */
   --sm-font-sign: 'Onest', system-ui, sans-serif;
   --sm-font-body: 'Golos Text', system-ui, sans-serif;
-  --sm-font-data: 'Geist Mono', ui-monospace, monospace;
+
+  /* type scale: the only font sizes in the app. The .t-* classes (base.css) use these; component rules that can't
+     carry a class (pseudo-elements, inputs, shared components) use the same tokens, so every font is on the scale. */
+  --sm-type-display: 600 40px/48px var(--sm-font-sign);
+  --sm-type-h1: 600 28px/36px var(--sm-font-sign);
+  --sm-type-h2: 600 20px/28px var(--sm-font-sign);
+  --sm-type-h3: 600 16px/24px var(--sm-font-sign);
+  --sm-type-plate: 500 12px/16px var(--sm-font-sign);
+  --sm-type-body-lg: 400 17px/24px var(--sm-font-body);
+  --sm-type-body-md: 400 15px/24px var(--sm-font-body);
+  --sm-type-body-sm: 400 13px/20px var(--sm-font-body);
+  --sm-type-strong: 600 15px/24px var(--sm-font-body);
+  --sm-type-button: 500 15px/20px var(--sm-font-body);
+  --sm-type-data-md: 500 15px/20px var(--sm-font-body);
+  --sm-type-data-sm: 400 13px/20px var(--sm-font-body);
+  --sm-type-timer: 500 72px/80px var(--sm-font-body);
+  --sm-type-label: 500 13px/20px var(--sm-font-body);
+  --sm-type-avatar-s: 500 10px/12px var(--sm-font-sign);
+  --sm-type-avatar-l: 500 18px/24px var(--sm-font-sign);
+
+  /* dialogs and the drawer dim the page */
+  --sm-scrim: rgba(16, 16, 16, 0.32);
 
   /* layout */
   --sm-topbar-h: 64px;

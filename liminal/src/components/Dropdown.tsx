@@ -1,5 +1,5 @@
 import { CaretDownIcon, CheckIcon } from '@phosphor-icons/react';
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 
 export interface DropdownOption {
   value: string;
@@ -20,12 +20,15 @@ interface Props {
   labelledBy?: string;
   /** Shown as a tooltip when disabled. */
   disabledReason?: string;
+  /** Own button content instead of the value + caret: a bare button that reads like the text it replaces. Its list is
+   *  pinned to the window (below the button, or above when there's no room), so a scrolling container can't clip it. */
+  trigger?: ReactNode;
 }
 
 const CUSTOM = '__custom__';
 
 /** Select-like listbox (Figma "Select" + "Dropdown · role"). Keyboard: ↑ ↓ Home End Enter Esc. */
-export function Dropdown({ label, value, options, onChange, customLabel, customPlaceholder, width, variant = 'row', disabled, labelledBy, disabledReason }: Props) {
+export function Dropdown({ label, value, options, onChange, customLabel, customPlaceholder, width, variant = 'row', disabled, labelledBy, disabledReason, trigger }: Props) {
   const id = useId();
   const [open, setOpen] = useState(false);
   const [custom, setCustom] = useState(false);
@@ -46,6 +49,24 @@ export function Dropdown({ label, value, options, onChange, customLabel, customP
     list.current?.focus();
     return () => document.removeEventListener('mousedown', onDoc);
   }, [open]);
+
+  // Pinned list (with `trigger`): placed from the button on open; scrolling outside or resizing closes it.
+  const [pos, setPos] = useState<{ left: number; top?: number; bottom?: number }>();
+  useLayoutEffect(() => {
+    if (!open || !trigger || !button.current) return;
+    const r = button.current.getBoundingClientRect();
+    const below = innerHeight - r.bottom;
+    const left = Math.max(8, Math.min(r.left, innerWidth - 240));
+    setPos(below >= 320 || below >= r.top ? { left, top: r.bottom + 4 } : { left, bottom: innerHeight - r.top + 4 });
+  }, [open, trigger]);
+  useEffect(() => {
+    if (!open || !trigger) return;
+    const onScroll = (e: Event) => !wrap.current?.contains(e.target as Node) && setOpen(false);
+    const onResize = () => setOpen(false);
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', onResize);
+    return () => (window.removeEventListener('scroll', onScroll, true), window.removeEventListener('resize', onResize));
+  }, [open, trigger]);
 
   const openList = () => {
     setActive(Math.max(0, all.findIndex((o) => o.value === value)));
@@ -109,7 +130,7 @@ export function Dropdown({ label, value, options, onChange, customLabel, customP
       <button
         ref={button}
         type="button"
-        className={`dropdown__button${variant === 'field' ? ' dropdown__button--field' : ''}`}
+        className={`dropdown__button${trigger ? ' dropdown__button--bare' : variant === 'field' ? ' dropdown__button--field' : ''}`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={labelledBy ? undefined : `${label}: ${current?.label ?? value}`}
@@ -124,10 +145,12 @@ export function Dropdown({ label, value, options, onChange, customLabel, customP
           }
         }}
       >
-        <span id={`${id}-value`} className="truncate">
-          {current?.label ?? value}
-        </span>
-        <CaretDownIcon size={16} aria-hidden />
+        {trigger ?? (
+          <span id={`${id}-value`} className="truncate">
+            {current?.label ?? value}
+          </span>
+        )}
+        {!trigger && <CaretDownIcon size={16} aria-hidden />}
       </button>
       {open && (
         <ul
@@ -136,7 +159,8 @@ export function Dropdown({ label, value, options, onChange, customLabel, customP
           tabIndex={-1}
           aria-label={label}
           aria-activedescendant={`${id}-opt-${active}`}
-          className="dropdown__list"
+          className={`dropdown__list${trigger ? ' dropdown__list--pinned' : ''}`}
+          style={trigger ? { ...pos, visibility: pos ? undefined : 'hidden' } : undefined}
           onKeyDown={onListKey}
         >
           {all.map((o, i) => (

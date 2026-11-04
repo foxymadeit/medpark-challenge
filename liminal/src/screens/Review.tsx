@@ -1,23 +1,35 @@
-import { CaretDownIcon, CheckIcon, DownloadSimpleIcon, FileMagnifyingGlassIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon, WarningIcon, XIcon } from '@phosphor-icons/react';
-import { useRef, useState } from 'react';
+import { DownloadSimpleIcon, PaperPlaneTiltIcon, PencilSimpleIcon, PlusIcon } from '@phosphor-icons/react';
+import { useLayoutEffect, useRef, useState, type TextareaHTMLAttributes } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
-import { SummaryPoints } from '../components/SummaryPoints';
+import { DatePicker } from '../components/DatePicker';
+import { SummaryText } from '../components/SummaryText';
 import { Dialog } from '../components/Dialog';
 import { MomPreview } from '../components/MomPreview';
 import { Dropdown } from '../components/Dropdown';
 import { TranscriptLines } from '../components/Minutes';
-import { PeopleStack } from '../components/PeopleStack';
+import { OwnerPicker } from '../components/OwnerPicker';
+import { ParticipantsPanel } from '../components/ParticipantsPanel';
+import { Segmented } from '../components/Segmented';
 import { useI18n } from '../i18n/I18nProvider';
-import { addDays, DUE_OFFSETS, dueRelative, formatDayMonth, formatWeekdayDate, isEmail, uid } from '../lib/format';
-import { speakerNamer } from '../lib/meeting';
+import { addDays, daysBetween, DUE_OFFSETS, dueRelative, formatWeekdayDate, todayISO, uid } from '../lib/format';
+import { speakers } from '../lib/meeting';
 import { downloadMomPdf } from '../lib/momPdf';
-import { lineTokens } from '../lib/transcript';
-import { detectedLanguages } from '../mocks';
-import { AddParticipantModal } from './Participants';
 import { useStore } from '../store/AppStore';
-import type { Meeting, Person, Task } from '../types';
+import type { Meeting, ParticipantSnapshot, Task } from '../types';
+
+/** Task text edited in place: wraps and grows like the read-mode text (same font, no padding), Enter saves. */
+function InlineText(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = '0';
+    el.style.height = `${el.scrollHeight}px`;
+  });
+  return <textarea ref={ref} rows={1} {...props} />;
+}
 
 /** Deadline as said in the meeting ("Tomorrow", "In 3 days"…) plus the date it resolves to. */
 function useDueLabel(meetingDate: string) {
@@ -29,190 +41,59 @@ function useDueLabel(meetingDate: string) {
   };
 }
 
-/** Small pen button: the one visual cue for "this can be edited". */
-function EditButton({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button type="button" className="icon-btn edit-btn" aria-label={label} title={label} onClick={onClick}>
-      <PencilSimpleIcon size={16} aria-hidden />
-    </button>
-  );
-}
-
-/** Owner's email under their name; pen to change it, "add" when missing. */
-function OwnerEmail({ meeting, personId, name }: { meeting: Meeting; personId: string; name: string }) {
-  const { t } = useI18n();
-  const { updatePerson, updateMeeting, resolvePerson } = useStore();
-  const email = resolvePerson(personId)?.email ?? meeting.participants.find((p) => p.personId === personId)?.email;
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(email ?? '');
-  const [error, setError] = useState(false);
-
-  const commit = () => {
-    const v = value.trim();
-    if (v && !isEmail(v)) return setError(true);
-    if (v && v !== email) {
-      updatePerson(personId, { email: v });
-      updateMeeting(meeting.id, { participants: meeting.participants.map((p) => (p.personId === personId ? { ...p, email: v } : p)) });
-    }
-    setError(false);
-    setEditing(false);
-  };
-
-  if (editing)
-    return (
-      <span className="stack" style={{ gap: 2 }}>
-        <input
-          autoFocus
-          type="email"
-          className="input input--inline owner-email"
-          placeholder={t('addParticipant.emailPh')}
-          aria-label={t('review.emailFor', { name })}
-          aria-invalid={error || undefined}
-          value={value}
-          onChange={(e) => (setValue(e.target.value), setError(false))}
-          onBlur={commit}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') commit();
-            if (e.key === 'Escape') (setValue(email ?? ''), setError(false), setEditing(false));
-          }}
-        />
-        {error && <span className="field__error">{t('common.emailInvalid')}</span>}
-      </span>
-    );
-  return (
-    <span className="owner-email-line">
-      {email ? (
-        <span className="t-body-sm c-secondary truncate">{email}</span>
-      ) : (
-        <span className="row t-body-sm c-secondary" style={{ gap: 4 }}>
-          <WarningIcon size={14} aria-hidden color="var(--sm-signal-danger)" />
-          {t('review.noEmail')}
-        </span>
-      )}
-      <EditButton label={t('review.emailFor', { name })} onClick={() => setEditing(true)} />
-    </span>
-  );
-}
-
-/** Meeting title with a pen; Enter saves, Esc cancels. */
+/** Meeting name, renamed as on New meeting: click it or its pen, the field opens on the same line in the same type with
+ * the name selected; Enter or leaving it saves, Esc cancels. */
 function EditableTitle({ meeting }: { meeting: Meeting }) {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const { updateMeeting } = useStore();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(meeting.title);
+  const start = () => (setValue(meeting.title), setEditing(true));
   const commit = () => {
     if (value.trim()) updateMeeting(meeting.id, { title: value.trim() });
-    else setValue(meeting.title);
     setEditing(false);
   };
   if (editing)
     return (
       <input
         autoFocus
-        className="input review__title-input"
+        className="input headline-input"
         aria-label={t('review.titleLabel')}
         value={value}
+        maxLength={120}
         onChange={(e) => setValue(e.target.value)}
+        onFocus={(e) => e.target.select()}
         onBlur={commit}
         onKeyDown={(e) => {
           if (e.key === 'Enter') commit();
-          if (e.key === 'Escape') (setValue(meeting.title), setEditing(false));
+          if (e.key === 'Escape') setEditing(false);
         }}
       />
     );
   return (
-    <div className="row" style={{ gap: 8 }}>
-      <h1 className="t-h1">
-        {meeting.title} · {formatDayMonth(meeting.date, lang)}
+    <div className="headline">
+      <h1 className="t-h1 headline__text review__title" onClick={start}>
+        {meeting.title}
       </h1>
-      <EditButton label={t('review.renameLabel')} onClick={() => setEditing(true)} />
+      <button type="button" className="icon-btn edit-btn headline__pen" aria-label={t('review.renameLabel')} title={t('review.renameLabel')} onClick={start}>
+        <PencilSimpleIcon size={20} aria-hidden />
+      </button>
     </div>
   );
 }
 
-const NOT_SET = '__who__';
-const NEW = '__new__';
-
-/**
- * What the recording contained beyond the participant list: languages spoken and voices that
- * didn't match anyone invited. Each voice can be assigned to a person from the directory.
- */
-function HeardPanel({ meeting, voiceName, unknown }: { meeting: Meeting; voiceName: (id: string) => string; unknown: string[] }) {
-  const { t } = useI18n();
-  const { people, updateMeeting } = useStore();
-  const invited = new Set(meeting.participants.map((p) => p.personId));
-  const candidates = people.filter((p) => !invited.has(p.id));
-
-  const [creatingFor, setCreatingFor] = useState<string | null>(null);
-  const assign = (voiceId: string, personId: string, created?: Omit<Person, 'id'>) => {
-    const person = created ?? people.find((p) => p.id === personId);
-    if (!person) return;
-    updateMeeting(meeting.id, {
-      transcript: meeting.transcript.map((l) => (l.speakerId === voiceId ? { ...l, speakerId: personId } : l)),
-      participants: [...meeting.participants, { personId, name: person.name, roleThen: person.role, email: person.email }],
-    });
-  };
-
-  return (
-    <div className="heard">
-      <div className="heard__row">
-        <span className="heard__label">{t('review.heard.languages')}</span>
-        <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
-          {detectedLanguages.map((l) => (
-            <span key={l} className="tag">
-              {t(`lang.${l}Name`)}
-            </span>
-          ))}
-        </span>
-      </div>
-      {unknown.length > 0 && (
-        <div className="heard__row heard__row--voices">
-          <span className="heard__label">{t('review.heard.voices')}</span>
-          <ul className="heard__voices">
-            {unknown.map((id) => {
-              const lines = meeting.transcript.filter((l) => l.speakerId === id);
-              return (
-                <li key={id} className="heard__voice">
-                  <span className="voice__dot" style={{ background: 'var(--sm-ink-tertiary)' }} aria-hidden />
-                  <span className="who__text" style={{ flex: 1, minWidth: 0 }}>
-                    <span className="who__name">{voiceName(id)}</span>
-                    <span className="who__sub">{t('review.heard.lines', { count: lines.length, times: lines.map((l) => l.at).join(', ') })}</span>
-                  </span>
-                  <Dropdown
-                    label={t('review.heard.who', { name: voiceName(id) })}
-                    value={NOT_SET}
-                    width={200}
-                    options={[
-                      { value: NOT_SET, label: t('review.heard.whoShort') },
-                      ...candidates.map((p) => ({ value: p.id, label: p.name })),
-                      { value: NEW, label: t('review.heard.newPerson') },
-                    ]}
-                    onChange={(v) => (v === NEW ? setCreatingFor(id) : v !== NOT_SET && assign(id, v))}
-                  />
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-      {creatingFor && (
-        <AddParticipantModal onClose={() => setCreatingFor(null)} onAdded={(pid, person) => assign(creatingFor, pid, person)} />
-      )}
-    </div>
-  );
-}
-
-/** 05 — Review the AI minutes, then send. Every editable value carries a pen. */
+/** 05 — Review the AI minutes, then send (Figma "05 MoM · D4 B"). One white card with one scroll: Summary (at most half
+ * the card), then Tasks under a sticky header; confirm every task. Participants (= who gets the MoM) in a panel on the
+ * right. Preview / Send under the card, centred on the window. Transcript tab: read-only, in the same card. */
 export function Review() {
   const { t, lang } = useI18n();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { account, meetings, setTasks, setSummary, sendMeeting, resolvePerson, correctToken, removeToken, flagTokenLang, editLine, removeLine, updateMeeting } = useStore();
-  // Last removal, so a slip can be undone.
-  const [removed, setRemoved] = useState<{ label: string; transcript: Meeting['transcript'] } | null>(null);
+  const { account, meetings, setTasks, setSummary, sendMeeting, resolvePerson, updateMeeting } = useStore();
   const meeting = meetings.find((m) => m.id === id);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [row, setRow] = useState<Task | null>(null);
+  const [row, setRow] = useState<Task | null>(null); // the task being edited (or added)
+  const [tab, setTab] = useState<'mom' | 'transcript'>('mom'); // MoM first
+  const [previewOpen, setPreviewOpen] = useState(false); // MoM text preview popup
   const dueLabel = useDueLabel(meeting?.date ?? '');
 
   const sent = useRef(false);
@@ -228,196 +109,234 @@ export function Review() {
   if (meeting.status === 'sent' && !sent.current) return <Navigate to={`/history/${meeting.id}`} replace />;
   if (meeting.status === 'processing') return <Navigate to={`/processing/${meeting.id}`} replace />;
 
-  // Voices in the transcript that aren't meeting participants (unknown voices and uninvited colleagues).
-  const [transcriptOpen, setTranscriptOpen] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false); // MoM text preview popup
-  const unknown = [...new Set(meeting.transcript.map((l) => l.speakerId))].filter((id) => !meeting.participants.some((p) => p.personId === id));
-  const nameOf = speakerNamer(meeting, resolvePerson, t);
+  const { nameOf, badgeOf } = speakers(meeting, resolvePerson, t); // badgeOf: an unknown voice as owner, "S1" on its colour
   const tasks = [...meeting.tasks].sort((a, b) => a.due.localeCompare(b.due));
   const dueOptions = [...new Set([...DUE_OFFSETS.map((n) => addDays(meeting.date, n)), ...(row ? [row.due] : [])])].sort();
+  // Send is on only when every action item is confirmed. Confirm per row (the row checkbox), or all at once with the
+  // footer checkbox, which also takes them all back.
+  const confirmed = meeting.tasks.filter((x) => x.confirmed).length;
+  const allConfirmed = confirmed === meeting.tasks.length;
+  const someConfirmed = confirmed > 0 && !allConfirmed;
+  const toggleConfirm = (task: Task) => setTasks(meeting.id, meeting.tasks.map((x) => (x.id === task.id ? { ...x, confirmed: !x.confirmed } : x)));
+  const setAllConfirmed = (on: boolean) => setTasks(meeting.id, meeting.tasks.map((x) => ({ ...x, confirmed: on })));
+  const setParticipants = (participants: ParticipantSnapshot[]) => updateMeeting(meeting.id, { participants });
+  // A new meeting date moves the deadlines with it, so "Tomorrow" stays tomorrow.
+  const changeDate = (date: string) => {
+    const shift = daysBetween(meeting.date, date);
+    updateMeeting(meeting.id, { date, tasks: meeting.tasks.map((x) => ({ ...x, due: addDays(x.due, shift) })) });
+    if (row) setRow({ ...row, due: addDays(row.due, shift) });
+  };
 
   const isNew = !!row && !meeting.tasks.some((x) => x.id === row.id);
   // A new task shows as an editing row on top; it's only added once saved.
   const rows = isNew && row ? [row, ...tasks] : tasks;
-  const addTask = () => {
-    const task: Task = { id: uid('task'), ownerId: account?.personId && meeting.participants.some((p) => p.personId === account.personId) ? account.personId : meeting.participants[0]?.personId ?? '', patient: '', title: '', due: addDays(meeting.date, 1) };
-    setEditingId(task.id);
-    setRow(task);
-  };
-  const startRow = (task: Task) => (setEditingId(task.id), setRow(task));
-  const cancelRow = () => (setEditingId(null), setRow(null));
+  const addTask = () =>
+    setRow({ id: uid('task'), ownerId: account?.personId && meeting.participants.some((p) => p.personId === account.personId) ? account.personId : meeting.participants[0]?.personId ?? '', patient: '', title: '', due: addDays(meeting.date, 1) });
+  const cancelRow = () => setRow(null);
   const saveRow = () => {
     if (row && row.title.trim()) {
-      const clean = { ...row, title: row.title.trim(), patient: row.patient.trim() };
+      // An edited (or new) action item, owner included, needs confirming again.
+      const clean = { ...row, title: row.title.trim(), patient: row.patient.trim(), confirmed: false };
       setTasks(meeting.id, isNew ? [...meeting.tasks, clean] : meeting.tasks.map((x) => (x.id === row.id ? clean : x)));
     }
     cancelRow();
   };
+  // Owner picked while editing: kept with the row until Save; someone new joins the meeting right away.
+  const pickOwner = (owner: ParticipantSnapshot) => {
+    if (!meeting.participants.some((p) => p.personId === owner.personId)) setParticipants([...meeting.participants, owner]);
+    if (row) setRow({ ...row, ownerId: owner.personId });
+  };
+  const sendBlocked = allConfirmed ? undefined : t('review.confirmAllFirst');
 
   return (
-    <div className="page review">
-      <header className="review__header">
-        <div className="stack" style={{ gap: 4, minWidth: 0 }}>
-          <EditableTitle meeting={meeting} />
-          <p className="note">{t('review.meta', { type: t(`types.${meeting.type}`), n: meeting.durationMin, count: meeting.participants.length })}</p>
-        </div>
-        <PeopleStack ids={meeting.participants.map((p) => p.personId)} names={false} max={6} />
-      </header>
-
-      <div className="review__panes">
-
-        <section className="card review__pane review__pane--tasks" aria-labelledby="rv-summary" tabIndex={0}>
-          {/* The MoM: written summary first, then the tasks. */}
-          <SummaryPoints
-            points={meeting.summary ?? []}
-            onChange={(points) => setSummary(meeting.id, points)}
-            head={
-              <h2 id="rv-summary" className="review__pane-title">
-                {t('review.summary')}
-              </h2>
-            }
-          />
-          <div className="summary-head summary-head--tasks">
-            <h3 className="review__sub-title">{t('review.tasks')}</h3>
-            <button type="button" className="btn btn--ghost summary-head__add" onClick={addTask} disabled={isNew}>
-              <PlusIcon size={16} aria-hidden />
-              {t('review.addTask')}
-            </button>
+    <div className="page review page--fit">
+      <div className="review__layout">
+        <header className="review__header">
+          {/* Name and date in two columns, as on New meeting. */}
+          <div className="review__head-main">
+            <div className="stack review__head-text" style={{ gap: 'var(--sm-space-1)' }}>
+              <EditableTitle meeting={meeting} />
+              <p className="note">{t('review.meta', { type: t(`types.${meeting.type}`), n: meeting.durationMin, count: meeting.participants.length })}</p>
+            </div>
+            <DatePicker label={t('newMeeting.date')} max={todayISO()} value={meeting.date} onChange={changeDate} />
           </div>
-          <table className="summary-table">
-            <thead>
-              <tr>
-                <th scope="col">
-                  {/* "Tasks" is already the heading above; keep the column name for screen readers only. */}
-                  <span className="sr-only">{t('review.task')}</span>
-                </th>
-                <th scope="col">{t('review.owner')}</th>
-                <th scope="col">{t('review.due')}</th>
-                <th scope="col">
-                  <span className="sr-only">{t('review.edit')}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((task) =>
-                editingId === task.id && row ? (
-                  <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
-                    <td>
-                      <input className="input input--inline summary-table__patient-input" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} />
-                      <input className="input input--inline" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? saveRow() : e.key === 'Escape' ? cancelRow() : undefined)} />
-                    </td>
-                    <td>
-                      <Dropdown variant="field" label={t('review.owner')} value={row.ownerId} options={meeting.participants.map((x) => ({ value: x.personId, label: x.name }))} onChange={(v) => setRow({ ...row, ownerId: v })} />
-                    </td>
-                    <td>
-                      <Dropdown variant="field" label={t('review.due')} value={row.due} options={dueOptions.map((d) => ({ value: d, label: [dueLabel(d).rel, dueLabel(d).date].filter(Boolean).join(' · ') }))} onChange={(v) => setRow({ ...row, due: v })} />
-                    </td>
-                    <td>
-                      <span className="row" style={{ gap: 4 }}>
-                        {row.title.trim() && (isNew || !(row.title === task.title && row.patient === task.patient && row.ownerId === task.ownerId && row.due === task.due)) && (
-                          <button type="button" className="icon-btn icon-btn--confirm" aria-label={t('review.save')} title={t('review.save')} onClick={saveRow}>
-                            <CheckIcon size={16} aria-hidden />
-                          </button>
-                        )}
-                        <button type="button" className="icon-btn" aria-label={t('review.cancel')} title={t('review.cancel')} onClick={cancelRow}>
-                          <XIcon size={16} aria-hidden />
-                        </button>
-                      </span>
-                    </td>
-                  </tr>
-                ) : (
-                  <tr key={task.id}>
-                    <td>
-                      {task.patient && <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>}
-                      <span className="t-body-md">{task.title}</span>
-                    </td>
-                    <td>
-                      <span className="summary-table__owner">
-                        <Avatar name={nameOf(task.ownerId)} />
-                        <span className="who__text">
-                          <span className="who__name truncate">{nameOf(task.ownerId)}</span>
-                          <OwnerEmail meeting={meeting} personId={task.ownerId} name={nameOf(task.ownerId)} />
-                        </span>
-                      </span>
-                    </td>
-                    <td>
-                      <span className="due">
-                        <span className="due__rel">{dueLabel(task.due).rel}</span>
-                        {dueLabel(task.due).date && <span className="due__date">{dueLabel(task.due).date}</span>}
-                      </span>
-                    </td>
-                    <td>
-                      <EditButton label={t('review.editTask', { title: task.title })} onClick={() => startRow(task)} />
-                    </td>
-                  </tr>
-                ),
-              )}
-            </tbody>
-          </table>
-        </section>
+          <Segmented<'mom' | 'transcript'>
+            label={t('review.view')}
+            variant="auto"
+            value={tab}
+            onChange={setTab}
+            options={[
+              { value: 'mom', label: t('review.tabMom') },
+              { value: 'transcript', label: t('review.transcript') },
+            ]}
+          />
+        </header>
 
-        {/* Collapsed by default so the minutes (summary, tasks) come first; opens for word-level fixes. */}
-        <section className={`card review__pane review__pane--transcript${transcriptOpen ? ' is-open' : ''}`} aria-labelledby="rv-transcript">
-          <h2 className="review__pane-title">
-            <button type="button" id="rv-transcript" className="review__disclosure" aria-expanded={transcriptOpen} aria-controls="rv-transcript-body" onClick={() => setTranscriptOpen((o) => !o)}>
-              <span>{t('review.transcript')}</span>
-              <span className="review__disclosure-meta note">
-                {t('review.transcriptMeta', { count: meeting.transcript.length })}
-                {unknown.length > 0 && ` · ${t('review.voicesToName', { count: unknown.length })}`}
-              </span>
-              <span className="review__disclosure-action" aria-hidden>
-                {transcriptOpen ? t('review.transcriptHide') : t('review.transcriptCheck')}
-                <CaretDownIcon size={18} className="review__disclosure-caret" />
-              </span>
-            </button>
-          </h2>
-          {/* Always mounted so it can grow downwards; inert (unfocusable, hidden from AT) while closed. */}
-          <div id="rv-transcript-body" className="review__transcript-body" inert={!transcriptOpen}>
-          <div className="review__transcript-inner">
-          <p className="note review__hint">{t('review.word.hint')}</p>
-          {removed && (
-            <p className="undo-bar" role="status">
-              <span className="truncate">{removed.label}</span>
-              <button type="button" className="link-btn" onClick={() => (updateMeeting(meeting.id, { transcript: removed.transcript }), setRemoved(null))}>
-                {t('review.word.undo')}
-              </button>
-            </p>
+        <section className="card review__card" aria-label={tab === 'mom' ? t('review.tabMom') : t('review.transcript')}>
+          {tab === 'mom' ? (
+            <div className="review__scroll">
+              {/* Summary: at most half the card; a longer one scrolls inside. */}
+              <section className="review__summary" aria-labelledby="rv-summary">
+                <SummaryText
+                  points={meeting.summary ?? []}
+                  onChange={(points) => setSummary(meeting.id, points)}
+                  head={
+                    <h2 id="rv-summary" className="review__pane-title">
+                      {t('review.summary')}
+                    </h2>
+                  }
+                />
+              </section>
+
+              {/* Tasks: one header row (title, count, Owner, Deadline, Add task), sticky while the card scrolls. */}
+              <table className="summary-table task-table" aria-label={t('review.tasks')}>
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      <span className="review__count-head">
+                        <span className="review__pane-title">{t('review.tasks')}</span>
+                        <span className="note">{meeting.tasks.length}</span>
+                      </span>
+                    </th>
+                    <th scope="col">{t('review.owner')}</th>
+                    <th scope="col">{t('review.due')}</th>
+                    <th scope="col">
+                      <span className="sr-only">{t('review.actions')}</span>
+                      <button type="button" className="note add-link" onClick={addTask} disabled={!!row}>
+                        <PlusIcon size={16} aria-hidden />
+                        {t('review.addTask')}
+                      </button>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((task) =>
+                    row && row.id === task.id ? (
+                      <tr key={task.id} className="is-editing" onKeyDown={(e) => e.key === 'Escape' && (e.stopPropagation(), cancelRow())}>
+                        {/* Edit: same columns as reading; the row lights up across the card, the texts become fields. */}
+                        <td>
+                          {/* The checkbox stays, inactive, so the fields keep the read-mode text's spot. */}
+                          <div className="task-check">
+                            <input type="checkbox" className="checkbox" checked={false} disabled readOnly aria-hidden />
+                            <div className="task-check__text">
+                              {/* A textarea like the task's, not an input: browsers place an input's text on their own, and it would jump. */}
+                              <InlineText className="task-edit summary-table__patient" aria-label={t('review.patientField')} placeholder={t('review.patientField')} value={row.patient} onChange={(e) => setRow({ ...row, patient: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? (e.preventDefault(), saveRow()) : e.key === 'Escape' ? cancelRow() : undefined)} />
+                              <InlineText className="task-edit task-table__title" aria-label={t('review.task')} placeholder={t('review.taskPh')} value={row.title} autoFocus onChange={(e) => setRow({ ...row, title: e.target.value })} onKeyDown={(e) => (e.key === 'Enter' ? (e.preventDefault(), saveRow()) : e.key === 'Escape' ? cancelRow() : undefined)} />
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <OwnerPicker meeting={meeting} ownerId={row.ownerId} name={nameOf(row.ownerId)} badge={badgeOf(row.ownerId)} onPick={pickOwner} />
+                        </td>
+                        <td>
+                          <Dropdown
+                            label={t('review.due')}
+                            value={row.due}
+                            options={dueOptions.map((d) => ({ value: d, label: [dueLabel(d).rel, dueLabel(d).date].filter(Boolean).join(' · ') }))}
+                            onChange={(v) => setRow({ ...row, due: v })}
+                            trigger={
+                              <span className="due">
+                                <span className="due__rel">{dueLabel(row.due).rel}</span>
+                                {dueLabel(row.due).date && <span className="due__date">{dueLabel(row.due).date}</span>}
+                              </span>
+                            }
+                          />
+                        </td>
+                        <td>
+                          <span className="task-actions">
+                            <Button className="task-btn" onClick={cancelRow}>
+                              {t('review.cancel')}
+                            </Button>
+                            <Button variant="ink" className="task-btn" onClick={saveRow} disabled={!row.title.trim()}>
+                              {t('review.saveShort')}
+                            </Button>
+                          </span>
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr key={task.id} className={task.confirmed ? 'is-confirmed' : undefined}>
+                        <td>
+                          {/* Confirm this item: a checkbox leads the row; the whole text is its label, so tapping the task toggles it. */}
+                          <label className="task-check">
+                            <input
+                              type="checkbox"
+                              className="checkbox"
+                              checked={!!task.confirmed}
+                              disabled={!!row}
+                              aria-label={task.confirmed ? t('review.unconfirmTask', { title: task.title }) : t('review.confirmTask', { title: task.title })}
+                              onChange={() => toggleConfirm(task)}
+                            />
+                            <span className="task-check__text">
+                              {task.patient && <span className="summary-table__patient">{task.patient}</span>}
+                              <span className="task-table__title">{task.title}</span>
+                            </span>
+                          </label>
+                        </td>
+                        <td>
+                          <span className="task-owner">
+                            <Avatar name={nameOf(task.ownerId)} {...badgeOf(task.ownerId)} />
+                            <span className="task-owner__name truncate">{nameOf(task.ownerId)}</span>
+                          </span>
+                        </td>
+                        <td>
+                          <span className="due">
+                            <span className="due__rel">{dueLabel(task.due).rel}</span>
+                            {dueLabel(task.due).date && <span className="due__date">{dueLabel(task.due).date}</span>}
+                          </span>
+                        </td>
+                        <td>
+                          {/* Confirming moved to the row checkbox; edit stays here as a quiet pencil. */}
+                          <span className="task-actions">
+                            <button type="button" className="icon-btn task-edit-btn" aria-label={t('review.editTask', { title: task.title })} onClick={() => setRow(task)} disabled={!!row}>
+                              <PencilSimpleIcon size={20} aria-hidden />
+                            </button>
+                          </span>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="review__scroll review__transcript">
+              <TranscriptLines lines={meeting.transcript} nameOf={nameOf} />
+            </div>
           )}
-          <HeardPanel meeting={meeting} voiceName={nameOf} unknown={unknown} />
-          <TranscriptLines
-            lines={meeting.transcript}
-            nameOf={nameOf}
-            onCorrect={(line, token, value) => (correctToken(meeting.id, line, token, value), setRemoved(null))}
-            onRemove={(line, token) => {
-              const tok = lineTokens(meeting.transcript[line])[token];
-              setRemoved({ label: t('review.word.removed', { word: tok?.text ?? '' }), transcript: meeting.transcript });
-              removeToken(meeting.id, line, token);
-            }}
-            onFlagLang={(line, token, l) => flagTokenLang(meeting.id, line, token, l)}
-            onEditLine={(line, text) => (editLine(meeting.id, line, text), setRemoved(null))}
-            onRemoveLine={(line) => {
-              setRemoved({ label: t('review.sentence.removed', { time: meeting.transcript[line].at }), transcript: meeting.transcript });
-              removeLine(meeting.id, line);
-            }}
-          />
-          </div>
-          </div>
         </section>
-      </div>
 
-      <div className="action-bar">
-        <p className="action-bar__left note">{t('review.teach')}</p>
-        <Button
-          icon={<FileMagnifyingGlassIcon size={20} aria-hidden />}
-          onClick={() => setPreviewOpen(true)}
-        >
-          {t('review.preview')}
-        </Button>
-        <Button variant="ink" icon={<PaperPlaneTiltIcon size={20} aria-hidden />} onClick={send}>
-          {t('review.send')}
-        </Button>
-      </div>
+        <ParticipantsPanel meeting={meeting} onChange={setParticipants} />
 
+        {/* Confirm-all, the same checkbox as the rows': ticks every item (Send turns on), and unticking takes them all back. */}
+        <div className="review__actions">
+          {meeting.tasks.length > 0 && (
+            <label className="review__confirm-all">
+              <input
+                type="checkbox"
+                className="checkbox"
+                ref={(el) => {
+                  if (el) el.indeterminate = someConfirmed; // "partial": a dash, not a tick
+                }}
+                checked={allConfirmed}
+                disabled={!!row}
+                onChange={() => setAllConfirmed(!allConfirmed)}
+              />
+              <span className="review__confirm-text">
+                {allConfirmed ? t('review.allConfirmed') : t('review.allCorrect')}
+                {someConfirmed && <span className="note">{confirmed}/{meeting.tasks.length}</span>}
+              </span>
+            </label>
+          )}
+          <div className="review__actions-row">
+            <Button className="review__btn" onClick={() => setPreviewOpen(true)}>
+              {t('review.preview')}
+            </Button>
+            <Button variant="primary" className="review__btn" onClick={send} disabled={!allConfirmed} title={sendBlocked}>
+              {t('review.send')}
+            </Button>
+          </div>
+        </div>
+      </div>
       {/* The MoM exactly as it will be sent, in a popup; download from here, or close and keep editing. */}
       {previewOpen && (
         <Dialog title={t('review.preview')} onClose={() => setPreviewOpen(false)} className="modal--mom">
@@ -427,8 +346,10 @@ export function Review() {
               {t('record.download')}
             </Button>
             <Button
-              variant="ink"
+              variant="primary"
               icon={<PaperPlaneTiltIcon size={20} aria-hidden />}
+              disabled={!allConfirmed}
+              title={sendBlocked}
               onClick={() => {
                 setPreviewOpen(false);
                 send();

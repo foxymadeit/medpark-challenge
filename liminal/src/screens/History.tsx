@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, DownloadSimpleIcon, FileAudioIcon, FilePdfIcon, ListChecksIcon, LockSimpleIcon, MagnifyingGlassIcon, MicrophoneIcon, UploadSimpleIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, DownloadSimpleIcon, FilePdfIcon, ListChecksIcon, LockSimpleIcon, MicrophoneIcon, UploadSimpleIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '../components/Button';
@@ -6,10 +6,12 @@ import { Dialog } from '../components/Dialog';
 import { Avatar } from '../components/Avatar';
 import { TranscriptLines } from '../components/Minutes';
 import { TextField } from '../components/TextField';
-import { SummaryPoints } from '../components/SummaryPoints';
+import { SummaryText } from '../components/SummaryText';
 import { StatusTag } from '../components/StatusTag';
 import { Segmented } from '../components/Segmented';
 import { MeetingTypeIcon } from '../components/MeetingTypeIcon';
+import { PageHeader } from '../components/PageHeader';
+import { SearchBar } from '../components/SearchBar';
 import { useI18n } from '../i18n/I18nProvider';
 import { dueRelative, formatDayMonth, formatFullDate, formatWeekdayDate } from '../lib/format';
 import { speakerNamer } from '../lib/meeting';
@@ -42,14 +44,9 @@ export function History() {
   const rows = meetings.filter((m) => (filter === 'all' || m.type === filter) && (!q || m.title.toLowerCase().includes(q)));
 
   return (
-    <div className="page">
-      <h1 className="t-h1">{t('history.title')}</h1>
-      <div className="history-tools">
-        <label className="search">
-          <MagnifyingGlassIcon size={16} aria-hidden />
-          <span className="sr-only">{t('history.search')}</span>
-          <input type="search" placeholder={t('history.search')} value={query} onChange={(e) => setQuery(e.target.value)} />
-        </label>
+    <div className="page page--fit">
+      <PageHeader title={t('history.title')} />
+      <SearchBar value={query} onChange={setQuery} placeholder={t('history.search')}>
         {/* Same toggle as the interface-language switch: warm track, raised white pill. */}
         <Segmented<MeetingType | 'all'>
           label={t('history.filter')}
@@ -58,22 +55,14 @@ export function History() {
           onChange={setFilter}
           options={(['all', ...MEETING_TYPES] as const).map((f) => ({
             value: f,
-            label: f === 'all' ? t('history.all') : t(`typesShort.${f}`),
+            label: f === 'all' ? t('history.all') : t(`types.${f}`),
             icon: f === 'all' ? undefined : <MeetingTypeIcon type={f} />,
           }))}
         />
-      </div>
+      </SearchBar>
 
       <div className="table-card">
-        <table className="table">
-          <colgroup>
-            <col />
-            <col style={{ width: 136 }} />
-            <col style={{ width: 136 }} />
-            <col style={{ width: 112 }} />
-            <col style={{ width: 144 }} />
-            <col style={{ width: 64 }} />
-          </colgroup>
+        <table className="table table--history">
           <thead>
             <tr>
               <th scope="col">{t('history.colMeeting')}</th>
@@ -95,14 +84,14 @@ export function History() {
                     <div className="who">
                       <Icon size={20} aria-hidden />
                       <div className="who__text">
-                        <Link to={recordPath(m)} className="who__name row-link truncate" onClick={(e) => e.stopPropagation()}>
+                        <Link to={recordPath(m)} className="who__name row-link history__title" onClick={(e) => e.stopPropagation()}>
                           {m.title}
                         </Link>
-                        <span className="who__sub">{m.source === 'uploaded' ? t('history.uploaded') : t('history.recorded')}</span>
+                        <span className="who__sub history__source">{m.source === 'uploaded' ? t('history.uploaded') : t('history.recorded')}</span>
                       </div>
                     </div>
                   </td>
-                  <td className="t-body-md">{t(`typesShort.${m.type}`)}</td>
+                  <td className="t-body-md">{t(`types.${m.type}`)}</td>
                   <td className="t-data-sm">{formatDayMonth(m.date, lang)}</td>
                   <td className="t-data-sm">{t('common.minutes', { n: m.durationMin })}</td>
                   <td>
@@ -149,7 +138,7 @@ export function HistoryRecord() {
   const { id } = useParams();
   const { meetings, resolvePerson, saveTemplate } = useStore();
   const navigate = useNavigate();
-  const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [tab, setTab] = useState<'mom' | 'transcript'>('mom'); // MoM first
   const [pdfBusy, setPdfBusy] = useState(false);
   const meeting = meetings.find((m) => m.id === id);
   const [tplName, setTplName] = useState<string | null>(null); // null = dialog closed
@@ -171,12 +160,12 @@ export function HistoryRecord() {
   const type = t(`types.${meeting.type}`);
 
   return (
-    <div className="page record">
+    <div className="page record page--fit">
       <Link to="/history" className="back-link">
         <ArrowLeftIcon size={16} aria-hidden />
         {t('record.back')}
       </Link>
-      <div className="stack" style={{ gap: 4 }}>
+      <div className="stack" style={{ gap: 'var(--sm-space-1)' }}>
         <h1 className="t-h1">{meeting.title}</h1>
         <p className="note">
           {meeting.status === 'sent'
@@ -189,6 +178,28 @@ export function HistoryRecord() {
         {t('record.banner', { date: fullDate })}
       </p>
 
+      <div className="review__tabs no-print">
+        <Segmented<'mom' | 'transcript'>
+          label={t('review.view')}
+          variant="auto"
+          value={tab}
+          onChange={setTab}
+          options={[
+            { value: 'mom', label: t('review.tabMom') },
+            { value: 'transcript', label: t('review.transcript') },
+          ]}
+        />
+      </div>
+
+      {tab === 'transcript' ? (
+        // Read-only, like the Transcript tab on Review.
+        <section className="card card--pad record__transcript" aria-labelledby="rec-transcript">
+          <h2 id="rec-transcript" className="section-title">
+            {t('review.transcript')}
+          </h2>
+          <TranscriptLines lines={meeting.transcript} nameOf={nameOf} />
+        </section>
+      ) : (
       <div className="record__panes">
         <section className="card record__people" aria-labelledby="rec-people">
           <h2 id="rec-people" className="section-title record__people-head">
@@ -215,13 +226,13 @@ export function HistoryRecord() {
           <h2 id="rec-minutes" className="section-title">
             {t('review.summary')}
           </h2>
-          <SummaryPoints points={meeting.summary ?? []} />
+          <SummaryText points={meeting.summary ?? []} />
           <h3 className="review__sub-title record__tasks-title">{t('review.tasks')}</h3>
           <table className="summary-table">
             <thead>
               <tr>
                 <th scope="col">
-                  {/* "Tasks" is already the heading above; keep the column name for screen readers only. */}
+                  {/* "Action items" is already the heading above; keep the column name for screen readers only. */}
                   <span className="sr-only">{t('review.task')}</span>
                 </th>
                 <th scope="col">{t('review.owner')}</th>
@@ -234,13 +245,13 @@ export function HistoryRecord() {
                 .map((task) => (
                   <tr key={task.id}>
                     <td>
-                      <span className="summary-table__patient">{t('review.patient', { name: task.patient })}</span>
+                      <span className="summary-table__patient">{task.patient}</span>
                       <span className="t-body-md">{task.title}</span>
                     </td>
                     <td>
                       <span className="summary-table__owner">
                         <Avatar name={nameOf(task.ownerId)} />
-                        <span className="who__name truncate" style={{ paddingTop: 5 }}>
+                        <span className="who__name truncate" style={{ paddingTop: 'var(--sm-space-1)' }}>
                           {nameOf(task.ownerId)}
                         </span>
                       </span>
@@ -255,50 +266,44 @@ export function HistoryRecord() {
                 ))}
             </tbody>
           </table>
-          <button type="button" className="link-btn no-print" onClick={() => setTranscriptOpen(true)}>
-            <FileAudioIcon size={16} aria-hidden />
-            {t('record.openTranscript')}
-          </button>
         </section>
       </div>
+      )}
 
-      <div className="page__actions no-print">
-        <Button variant="ink" icon={<ListChecksIcon size={20} aria-hidden />} onClick={() => setTplName(meeting.title)}>
-          {t('record.saveTemplate')}
-        </Button>
-        <Button
-          variant="ink"
-          icon={<DownloadSimpleIcon size={20} aria-hidden />}
-          disabled={pdfBusy}
-          aria-busy={pdfBusy}
-          onClick={async () => {
-            setPdfBusy(true);
-            try {
-              await downloadMomPdf(meeting, t, lang);
-            } finally {
-              setPdfBusy(false);
-            }
-          }}
-        >
-          {pdfBusy ? t('pdf.preparing') : t('record.download')}
-        </Button>
+      {/* Centred on the window (vp-center), not on the content area. */}
+      <div className="page__actions vp-center no-print">
+        <div className="vp-center__group">
+          <Button icon={<ListChecksIcon size={20} aria-hidden />} onClick={() => setTplName(meeting.title)}>
+            {t('record.saveTemplate')}
+          </Button>
+          <Button
+            variant="primary"
+            icon={<DownloadSimpleIcon size={20} aria-hidden />}
+            disabled={pdfBusy}
+            aria-busy={pdfBusy}
+            onClick={async () => {
+              setPdfBusy(true);
+              try {
+                await downloadMomPdf(meeting, t, lang);
+              } finally {
+                setPdfBusy(false);
+              }
+            }}
+          >
+            {pdfBusy ? t('pdf.preparing') : t('record.download')}
+          </Button>
+        </div>
       </div>
 
       {tplName !== null && (
         <Dialog title={t('record.saveTemplate')} onClose={() => setTplName(null)}>
-          <form className="stack" style={{ gap: 16 }} onSubmit={(e) => (e.preventDefault(), saveAsTemplate())}>
+          <form className="stack" style={{ gap: 'var(--sm-space-4)' }} onSubmit={(e) => (e.preventDefault(), saveAsTemplate())}>
             <p className="note">{t('record.saveTemplateLead', { count: meeting.participants.filter((p) => resolvePerson(p.personId)).length })}</p>
             <TextField editable label={t('templates.name')} value={tplName} onChange={(e) => setTplName(e.target.value)} />
-            <Button type="submit" variant="ink" block disabled={!tplName.trim()}>
+            <Button type="submit" variant="primary" block disabled={!tplName.trim()}>
               {t('templates.save')}
             </Button>
           </form>
-        </Dialog>
-      )}
-      {transcriptOpen && (
-        <Dialog title={t('review.transcript')} onClose={() => setTranscriptOpen(false)} wide>
-          <p className="note">{t('review.highlighted')}</p>
-          <TranscriptLines lines={meeting.transcript} nameOf={nameOf} />
         </Dialog>
       )}
     </div>

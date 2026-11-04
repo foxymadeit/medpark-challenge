@@ -1,22 +1,117 @@
-import { CaretDownIcon, ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, XIcon, MicrophoneIcon, SignOutIcon, UsersThreeIcon } from '@phosphor-icons/react';
-import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { ClockCounterClockwiseIcon, GearSixIcon, ListChecksIcon, ListIcon, MicrophoneIcon, ShieldCheckIcon, SignOutIcon, UsersThreeIcon, XIcon } from '@phosphor-icons/react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { LANGS, useI18n, type Lang } from '../i18n/I18nProvider';
 import { useStore } from '../store/AppStore';
 import { Avatar } from './Avatar';
 import { Logo, WithWordmark, Wordmark } from './Logo';
-import { Segmented } from './Segmented';
 
+/**
+ * Interface language. Closed: just the current language, bold, no box.
+ * Open: one card wraps it — the current language stays exactly where it was (first, bold), the other two below.
+ * Picking another switches the UI; picking the current one, a click outside or Esc just closes.
+ * The card reuses the dropdown list/option styles.
+ */
 function LanguageSwitch() {
   const { lang, setLang, t } = useI18n();
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0); // keyboard-highlighted option
+  const wrap = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+  const order: Lang[] = [lang, ...LANGS.filter((l) => l !== lang)]; // current first
+
+  useEffect(() => {
+    if (!open) return;
+    list.current?.focus();
+    const onDown = (e: MouseEvent) => !wrap.current?.contains(e.target as Node) && setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [open]);
+
+  const openList = () => {
+    setActive(0);
+    setOpen(true);
+  };
+  const close = () => {
+    setOpen(false);
+    button.current?.focus();
+  };
+  const choose = (l: Lang) => {
+    if (l !== lang) setLang(l);
+    close();
+  };
+  const onListKey = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowDown') setActive((a) => Math.min(order.length - 1, a + 1));
+    else if (e.key === 'ArrowUp') setActive((a) => Math.max(0, a - 1));
+    else if (e.key === 'Home') setActive(0);
+    else if (e.key === 'End') setActive(order.length - 1);
+    else if (e.key === 'Enter' || e.key === ' ') choose(order[active]);
+    else if (e.key === 'Escape') close();
+    else if (e.key === 'Tab') setOpen(false);
+    else return;
+    if (e.key !== 'Tab') e.preventDefault();
+  };
+
   return (
-    <Segmented<Lang>
-      label={t('common.language')}
-      variant="lang"
-      value={lang}
-      onChange={setLang}
-      options={LANGS.map((l) => ({ value: l, label: t(`lang.${l}`) }))}
-    />
+    <div className="lang-switch" ref={wrap}>
+      <button
+        ref={button}
+        type="button"
+        className="lang-switch__button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`${t('common.language')}: ${t(`lang.${lang}Name`)}`}
+        onClick={() => (open ? setOpen(false) : openList())}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp') (e.preventDefault(), openList());
+        }}
+      >
+        {t(`lang.${lang}`)}
+      </button>
+      {open && (
+        <ul
+          ref={list}
+          role="listbox"
+          tabIndex={-1}
+          aria-label={t('common.language')}
+          aria-activedescendant={`${id}-opt-${active}`}
+          className="dropdown__list lang-switch__list"
+          onKeyDown={onListKey}
+        >
+          {order.map((l, i) => (
+            <li
+              key={l}
+              id={`${id}-opt-${i}`}
+              role="option"
+              lang={l}
+              aria-selected={l === lang}
+              aria-label={t(`lang.${l}Name`)}
+              className={`dropdown__option${i === active ? ' is-active' : ''}`}
+              onMouseEnter={() => setActive(i)}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => choose(l)}
+            >
+              {t(`lang.${l}`)}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Quiet privacy note next to the language switch: green shield + "Hospital network only".
+ */
+function PrivacyBadge({ className = '' }: { className?: string }) {
+  const { t } = useI18n();
+  return (
+    <span className={`privacy ${className}`.trim()}>
+      <ShieldCheckIcon size={24} aria-hidden className="privacy__icon" />
+      <span className="privacy__label">{t('privacy.label')}</span>
+    </span>
   );
 }
 
@@ -66,12 +161,11 @@ function AccountMenu() {
           <span className="t-button">{account.name}</span>
           {access && <span className="account__status">{t(`accessTitle.${access}`)}</span>}
         </span>
-        <CaretDownIcon size={16} aria-hidden />
       </button>
       {open && (
         <div className="account__menu" role="menu" aria-label={t('account.menu')}>
+          {/* The name is already on the button: here just email and role, in grey; then a divider (the border). */}
           <div className="account__who">
-            <span className="who__name">{account.name}</span>
             <span className="who__sub">{account.email}</span>
             {account.role && <span className="who__sub">{account.role}</span>}
           </div>
@@ -101,11 +195,23 @@ function AccountMenu() {
   );
 }
 
-function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuOpen?: boolean; onMenu?: () => void }) {
+function TopBar({ showAccount, bare, menuOpen, onMenu }: { showAccount: boolean; /** Access screens: no logo or account, the status and language stay where they are in the app. */ bare?: boolean; menuOpen?: boolean; onMenu?: () => void }) {
   const { t } = useI18n();
   const { account, signedIn } = useStore();
+  // Width of language switch + account, so the privacy label can stop before them (see .privacy--header).
+  const bar = useRef<HTMLElement>(null);
+  const right = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = right.current;
+    if (!el) return;
+    const set = () => bar.current?.style.setProperty('--topbar-right-w', `${el.offsetWidth}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   return (
-    <header className="topbar">
+    <header className={`topbar${bare ? ' topbar--bare' : ''}`} ref={bar}>
       <a href="#main" className="skip-link">
         {t('common.skipToContent')}
       </a>
@@ -115,21 +221,25 @@ function TopBar({ showAccount, menuOpen, onMenu }: { showAccount: boolean; menuO
           {menuOpen ? <XIcon size={20} aria-hidden /> : <ListIcon size={20} aria-hidden />}
         </button>
       )}
-      <Link to={signedIn ? '/new' : '/'} className="brand">
-        <Logo size={34} />
-        <span className="brand__name" aria-label={t('common.appName')}>
-          <Wordmark />
-        </span>
-      </Link>
-      <div className="topbar__right">
+      {!bare && (
+        <Link to={signedIn ? '/new' : '/'} className="brand">
+          <Logo size={34} />
+          <span className="brand__name" aria-label={t('common.appName')}>
+            <Wordmark />
+          </span>
+        </Link>
+      )}
+      <PrivacyBadge className="privacy--header" />
+      <div className="topbar__right" ref={right}>
         <LanguageSwitch />
         {showAccount && account && <AccountMenu />}
+        {bare && <span className="topbar__account-space" aria-hidden />}
       </div>
     </header>
   );
 }
 
-// Sidebar order follows the real screens (New meeting · History · Participants · Templates).
+// Sidebar order, as in Figma: New meeting · Participants · Templates · History.
 const NAV = [
   { to: '/new', key: 'nav.newMeeting', Icon: MicrophoneIcon, match: ['/new', '/recording', '/upload', '/processing', '/review', '/sent'] },
   { to: '/participants', key: 'nav.participants', Icon: UsersThreeIcon, match: ['/participants'] },
@@ -160,10 +270,8 @@ export function AccessLayout() {
   const { t } = useI18n();
   return (
     <div className="app">
-      {/* No top bar here: the big greeting is the brand. Only the language switch stays, top right. */}
-      <div className="access-lang">
-        <LanguageSwitch />
-      </div>
+      {/* The app's top bar without logo and account: the big greeting is the brand. */}
+      <TopBar showAccount={false} bare />
       <main id="main" className="main main--center main--access">
         {/* Brand greeting above every access card (welcome, log in, sign up). */}
         <div className="access-brand">

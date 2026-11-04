@@ -3,6 +3,7 @@ import { useRef, useState, type DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '../i18n/I18nProvider';
 import { ACCEPT, handOffUpload, isAudio, readMinutes } from '../lib/upload';
+import { useFitsTile } from '../lib/useFitsTile';
 
 /**
  * The blue "Upload audio" card on New meeting. Click (or drop a file) → the file picker opens here,
@@ -14,6 +15,8 @@ export function UploadCard() {
   const input = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string>();
   const [over, setOver] = useState(false);
+  const { probe, fits } = useFitsTile(t('newMeeting.uploadHint'));
+  const title = useFitsTile(t('newMeeting.upload'));
 
   const take = async (f?: File) => {
     if (!f) return;
@@ -39,9 +42,13 @@ export function UploadCard() {
       <button type="button" className={`start-tile start-tile--upload${over ? ' is-over' : ''}`} onClick={() => input.current?.click()} {...drop}>
         <UploadSimpleIcon size={32} aria-hidden />
         <span className="start-tile__spacer" />
-        <span className="t-h2">{t('newMeeting.upload')}</span>
+        <span className="t-h2">
+          {title.fits ? t('newMeeting.upload') : t('newMeeting.uploadShort')}
+          <span ref={title.probe} className="fit-probe">{t('newMeeting.upload')}</span>
+        </span>
         <span className={`note${error ? ' c-danger' : ''}`} role={error ? 'alert' : undefined}>
-          {error ?? t('newMeeting.uploadHint')}
+          {error ?? (fits ? t('newMeeting.uploadHint') : t('newMeeting.uploadHintShort'))}
+          <span ref={probe} className="fit-probe">{t('newMeeting.uploadHint')}</span>
         </span>
       </button>
       {fileInput}
